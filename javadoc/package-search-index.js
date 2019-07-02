@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"GUI"},{"l":"IotDomain"},{"l":"GUI.MapViewer"},{"l":"SelfAdaptation.AdaptationGoals"},{"l":"SelfAdaptation.FeedbackLoop"},{"l":"SelfAdaptation.Instrumentation"},{"l":"SensorDataGenerators"}]
