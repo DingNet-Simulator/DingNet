@@ -1,7 +1,7 @@
 
 # Created by https://www.gitignore.io/api/gradle,images,windows,eclipse,intellij,intellij+all,intellij+iml
 # Edit at https://www.gitignore.io/?templates=gradle,images,windows,eclipse,intellij,intellij+all,intellij+iml
-
+**/.DS_Store
 ### Eclipse ###
 .metadata
 bin/

@@ -217,7 +217,7 @@ public class Simulation implements Runnable {
 
 
         for(int i =0; i< getInputProfile().getNumberOfRuns();i++) {
-
+            getEnvironment().resetClock();
             gui.setProgress(i,getInputProfile().getNumberOfRuns());
             if(i != 0)
                 getEnvironment().addRun();
