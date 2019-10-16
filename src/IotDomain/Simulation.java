@@ -142,32 +142,29 @@ public class Simulation implements Runnable {
         }
 
         while (!arrived) {
-
             for(Mote mote : motes){
-                if(mote.isEnabled()) {
-                    if (mote.getPath().size() > wayPointMap.get(mote)) {
-                        //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
-                        if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
-                                TimeHelper.nanoToMili(this.environment.getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
-                                (this.environment.getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
-                            timeMap.put(mote, this.environment.getTime());
-                            if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().get(wayPointMap.get(mote)))) ||
-                                   (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().get(wayPointMap.get(mote))))) {
-                                this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
-                                LinkedList historyMap = locationHistoryMap.get(mote);
-                                historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
-                                locationHistoryMap.put(mote, historyMap);
-                                if (mote.shouldSend()) {
-                                    LinkedList<Byte> data = new LinkedList<>();
-                                    for (MoteSensor sensor : mote.getSensors()) {
-                                        data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
-                                    }
-                                    Byte[] dataByte = new Byte[data.toArray().length];
-                                    data.toArray(dataByte);
-                                    mote.sendToGateWay(dataByte, new HashMap<>());
+                if(mote.isEnabled() && mote.getPath().size() > wayPointMap.get(mote)) {
+                    //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
+                    if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
+                            TimeHelper.nanoToMili(this.environment.getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
+                            (this.environment.getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
+                        timeMap.put(mote, this.environment.getTime());
+                        if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().get(wayPointMap.get(mote)))) ||
+                               (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().get(wayPointMap.get(mote))))) {
+                            this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
+                            LinkedList historyMap = locationHistoryMap.get(mote);
+                            historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
+                            locationHistoryMap.put(mote, historyMap);
+                            if (mote.shouldSend()) {
+                                LinkedList<Byte> data = new LinkedList<>();
+                                for (MoteSensor sensor : mote.getSensors()) {
+                                    data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
                                 }
-                            } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
-                        }
+                                Byte[] dataByte = new Byte[data.toArray().length];
+                                data.toArray(dataByte);
+                                mote.sendToGateWay(dataByte, new HashMap<>());
+                            }
+                        } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
                     }
                 }
 
@@ -176,10 +173,10 @@ public class Simulation implements Runnable {
             arrived = true;
             for(Mote mote : motes){
                 if(mote.isEnabled() && mote.getPath().size() > 0) {
-                        if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().getLast())) ||
-                                (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().getLast()))) {
-                            arrived = false;
-                        }
+                    if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().getLast())) ||
+                        (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().getLast()))) {
+                        arrived = false;
+                    }
                 }
             }
             this.environment.tick(1);

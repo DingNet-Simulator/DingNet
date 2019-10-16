@@ -383,6 +383,7 @@ public class Environment implements Serializable {
      * @return The x-coordinate on the map of the GeoPosition.
      */
     public int toMapXCoordinate(GeoPosition geoPosition){
+        //? in computing distance just using the longitude of the geoposition. Why?
         return (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(), getMapOrigin().getLatitude(), geoPosition.getLongitude()));
     }
     /**
@@ -391,6 +392,7 @@ public class Environment implements Serializable {
      * @return The y-coordinate on the map of the GeoPosition.
      */
     public int toMapYCoordinate(GeoPosition geoPosition){
+        //? in computing distance just using the longitude of the geoposition. Why?
         return (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(),geoPosition.getLatitude(), getMapOrigin().getLongitude()));
     }
 
