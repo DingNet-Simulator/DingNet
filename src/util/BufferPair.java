@@ -5,18 +5,21 @@ package util;
  * @param <L>
  * @param <K>
  */
-public class BufferPair<L,K> extends Pair<L,K>{
+public class BufferPair<L,K> extends Pair<L,K> {
     /**
      * A constructor for creating a Pair with a given left and right value.
      *
      * @param left  The left value of the Pair.
      * @param right The right value of the Pair.
      */
-    public BufferPair(L left, K right) { super( left, right);
+    public BufferPair(L left, K right) {
+        super( left, right);
     }
 
     @Override
-    public int hashCode() { return getLeft().hashCode(); }
+    public int hashCode() {
+        return getLeft().hashCode();
+    }
 
     /**
      * Determines if an object is equal to this BufferPair.

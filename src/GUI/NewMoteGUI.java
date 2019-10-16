@@ -41,8 +41,8 @@ public class NewMoteGUI {
         this.environment = environment;
         Random random = new Random();
         EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
-        xPosSpinner.setModel(new SpinnerNumberModel(environment.toMapXCoordinate(geoPosition), Integer.valueOf(0), environment.getMaxXpos(), Integer.valueOf(1)));
-        yPosSpinner.setModel(new SpinnerNumberModel(environment.toMapYCoordinate(geoPosition), Integer.valueOf(0), environment.getMaxYpos(), Integer.valueOf(1)));
+        xPosSpinner.setModel(new SpinnerNumberModel(environment.toMapXCoordinate(geoPosition), 0, environment.getMaxXpos(), 1));
+        yPosSpinner.setModel(new SpinnerNumberModel(environment.toMapYCoordinate(geoPosition), 0, environment.getMaxYpos(), 1));
         powerSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(14), Integer.valueOf(-3), Integer.valueOf(14), Integer.valueOf(1)));
         SFSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(12), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
         samplingSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(1), Integer.valueOf(1000), Integer.valueOf(1)));

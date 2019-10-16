@@ -27,8 +27,8 @@ public class NewEntityGUI extends JFrame {
     public NewEntityGUI(Environment environment) {
 
         this.environment = environment;
-        xPosSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), environment.getMaxXpos(), Integer.valueOf(1)));
-        yPosSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), environment.getMaxYpos(), Integer.valueOf(1)));
+        xPosSpinner.setModel(new SpinnerNumberModel(0, 0, environment.getMaxXpos(), 1));
+        yPosSpinner.setModel(new SpinnerNumberModel(0, 0, environment.getMaxYpos(), 1));
         powerSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(-3), Integer.valueOf(14), Integer.valueOf(1)));
         SFSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
         TPThresholdField.setText("1.0");
