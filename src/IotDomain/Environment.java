@@ -2,12 +2,14 @@ package IotDomain;
 
 import be.kuleuven.cs.som.annotate.*;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.GraphStructure;
 
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * A class representing a map of the environment.
@@ -52,10 +54,12 @@ public class Environment implements Serializable {
      * The number of zones in the configuration.
      */
     private Integer numberOfZones = 36;
+
     /**
-     * The WayPoints in the configurations.
+     * The graph used for routing.
      */
-    private LinkedHashSet<GeoPosition> wayPoints;
+    private GraphStructure graph;
+
     /**
      * The number of runs with this configuration.
      */
@@ -87,7 +91,10 @@ public class Environment implements Serializable {
         clock = LocalTime.of(0,0);
         this.mapOrigin = mapOrigin;
         this.MQTTServer = new MQTTServer();
-        this.wayPoints = wayPoints;
+        this.graph = new GraphStructure();
+        for (var wp : wayPoints) {
+            this.graph.addWayPoint(wp);
+        }
         numberOfRuns = 1;
     }
 
@@ -119,16 +126,16 @@ public class Environment implements Serializable {
      * Adds a waypoint to the configuration
      * @param wayPoint The waypoint to add
      */
-    public void addWayPoint(GeoPosition wayPoint){
-        this.wayPoints.add(wayPoint);
+    public void addWayPoint(GeoPosition wayPoint) {
+        this.graph.addWayPoint(wayPoint);
     }
 
     /**
      * Gets the paths.
      * @return The paths.
      */
-    public LinkedHashSet<GeoPosition> getWayPoints() {
-        return wayPoints;
+    public Set<GeoPosition> getWayPoints() {
+        return this.graph.getWayPoints();
     }
 
     /**
