@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Set;
 
 /**
  * A class representing a simulation.
@@ -105,7 +106,7 @@ public class Simulation implements Runnable {
      */
     public void singleRun(Integer speed) {
         //Check if a mote can participate in this run.
-        calculateIfMotesAreActiveBasedOnInputProfile();
+        setupMotesActivationStatus();
         // reset the environment.
         getEnvironment().reset();
 
@@ -196,14 +197,16 @@ public class Simulation implements Runnable {
      * Then it performs a pseudo-random choice and sets the mote to active/inactive for the next run, based on that probability.
      */
 
-    private void calculateIfMotesAreActiveBasedOnInputProfile() {
-        for(Mote mote: getEnvironment().getMotes()){
-            Double activityProbability;
-            if(getInputProfile().getProbabilitiesForMotesKeys().contains(getEnvironment().getMotes().indexOf(mote)))
-                activityProbability = getInputProfile().getProbabilityForMote(getEnvironment().getMotes().indexOf(mote));
-            else
-                activityProbability = 1.0;
-            mote.enable(Math.random() >= 1.0 - activityProbability);
+    private void setupMotesActivationStatus() {
+        LinkedList<Mote> motes = this.environment.getMotes();
+        Set<Integer> moteProbabilities = this.inputProfile.getProbabilitiesForMotesKeys();
+        for(int i = 0; i < motes.size(); i++) {
+            Mote mote = motes.get(i);
+            Double activityProbability = 1.0;
+            if(moteProbabilities.contains(i))
+                activityProbability = this.inputProfile.getProbabilityForMote(i);
+            if(Math.random() >= 1.0 - activityProbability)
+                mote.enable(true);
         }
     }
 
@@ -214,7 +217,7 @@ public class Simulation implements Runnable {
 
         getEnvironment().reset();
 
-        calculateIfMotesAreActiveBasedOnInputProfile();
+        setupMotesActivationStatus();
 
 
         for(int i =0; i< getInputProfile().getNumberOfRuns();i++) {
