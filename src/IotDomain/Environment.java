@@ -1,6 +1,6 @@
 package IotDomain;
 
-import be.kuleuven.cs.som.annotate.*;
+import be.kuleuven.cs.som.annotate.Basic;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.io.Serializable;
@@ -37,8 +37,6 @@ public class Environment implements Serializable {
      * A list containing all gateways currently active on the map.
      */
     private LinkedList<Gateway> gateways = new LinkedList<>();
-
-    private MQTTServer MQTTServer;
 
     /**
      * The actual map containing the characteristics of the environment.
@@ -86,17 +84,8 @@ public class Environment implements Serializable {
         }
         clock = LocalTime.of(0,0);
         this.mapOrigin = mapOrigin;
-        this.MQTTServer = new MQTTServer();
         this.wayPoints = wayPoints;
         numberOfRuns = 1;
-    }
-
-    /**
-     * Returns the MQTT server used in this environment.
-     * @return the MQTT server used in this environment.
-     */
-    public MQTTServer getMQTTServer() {
-        return MQTTServer;
     }
 
     /**
