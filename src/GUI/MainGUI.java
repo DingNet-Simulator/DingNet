@@ -225,7 +225,7 @@ public class MainGUI extends JFrame {
                                 , Double.valueOf(origin.getElementsByTagName("longitude").item(0).getTextContent()));
                         Integer width = Integer.valueOf(region.getElementsByTagName("width").item(0).getTextContent());
                         Integer height = Integer.valueOf(region.getElementsByTagName("height").item(0).getTextContent());
-                        Integer numberOfZones = Integer.valueOf(((Element) characteristics.getElementsByTagName("regionProperty").item(0)).getAttribute("numberOfZones"));
+                        int numberOfZones = Integer.valueOf(((Element) characteristics.getElementsByTagName("regionProperty").item(0)).getAttribute("numberOfZones"));
 
                         Characteristic[][] characteristicsMap = new Characteristic[width][height];
                         for (int j = 0; j < Math.round(Math.sqrt(numberOfZones)); j++) {
@@ -254,7 +254,7 @@ public class MainGUI extends JFrame {
                             wayPointsSet.add(new GeoPosition(wayPointLatitude, wayPointLongitude));
                         }
 
-                        simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, wayPointsSet));
+                        simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, wayPointsSet, numberOfZones));
 
                         Element moteNode;
 

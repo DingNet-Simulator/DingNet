@@ -52,7 +52,7 @@ public class Environment implements Serializable {
     /**
      * The number of zones in the configuration.
      */
-    private int numberOfZones = 36;
+    private int numberOfZones;
     /**
      * The WayPoints in the configurations.
      */
@@ -74,19 +74,18 @@ public class Environment implements Serializable {
      * @Post    Sets the max y-coordinate to 0 if the map is not valid.
      * @Post    Sets the characteristics to an empty list if the map is not valid.
      */
-    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, LinkedHashSet<GeoPosition> wayPoints){
+    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, LinkedHashSet<GeoPosition> wayPoints, int numberOfZones){
         if (areValidCharacteristics(characteristics)) {
             maxXpos = characteristics.length-1;
             maxYpos = characteristics[0].length-1;
             this.characteristics = characteristics;
-            this.numberOfZones = (maxXpos + 1) * (maxYpos + 1);
         } else {
             // FIXME this is buggy -> maxXpos of 0 would mean that index 0 is still valid, whilst it shouldn't be
             maxXpos = 0;
             maxYpos = 0;
             this.characteristics = new Characteristic[0][0];
-            this.numberOfZones = 0;
         }
+        this.numberOfZones = numberOfZones;
         clock = LocalTime.of(0,0);
         this.mapOrigin = mapOrigin;
         this.MQTTServer = new MQTTServer();
