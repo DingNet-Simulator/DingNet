@@ -3,6 +3,7 @@ package IotDomain;
 import GUI.MainGUI;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 import be.kuleuven.cs.som.annotate.Basic;
+import util.Pair;
 
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -111,7 +112,7 @@ public class Simulation implements Runnable {
         Boolean arrived = true;
         HashMap<Mote,Integer> waypoinMap = new HashMap<>();
         HashMap<Mote,LocalTime> timemap = new HashMap<>();
-        HashMap<Mote,Pair<Integer,Integer>> locationmap = new HashMap<>();
+        HashMap<Mote, Pair<Integer,Integer>> locationmap = new HashMap<>();
         HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationhistorymap = new HashMap<>();
         for(Mote mote : getEnvironment().getMotes()){
             timemap.put(mote, getEnvironment().getTime());

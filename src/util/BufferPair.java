@@ -1,4 +1,4 @@
-package IotDomain;
+package util;
 
 /**
  * A class for represting pairs in the MQTT buffer.

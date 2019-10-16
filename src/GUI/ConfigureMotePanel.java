@@ -3,7 +3,7 @@ package GUI;
 
 import IotDomain.Environment;
 import IotDomain.Mote;
-import IotDomain.Pair;
+import util.Pair;
 import GUI.MapViewer.MoteNumberWaypointPainter;
 import GUI.MapViewer.MoteWaypointPainter;
 import GUI.MapViewer.BorderPainter;
@@ -19,7 +19,6 @@ import org.jxmapviewer.viewer.*;
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;

@@ -2,7 +2,7 @@ package GUI;
 
 import IotDomain.Characteristic;
 import IotDomain.Environment;
-import IotDomain.Pair;
+import util.Pair;
 import GUI.MapViewer.BorderPainter;
 import GUI.MapViewer.CharacteristicPainter;
 import org.jxmapviewer.JXMapViewer;

@@ -3,7 +3,7 @@ package GUI;
 
 import IotDomain.Environment;
 import IotDomain.Gateway;
-import IotDomain.Pair;
+import util.Pair;
 import GUI.MapViewer.*;
 
 import org.jxmapviewer.JXMapViewer;
