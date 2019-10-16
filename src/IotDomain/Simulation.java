@@ -101,6 +101,15 @@ public class Simulation implements Runnable {
         return approach;
     }
 
+    private void updateMotesLocation(HashMap<Mote, Pair<Integer,Integer>> locations)
+    {
+        LinkedList<Mote> motes = this.environment.getMotes();
+        for(Mote mote : motes){
+            Pair<Integer,Integer> location = locations.get(mote);
+            mote.setXPos(location.getLeft());
+            mote.setYPos(location.getRight());
+        }
+    }
     /**
      * A method for running a single run with visualisation.
      * @param speed
@@ -176,22 +185,12 @@ public class Simulation implements Runnable {
             this.environment.tick(1);
         }
 
-        for(Mote mote : motes){
-            Pair<Integer,Integer> location = locationMap.get(mote);
-            mote.setXPos(location.getLeft());
-            mote.setYPos(location.getRight());
-        }
-
+        updateMotesLocation(locationMap);
         Timer timer = new Timer();
         AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
         timer.schedule(animationTimerTask,0,75/speed);
-        for(Mote mote : motes){
-            Pair<Integer,Integer> location = locationMap.get(mote);
-            mote.setXPos(location.getLeft());
-            mote.setYPos(location.getRight());
-        }
+        updateMotesLocation(locationMap);
     }
-
     /**
      * Gets the probability with which a mote should be active from the input profile of the current simulation.
      * If no probability is specified, the probability is set to one.
