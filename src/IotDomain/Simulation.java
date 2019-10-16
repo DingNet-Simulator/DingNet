@@ -137,7 +137,7 @@ public class Simulation implements Runnable {
             for(Mote mote : motes){
                 if(mote.isEnabled()) {
                     if (mote.getPath().size() > wayPointMap.get(mote)) {
-
+                        //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
                         if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                                 TimeHelper.nanoToMili(this.environment.getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
                                 (this.environment.getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
@@ -165,20 +165,18 @@ public class Simulation implements Runnable {
             }
 
             arrived = true;
-            for(Mote mote : environment.getMotes()){
-                if(mote.isEnabled()) {
-                    if (mote.getPath().size() != 0) {
-                        if (Integer.signum(mote.getXPos() - environment.toMapXCoordinate(mote.getPath().getLast())) != 0 ||
-                                Integer.signum(mote.getYPos() - environment.toMapYCoordinate(mote.getPath().getLast())) != 0) {
-                            arrived = arrived && false;
+            for(Mote mote : motes){
+                if(mote.isEnabled() && mote.getPath().size() > 0) {
+                        if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().getLast())) ||
+                                (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().getLast()))) {
+                            arrived = false;
                         }
-                    }
                 }
             }
-            environment.tick(1);
+            this.environment.tick(1);
         }
 
-        for(Mote mote : environment.getMotes()){
+        for(Mote mote : motes){
             Pair<Integer,Integer> location = locationMap.get(mote);
             mote.setXPos(location.getLeft());
             mote.setYPos(location.getRight());
@@ -186,8 +184,8 @@ public class Simulation implements Runnable {
 
         Timer timer = new Timer();
         AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
-        timer.schedule(animationTimerTask,0,75/(1*speed));
-        for(Mote mote : environment.getMotes()){
+        timer.schedule(animationTimerTask,0,75/speed);
+        for(Mote mote : motes){
             Pair<Integer,Integer> location = locationMap.get(mote);
             mote.setXPos(location.getLeft());
             mote.setYPos(location.getRight());
