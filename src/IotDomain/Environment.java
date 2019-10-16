@@ -2,6 +2,7 @@ package IotDomain;
 
 import be.kuleuven.cs.som.annotate.*;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Pair;
 
 import java.io.Serializable;
 import java.time.LocalTime;
@@ -396,6 +397,11 @@ public class Environment implements Serializable {
         return (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(),geoPosition.getLatitude(), getMapOrigin().getLongitude()));
     }
 
+    public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition){
+        int x = (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(), getMapOrigin().getLatitude(), geoPosition.getLongitude()));
+        int y = (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(),geoPosition.getLatitude(), getMapOrigin().getLongitude()));
+        return new Pair(x,y);
+    }
     /**
      * reset all entities in the configuration.
      */

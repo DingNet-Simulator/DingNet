@@ -333,6 +333,14 @@ public abstract class NetworkEntity implements Serializable{
         }
     }
 
+    public Pair<Integer, Integer> getPos(){
+        return new Pair<>(this.xPos, this.yPos);
+    }
+
+    public void setPos(Integer xPos, Integer yPos){
+        this.xPos = xPos;
+        this.yPos = yPos;
+    }
     /**
      * The spreading factor setting of the node.
      */

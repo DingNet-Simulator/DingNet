@@ -149,11 +149,10 @@ public class Simulation implements Runnable {
                             TimeHelper.nanoToMili(this.environment.getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
                             (this.environment.getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
                         timeMap.put(mote, this.environment.getTime());
-                        if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().get(wayPointMap.get(mote)))) ||
-                               (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().get(wayPointMap.get(mote))))) {
+                        if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
                             this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
                             LinkedList historyMap = locationHistoryMap.get(mote);
-                            historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
+                            historyMap.add(mote.getPos());
                             locationHistoryMap.put(mote, historyMap);
                             if (mote.shouldSend()) {
                                 LinkedList<Byte> data = new LinkedList<>();
@@ -173,8 +172,7 @@ public class Simulation implements Runnable {
             arrived = true;
             for(Mote mote : motes){
                 if(mote.isEnabled() && mote.getPath().size() > 0) {
-                    if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().getLast())) ||
-                        (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().getLast()))) {
+                    if(!this.environment.toMapCoordinate(mote.getPath().getLast()).equals(mote.getPos())){
                         arrived = false;
                     }
                 }
