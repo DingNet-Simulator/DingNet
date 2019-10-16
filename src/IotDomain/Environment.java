@@ -25,11 +25,11 @@ public class Environment implements Serializable {
     /**
      * The max x-coordinate allowed on the map
      */
-    private final Integer maxXpos;
+    private final int maxXpos;
     /**
      * The max y-coordinate allowed on the map
      */
-    private final Integer maxYpos;
+    private final int maxYpos;
     /**
      * A list containing all motes currently active on the map.
      */
@@ -53,8 +53,9 @@ public class Environment implements Serializable {
     /**
      * The number of zones in the configuration.
      */
-    private Integer numberOfZones = 36;
 
+    private int numberOfZones;
+    
     /**
      * The graph used for routing.
      */
@@ -63,7 +64,7 @@ public class Environment implements Serializable {
     /**
      * The number of runs with this configuration.
      */
-    private Integer numberOfRuns;
+    private int numberOfRuns;
 
     /**
      * A constructor generating a new environment with a given map with characteristics.
@@ -82,11 +83,13 @@ public class Environment implements Serializable {
             maxXpos = characteristics.length-1;
             maxYpos = characteristics[0].length-1;
             this.characteristics = characteristics;
-        }
-        else{
+            this.numberOfZones = (maxXpos + 1) * (maxYpos + 1);
+        } else {
+            // FIXME this is buggy -> maxXpos of 0 would mean that index 0 is still valid, whilst it shouldn't be
             maxXpos = 0;
             maxYpos = 0;
             this.characteristics = new Characteristic[0][0];
+            this.numberOfZones = 0;
         }
         clock = LocalTime.of(0,0);
         this.mapOrigin = mapOrigin;
@@ -110,7 +113,7 @@ public class Environment implements Serializable {
      * Gets the number of zones.
      * @return The number of zones.
      */
-    public Integer getNumberOfZones() {
+    public int getNumberOfZones() {
         return numberOfZones;
     }
 
@@ -118,7 +121,7 @@ public class Environment implements Serializable {
      * Sets the number of zones.
      * @param numberOfZones the number of zones.
      */
-    public void setNumberOfZones(Integer numberOfZones) {
+    public void setNumberOfZones(int numberOfZones) {
         this.numberOfZones = numberOfZones;
     }
 
@@ -140,15 +143,11 @@ public class Environment implements Serializable {
 
     /**
      * Determines if a x-coordinate is valid on the map
-     * @param xpos The x-coordinate to check
+     * @param x The x-coordinate to check
      * @return true if the coordinate is not bigger than the max coordinate
      */
-    public Boolean isValidXpos(Integer xpos){
-        if(xpos >= 0 && xpos <= getMaxXpos()){
-            return true;
-        }
-        else
-            return false;
+    public boolean isValidXpos(int x) {
+        return x >= 0 && x <= getMaxXpos();
     }
 
     /**
@@ -156,21 +155,17 @@ public class Environment implements Serializable {
      * @return the max x-coordinate
      */
     @Basic
-    public Integer getMaxXpos() {
+    public int getMaxXpos() {
         return maxXpos;
     }
 
     /**
      * Determines if a y-coordinate is valid on the map
-     * @param ypos The y-coordinate to check
+     * @param y The y-coordinate to check
      * @return true if the coordinate is not bigger than the max coordinate
      */
-    public Boolean isValidYpos(Integer ypos){
-        if(ypos >= 0 && ypos <= getMaxYpos()){
-            return true;
-        }
-        else
-            return false;
+    public boolean isValidYpos(int y){
+        return y >= 0 && y <= getMaxYpos();
     }
 
     /**
@@ -178,7 +173,7 @@ public class Environment implements Serializable {
      * @return the max y-coordinate
      */
     @Basic
-    public Integer getMaxYpos() {
+    public int getMaxYpos() {
         return maxYpos;
     }
 
@@ -229,15 +224,23 @@ public class Environment implements Serializable {
      * @param characteristics The map to check.
      * @return  True if the Map is square.
      */
-    public Boolean areValidCharacteristics(Characteristic[][] characteristics){
-        Integer ySize = characteristics[0].length;
-        for (int i =0; i < characteristics.length; i++ ){
-            if(characteristics[i].length != ySize){
+    public boolean areValidCharacteristics(Characteristic[][] characteristics){
+        if (characteristics.length == 0) {
+            return false;
+        } else if (characteristics[0].length == 0) {
+            return false;
+        }
+
+        // Make sure that each row has the same length
+        int ySize = characteristics[0].length;
+
+        for (Characteristic[] row : characteristics) {
+            if (row.length != ySize) {
                 return false;
             }
         }
-        return true;
 
+        return true;
     }
 
     /**
@@ -246,7 +249,7 @@ public class Environment implements Serializable {
      * @param yPos  The y-coordinate of the position.
      * @return  the characteristic of the position if the position is valid.
      */
-    public Characteristic getCharacteristic(Integer xPos, Integer yPos) {
+    public Characteristic getCharacteristic(int xPos, int yPos) {
         if (isValidXpos(xPos) && isValidYpos(yPos)) {
             return characteristics[xPos][yPos];
         }
@@ -258,7 +261,7 @@ public class Environment implements Serializable {
      * Sets the characteristic to the given characteristic on the given location.
      * @param characteristic the given characteristic.
      */
-    public void setCharacteristics(Characteristic characteristic, Integer xPos, Integer yPos) {
+    public void setCharacteristics(Characteristic characteristic, int xPos, int yPos) {
         this.characteristics[xPos][yPos] = characteristic;
     }
 
@@ -305,8 +308,8 @@ public class Environment implements Serializable {
      * @param xPos  The x-coordinate of the entity.
      * @return The longitude of the given x-coordinate
      */
-    public Double toLongitude(Integer xPos){
-        Double longitude;
+    public double toLongitude(int xPos){
+        double longitude;
         if(xPos> 0) {
             longitude = (double) xPos;
             longitude = longitude / 1000;
@@ -332,8 +335,8 @@ public class Environment implements Serializable {
      * @param yPos  The y-coordinate of the entity.
      * @return The latitude of the given y-coordinate.
      */
-    public Double toLatitude(Integer yPos){
-        Double latitude = (double) yPos;
+    public double toLatitude(int yPos){
+        double latitude = (double) yPos;
         latitude = latitude /1000 ;
         latitude = latitude/ 1.609344;
         latitude = latitude / (60 * 1.1515);
@@ -366,9 +369,9 @@ public class Environment implements Serializable {
      * @param mote The mote to move.
      * @return If the node has moved.
      */
-    public Boolean moveMote(Mote mote, GeoPosition position){
-        Integer xPos = toMapXCoordinate(position);
-        Integer yPos = toMapYCoordinate(position);
+    public boolean moveMote(Mote mote, GeoPosition position){
+        int xPos = toMapXCoordinate(position);
+        int yPos = toMapYCoordinate(position);
         if(Integer.signum(xPos - mote.getXPos()) != 0 || Integer.signum(yPos - mote.getYPos()) != 0){
             if(Math.abs(mote.getXPos() - xPos) >= Math.abs(mote.getYPos() - yPos)){
                 mote.setXPos(mote.getXPos()+ Integer.signum(xPos - mote.getXPos()));
@@ -387,7 +390,7 @@ public class Environment implements Serializable {
      * @param geoPosition the GeoPosition to convert.
      * @return The x-coordinate on the map of the GeoPosition.
      */
-    public Integer toMapXCoordinate(GeoPosition geoPosition){
+    public int toMapXCoordinate(GeoPosition geoPosition){
         return (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(), getMapOrigin().getLatitude(), geoPosition.getLongitude()));
     }
     /**
@@ -395,7 +398,7 @@ public class Environment implements Serializable {
      * @param geoPosition the GeoPosition to convert.
      * @return The y-coordinate on the map of the GeoPosition.
      */
-    public Integer toMapYCoordinate(GeoPosition geoPosition){
+    public int toMapYCoordinate(GeoPosition geoPosition){
         return (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(),geoPosition.getLatitude(), getMapOrigin().getLongitude()));
     }
 
@@ -430,7 +433,7 @@ public class Environment implements Serializable {
      * @return The number of runs of this configuration.
      */
     @Basic
-    public Integer getNumberOfRuns(){
+    public int getNumberOfRuns(){
         return numberOfRuns;
     }
 

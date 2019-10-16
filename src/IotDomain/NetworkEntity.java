@@ -1,6 +1,7 @@
 package IotDomain;
 
 import be.kuleuven.cs.som.annotate.*;
+import util.Pair;
 
 
 import java.io.Serializable;

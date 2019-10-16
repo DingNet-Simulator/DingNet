@@ -3,12 +3,15 @@ package IotDomain;
 import GUI.MainGUI;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 import be.kuleuven.cs.som.annotate.Basic;
+import util.Pair;
+import util.TimeHelper;
 
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Set;
 
 /**
  * A class representing a simulation.
@@ -98,61 +101,72 @@ public class Simulation implements Runnable {
         return approach;
     }
 
+    private void updateMotesLocation(HashMap<Mote, Pair<Integer,Integer>> locations)
+    {
+        LinkedList<Mote> motes = this.environment.getMotes();
+        for(Mote mote : motes){
+            Pair<Integer,Integer> location = locations.get(mote);
+            mote.setXPos(location.getLeft());
+            mote.setYPos(location.getRight());
+        }
+    }
     /**
      * A method for running a single run with visualisation.
      * @param speed
      */
     public void singleRun(Integer speed) {
         //Check if a mote can participate in this run.
-        calculateIfMotesAreActiveBasedOnInputProfile();
+        setupMotesActivationStatus();
         // reset the environment.
-        getEnvironment().reset();
+        this.environment.reset();
 
+        LinkedList<Mote> motes = this.environment.getMotes();
         Boolean arrived = true;
-        HashMap<Mote,Integer> waypoinMap = new HashMap<>();
-        HashMap<Mote,LocalTime> timemap = new HashMap<>();
-        HashMap<Mote,Pair<Integer,Integer>> locationmap = new HashMap<>();
-        HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationhistorymap = new HashMap<>();
-        for(Mote mote : getEnvironment().getMotes()){
-            timemap.put(mote, getEnvironment().getTime());
-            locationmap.put(mote,new Pair<>(mote.getXPos(),mote.getYPos()));
-            locationhistorymap.put(mote, new LinkedList<>());
-            LinkedList historyMap = locationhistorymap.get(mote);
-            historyMap.add(new Pair<>(mote.getXPos(),mote.getYPos()));
-            locationhistorymap.put(mote,historyMap);
-            if(mote.getPath().size() != 0) {
+        HashMap<Mote,Integer> wayPointMap = new HashMap<>();
+        HashMap<Mote,LocalTime> timeMap = new HashMap<>();
+        HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
+        HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
+        for(Mote mote : motes){
+            timeMap.put(mote, this.environment.getTime());
+            locationMap.put(mote,new Pair<>(mote.getXPos(), mote.getYPos()));
+            locationHistoryMap.put(mote, new LinkedList<>());
+            LinkedList historyMap = locationHistoryMap.get(mote);
+            historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
+            locationHistoryMap.put(mote, historyMap);
+            if(mote.getPath().size() > 0) {
                 if (moteIsOnNextWayPoint(mote)) {
-                    arrived = arrived && false;
+                    arrived = false;
                 }
             }
-            waypoinMap.put(mote,0);
+            wayPointMap.put(mote,0);
         }
 
         while (!arrived) {
 
-            for(Mote mote : getEnvironment().getMotes()){
+            for(Mote mote : motes){
                 if(mote.isEnabled()) {
-                    if (Integer.signum(mote.getPath().size() - waypoinMap.get(mote)) > 0) {
-
-                        if (1 / mote.getMovementSpeed() * 1000 < (getEnvironment().getTime().toNanoOfDay() - timemap.get(mote).toNanoOfDay()) / 100000 &&
-                                Long.signum(getEnvironment().getTime().toNanoOfDay() / 100000 - Math.abs(mote.getStartOffset()) * 100000) > 0) {
-                            timemap.put(mote, getEnvironment().getTime());
-                            if (Integer.signum(mote.getXPos() - getEnvironment().toMapXCoordinate(mote.getPath().get(waypoinMap.get(mote)))) != 0 ||
-                                    Integer.signum(mote.getYPos() - getEnvironment().toMapYCoordinate(mote.getPath().get(waypoinMap.get(mote)))) != 0) {
-                                getEnvironment().moveMote(mote, mote.getPath().get(waypoinMap.get(mote)));
-                                LinkedList historymap = locationhistorymap.get(mote);
-                                historymap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
-                                locationhistorymap.put(mote, historymap);
+                    if (mote.getPath().size() > wayPointMap.get(mote)) {
+                        //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
+                        if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
+                                TimeHelper.nanoToMili(this.environment.getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
+                                (this.environment.getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
+                            timeMap.put(mote, this.environment.getTime());
+                            if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().get(wayPointMap.get(mote)))) ||
+                                   (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().get(wayPointMap.get(mote))))) {
+                                this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
+                                LinkedList historyMap = locationHistoryMap.get(mote);
+                                historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
+                                locationHistoryMap.put(mote, historyMap);
                                 if (mote.shouldSend()) {
                                     LinkedList<Byte> data = new LinkedList<>();
                                     for (MoteSensor sensor : mote.getSensors()) {
-                                        data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), getEnvironment().getTime()));
+                                        data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
                                     }
                                     Byte[] dataByte = new Byte[data.toArray().length];
                                     data.toArray(dataByte);
                                     mote.sendToGateWay(dataByte, new HashMap<>());
                                 }
-                            } else waypoinMap.put(mote, waypoinMap.get(mote) + 1);
+                            } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
                         }
                     }
                 }
@@ -160,49 +174,39 @@ public class Simulation implements Runnable {
             }
 
             arrived = true;
-            for(Mote mote : environment.getMotes()){
-                if(mote.isEnabled()) {
-                    if (mote.getPath().size() != 0) {
-                        if (Integer.signum(mote.getXPos() - environment.toMapXCoordinate(mote.getPath().getLast())) != 0 ||
-                                Integer.signum(mote.getYPos() - environment.toMapYCoordinate(mote.getPath().getLast())) != 0) {
-                            arrived = arrived && false;
+            for(Mote mote : motes){
+                if(mote.isEnabled() && mote.getPath().size() > 0) {
+                        if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().getLast())) ||
+                                (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().getLast()))) {
+                            arrived = false;
                         }
-                    }
                 }
             }
-            environment.tick(1);
+            this.environment.tick(1);
         }
 
-        for(Mote mote : environment.getMotes()){
-            Pair<Integer,Integer> location = locationmap.get(mote);
-            mote.setXPos(location.getLeft());
-            mote.setYPos(location.getRight());
-        }
-
+        updateMotesLocation(locationMap);
         Timer timer = new Timer();
-        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationhistorymap);
-        timer.schedule(animationTimerTask,0,75/(1*speed));
-        for(Mote mote : environment.getMotes()){
-            Pair<Integer,Integer> location = locationmap.get(mote);
-            mote.setXPos(location.getLeft());
-            mote.setYPos(location.getRight());
-        }
+        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
+        timer.schedule(animationTimerTask,0,75/speed);
+        updateMotesLocation(locationMap);
     }
-
     /**
      * Gets the probability with which a mote should be active from the input profile of the current simulation.
      * If no probability is specified, the probability is set to one.
      * Then it performs a pseudo-random choice and sets the mote to active/inactive for the next run, based on that probability.
      */
 
-    private void calculateIfMotesAreActiveBasedOnInputProfile() {
-        for(Mote mote: getEnvironment().getMotes()){
-            Double activityProbability;
-            if(getInputProfile().getProbabilitiesForMotesKeys().contains(getEnvironment().getMotes().indexOf(mote)))
-                activityProbability = getInputProfile().getProbabilityForMote(getEnvironment().getMotes().indexOf(mote));
-            else
-                activityProbability = 1.0;
-            mote.enable(Math.random() >= 1.0 - activityProbability);
+    private void setupMotesActivationStatus() {
+        LinkedList<Mote> motes = this.environment.getMotes();
+        Set<Integer> moteProbabilities = this.inputProfile.getProbabilitiesForMotesKeys();
+        for(int i = 0; i < motes.size(); i++) {
+            Mote mote = motes.get(i);
+            Double activityProbability = 1.0;
+            if(moteProbabilities.contains(i))
+                activityProbability = this.inputProfile.getProbabilityForMote(i);
+            if(Math.random() >= 1.0 - activityProbability)
+                mote.enable(true);
         }
     }
 
@@ -213,7 +217,7 @@ public class Simulation implements Runnable {
 
         getEnvironment().reset();
 
-        calculateIfMotesAreActiveBasedOnInputProfile();
+        setupMotesActivationStatus();
 
 
         for(int i =0; i< getInputProfile().getNumberOfRuns();i++) {

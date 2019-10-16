@@ -46,8 +46,8 @@ public class MoteGUI extends JFrame {
                 latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
         longitudeLabel.setText(((Math.signum(mote.getEnvironment().toLongitude(mote.getXPos())) == 1) ? "E " : "W ") +
                 longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
-        xPosSpinner.setModel(new SpinnerNumberModel(mote.getXPos(), Integer.valueOf(0), mote.getEnvironment().getMaxXpos(), Integer.valueOf(1)));
-        yPosSpinner.setModel(new SpinnerNumberModel(mote.getYPos(), Integer.valueOf(0), mote.getEnvironment().getMaxYpos(), Integer.valueOf(1)));
+        xPosSpinner.setModel(new SpinnerNumberModel(mote.getXPos().intValue(), 0, mote.getEnvironment().getMaxXpos(), 1));
+        yPosSpinner.setModel(new SpinnerNumberModel(mote.getYPos().intValue(), 0, mote.getEnvironment().getMaxYpos(), 1));
         powerSpinner.setModel(new SpinnerNumberModel(mote.getTransmissionPower(), Integer.valueOf(-3), Integer.valueOf(14), Integer.valueOf(1)));
         SFSpinner.setModel(new SpinnerNumberModel(mote.getSF(), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
         samplingSpinner.setModel(new SpinnerNumberModel(mote.getSamplingRate(), Integer.valueOf(1), Integer.valueOf(1000), Integer.valueOf(1)));

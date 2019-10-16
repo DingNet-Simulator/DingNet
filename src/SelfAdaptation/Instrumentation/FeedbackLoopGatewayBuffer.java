@@ -3,7 +3,7 @@ package SelfAdaptation.Instrumentation;
 import IotDomain.Gateway;
 import IotDomain.LoraTransmission;
 import IotDomain.Mote;
-import IotDomain.Pair;
+import util.Pair;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -38,6 +38,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import util.Pair;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -371,9 +372,9 @@ public class MainGUI extends JFrame {
 
                         Element size = doc.createElement("size");
                         Element width = doc.createElement("width");
-                        width.appendChild(doc.createTextNode(simulation.getEnvironment().getMaxXpos().toString()));
+                        width.appendChild(doc.createTextNode(Integer.toString(simulation.getEnvironment().getMaxXpos())));
                         Element height = doc.createElement("height");
-                        height.appendChild(doc.createTextNode(simulation.getEnvironment().getMaxYpos().toString()));
+                        height.appendChild(doc.createTextNode(Integer.toString(simulation.getEnvironment().getMaxYpos())));
                         size.appendChild(width);
                         size.appendChild(height);
                         region.appendChild(size);
@@ -383,7 +384,7 @@ public class MainGUI extends JFrame {
 
                         Element characteristics = doc.createElement("characteristics");
                         Element regionProperty = doc.createElement("regionProperty");
-                        regionProperty.setAttribute("numberOfZones", simulation.getEnvironment().getNumberOfZones().toString());
+                        regionProperty.setAttribute("numberOfZones", Integer.toString(simulation.getEnvironment().getNumberOfZones()));
                         characteristics.appendChild(regionProperty);
                         int amountOfSquares = (int) Math.sqrt(simulation.getEnvironment().getNumberOfZones());
                         LinkedList<Element> row = new LinkedList<>();
