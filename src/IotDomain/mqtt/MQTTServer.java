@@ -1,4 +1,6 @@
-package IotDomain;
+package IotDomain.mqtt;
+
+import IotDomain.BufferPair;
 
 import java.io.Serializable;
 import java.util.HashMap;
