@@ -4,6 +4,7 @@ import GUI.MainGUI;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 import be.kuleuven.cs.som.annotate.Basic;
 import util.Pair;
+import util.TimeHelper;
 
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -108,53 +109,55 @@ public class Simulation implements Runnable {
         //Check if a mote can participate in this run.
         setupMotesActivationStatus();
         // reset the environment.
-        getEnvironment().reset();
+        this.environment.reset();
 
+        LinkedList<Mote> motes = this.environment.getMotes();
         Boolean arrived = true;
-        HashMap<Mote,Integer> waypoinMap = new HashMap<>();
-        HashMap<Mote,LocalTime> timemap = new HashMap<>();
-        HashMap<Mote, Pair<Integer,Integer>> locationmap = new HashMap<>();
-        HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationhistorymap = new HashMap<>();
-        for(Mote mote : getEnvironment().getMotes()){
-            timemap.put(mote, getEnvironment().getTime());
-            locationmap.put(mote,new Pair<>(mote.getXPos(),mote.getYPos()));
-            locationhistorymap.put(mote, new LinkedList<>());
-            LinkedList historyMap = locationhistorymap.get(mote);
-            historyMap.add(new Pair<>(mote.getXPos(),mote.getYPos()));
-            locationhistorymap.put(mote,historyMap);
-            if(mote.getPath().size() != 0) {
+        HashMap<Mote,Integer> wayPointMap = new HashMap<>();
+        HashMap<Mote,LocalTime> timeMap = new HashMap<>();
+        HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
+        HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
+        for(Mote mote : motes){
+            timeMap.put(mote, this.environment.getTime());
+            locationMap.put(mote,new Pair<>(mote.getXPos(), mote.getYPos()));
+            locationHistoryMap.put(mote, new LinkedList<>());
+            LinkedList historyMap = locationHistoryMap.get(mote);
+            historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
+            locationHistoryMap.put(mote, historyMap);
+            if(mote.getPath().size() > 0) {
                 if (moteIsOnNextWayPoint(mote)) {
-                    arrived = arrived && false;
+                    arrived = false;
                 }
             }
-            waypoinMap.put(mote,0);
+            wayPointMap.put(mote,0);
         }
 
         while (!arrived) {
 
-            for(Mote mote : getEnvironment().getMotes()){
+            for(Mote mote : motes){
                 if(mote.isEnabled()) {
-                    if (Integer.signum(mote.getPath().size() - waypoinMap.get(mote)) > 0) {
+                    if (mote.getPath().size() > wayPointMap.get(mote)) {
 
-                        if (1 / mote.getMovementSpeed() * 1000 < (getEnvironment().getTime().toNanoOfDay() - timemap.get(mote).toNanoOfDay()) / 100000 &&
-                                Long.signum(getEnvironment().getTime().toNanoOfDay() / 100000 - Math.abs(mote.getStartOffset()) * 100000) > 0) {
-                            timemap.put(mote, getEnvironment().getTime());
-                            if (Integer.signum(mote.getXPos() - getEnvironment().toMapXCoordinate(mote.getPath().get(waypoinMap.get(mote)))) != 0 ||
-                                    Integer.signum(mote.getYPos() - getEnvironment().toMapYCoordinate(mote.getPath().get(waypoinMap.get(mote)))) != 0) {
-                                getEnvironment().moveMote(mote, mote.getPath().get(waypoinMap.get(mote)));
-                                LinkedList historymap = locationhistorymap.get(mote);
-                                historymap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
-                                locationhistorymap.put(mote, historymap);
+                        if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
+                                TimeHelper.nanoToMili(this.environment.getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
+                                (this.environment.getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
+                            timeMap.put(mote, this.environment.getTime());
+                            if ((mote.getXPos() != this.environment.toMapXCoordinate(mote.getPath().get(wayPointMap.get(mote)))) ||
+                                   (mote.getYPos() != this.environment.toMapYCoordinate(mote.getPath().get(wayPointMap.get(mote))))) {
+                                this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
+                                LinkedList historyMap = locationHistoryMap.get(mote);
+                                historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
+                                locationHistoryMap.put(mote, historyMap);
                                 if (mote.shouldSend()) {
                                     LinkedList<Byte> data = new LinkedList<>();
                                     for (MoteSensor sensor : mote.getSensors()) {
-                                        data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), getEnvironment().getTime()));
+                                        data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
                                     }
                                     Byte[] dataByte = new Byte[data.toArray().length];
                                     data.toArray(dataByte);
                                     mote.sendToGateWay(dataByte, new HashMap<>());
                                 }
-                            } else waypoinMap.put(mote, waypoinMap.get(mote) + 1);
+                            } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
                         }
                     }
                 }
@@ -176,16 +179,16 @@ public class Simulation implements Runnable {
         }
 
         for(Mote mote : environment.getMotes()){
-            Pair<Integer,Integer> location = locationmap.get(mote);
+            Pair<Integer,Integer> location = locationMap.get(mote);
             mote.setXPos(location.getLeft());
             mote.setYPos(location.getRight());
         }
 
         Timer timer = new Timer();
-        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationhistorymap);
+        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
         timer.schedule(animationTimerTask,0,75/(1*speed));
         for(Mote mote : environment.getMotes()){
-            Pair<Integer,Integer> location = locationmap.get(mote);
+            Pair<Integer,Integer> location = locationMap.get(mote);
             mote.setXPos(location.getLeft());
             mote.setYPos(location.getRight());
         }
