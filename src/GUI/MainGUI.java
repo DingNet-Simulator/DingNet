@@ -64,6 +64,7 @@ import java.awt.image.FilteredImageSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 
@@ -192,17 +193,15 @@ public class MainGUI extends JFrame {
                 JFileChooser fc = new JFileChooser();
                 fc.setDialogTitle("Load a configuration");
                 fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-                try {
-                    File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                    file = new File(file.getParent() + "/user/configurations");
-                    fc.setCurrentDirectory(file);
-                } catch (URISyntaxException e1) {
-                    System.out.println(e1);
-                }
-                int returnVal = fc.showOpenDialog(mainPanel);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
 
+                File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+                String basePath = file.getParentFile().getParent();
+                fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+
+                int returnVal = fc.showOpenDialog(mainPanel);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    file = fc.getSelectedFile();
 
                     JFrame frame = new JFrame("Loading configuration");
                     LoadingGUI loadingGUI = new LoadingGUI();
@@ -270,13 +269,16 @@ public class MainGUI extends JFrame {
                             Integer energyLevel = Integer.valueOf(moteNode.getElementsByTagName("energyLevel").item(0).getTextContent());
                             Integer samplingRate = Integer.valueOf(moteNode.getElementsByTagName("samplingRate").item(0).getTextContent());
                             Double movementSpeed = Double.valueOf(moteNode.getElementsByTagName("movementSpeed").item(0).getTextContent());
+
                             Element sensors = (Element) moteNode.getElementsByTagName("sensors").item(0);
-                            Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(0);
                             LinkedList<MoteSensor> moteSensors = new LinkedList<>();
-                            while (sensornode != null) {
+                            for (int j = 0; j < sensors.getElementsByTagName("sensors").getLength(); j++) {
+                                Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(j);
                                 moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
-                                sensornode = (Element) sensornode.getNextSibling();
                             }
+//                            while (sensornode != null) {
+//                                sensornode = (Element) sensornode.getNextSibling();
+//                            }
                             Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
                             Element waypoint;
                             LinkedList<GeoPosition> path = new LinkedList<>();
