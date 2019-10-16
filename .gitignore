@@ -1,7 +1,7 @@
 
 # Created by https://www.gitignore.io/api/gradle,images,windows,eclipse,intellij,intellij+all,intellij+iml
 # Edit at https://www.gitignore.io/?templates=gradle,images,windows,eclipse,intellij,intellij+all,intellij+iml
-
+**/.DS_Store
 ### Eclipse ###
 .metadata
 bin/
@@ -78,6 +78,7 @@ local.properties
 
 # User-specific stuff
 .idea/**/workspace.xml
+.idea/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
@@ -120,6 +121,8 @@ cmake-build-*/
 
 # IntelliJ
 out/
+*.class
+.idea
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -147,7 +150,7 @@ fabric.properties
 
 # *.iml
 # modules.xml
-# .idea/misc.xml
+.idea/misc.xml
 # *.ipr
 
 # Sonarlint plugin
