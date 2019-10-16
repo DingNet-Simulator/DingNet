@@ -383,6 +383,7 @@ public class Environment implements Serializable {
      * reset all entities in the configuration.
      */
     public void reset(){
+        getClock().reset();
         for(Mote mote: getMotes()){
             mote.reset();
         }
@@ -396,6 +397,7 @@ public class Environment implements Serializable {
      * Adds a run to all entities in the configuration.
      */
     public void addRun(){
+        getClock().reset();
         for (Mote mote : getMotes()) {
             mote.addRun();
         }
