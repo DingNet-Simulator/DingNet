@@ -235,7 +235,7 @@ public class MapView {
                 trackposition2 --;
             }
 
-            environment.tick(1500);
+            environment.getClock().tick(1500);
 
 
         }
