@@ -12,7 +12,11 @@ import java.util.List;
  */
 public enum MoteSensor {
 
-    SOOT(new SootDataGenerator()),OZONE(new OzoneDataGenerator()),CARBON_DIOXIDE(new CarbonDioxideDataGenerator()),PARTICULATE_MATTER(new ParticulateMatterDataGenerator());
+    SOOT(new SootDataGenerator()),
+    OZONE(new OzoneDataGenerator()),
+    CARBON_DIOXIDE(new CarbonDioxideDataGenerator()),
+    PARTICULATE_MATTER(new ParticulateMatterDataGenerator()),
+    GPS(new GPSDataGenerator());
 
     MoteSensor(SensorDataGenerator sensorDataGenerator){
         this.sensorDataGenerator = sensorDataGenerator;
