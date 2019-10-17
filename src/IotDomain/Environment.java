@@ -2,6 +2,7 @@ package IotDomain;
 
 import be.kuleuven.cs.som.annotate.*;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.MapHelper;
 import util.Pair;
 
 import java.io.Serializable;
@@ -16,10 +17,8 @@ import java.util.LinkedList;
 public class Environment implements Serializable {
 
     private static final long serialVersionUID = 1L;
-     /**
-     * The coordinates of the point [0,0] on the map.
-     */
-    private final GeoPosition mapOrigin;
+
+    private final MapHelper mapHelper;
 
     /**
      * The max x-coordinate allowed on the map
@@ -87,7 +86,8 @@ public class Environment implements Serializable {
         }
         this.numberOfZones = numberOfZones;
         clock = LocalTime.of(0,0);
-        this.mapOrigin = mapOrigin;
+        mapHelper = MapHelper.getInstance();
+        mapHelper.setMapOrigin(mapOrigin);
         this.MQTTServer = new MQTTServer();
         this.wayPoints = wayPoints;
         numberOfRuns = 1;
@@ -283,7 +283,7 @@ public class Environment implements Serializable {
      * @return The coordinates of the point [0,0] on the map.
      */
     public GeoPosition getMapOrigin() {
-        return mapOrigin;
+        return mapHelper.getMapOrigin();
     }
 
     /**
@@ -291,7 +291,6 @@ public class Environment implements Serializable {
      * @return The geoPosition of the center of the map.
      */
     public GeoPosition getMapCenter() {
-
         return new GeoPosition(toLatitude(getMaxYpos()/2),toLongitude(getMaxXpos()/2));
     }
 
@@ -301,58 +300,23 @@ public class Environment implements Serializable {
      * @return The longitude of the given x-coordinate
      */
     public double toLongitude(int xPos){
-        double longitude;
-        if(xPos> 0) {
-            longitude = (double) xPos;
-            longitude = longitude / 1000;
-            longitude = longitude / 1.609344;
-            longitude = longitude / (60 * 1.1515);
-            longitude = Math.toRadians(longitude);
-            longitude = Math.cos(longitude);
-            longitude = longitude - Math.sin(Math.toRadians(getMapOrigin().getLatitude())) * Math.sin(Math.toRadians(getMapOrigin().getLatitude()));
-            longitude = longitude / (Math.cos(Math.toRadians(getMapOrigin().getLatitude())) * Math.cos(Math.toRadians(getMapOrigin().getLatitude())));
-            longitude = Math.acos(longitude);
-            longitude = Math.toDegrees(longitude);
-            longitude = longitude + getMapOrigin().getLongitude();
-        }
-        else{
-            longitude = getMapOrigin().getLongitude();
-        }
-        return longitude;
-
-
+        return mapHelper.toLongitude(xPos);
     }
+
     /**
      * A function to calculate the latitude from a given y-coordinate on the map.
      * @param yPos  The y-coordinate of the entity.
      * @return The latitude of the given y-coordinate.
      */
     public double toLatitude(int yPos){
-        double latitude = (double) yPos;
-        latitude = latitude /1000 ;
-        latitude = latitude/ 1.609344;
-        latitude = latitude / (60 * 1.1515);
-        latitude = latitude + getMapOrigin().getLatitude();
-        return latitude;
-
+        return mapHelper.toLatitude(yPos);
     }
 
     /**
      * A function for calculating distances from geographical positions.
      */
     public static double distance(double lat1, double lon1, double lat2, double lon2) {
-        if ((lat1 == lat2) && (lon1 == lon2)) {
-            return 0;
-        }
-        else {
-            double theta = lon1 - lon2;
-            double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
-            dist = Math.acos(dist);
-            dist = Math.toDegrees(dist);
-            dist = dist * 60 * 1.1515;
-            dist = dist * 1.609344;
-            return (dist);
-        }
+        return MapHelper.distance(new GeoPosition(lat1, lon1), new GeoPosition(lat2, lon2));
     }
 
     /**
@@ -384,7 +348,7 @@ public class Environment implements Serializable {
      */
     public int toMapXCoordinate(GeoPosition geoPosition){
         //? in computing distance just using the longitude of the geoposition. Why?
-        return (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(), getMapOrigin().getLatitude(), geoPosition.getLongitude()));
+        return mapHelper.toMapXCoordinate(geoPosition);
     }
     /**
      * Converts a GeoPostion to an y-coordinate on the map.
@@ -393,13 +357,11 @@ public class Environment implements Serializable {
      */
     public int toMapYCoordinate(GeoPosition geoPosition){
         //? in computing distance just using the longitude of the geoposition. Why?
-        return (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(),geoPosition.getLatitude(), getMapOrigin().getLongitude()));
+        return mapHelper.toMapYCoordinate(geoPosition);
     }
 
     public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition){
-        int x = (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(), getMapOrigin().getLatitude(), geoPosition.getLongitude()));
-        int y = (int)Math.round(1000*distance(getMapOrigin().getLatitude(), getMapOrigin().getLongitude(),geoPosition.getLatitude(), getMapOrigin().getLongitude()));
-        return new Pair(x,y);
+        return mapHelper.toMapCoordinate(geoPosition);
     }
     /**
      * reset all entities in the configuration.
@@ -435,7 +397,5 @@ public class Environment implements Serializable {
     public int getNumberOfRuns(){
         return numberOfRuns;
     }
-
-
 }
 
