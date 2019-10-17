@@ -165,14 +165,7 @@ public class Simulation implements Runnable {
 
             }
 
-            arrived = true;
-            for(Mote mote : motes){
-                if(mote.isEnabled() && mote.getPath().size() > 0) {
-                    if(!this.environment.toMapCoordinate(mote.getPath().getLast()).equals(mote.getPos())){
-                        arrived = false;
-                    }
-                }
-            }
+            arrived = areAllMotesAtDestination();
             this.environment.tick(1);
         }
 
@@ -182,6 +175,22 @@ public class Simulation implements Runnable {
         timer.schedule(animationTimerTask,0,75/speed);
         updateMotesLocation(locationMap);
     }
+
+    /**
+     * check that do all motes arrive at their destination
+     */
+    Boolean areAllMotesAtDestination() {
+        LinkedList<Mote> motes = this.environment.getMotes();
+        for(Mote mote : motes){
+            if(mote.isEnabled() && mote.getPath().size() > 0) {
+                if(!this.environment.toMapCoordinate(mote.getPath().getLast()).equals(mote.getPos())){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * Gets the probability with which a mote should be active from the input profile of the current simulation.
      * If no probability is specified, the probability is set to one.
