@@ -13,6 +13,20 @@ import java.util.*;
  * A class representing a simulation.
  */
 public class Simulation implements Runnable {
+    private class SimualtionResult{
+        private HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
+        private HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
+        SimualtionResult(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap){
+            this.locationMap = locationMap;
+            this.locationHistoryMap = locationHistoryMap;
+        }
+        public HashMap getLocationMap(){
+            return this.locationMap;
+        }
+        public HashMap getLocationHistoryMap(){
+            return this.locationHistoryMap;
+        }
+    }
     /**
      * The InputProfile used in the simulation.
      */
@@ -106,16 +120,8 @@ public class Simulation implements Runnable {
             mote.setYPos(location.getRight());
         }
     }
-    /**
-     * A method for running a single run with visualisation.
-     * @param speed
-     */
-    public void singleRun(Integer speed) {
-        //Check if a mote can participate in this run.
-        setupMotesActivationStatus();
-        // reset the environment.
-        this.environment.reset();
 
+    private SimualtionResult simulate(){
         LinkedList<Mote> motes = this.environment.getMotes();
         HashMap<Mote,Integer> wayPointMap = new HashMap<>();
         HashMap<Mote,LocalTime> timeMap = new HashMap<>();
@@ -160,7 +166,25 @@ public class Simulation implements Runnable {
             }
             this.environment.tick(1);
         }
+        return new SimualtionResult(locationMap, locationHistoryMap);
+    }
 
+    /**
+     * A method for running a single run with visualisation.
+     * @param speed
+     */
+    public void singleRun(Integer speed) {
+        setupMotesActivationStatus();
+        this.environment.reset();
+        SimualtionResult result = this.simulate();
+        this.animate(result.getLocationMap(), result.getLocationHistoryMap(), speed);
+//        Timer timer = new Timer();
+//        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
+//        timer.schedule(animationTimerTask,0,75/speed);
+//        updateMotesLocation(locationMap);
+    }
+
+    private void animate(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap, Integer speed){
         updateMotesLocation(locationMap);
         Timer timer = new Timer();
         AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
@@ -206,61 +230,17 @@ public class Simulation implements Runnable {
      * A method for running the simulation as described in the inputProfile.
      */
     public void run(){
-
         getEnvironment().reset();
-
         setupMotesActivationStatus();
-
-
         for(int i =0; i< getInputProfile().getNumberOfRuns();i++) {
             getEnvironment().resetClock();
             gui.setProgress(i,getInputProfile().getNumberOfRuns());
             if(i != 0)
                 getEnvironment().addRun();
-
-            HashMap<Mote, Integer> waypoinMap = new HashMap<>();
-            HashMap<Mote, LocalTime> timemap = new HashMap<>();
-            HashMap<Mote, Pair<Integer, Integer>> locationmap = new HashMap<>();
-            calculateMotesLocation(waypoinMap, timemap, locationmap);
-
-            while (!areAllMotesAtDestination()) {
-
-                for (Mote mote : getEnvironment().getMotes()) {
-                    if(mote.isEnabled()) {
-                        if (Integer.signum(mote.getPath().size() - waypoinMap.get(mote)) > 0) {
-
-                            if (1 / mote.getMovementSpeed() * 1000 < (getEnvironment().getTime().toNanoOfDay() - timemap.get(mote).toNanoOfDay()) / 100000 &&
-                                    Long.signum(getEnvironment().getTime().toNanoOfDay() / 100000 - Math.abs(mote.getStartOffset()) * 100000) > 0) {
-                                timemap.put(mote, getEnvironment().getTime());
-                                if (Integer.signum(mote.getXPos() - getEnvironment().toMapXCoordinate(mote.getPath().get(waypoinMap.get(mote)))) != 0 ||
-                                        Integer.signum(mote.getYPos() - getEnvironment().toMapYCoordinate(mote.getPath().get(waypoinMap.get(mote)))) != 0) {
-                                    getEnvironment().moveMote(mote, mote.getPath().get(waypoinMap.get(mote)));
-                                    if (mote.shouldSend()) {
-                                        LinkedList<Byte> data = new LinkedList<>();
-                                        for (MoteSensor sensor : mote.getSensors()) {
-                                            data.addAll(sensor.getValueAsList(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
-                                        }
-                                        Byte[] dataByte = new Byte[data.toArray().length];
-                                        data.toArray(dataByte);
-                                        mote.sendToGateWay(dataByte, new HashMap<>());
-                                    }
-                                } else waypoinMap.put(mote, waypoinMap.get(mote) + 1);
-                            }
-                        }
-                    }
-
-                }
-                environment.tick(1);
-            }
-
+            SimualtionResult result =  this.simulate();
             gui.setProgress(getInputProfile().getNumberOfRuns(),getInputProfile().getNumberOfRuns());
-            for (Mote mote : environment.getMotes()) {
-                Pair<Integer, Integer> location = locationmap.get(mote);
-                mote.setXPos(location.getLeft());
-                mote.setYPos(location.getRight());
-            }
+            updateMotesLocation(result.getLocationMap());
         }
-
     }
 
     /**
@@ -276,17 +256,6 @@ public class Simulation implements Runnable {
             waypoinMap.put(mote, 0);
         }
     }
-
-    /**
-     * checks if a mote is on its next waypoint based on coordinates.
-     * @param mote
-     * @return
-     */
-
-//    private boolean moteIsOnNextWayPoint(Mote mote) {
-//        return Integer.signum(mote.getXPos() - getEnvironment().toMapXCoordinate(mote.getPath().getLast())) != 0 ||
-//                Integer.signum(mote.getYPos() - getEnvironment().toMapYCoordinate(mote.getPath().getLast())) != 0;
-//    }
 
     public GenericFeedbackLoop getApproach() {
         return approach;
