@@ -89,7 +89,7 @@ public class MapHelper {
      * @return The coordinate on the map of the GeoPosition.
      */
     public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition, GeoPosition mapOrigin){
-        return new Pair(toMapXCoordinate(geoPosition, mapOrigin), toMapYCoordinate(geoPosition, mapOrigin));
+        return new Pair<>(toMapXCoordinate(geoPosition, mapOrigin), toMapYCoordinate(geoPosition, mapOrigin));
     }
 
     /**

@@ -7,11 +7,7 @@ import util.Pair;
 import util.TimeHelper;
 
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class representing a simulation.
@@ -157,7 +153,7 @@ public class Simulation implements Runnable {
                             if (mote.shouldSend()) {
                                 LinkedList<Byte> data = new LinkedList<>();
                                 for (MoteSensor sensor : mote.getSensors()) {
-                                    data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
+                                    data.addAll(sensor.getValueAsList(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
                                 }
                                 Byte[] dataByte = new Byte[data.toArray().length];
                                 data.toArray(dataByte);
@@ -242,7 +238,7 @@ public class Simulation implements Runnable {
                                     if (mote.shouldSend()) {
                                         LinkedList<Byte> data = new LinkedList<>();
                                         for (MoteSensor sensor : mote.getSensors()) {
-                                            data.add(sensor.getValue(mote.getXPos(), mote.getYPos(), getEnvironment().getTime()));
+                                            data.addAll(sensor.getValueAsList(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
                                         }
                                         Byte[] dataByte = new Byte[data.toArray().length];
                                         data.toArray(dataByte);

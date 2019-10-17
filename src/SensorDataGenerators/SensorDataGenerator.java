@@ -13,5 +13,5 @@ public interface SensorDataGenerator {
      * @param time time of measurement.
      * @return sensor data based on location and time.
      */
-    Byte generateData(Integer x, Integer y, LocalTime time);
+    byte[] generateData(Integer x, Integer y, LocalTime time);
 }
