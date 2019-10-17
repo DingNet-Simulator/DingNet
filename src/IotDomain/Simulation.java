@@ -153,7 +153,7 @@ public class Simulation implements Runnable {
                             if (mote.shouldSend()) {
                                 LinkedList<Byte> data = new LinkedList<>();
                                 for (MoteSensor sensor : mote.getSensors()) {
-                                    data.addAll(sensor.getValueAsList(mote.getXPos(), mote.getYPos(), this.environment.getTime()));
+                                    data.addAll(sensor.getValueAsList(mote.getPos(), this.environment.getTime()));
                                 }
                                 Byte[] dataByte = new Byte[data.toArray().length];
                                 data.toArray(dataByte);

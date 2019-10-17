@@ -1,5 +1,7 @@
 package SensorDataGenerators;
 
+import util.Pair;
+
 import java.time.LocalTime;
 import java.util.Random;
 
@@ -25,5 +27,8 @@ public class OzoneDataGenerator implements SensorDataGenerator {
             return new byte[]{(byte)Math.floorMod((int) Math.round(95 -24.5 +3*Math.cos(Math.PI*(x+y)/(150*8))+0.3*random.nextGaussian()),255)};
         else
             return new byte[]{(byte)Math.floorMod((int) Math.round(85 -24 +(x+y)/200+0.1*random.nextGaussian()),255)};
+    }
+    public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time){
+        return this.generateData(pos.getLeft(), pos.getRight(), time);
     }
 }
