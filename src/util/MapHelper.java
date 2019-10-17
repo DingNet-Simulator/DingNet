@@ -155,7 +155,7 @@ public class MapHelper {
 
     static public double distance(GeoPosition pos1, GeoPosition pos2) {
         double lat1 = pos1.getLatitude(), lon1 = pos1.getLongitude();
-        double lat2 = pos2.getLatitude(), lon2 = pos2.getLatitude();
+        double lat2 = pos2.getLatitude(), lon2 = pos2.getLongitude();
         if ((lat1 == lat2) && (lon1 == lon2)) {
             return 0;
         }
