@@ -5,6 +5,8 @@ import be.kuleuven.cs.som.annotate.*;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -223,11 +225,13 @@ public abstract class NetworkEntity implements Serializable{
                 }
             }
             receivedTransmissions.getLast().put(transmission,collision);
-            if(!collision){
-                handleMacCommands(transmission.getContent());
-                OnReceive(transmission.getContent().getPayload(), transmission.getContent().getSenderEUI(), transmission.getContent().getDesignatedReceiverEUI());
-
-            }
+            getEnvironment().getClock().addTrigger(transmission.getDepartureTime().plus(transmission.getTimeOnAir().longValue(), ChronoUnit.MILLIS),()->{
+                if(!this.receivedTransmissions.getLast().get(transmission)){
+                    handleMacCommands(transmission.getContent());
+                    OnReceive(transmission.getContent().getPayload(), transmission.getContent().getSenderEUI(), transmission.getContent().getDesignatedReceiverEUI());
+                }
+                return LocalTime.of(0,0);
+            });
         }
 
     }
@@ -378,7 +382,7 @@ public abstract class NetworkEntity implements Serializable{
     protected void loraSend(LoraWanPacket message){
         if(!isTransmitting) {
             LinkedList<LoraTransmission> packetsToSend = new LinkedList<>();
-            powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getTime().toSecondOfDay(),getTransmissionPower()));
+            powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
             spreadingFactorHistory.getLast().add(getSF());
             for (Gateway gateway : getEnvironment().getGateways()) {
                 if (gateway != this)

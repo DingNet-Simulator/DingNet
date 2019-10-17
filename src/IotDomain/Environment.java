@@ -4,8 +4,6 @@ import be.kuleuven.cs.som.annotate.Basic;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.io.Serializable;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
@@ -42,10 +40,7 @@ public class Environment implements Serializable {
      * The actual map containing the characteristics of the environment.
      */
     private Characteristic[][] characteristics;
-    /**
-     * A clock to represent time in the environment.
-     */
-    private LocalTime clock;
+
     /**
      * The number of zones in the configuration.
      */
@@ -58,6 +53,10 @@ public class Environment implements Serializable {
      * The number of runs with this configuration.
      */
     private Integer numberOfRuns;
+    /**
+     * A way to represent the flow of time in the environment.
+     */
+    private GlobalClock clock;
 
     /**
      * A constructor generating a new environment with a given map with characteristics.
@@ -82,10 +81,18 @@ public class Environment implements Serializable {
             maxYpos = 0;
             this.characteristics = new Characteristic[0][0];
         }
-        clock = LocalTime.of(0,0);
+        clock = new GlobalClock();
         this.mapOrigin = mapOrigin;
         this.wayPoints = wayPoints;
         numberOfRuns = 1;
+    }
+
+    /**
+     * Returns the clock used by this environment.
+     * @return The clock used by this environment.
+     */
+    public GlobalClock getClock(){
+        return clock;
     }
 
     /**
@@ -244,26 +251,6 @@ public class Environment implements Serializable {
         this.characteristics[xPos][yPos] = characteristic;
     }
 
-    /**
-     * Returns the current time in the simulation.
-     * @return The current time in the simulation.
-     */
-    public LocalTime getTime() {
-        return clock;
-    }
-
-    /**
-     * Increases the time with a given amount of miliseconds.
-     * @param milliSeconds
-     * @Post Increases the time with a given amount of miliseconds.
-     */
-    public void tick(long milliSeconds) {
-        this.clock= this.clock.plus(milliSeconds, ChronoUnit.MILLIS);
-    }
-
-    public void resetClock(){
-        this.clock =  LocalTime.of(0,0);
-    }
 
     /**
      * Returns the coordinates of the point [0,0] on the map.
@@ -385,6 +372,7 @@ public class Environment implements Serializable {
      * reset all entities in the configuration.
      */
     public void reset(){
+        getClock().reset();
         for(Mote mote: getMotes()){
             mote.reset();
         }
@@ -398,6 +386,7 @@ public class Environment implements Serializable {
      * Adds a run to all entities in the configuration.
      */
     public void addRun(){
+        getClock().reset();
         for (Mote mote : getMotes()) {
             mote.addRun();
         }

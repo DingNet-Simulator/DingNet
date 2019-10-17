@@ -521,7 +521,7 @@ public class MainGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 GenericFeedbackLoop selectedAlgorithm = algorithms.get(0);
                 for (GenericFeedbackLoop algorithm : algorithms) {
-                    if (algorithm.getName() == adaptationComboBox.getSelectedItem()) {
+                    if (algorithm.getName().equals(adaptationComboBox.getSelectedItem())) {
                         selectedAlgorithm = algorithm;
                     }
                 }
