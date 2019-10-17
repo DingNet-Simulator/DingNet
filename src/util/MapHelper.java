@@ -19,7 +19,7 @@ public class MapHelper {
     private GeoPosition mapOrigin;
 
     public void setMapOrigin(GeoPosition mapOrigin) {
-        mapOrigin = mapOrigin;
+        this.mapOrigin = mapOrigin;
         new MapHelper();
     }
 
@@ -51,7 +51,7 @@ public class MapHelper {
      */
     public int toMapXCoordinate(GeoPosition geoPosition, GeoPosition mapOrigin){
         return (int)Math.round(1000*distance(mapOrigin, new GeoPosition(mapOrigin.getLatitude(), geoPosition.getLongitude())));
-    }
+}
 
     /**
      * Converts a GeoPostion to an y-coordinate on the map.
