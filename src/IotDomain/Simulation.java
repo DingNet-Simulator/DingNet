@@ -117,7 +117,6 @@ public class Simulation implements Runnable {
         this.environment.reset();
 
         LinkedList<Mote> motes = this.environment.getMotes();
-        Boolean arrived = true;
         HashMap<Mote,Integer> wayPointMap = new HashMap<>();
         HashMap<Mote,LocalTime> timeMap = new HashMap<>();
         HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
@@ -129,15 +128,10 @@ public class Simulation implements Runnable {
             LinkedList historyMap = locationHistoryMap.get(mote);
             historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
             locationHistoryMap.put(mote, historyMap);
-            if(mote.getPath().size() > 0) {
-                if (moteIsOnNextWayPoint(mote)) {
-                    arrived = false;
-                }
-            }
             wayPointMap.put(mote,0);
         }
 
-        while (!arrived) {
+        while (!areAllMotesAtDestination()) {
             for(Mote mote : motes){
                 if(mote.isEnabled() && mote.getPath().size() > wayPointMap.get(mote)) {
                     //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
@@ -164,8 +158,6 @@ public class Simulation implements Runnable {
                 }
 
             }
-
-            arrived = areAllMotesAtDestination();
             this.environment.tick(1);
         }
 
@@ -182,7 +174,7 @@ public class Simulation implements Runnable {
     Boolean areAllMotesAtDestination() {
         LinkedList<Mote> motes = this.environment.getMotes();
         for(Mote mote : motes){
-            if(mote.isEnabled() && mote.getPath().size() > 0) {
+            if(mote.isEnabled() && mote.getPath().size() > 0 && mote.getPath().getLast() != null) {
                 if(!this.environment.toMapCoordinate(mote.getPath().getLast()).equals(mote.getPos())){
                     return false;
                 }
@@ -226,13 +218,12 @@ public class Simulation implements Runnable {
             if(i != 0)
                 getEnvironment().addRun();
 
-            Boolean arrived = true;
             HashMap<Mote, Integer> waypoinMap = new HashMap<>();
             HashMap<Mote, LocalTime> timemap = new HashMap<>();
             HashMap<Mote, Pair<Integer, Integer>> locationmap = new HashMap<>();
-            arrived = calculateMotesLocation(arrived, waypoinMap, timemap, locationmap);
+            calculateMotesLocation(waypoinMap, timemap, locationmap);
 
-            while (!arrived) {
+            while (!areAllMotesAtDestination()) {
 
                 for (Mote mote : getEnvironment().getMotes()) {
                     if(mote.isEnabled()) {
@@ -259,18 +250,6 @@ public class Simulation implements Runnable {
                     }
 
                 }
-
-                arrived = true;
-                for (Mote mote : environment.getMotes()) {
-                    if(mote.isEnabled()) {
-                        if (mote.getPath().getLast() != null) {
-                            if (Integer.signum(mote.getXPos() - environment.toMapXCoordinate(mote.getPath().getLast())) != 0 ||
-                                    Integer.signum(mote.getYPos() - environment.toMapYCoordinate(mote.getPath().getLast())) != 0) {
-                                arrived = arrived && false;
-                            }
-                        }
-                    }
-                }
                 environment.tick(1);
             }
 
@@ -290,18 +269,12 @@ public class Simulation implements Runnable {
      *  It also adds the information of the next timestamp and location point to the maps
      */
 
-    private Boolean calculateMotesLocation(Boolean arrived, HashMap<Mote, Integer> waypoinMap, HashMap<Mote, LocalTime> timemap, HashMap<Mote, Pair<Integer, Integer>> locationmap) {
+    private void calculateMotesLocation(HashMap<Mote, Integer> waypoinMap, HashMap<Mote, LocalTime> timemap, HashMap<Mote, Pair<Integer, Integer>> locationmap) {
         for (Mote mote : getEnvironment().getMotes()) {
             timemap.put(mote, getEnvironment().getTime());
             locationmap.put(mote, new Pair<>(mote.getXPos(), mote.getYPos()));
-            if (mote.getPath().size() != 0) {
-                if (moteIsOnNextWayPoint(mote)) {
-                    arrived = arrived && false;
-                }
-            }
             waypoinMap.put(mote, 0);
         }
-        return arrived;
     }
 
     /**
@@ -310,10 +283,10 @@ public class Simulation implements Runnable {
      * @return
      */
 
-    private boolean moteIsOnNextWayPoint(Mote mote) {
-        return Integer.signum(mote.getXPos() - getEnvironment().toMapXCoordinate(mote.getPath().getLast())) != 0 ||
-                Integer.signum(mote.getYPos() - getEnvironment().toMapYCoordinate(mote.getPath().getLast())) != 0;
-    }
+//    private boolean moteIsOnNextWayPoint(Mote mote) {
+//        return Integer.signum(mote.getXPos() - getEnvironment().toMapXCoordinate(mote.getPath().getLast())) != 0 ||
+//                Integer.signum(mote.getYPos() - getEnvironment().toMapYCoordinate(mote.getPath().getLast())) != 0;
+//    }
 
     public GenericFeedbackLoop getApproach() {
         return approach;
