@@ -13,20 +13,8 @@ import java.util.*;
  * A class representing a simulation.
  */
 public class Simulation implements Runnable {
-    private class SimualtionResult{
-        private HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
-        private HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
-        SimualtionResult(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap){
-            this.locationMap = locationMap;
-            this.locationHistoryMap = locationHistoryMap;
-        }
-        public HashMap getLocationMap(){
-            return this.locationMap;
-        }
-        public HashMap getLocationHistoryMap(){
-            return this.locationHistoryMap;
-        }
-    }
+
+    /** <Params>
     /**
      * The InputProfile used in the simulation.
      */
@@ -43,7 +31,9 @@ public class Simulation implements Runnable {
      * The GUI on which the simulation is running.
      */
     private MainGUI gui;
+    // </Params>
 
+    // <Constructors>
     /**
      * Constructs a simulation  with a given InputProfile, Environment, GenericFeedbackLoop and GUI.
      * @param inputProfile The InputProfile to use.
@@ -62,6 +52,10 @@ public class Simulation implements Runnable {
         this.gui = gui;
     }
 
+     // </Constructors>
+
+    // <GetterSetters>
+
     /**
      * Gets the Environment used in th simulation.
      * @return The Environment used in the simulation.
@@ -78,6 +72,7 @@ public class Simulation implements Runnable {
     public void setEnvironment(Environment environment) {
         this.environment = environment;
     }
+
     /**
      * Gets the InputProfile used in th simulation.
      * @return The InputProfile used in the simulation.
@@ -94,14 +89,7 @@ public class Simulation implements Runnable {
     public void setInputProfile(InputProfile inputProfile) {
         this.inputProfile = inputProfile;
     }
-    /**
-     * Sets the GenericFeedbackLoop used in th simulation.
-     * @param approach  The GenericFeedbackLoop to use in the simulation.
-     */
-    @Basic
-    public void setAdaptationAlgorithm(GenericFeedbackLoop approach){
-        this.approach = approach;
-    }
+
     /**
      * Gets the GenericFeedbackLoop used in th simulation.
      * @return The GenericFeedbackLoop used in the simulation.
@@ -110,6 +98,32 @@ public class Simulation implements Runnable {
     public GenericFeedbackLoop getAdaptationAlgorithm(){
         return approach;
     }
+    /**
+     * Sets the GenericFeedbackLoop used in th simulation.
+     * @param approach  The GenericFeedbackLoop to use in the simulation.
+     */
+    @Basic
+    public void setAdaptationAlgorithm(GenericFeedbackLoop approach){
+        this.approach = approach;
+    }
+
+
+    public GenericFeedbackLoop getApproach() {
+        return approach;
+    }
+    /**
+     * Sets the GenericFeedbackLoop.
+     * @param approach The GenericFeedbackLoop to set.
+     */
+    @Basic
+    public void setApproach(GenericFeedbackLoop approach) {
+        if(getApproach()!= null) {
+            getApproach().stop();
+        }
+        this.approach = approach;
+        getApproach().start();
+    }
+    // <GetterSetters>
 
     private void updateMotesLocation(HashMap<Mote, Pair<Integer,Integer>> locations)
     {
@@ -119,6 +133,46 @@ public class Simulation implements Runnable {
             mote.setXPos(location.getLeft());
             mote.setYPos(location.getRight());
         }
+    }
+    /**
+     * Gets the probability with which a mote should be active from the input profile of the current simulation.
+     * If no probability is specified, the probability is set to one.
+     * Then it performs a pseudo-random choice and sets the mote to active/inactive for the next run, based on that probability.
+     */
+    private void setupMotesActivationStatus() {
+        LinkedList<Mote> motes = this.environment.getMotes();
+        Set<Integer> moteProbabilities = this.inputProfile.getProbabilitiesForMotesKeys();
+        for(int i = 0; i < motes.size(); i++) {
+            Mote mote = motes.get(i);
+            Double activityProbability = 1.0;
+            if(moteProbabilities.contains(i))
+                activityProbability = this.inputProfile.getProbabilityForMote(i);
+            if(Math.random() >= 1.0 - activityProbability)
+                mote.enable(true);
+        }
+    }
+
+    /**
+     * check that do all motes arrive at their destination
+     */
+    private Boolean areAllMotesAtDestination() {
+        LinkedList<Mote> motes = this.environment.getMotes();
+        for(Mote mote : motes){
+            if(mote.isEnabled() && mote.getPath().size() > 0 && mote.getPath().getLast() != null) {
+                if(!this.environment.toMapCoordinate(mote.getPath().getLast()).equals(mote.getPos())){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void animate(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap, Integer speed){
+        updateMotesLocation(locationMap);
+        Timer timer = new Timer();
+        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
+        timer.schedule(animationTimerTask,0,75/speed);
+        updateMotesLocation(locationMap);
     }
 
     private SimualtionResult simulate(){
@@ -178,52 +232,6 @@ public class Simulation implements Runnable {
         this.environment.reset();
         SimualtionResult result = this.simulate();
         this.animate(result.getLocationMap(), result.getLocationHistoryMap(), speed);
-//        Timer timer = new Timer();
-//        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
-//        timer.schedule(animationTimerTask,0,75/speed);
-//        updateMotesLocation(locationMap);
-    }
-
-    private void animate(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap, Integer speed){
-        updateMotesLocation(locationMap);
-        Timer timer = new Timer();
-        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
-        timer.schedule(animationTimerTask,0,75/speed);
-        updateMotesLocation(locationMap);
-    }
-
-    /**
-     * check that do all motes arrive at their destination
-     */
-    Boolean areAllMotesAtDestination() {
-        LinkedList<Mote> motes = this.environment.getMotes();
-        for(Mote mote : motes){
-            if(mote.isEnabled() && mote.getPath().size() > 0 && mote.getPath().getLast() != null) {
-                if(!this.environment.toMapCoordinate(mote.getPath().getLast()).equals(mote.getPos())){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Gets the probability with which a mote should be active from the input profile of the current simulation.
-     * If no probability is specified, the probability is set to one.
-     * Then it performs a pseudo-random choice and sets the mote to active/inactive for the next run, based on that probability.
-     */
-
-    private void setupMotesActivationStatus() {
-        LinkedList<Mote> motes = this.environment.getMotes();
-        Set<Integer> moteProbabilities = this.inputProfile.getProbabilitiesForMotesKeys();
-        for(int i = 0; i < motes.size(); i++) {
-            Mote mote = motes.get(i);
-            Double activityProbability = 1.0;
-            if(moteProbabilities.contains(i))
-                activityProbability = this.inputProfile.getProbabilityForMote(i);
-            if(Math.random() >= 1.0 - activityProbability)
-                mote.enable(true);
-        }
     }
 
     /**
@@ -243,35 +251,19 @@ public class Simulation implements Runnable {
         }
     }
 
-    /**
-     *  Based on the Simulation information, calculates wether or not
-     *  the motes have arrived or not arrived their next waypoint on the path.
-     *  It also adds the information of the next timestamp and location point to the maps
-     */
-
-    private void calculateMotesLocation(HashMap<Mote, Integer> waypoinMap, HashMap<Mote, LocalTime> timemap, HashMap<Mote, Pair<Integer, Integer>> locationmap) {
-        for (Mote mote : getEnvironment().getMotes()) {
-            timemap.put(mote, getEnvironment().getTime());
-            locationmap.put(mote, new Pair<>(mote.getXPos(), mote.getYPos()));
-            waypoinMap.put(mote, 0);
+    private class SimualtionResult{
+        private HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
+        private HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
+        SimualtionResult(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap){
+            this.locationMap = locationMap;
+            this.locationHistoryMap = locationHistoryMap;
         }
-    }
-
-    public GenericFeedbackLoop getApproach() {
-        return approach;
-    }
-
-    /**
-     * Sets the GenericFeedbackLoop.
-     * @param approach The GenericFeedbackLoop to set.
-     */
-    @Basic
-    public void setApproach(GenericFeedbackLoop approach) {
-        if(getApproach()!= null) {
-            getApproach().stop();
+        public HashMap getLocationMap(){
+            return this.locationMap;
         }
-        this.approach = approach;
-        getApproach().start();
+        public HashMap getLocationHistoryMap(){
+            return this.locationHistoryMap;
+        }
     }
 
     /**
