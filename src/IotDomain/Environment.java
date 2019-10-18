@@ -14,6 +14,8 @@ import java.util.LinkedList;
  */
 public class Environment implements Serializable {
 
+    //? Should this class be Singleton?
+
     private static final long serialVersionUID = 1L;
 
     private final MapHelper mapHelper;

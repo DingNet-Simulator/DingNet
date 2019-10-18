@@ -1844,55 +1844,6 @@ public class MainGUI extends JFrame {
 
     }
 
-    /**
-     * private JFreeChart createHeatChart(XYZDataset dataset, JPanel panel) {
-     * <p>
-     * ValueAxis xAxis = new NumberAxis("x-distance from grid zero in meter");
-     * ValueAxis yAxis = new NumberAxis("y-distance from grid zero in meter");
-     * <p>
-     * // create a paint-scale and a legend showing it
-     * SpectrumPaintScale paintScale = new SpectrumPaintScale(80, 100);
-     * <p>
-     * <p>
-     * PaintScaleLegend psl = new PaintScaleLegend(paintScale, new NumberAxis());
-     * psl.setPosition(RectangleEdge.RIGHT);
-     * psl.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
-     * psl.setMargin(50.0, 20.0, 80.0, 0.0);
-     * <p>
-     * // finally a renderer and a plot
-     * XYPlot plot = new XYPlot(dataset, xAxis, yAxis, new XYShapeRenderer());
-     * ((XYShapeRenderer) plot.getRenderer()).setPaintScale(paintScale);
-     * plot.getRenderer().setDefaultShape(new Ellipse2D.Double(0, 0, 20, 20));
-     * plot.getDomainAxis().setRange(0, ((double) panel.getWidth()) / ((double) panel.getHeight()) * plot.getRangeAxis().getUpperBound());
-     * <p>
-     * <p>
-     * JFreeChart chart = new JFreeChart(null, null, plot, false);
-     * chart.addSubtitle(psl);
-     * chart.getXYPlot().setDomainGridlinesVisible(false);
-     * chart.getXYPlot().setRangeGridlinesVisible(false);
-     * Color trans = new Color(0xFF, 0xFF, 0xFF, 0);
-     * chart.getPlot().setBackgroundPaint(trans);
-     * <p>
-     * BufferedImage img = null;
-     * try {
-     * <p>
-     * img = ImageIO.read(getClass().getResource("/GUI/map.png"));
-     * } catch (IOException e) {
-     * e.printStackTrace();
-     * }
-     * Image img2 = img.getScaledInstance((int) Math.round(img.getWidth() * 1.25), (int) Math.round(img.getHeight() * 1.25), Image.SCALE_DEFAULT);
-     * BufferedImage img3 = new BufferedImage((int) Math.round(img.getWidth() * 1.25), (int) Math.round(img.getHeight() * 1.25), BufferedImage.TYPE_INT_RGB);
-     * Graphics bg = img3.getGraphics();
-     * bg.drawImage(img2, 0, 0, null);
-     * bg.dispose();
-     * img3 = img3.getSubimage(30, 100, img.getWidth(), img.getHeight());
-     * <p>
-     * chart.setBackgroundImage(img3);
-     * return chart;
-     * <p>
-     * }
-     **/
-
     private Pair<JPanel, JComponent> createHeatChart(LinkedList<Pair<GeoPosition, Double>> dataSet, Environment environment) {
 
         // create a paint-scale and a legend showing it
