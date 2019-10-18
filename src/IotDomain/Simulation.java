@@ -182,7 +182,7 @@ public class Simulation implements Runnable {
         HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
         HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
         for(Mote mote : motes){
-            timeMap.put(mote, this.environment.getTime());
+            timeMap.put(mote, this.environment.getClock().getTime());
             locationMap.put(mote,new Pair<>(mote.getXPos(), mote.getYPos()));
             locationHistoryMap.put(mote, new LinkedList<>());
             LinkedList historyMap = locationHistoryMap.get(mote);
@@ -191,14 +191,15 @@ public class Simulation implements Runnable {
             wayPointMap.put(mote,0);
         }
 
+
         while (!areAllMotesAtDestination()) {
             for(Mote mote : motes){
                 if(mote.isEnabled() && mote.getPath().size() > wayPointMap.get(mote)) {
                     //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
                     if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
-                            TimeHelper.nanoToMili(this.environment.getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
-                            (this.environment.getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
-                        timeMap.put(mote, this.environment.getTime());
+                            TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
+                            (this.environment.getClock().getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
+                        timeMap.put(mote, this.environment.getClock().getTime());
                         if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
                             this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
                             LinkedList historyMap = locationHistoryMap.get(mote);
@@ -207,7 +208,7 @@ public class Simulation implements Runnable {
                             if (mote.shouldSend()) {
                                 LinkedList<Byte> data = new LinkedList<>();
                                 for (MoteSensor sensor : mote.getSensors()) {
-                                    data.addAll(sensor.getValueAsList(mote.getPos(), this.environment.getTime()));
+                                    data.addAll(sensor.getValueAsList(mote.getPos(), this.environment.getClock().getTime()));
                                 }
                                 Byte[] dataByte = new Byte[data.toArray().length];
                                 data.toArray(dataByte);
@@ -218,7 +219,8 @@ public class Simulation implements Runnable {
                 }
 
             }
-            this.environment.tick(1);
+            this.environment.getClock().tick(1);
+            environment.getClock().tick(1);
         }
         return new SimualtionResult(locationMap, locationHistoryMap);
     }
@@ -239,9 +241,9 @@ public class Simulation implements Runnable {
      */
     public void run(){
         getEnvironment().reset();
-        setupMotesActivationStatus();
         for(int i =0; i< getInputProfile().getNumberOfRuns();i++) {
-            getEnvironment().resetClock();
+            setupMotesActivationStatus();
+            getEnvironment().getClock().reset();    //why we add this
             gui.setProgress(i,getInputProfile().getNumberOfRuns());
             if(i != 0)
                 getEnvironment().addRun();

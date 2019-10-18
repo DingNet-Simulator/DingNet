@@ -1,6 +1,9 @@
 package IotDomain;
 
 
+import IotDomain.mqtt.MqttClientBasicApi;
+import IotDomain.mqtt.MqttMessage;
+import IotDomain.mqtt.MqttMock;
 import SelfAdaptation.Instrumentation.MoteProbe;
 
 import java.util.Arrays;
@@ -12,6 +15,8 @@ import java.util.LinkedList;
 public class Gateway extends NetworkEntity {
 
     private LinkedList<MoteProbe> subscribedMoteProbes;
+    private final MqttClientBasicApi mqttClient;
+
     /**
      * A construtor creating a gateway with a given xPos, yPos, environment and transmission power.
      * @param gatewayEUI gateway identifier.
@@ -25,6 +30,7 @@ public class Gateway extends NetworkEntity {
         super(gatewayEUI , xPos, yPos, environment, transmissionPower, SF, 1.0);
         environment.addGateway(this);
         subscribedMoteProbes = new LinkedList<>();
+        mqttClient = new MqttMock();
     }
 
     /**
@@ -49,10 +55,21 @@ public class Gateway extends NetworkEntity {
      */
     @Override
     protected void OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver) {
-        getEnvironment().getMQTTServer().publish(new LinkedList<>(Arrays.asList(packet)), designatedReceiver, senderEUI,getEUI());
+        var message = new MqttMessage(new LinkedList<>(Arrays.asList(packet)), designatedReceiver, senderEUI,getEUI());
+        mqttClient.publish(getTopic(designatedReceiver, senderEUI), message);
         for (MoteProbe moteProbe : getSubscribedMoteProbes()){
             moteProbe.trigger(this,senderEUI);
         }
 
+    }
+
+    private String getTopic(Long applicationEUI, Long deviceEUI) {
+        return new StringBuilder()
+            .append("application/")
+            .append(applicationEUI)
+            .append("/node/")
+            .append(deviceEUI)
+            .append("/rx")
+            .toString();
     }
 }
