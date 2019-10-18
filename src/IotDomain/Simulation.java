@@ -211,7 +211,6 @@ public class Simulation implements Runnable {
 
             }
             this.environment.getClock().tick(1);
-            environment.getClock().tick(1);
         }
         return new SimualtionResult(locationMap, locationHistoryMap);
     }
