@@ -8,6 +8,7 @@ import util.TimeHelper;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A class representing a simulation.
@@ -156,15 +157,9 @@ public class Simulation implements Runnable {
      * check that do all motes arrive at their destination
      */
     private Boolean areAllMotesAtDestination() {
-        LinkedList<Mote> motes = this.environment.getMotes();
-        for(Mote mote : motes){
-            if(mote.isEnabled() && mote.getPath().size() > 0 && mote.getPath().getLast() != null) {
-                if(!this.environment.toMapCoordinate(mote.getPath().getLast()).equals(mote.getPos())){
-                    return false;
-                }
-            }
-        }
-        return true;
+        return this.environment.getMotes().stream().noneMatch(m ->
+            m.isEnabled() && !m.getPath().isEmpty() && m.getPath().getLast() != null &&
+            !this.environment.toMapCoordinate(m.getPath().getLast()).equals(m.getPos()));
     }
 
     private void animate(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap, Integer speed){
@@ -206,10 +201,9 @@ public class Simulation implements Runnable {
                             historyMap.add(mote.getPos());
                             locationHistoryMap.put(mote, historyMap);
                             if (mote.shouldSend()) {
-                                LinkedList<Byte> data = new LinkedList<>();
-                                for (MoteSensor sensor : mote.getSensors()) {
-                                    data.addAll(sensor.getValueAsList(mote.getPos(), this.environment.getClock().getTime()));
-                                }
+                                List<Byte> data = mote.getSensors().stream()
+                                    .flatMap(s -> s.getValueAsList(mote.getPos(), this.environment.getClock().getTime()).stream())
+                                    .collect(Collectors.toList());
                                 Byte[] dataByte = new Byte[data.toArray().length];
                                 data.toArray(dataByte);
                                 mote.sendToGateWay(dataByte, new HashMap<>());
@@ -245,8 +239,9 @@ public class Simulation implements Runnable {
             setupMotesActivationStatus();
             getEnvironment().getClock().reset();    //why we add this
             gui.setProgress(i,getInputProfile().getNumberOfRuns());
-            if(i != 0)
+            if(i != 0) {
                 getEnvironment().addRun();
+            }
             SimualtionResult result =  this.simulate();
             gui.setProgress(getInputProfile().getNumberOfRuns(),getInputProfile().getNumberOfRuns());
             updateMotesLocation(result.getLocationMap());
@@ -254,8 +249,8 @@ public class Simulation implements Runnable {
     }
 
     private class SimualtionResult{
-        private HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
-        private HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
+        private HashMap<Mote, Pair<Integer,Integer>> locationMap;
+        private HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap;
         SimualtionResult(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap){
             this.locationMap = locationMap;
             this.locationHistoryMap = locationHistoryMap;
