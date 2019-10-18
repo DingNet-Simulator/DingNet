@@ -8,7 +8,6 @@ import util.TimeHelper;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A class representing a simulation.
@@ -201,11 +200,9 @@ public class Simulation implements Runnable {
                             historyMap.add(mote.getPos());
                             locationHistoryMap.put(mote, historyMap);
                             if (mote.shouldSend()) {
-                                List<Byte> data = mote.getSensors().stream()
+                                Byte[] dataByte = mote.getSensors().stream()
                                     .flatMap(s -> s.getValueAsList(mote.getPos(), this.environment.getClock().getTime()).stream())
-                                    .collect(Collectors.toList());
-                                Byte[] dataByte = new Byte[data.toArray().length];
-                                data.toArray(dataByte);
+                                    .toArray(Byte[]::new);
                                 mote.sendToGateWay(dataByte, new HashMap<>());
                             }
                         } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
