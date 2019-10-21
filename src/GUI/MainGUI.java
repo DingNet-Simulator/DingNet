@@ -276,7 +276,7 @@ public class MainGUI extends JFrame {
 
                             Element sensors = (Element) moteNode.getElementsByTagName("sensors").item(0);
                             LinkedList<MoteSensor> moteSensors = new LinkedList<>();
-                            for (int j = 0; j < sensors.getElementsByTagName("sensors").getLength(); j++) {
+                            for (int j = 0; j < sensors.getElementsByTagName("sensor").getLength(); j++) {
                                 Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(j);
                                 moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
                             }
