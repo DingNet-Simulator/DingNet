@@ -53,10 +53,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
@@ -359,17 +356,22 @@ public class MainGUI extends JFrame {
                 JFileChooser fc = new JFileChooser();
                 fc.setDialogTitle("Save a configuration");
                 fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-                try {
-                    File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                    file = new File(file.getParent() + "/user/configurations");
-                    fc.setCurrentDirectory(file);
-                } catch (URISyntaxException e1) {
 
-                }
+                File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+                String basePath = file.getParentFile().getParent();
+                fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+
                 int returnVal = fc.showSaveDialog(mainPanel);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    file = new File(file.getPath() + ".xml");
+                    file = fc.getSelectedFile();
+                    String name = file.getName();
+
+                    if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
+                        file = new File(file.getPath() + ".xml");
+                    } else {
+                        file = new File(file.getPath());
+                    }
+
                     try {
                         DocumentBuilderFactory dbFactory =
                                 DocumentBuilderFactory.newInstance();
@@ -396,9 +398,9 @@ public class MainGUI extends JFrame {
 
                         Element size = doc.createElement("size");
                         Element width = doc.createElement("width");
-                        width.appendChild(doc.createTextNode(Integer.toString(simulation.getEnvironment().getMaxXpos())));
+                        width.appendChild(doc.createTextNode(Integer.toString(simulation.getEnvironment().getMaxXpos() + 1)));
                         Element height = doc.createElement("height");
-                        height.appendChild(doc.createTextNode(Integer.toString(simulation.getEnvironment().getMaxYpos())));
+                        height.appendChild(doc.createTextNode(Integer.toString(simulation.getEnvironment().getMaxYpos() + 1)));
                         size.appendChild(width);
                         size.appendChild(height);
                         region.appendChild(size);
@@ -519,7 +521,9 @@ public class MainGUI extends JFrame {
 
                         // write the content into xml file
                         TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                        transformerFactory.setAttribute("indent-number", 4);
                         Transformer transformer = transformerFactory.newTransformer();
+                        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                         DOMSource source = new DOMSource(doc);
                         StreamResult result = new StreamResult(file);
                         transformer.transform(source, result);
