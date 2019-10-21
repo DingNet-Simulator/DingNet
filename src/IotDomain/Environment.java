@@ -25,11 +25,11 @@ public class Environment implements Serializable {
     /**
      * The max x-coordinate allowed on the map
      */
-    private final int maxXpos;
+    private static int maxXpos = 0;
     /**
      * The max y-coordinate allowed on the map
      */
-    private final int maxYpos;
+    private static int maxYpos = 0;
     /**
      * A list containing all motes currently active on the map.
      */
@@ -98,6 +98,20 @@ public class Environment implements Serializable {
         }
 
         numberOfRuns = 1;
+    }
+
+    public static int getMapWidth() {
+        if (maxXpos == 0) {
+            throw new IllegalStateException("map not already initialized");
+        }
+        return maxXpos;
+    }
+
+    public static int getMapHeight() {
+        if (maxYpos == 0) {
+            throw new IllegalStateException("map not already initialized");
+        }
+        return maxYpos;
     }
 
     /**
@@ -375,7 +389,7 @@ public class Environment implements Serializable {
         for (Gateway gateway : getGateways()) {
             gateway.addRun();
         }
-        numberOfRuns ++;
+        numberOfRuns++;
     }
 
     /**
