@@ -1,6 +1,7 @@
 package IotDomain;
 
 import SensorDataGenerators.*;
+import SensorDataGenerators.IAQSensor.IAQDataGeneratorSingleton;
 import util.Pair;
 
 import java.time.LocalTime;
@@ -16,7 +17,8 @@ public enum MoteSensor {
     OZONE(new OzoneDataGenerator()),
     CARBON_DIOXIDE(new CarbonDioxideDataGenerator()),
     PARTICULATE_MATTER(new ParticulateMatterDataGenerator()),
-    GPS(new GPSDataGenerator());
+    GPS(new GPSDataGenerator()),
+    IAQ(IAQDataGeneratorSingleton.getInstance());
 
     MoteSensor(SensorDataGenerator sensorDataGenerator){
         this.sensorDataGenerator = sensorDataGenerator;
@@ -37,14 +39,9 @@ public enum MoteSensor {
         return ret;
     }
     public byte[] getValue(Pair<Integer, Integer> pos, LocalTime time){
-        return sensorDataGenerator.generateData(pos,time);
+        return getValue(pos.getLeft(), pos.getRight(), time);
     }
     public List<Byte> getValueAsList(Pair<Integer, Integer> pos, LocalTime time){
-        var tmp = sensorDataGenerator.generateData(pos,time);
-        var ret = new LinkedList<Byte>();
-        for (byte b : tmp) {
-            ret.add(b);
-        }
-        return ret;
+        return getValueAsList(pos.getLeft(), pos.getRight(), time);
     }
 }
