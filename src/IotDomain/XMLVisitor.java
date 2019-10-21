@@ -10,6 +10,7 @@ import java.util.LinkedList;
 
 public class XMLVisitor {
 
+    @Deprecated
     public Document visit(Environment environment) throws ParserConfigurationException {
 
         DocumentBuilderFactory dbFactory =
@@ -146,8 +147,11 @@ public class XMLVisitor {
 
         Element wayPoints = doc.createElement("wayPoints");
 
-        for (GeoPosition wayPoint : environment.getWayPoints()) {
+        for (var me : environment.getWayPoints().entrySet()) {
             Element wayPointElement = doc.createElement("wayPoint");
+
+            wayPointElement.setAttribute("id", me.getKey().toString());
+            var wayPoint = me.getValue();
             wayPointElement.appendChild(doc.createTextNode(wayPoint.getLatitude() + "," + wayPoint.getLongitude()));
             wayPoints.appendChild(wayPointElement);
 

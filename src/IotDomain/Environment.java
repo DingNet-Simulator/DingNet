@@ -8,6 +8,7 @@ import util.Pair;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -76,7 +77,7 @@ public class Environment implements Serializable {
      * @Post    Sets the max y-coordinate to 0 if the map is not valid.
      * @Post    Sets the characteristics to an empty list if the map is not valid.
      */
-    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, Set<GeoPosition> wayPoints, int numberOfZones){
+    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, Map<Long, GeoPosition> wayPoints, int numberOfZones){
         if (areValidCharacteristics(characteristics)) {
             maxXpos = characteristics.length-1;
             maxYpos = characteristics[0].length-1;
@@ -92,8 +93,8 @@ public class Environment implements Serializable {
         this.mapHelper = MapHelper.getInstance();
         this.mapHelper.setMapOrigin(mapOrigin);
         this.graph = new GraphStructure();
-        for (var wp : wayPoints) {
-            this.graph.addWayPoint(wp);
+        for (var me : wayPoints.entrySet()) {
+            this.graph.addWayPoint(me.getKey(), me.getValue());
         }
 
         numberOfRuns = 1;
@@ -127,15 +128,15 @@ public class Environment implements Serializable {
      * Adds a waypoint to the configuration
      * @param wayPoint The waypoint to add
      */
-    public void addWayPoint(GeoPosition wayPoint) {
-        this.graph.addWayPoint(wayPoint);
+    public void addWayPoint(Long ID, GeoPosition wayPoint) {
+        this.graph.addWayPoint(ID, wayPoint);
     }
 
     /**
      * Gets the paths.
      * @return The paths.
      */
-    public Set<GeoPosition> getWayPoints() {
+    public Map<Long, GeoPosition> getWayPoints() {
         return this.graph.getWayPoints();
     }
 

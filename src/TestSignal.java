@@ -21,7 +21,7 @@ public class TestSignal {
         }
         Random random = new Random();
         GeoPosition mapzero = new GeoPosition(50.853718, 4.673155);
-        Environment environment = new Environment(map, mapzero, new LinkedHashSet<>(), 36);
+        Environment environment = new Environment(map, mapzero, new HashMap<>(), 36);
         new Gateway(random.nextLong(),100, 100,
                 environment, 14,12);
         new Mote(random.nextLong(),0,

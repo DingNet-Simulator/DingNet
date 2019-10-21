@@ -144,7 +144,7 @@ public class ConfigureMapPanel {
         if (guided) {
             HashSet<DefaultWaypoint> set = new HashSet<DefaultWaypoint>();
             PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
-            for (GeoPosition waypoint : environment.getWayPoints()) {
+            for (GeoPosition waypoint : environment.getWayPoints().values()) {
                 set.add(new DefaultWaypoint(waypoint));
             }
             waypointPainter.setWaypoints(set);
@@ -235,10 +235,12 @@ public class ConfigureMapPanel {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
 
+                // FIXME in the guided case, calculate distance to all motes, and then choose nearest one
+                // FIXME currently the last one that is close enough is chosen
                 if (currentTrack.size() > 0) {
                     if (guided) {
                         GeoPosition nearestWayPoint = null;
-                        for (GeoPosition wayPoint : environment.getWayPoints()) {
+                        for (GeoPosition wayPoint : environment.getWayPoints().values()) {
                             Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - environment.toMapXCoordinate(wayPoint));
                             Integer yDistance = Math.abs(environment.toMapYCoordinate(geo) - environment.toMapYCoordinate(wayPoint));
 

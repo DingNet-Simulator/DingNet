@@ -156,7 +156,7 @@ public class MapView {
                 map[j][i] = Characteristic.City;
             }
         }
-        Environment environment = new Environment(map,mapzero,new LinkedHashSet<>(), 36);
+        Environment environment = new Environment(map,mapzero,new HashMap<>(), 36);
         /*
         Add motes and gateways.
          */

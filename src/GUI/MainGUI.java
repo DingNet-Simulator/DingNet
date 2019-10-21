@@ -224,7 +224,8 @@ public class MainGUI extends JFrame {
                         Element characteristics = (Element) configuration.getElementsByTagName("characteristics").item(0);
                         Element motes = (Element) configuration.getElementsByTagName("motes").item(0);
                         Element gateways = (Element) configuration.getElementsByTagName("gateways").item(0);
-                        Element wayPoints = (Element) configuration.getElementsByTagName("wayPoints").item(0);
+
+
                         Element region = (Element) map.getElementsByTagName("region").item(0);
                         Element origin = (Element) region.getElementsByTagName("origin").item(0);
                         GeoPosition mapOrigin = new GeoPosition(Double.valueOf(origin.getElementsByTagName("latitude").item(0).getTextContent())
@@ -252,15 +253,26 @@ public class MainGUI extends JFrame {
 
                         }
 
-                        Set<GeoPosition> wayPointsSet = new LinkedHashSet<>();
-                        for (int i = 0; i < wayPoints.getElementsByTagName("wayPoint").getLength(); i++) {
-                            Element waypoint = (Element) wayPoints.getElementsByTagName("wayPoint").item(i);
-                            double wayPointLatitude = Double.parseDouble(waypoint.getTextContent().split(",")[0]);
-                            double wayPointLongitude = Double.parseDouble(waypoint.getTextContent().split(",")[1]);
-                            wayPointsSet.add(new GeoPosition(wayPointLatitude, wayPointLongitude));
+                        Element wayPoints = (Element) configuration.getElementsByTagName("wayPoints").item(0);
+
+                        if (configuration.getElementsByTagName("connections").getLength() != 0) {
+                            Element connections = (Element) configuration.getElementsByTagName("connections").item(0);
+
+                            // TODO add routes to graph
                         }
 
-                        simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, wayPointsSet, numberOfZones));
+                        Map<Long, GeoPosition> wayPointsMap = new HashMap<>();
+                        for (int i = 0; i < wayPoints.getElementsByTagName("wayPoint").getLength(); i++) {
+                            Element waypoint = (Element) wayPoints.getElementsByTagName("wayPoint").item(i);
+
+                            double wayPointLatitude = Double.parseDouble(waypoint.getTextContent().split(",")[0]);
+                            double wayPointLongitude = Double.parseDouble(waypoint.getTextContent().split(",")[1]);
+                            long ID = Long.parseLong(waypoint.getAttribute("id"));
+
+                            wayPointsMap.put(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
+                        }
+
+                        simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, wayPointsMap, numberOfZones));
 
                         Element moteNode;
 
@@ -493,8 +505,11 @@ public class MainGUI extends JFrame {
 
                         Element wayPoints = doc.createElement("wayPoints");
 
-                        for (GeoPosition wayPoint : simulation.getEnvironment().getWayPoints()) {
+                        for (var me : simulation.getEnvironment().getWayPoints().entrySet()) {
                             Element wayPointElement = doc.createElement("wayPoint");
+
+                            wayPointElement.setAttribute("id", me.getKey().toString());
+                            var wayPoint = me.getValue();
                             wayPointElement.appendChild(doc.createTextNode(wayPoint.getLatitude() + "," + wayPoint.getLongitude()));
                             wayPoints.appendChild(wayPointElement);
 
