@@ -50,10 +50,6 @@ public class InputProfile {
      * The source Document of the profile.
      */
     private Document xmlSource;
-    /**
-     * The gui on which the inputProfile is displayed.
-     */
-    private MainGUI gui;
 
     /**
      * Generates InputProfile with a given qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
@@ -64,13 +60,12 @@ public class InputProfile {
      * @param probabilitiesForGateways The probabilities for the gateways.
      * @param regionProbabilities The probabilities for the regions.
      * @param xmlSource The source of the InputProfile.
-     * @param gui The MainGUI displaying the input profiles.
      */
     public InputProfile(String name, QualityOfService qualityOfServiceProfile,
                         Integer numberOfRuns,
                         HashMap<Integer, Double> probabilitiesForMotes,
                         HashMap<Integer, Double> probabilitiesForGateways, HashMap<Integer, Double> regionProbabilities,
-                        Element xmlSource, MainGUI gui){
+                        Element xmlSource){
         this.name = name;
         this.qualityOfServiceProfile = qualityOfServiceProfile;
         this.numberOfRuns =numberOfRuns;
@@ -90,7 +85,6 @@ public class InputProfile {
         Node importedNode = newDocument.importNode(node, true);
         newDocument.appendChild(importedNode);
         this.xmlSource = newDocument;
-        this.gui = gui;
     }
 
     /**
@@ -299,8 +293,8 @@ public class InputProfile {
 
         }
         inputProfileElement.appendChild(moteProbabilaties);
-        gui.updateInputProfilesFile();
 
+        SimulationRunner.getInstance().updateInputProfilesFile();
     }
 
     /**

@@ -367,7 +367,7 @@ public class Environment implements Serializable {
         for (Gateway gateway : getGateways()) {
             gateway.addRun();
         }
-        numberOfRuns ++;
+        numberOfRuns++;
     }
 
     /**
