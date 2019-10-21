@@ -283,7 +283,7 @@ public class MainGUI extends JFrame {
                                 moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
                             }
 
-                            Element pathElement = (Element) moteNode.getElementsByTagName("connection").item(0);
+                            Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
                             Element waypoint;
                             Path path = new Path();
                             LinkedList<GeoPosition> waypoints = new LinkedList<>();
