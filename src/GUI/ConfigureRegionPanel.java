@@ -1,10 +1,9 @@
 package GUI;
 
-import IotDomain.Characteristic;
-import IotDomain.Environment;
-import util.Pair;
 import GUI.MapViewer.BorderPainter;
 import GUI.MapViewer.CharacteristicPainter;
+import IotDomain.Characteristic;
+import IotDomain.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -14,11 +13,14 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
+import util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -78,7 +80,7 @@ public class ConfigureRegionPanel {
 
     private void loadMap(Boolean isRefresh) {
         GeoPosition centerPosition = mapViewer.getCenterPosition();
-        Integer zoom = mapViewer.getZoom();
+        int zoom = mapViewer.getZoom();
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
@@ -91,7 +93,7 @@ public class ConfigureRegionPanel {
             horizontalLines.add(new LinkedList<>());
             verticalLines.add(new LinkedList<>());
             for (int j = 0; j < (amountOfSquares + 1); j += 1) {
-                points.getLast().add(new Pair(environment.toLatitude((int) Math.round(j * ((double) environment.getMaxYpos()) / amountOfSquares)), environment.toLongitude((int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares))));
+                points.getLast().add(new Pair<>(environment.toLatitude((int) Math.round(j * ((double) environment.getMaxYpos()) / amountOfSquares)), environment.toLongitude((int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares))));
             }
         }
 

@@ -1,7 +1,7 @@
 package GUI;
 
-import javax.swing.text.*;
 import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.geom.Area;
 

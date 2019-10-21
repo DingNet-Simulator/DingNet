@@ -42,7 +42,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import util.Connection;
 import util.Pair;
+import util.Path;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -69,8 +71,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 public class MainGUI extends JFrame {
     private JPanel map;
@@ -250,11 +252,11 @@ public class MainGUI extends JFrame {
 
                         }
 
-                        LinkedHashSet<GeoPosition> wayPointsSet = new LinkedHashSet<>();
+                        Set<GeoPosition> wayPointsSet = new LinkedHashSet<>();
                         for (int i = 0; i < wayPoints.getElementsByTagName("wayPoint").getLength(); i++) {
                             Element waypoint = (Element) wayPoints.getElementsByTagName("wayPoint").item(i);
-                            Double wayPointLatitude = Double.valueOf(waypoint.getTextContent().split(",")[0]);
-                            Double wayPointLongitude = Double.valueOf(waypoint.getTextContent().split(",")[1]);
+                            double wayPointLatitude = Double.parseDouble(waypoint.getTextContent().split(",")[0]);
+                            double wayPointLongitude = Double.parseDouble(waypoint.getTextContent().split(",")[1]);
                             wayPointsSet.add(new GeoPosition(wayPointLatitude, wayPointLongitude));
                         }
 
@@ -280,18 +282,26 @@ public class MainGUI extends JFrame {
                                 Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(j);
                                 moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
                             }
-//                            while (sensornode != null) {
-//                                sensornode = (Element) sensornode.getNextSibling();
-//                            }
-                            Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
+
+                            Element pathElement = (Element) moteNode.getElementsByTagName("connection").item(0);
                             Element waypoint;
-                            LinkedList<GeoPosition> path = new LinkedList<>();
+                            Path path = new Path();
+                            LinkedList<GeoPosition> waypoints = new LinkedList<>();
+
+
                             for (int j = 0; j < pathElement.getElementsByTagName("wayPoint").getLength(); j++) {
                                 waypoint = (Element) pathElement.getElementsByTagName("wayPoint").item(j);
-                                Integer wayPointX = Integer.valueOf(waypoint.getTextContent().split(",")[0]);
-                                Integer wayPointY = Integer.valueOf(waypoint.getTextContent().split(",")[1]);
-                                path.add(new GeoPosition(simulation.getEnvironment().toLatitude(wayPointY), simulation.getEnvironment().toLongitude(wayPointX)));
+                                int wayPointX = Integer.parseInt(waypoint.getTextContent().split(",")[0]);
+                                int wayPointY = Integer.parseInt(waypoint.getTextContent().split(",")[1]);
+
+                                waypoints.add(new GeoPosition(simulation.getEnvironment().toLatitude(wayPointY),
+                                        simulation.getEnvironment().toLongitude(wayPointX)));
                             }
+
+                            for (int j = 0; j < waypoints.size() - 1; j++) {
+                                path.addConnection(new Connection(waypoints.get(j), waypoints.get(j+1)));
+                            }
+
                             new Mote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, samplingRate, movementSpeed);
                         }
 
@@ -309,11 +319,7 @@ public class MainGUI extends JFrame {
                         }
 
 
-                    } catch (ParserConfigurationException e1) {
-                        e1.printStackTrace();
-                    } catch (SAXException e1) {
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
+                    } catch (ParserConfigurationException | SAXException | IOException e1) {
                         e1.printStackTrace();
                     }
 
@@ -514,7 +520,7 @@ public class MainGUI extends JFrame {
         regionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setApplicationGraphs(Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), simulation.getEnvironment());
+                setApplicationGraphs(0, 0, 0, 0, simulation.getEnvironment());
             }
         });
         singleRunButton.addActionListener(new ActionListener() {
@@ -1064,7 +1070,7 @@ public class MainGUI extends JFrame {
         painters.add(gateWayNumberPainter);
 
         for (Mote mote : environment.getMotes()) {
-            painters.add(new TrackPainter(mote.getPath()));
+            painters.add(new TrackPainter(mote.getPath().getWayPoints()));
         }
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);

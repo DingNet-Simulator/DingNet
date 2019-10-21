@@ -1,7 +1,9 @@
 package IotDomain;
 
-import be.kuleuven.cs.som.annotate.*;
-import org.jxmapviewer.viewer.GeoPosition;
+import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
+import util.Path;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,10 +29,10 @@ public class Mote extends NetworkEntity {
     @Model
     private LinkedList<MoteSensor> moteSensors = new LinkedList<>();
     /**
-     * A LinkedList of GeoPositions representing the path the mote will follow.
+     * A path representing the connections the mote will follow.
      */
     @Model
-    private LinkedList<GeoPosition> path;
+    private Path path;
 
     /**
      * An integer representing the energy level of the mote.
@@ -60,7 +62,7 @@ public class Mote extends NetworkEntity {
 
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
-     * spreading factor, list of MoteSensors, energy level, path, sampling rate, movement speed and start offset.
+     * spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.
      * @param DevEUI The device's unique identifier
      * @param xPos  The x-coordinate of the node.
      * @param yPos  The y-coordinate of the node.
@@ -76,7 +78,7 @@ public class Mote extends NetworkEntity {
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Integer samplingRate, Double movementSpeed, Integer startOffset){
+                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Integer samplingRate, Double movementSpeed, Integer startOffset){
        super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
         environment.addMote(this);
         OverTheAirActivation();
@@ -84,7 +86,7 @@ public class Mote extends NetworkEntity {
         this.path = path;
         this.energyLevel = energyLevel;
         this.samplingRate = samplingRate;
-        numberOfRequests = samplingRate;
+        this.numberOfRequests = samplingRate;
         this.movementSpeed = movementSpeed;
         this.startOffset = startOffset;
 
@@ -92,7 +94,7 @@ public class Mote extends NetworkEntity {
 
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
-     * spreading factor, list of MoteSensors, energy level, path, sampling rate and movement speed and  random start offset.
+     * spreading factor, list of MoteSensors, energy level, connection, sampling rate and movement speed and  random start offset.
      * @param DevEUI The device's unique identifier
      * @param xPos  The x-coordinate of the node.
      * @param yPos  The y-coordinate of the node.
@@ -107,8 +109,8 @@ public class Mote extends NetworkEntity {
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Integer samplingRate, Double movementSpeed){
-        this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path,samplingRate, movementSpeed,Math.abs((new Random()).nextInt(5)));
+                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Integer samplingRate, Double movementSpeed){
+        this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel, path, samplingRate, movementSpeed,Math.abs((new Random()).nextInt(5)));
     }
 
     /**
@@ -133,7 +135,7 @@ public class Mote extends NetworkEntity {
      * @return The path of the mote.
      */
     @Basic
-    public LinkedList<GeoPosition> getPath() {
+    public Path getPath() {
         return path;
     }
 
@@ -142,7 +144,7 @@ public class Mote extends NetworkEntity {
      * @param path The path to set.
      */
     @Basic
-    public void setPath(LinkedList<GeoPosition> path) {
+    public void setPath(Path path) {
         this.path = path;
     }
 

@@ -1,7 +1,6 @@
 package IotDomain;
 
 import SelfAdaptation.AdaptationGoals.AdaptationGoal;
-import be.kuleuven.cs.som.annotate.Basic;
 
 import java.util.HashMap;
 import java.util.Set;

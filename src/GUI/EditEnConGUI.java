@@ -1,6 +1,5 @@
 package GUI;
 
-import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
 
 import javax.swing.*;

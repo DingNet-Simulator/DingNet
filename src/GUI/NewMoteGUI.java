@@ -5,6 +5,7 @@ import IotDomain.Environment;
 import IotDomain.Mote;
 import IotDomain.MoteSensor;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Path;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -115,7 +116,7 @@ public class NewMoteGUI {
             }
             new Mote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
                     (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
-                    (Integer) SFSpinner.getValue(), moteSensors, 20, new LinkedList<>(), (Integer) samplingSpinner.getValue(), (Double) movementSpinner.getValue());
+                    (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(), (Integer) samplingSpinner.getValue(), (Double) movementSpinner.getValue());
             parent.refresh();
             frame.dispose();
 

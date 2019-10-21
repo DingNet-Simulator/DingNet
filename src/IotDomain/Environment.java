@@ -7,7 +7,6 @@ import util.MapHelper;
 import util.Pair;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -77,7 +76,7 @@ public class Environment implements Serializable {
      * @Post    Sets the max y-coordinate to 0 if the map is not valid.
      * @Post    Sets the characteristics to an empty list if the map is not valid.
      */
-    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, LinkedHashSet<GeoPosition> wayPoints, int numberOfZones){
+    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, Set<GeoPosition> wayPoints, int numberOfZones){
         if (areValidCharacteristics(characteristics)) {
             maxXpos = characteristics.length-1;
             maxYpos = characteristics[0].length-1;

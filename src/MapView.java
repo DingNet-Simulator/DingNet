@@ -1,6 +1,5 @@
-
-import IotDomain.*;
 import GUI.MapViewer.*;
+import IotDomain.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.ChartPanel;
@@ -17,6 +16,8 @@ import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+import util.Path;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -174,14 +175,14 @@ public class MapView {
                 environment, 14,12);
         new Mote(random.nextLong(),(int)Math.round(1000* Environment.distance(mapzero.getLatitude(),mapzero.getLongitude(),mapzero.getLatitude(), wp1.getLongitude())),
                 (int)Math.round(1000* Environment.distance(mapzero.getLatitude(),mapzero.getLongitude(),wp1.getLatitude(), mapzero.getLongitude())),
-                environment, 14,12, new LinkedList<>(),0,new LinkedList<>(),10,0.5);
+                environment, 14,12, new LinkedList<>(),0,new Path(),10,0.5);
 
         new Mote(random.nextLong(),(int)Math.round(1000* Environment.distance(mapzero.getLatitude(),mapzero.getLongitude(),mapzero.getLatitude(), positionMote2.getLongitude())),
                 (int)Math.round(1000* Environment.distance(mapzero.getLatitude(),mapzero.getLongitude(),positionMote2.getLatitude(), mapzero.getLongitude())),
-                environment, 14,12, new LinkedList<>(),0,new LinkedList<>(),10,0.5);
+                environment, 14,12, new LinkedList<>(),0,new Path(),10,0.5);
         new Mote(random.nextLong(),toMapXCoordinate(wp21,mapzero),
                 toMapYCoordinate(wp21,mapzero),
-                environment, 0,12, new LinkedList<>(),0,new LinkedList<>(),10,0.5);
+                environment, 0,12, new LinkedList<>(),0,new Path(),10,0.5);
         /*
         get the motes.
          */

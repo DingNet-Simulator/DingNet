@@ -3,6 +3,7 @@ import IotDomain.Environment;
 import IotDomain.Gateway;
 import IotDomain.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Path;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -25,7 +26,7 @@ public class TestSignal {
                 environment, 14,12);
         new Mote(random.nextLong(),0,
                 0,
-                environment, 14,12, new LinkedList<>(),0,new LinkedList<>(),10,0.5);
+                environment, 14,12, new LinkedList<>(),0,new Path(),10,0.5);
         Mote mote = environment.getMotes().get(0);
         mote.sendToGateWay(new Byte[0],new HashMap<>());
         System.out.println(mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(0).getTransmissionPower() + ", "+mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(1).getTransmissionPower());

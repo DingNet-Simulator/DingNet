@@ -1,10 +1,8 @@
 package GUI;
 
+import GUI.MapViewer.*;
 import IotDomain.Environment;
 import IotDomain.Mote;
-import util.Pair;
-import GUI.MapViewer.*;
-
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -12,6 +10,9 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+import util.Connection;
+import util.Pair;
+import util.Path;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -136,7 +137,7 @@ public class ConfigureMapPanel {
 
         if (currentMote == null) {
             for (Mote mote : environment.getMotes()) {
-                painters.add(new TrackPainter(mote.getPath()));
+                painters.add(new TrackPainter(mote.getPath().getWayPoints()));
             }
         }
 
@@ -233,6 +234,7 @@ public class ConfigureMapPanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
+
                 if (currentTrack.size() > 0) {
                     if (guided) {
                         GeoPosition nearestWayPoint = null;
@@ -310,8 +312,14 @@ public class ConfigureMapPanel {
     private class MapSaveTrackActionLister implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            Path path = new Path();
+
+            for (int i = 0; i < currentTrack.size() - 1; i++) {
+                path.addConnection(new Connection(currentTrack.get(i), currentTrack.get(i+1)));
+            }
+
             if (currentTrack.size() > 1) {
-                currentMote.setPath(currentTrack);
+                currentMote.setPath(path);
                 currentMote = null;
                 currentTrack = new LinkedList<>();
                 loadMap(true);

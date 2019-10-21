@@ -1,10 +1,10 @@
 package GUI;
 
-import javax.swing.text.*;
 import javax.swing.*;
-import java.io.*;
-import java.awt.event.*;
+import javax.swing.text.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 
 public class XMLEditorKit extends StyledEditorKit {
     ViewFactory defaultFactory = new XMLViewFactory();

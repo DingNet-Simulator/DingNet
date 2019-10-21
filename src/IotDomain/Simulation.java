@@ -157,8 +157,10 @@ public class Simulation implements Runnable {
      */
     private Boolean areAllMotesAtDestination() {
         return this.environment.getMotes().stream().noneMatch(m ->
-            m.isEnabled() && !m.getPath().isEmpty() && m.getPath().getLast() != null &&
-            !this.environment.toMapCoordinate(m.getPath().getLast()).equals(m.getPos()));
+                m.isEnabled() &&
+                !m.getPath().getWayPoints().isEmpty() &&
+                m.getPath().getWayPoints().getLast() != null &&
+                !this.environment.toMapCoordinate(m.getPath().getWayPoints().getLast()).equals(m.getPos()));
     }
 
     private void animate(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap, Integer speed){
@@ -188,14 +190,14 @@ public class Simulation implements Runnable {
 
         while (!areAllMotesAtDestination()) {
             for(Mote mote : motes){
-                if(mote.isEnabled() && mote.getPath().size() > wayPointMap.get(mote)) {
+                if(mote.isEnabled() && mote.getPath().getWayPoints().size() > wayPointMap.get(mote)) {
                     //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
                     if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                             TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
                             (this.environment.getClock().getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
                         timeMap.put(mote, this.environment.getClock().getTime());
-                        if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
-                            this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
+                        if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPos())) {
+                            this.environment.moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
                             LinkedList historyMap = locationHistoryMap.get(mote);
                             historyMap.add(mote.getPos());
                             locationHistoryMap.put(mote, historyMap);

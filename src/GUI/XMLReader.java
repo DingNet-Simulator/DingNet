@@ -1,15 +1,16 @@
 package GUI;
 
-import org.w3c.dom.*;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.*;
 import javax.swing.text.*;
-import javax.swing.text.Document;
-import java.io.*;
-import java.util.HashMap;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 

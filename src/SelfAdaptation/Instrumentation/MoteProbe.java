@@ -1,6 +1,9 @@
 package SelfAdaptation.Instrumentation;
 
-import IotDomain.*;
+import IotDomain.Gateway;
+import IotDomain.LoraTransmission;
+import IotDomain.Mote;
+import IotDomain.NetworkEntity;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 
 import java.util.LinkedList;
