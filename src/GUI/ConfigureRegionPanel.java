@@ -1,10 +1,9 @@
 package GUI;
 
-import IotDomain.Characteristic;
-import IotDomain.Environment;
-import util.Pair;
 import GUI.MapViewer.BorderPainter;
 import GUI.MapViewer.CharacteristicPainter;
+import IotDomain.Characteristic;
+import IotDomain.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -14,11 +13,14 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
+import util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.*;

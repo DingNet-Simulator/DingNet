@@ -1,10 +1,8 @@
 package GUI;
 
+import GUI.MapViewer.*;
 import IotDomain.Environment;
 import IotDomain.Mote;
-import util.Pair;
-import GUI.MapViewer.*;
-
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -12,6 +10,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+import util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;

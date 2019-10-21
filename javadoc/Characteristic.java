@@ -1,5 +1,3 @@
-import be.kuleuven.cs.som.annotate.*;
-
 /**
  * A class representing the characteristics of a certain location.
  */

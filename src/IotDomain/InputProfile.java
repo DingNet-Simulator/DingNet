@@ -1,7 +1,6 @@
 package IotDomain;
 
 
-import GUI.MainGUI;
 import SelfAdaptation.AdaptationGoals.AdaptationGoal;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
@@ -12,7 +11,7 @@ import org.w3c.dom.Node;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,16 +35,16 @@ public class InputProfile {
     /**
      * The probabilities for the motes to run a certain path.
      */
-    private HashMap<Integer,Double> probabilitiesForMotes;
+    private Map<Integer,Double> probabilitiesForMotes;
 
     /**
      * The probabilities for the gateways to work.
      */
-    private HashMap<Integer,Double> probabilitiesForGateways;
+    private Map<Integer,Double> probabilitiesForGateways;
     /**
      * Other probabilities chosen for the simulation
      */
-    private HashMap<Integer,Double> regionProbabilities;
+    private Map<Integer,Double> regionProbabilities;
     /**
      * The source Document of the profile.
      */
@@ -63,8 +62,8 @@ public class InputProfile {
      */
     public InputProfile(String name, QualityOfService qualityOfServiceProfile,
                         Integer numberOfRuns,
-                        HashMap<Integer, Double> probabilitiesForMotes,
-                        HashMap<Integer, Double> probabilitiesForGateways, HashMap<Integer, Double> regionProbabilities,
+                        Map<Integer, Double> probabilitiesForMotes,
+                        Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
                         Element xmlSource){
         this.name = name;
         this.qualityOfServiceProfile = qualityOfServiceProfile;

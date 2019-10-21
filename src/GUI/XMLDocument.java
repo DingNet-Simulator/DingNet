@@ -1,7 +1,6 @@
 package GUI;
 
 import javax.swing.text.*;
-import java.util.ArrayList;
 import java.awt.*;
 
 public class XMLDocument extends DefaultStyledDocument {

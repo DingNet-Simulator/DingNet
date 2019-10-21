@@ -1,6 +1,5 @@
-
-import IotDomain.*;
 import GUI.MapViewer.*;
+import IotDomain.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.ChartPanel;
@@ -17,6 +16,7 @@ import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;

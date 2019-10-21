@@ -1,6 +1,8 @@
 package IotDomain;
 
-import be.kuleuven.cs.som.annotate.*;
+import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.HashMap;

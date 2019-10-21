@@ -2,7 +2,6 @@ package GUI;
 
 import org.jfree.chart.renderer.PaintScale;
 
-
 import java.awt.*;
 
 class SpectrumPaintScale implements PaintScale {

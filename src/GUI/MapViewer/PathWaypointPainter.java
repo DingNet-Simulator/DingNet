@@ -1,13 +1,13 @@
 package GUI.MapViewer;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.util.*;
-
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointRenderer;
+
+import java.awt.*;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Paints waypoints on the JXMapViewer. This is an

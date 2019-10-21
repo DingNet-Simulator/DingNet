@@ -1,6 +1,6 @@
 package IotDomain;
 
-import be.kuleuven.cs.som.annotate.*;
+import be.kuleuven.cs.som.annotate.Basic;
 
 import java.awt.*;
 
