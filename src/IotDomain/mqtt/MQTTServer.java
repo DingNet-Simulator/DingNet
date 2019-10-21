@@ -1,4 +1,4 @@
-package IotDomain;
+package IotDomain.mqtt;
 
 import util.BufferPair;
 

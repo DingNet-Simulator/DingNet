@@ -1,5 +1,7 @@
 package SensorDataGenerators;
 
+import util.Pair;
+
 import java.time.LocalTime;
 
 /**
@@ -13,5 +15,6 @@ public interface SensorDataGenerator {
      * @param time time of measurement.
      * @return sensor data based on location and time.
      */
-    Byte generateData(Integer x, Integer y, LocalTime time);
+    byte[] generateData(Integer x, Integer y, LocalTime time);
+    byte[] generateData(Pair<Integer, Integer> pos, LocalTime time);
 }

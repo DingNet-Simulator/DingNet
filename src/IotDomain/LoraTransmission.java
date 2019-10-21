@@ -156,7 +156,7 @@ public class LoraTransmission implements Serializable{
         else
             this.spreadingFactor = 0;
 
-        departureTime = getEnvironment().getTime();
+        departureTime = getEnvironment().getClock().getTime();
         /**
          * https://docs.google.com/spreadsheets/d/1voGAtQAjC1qBmaVuP1ApNKs1ekgUjavHuVQIXyYSvNc/edit#gid=0
          */

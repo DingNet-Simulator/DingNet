@@ -5,6 +5,6 @@ public class TimeHelper {
         return  nanoTime / 1e6;
     }
     public static double secToMili(double secTime){
-        return  secTime / 1e3;
+        return  secTime * 1e3;
     }
 }

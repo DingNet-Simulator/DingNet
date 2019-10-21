@@ -11,6 +11,10 @@ import SelfAdaptation.FeedbackLoop.ReliableEfficientDistanceGateway;
 import SelfAdaptation.FeedbackLoop.SignalBasedAdaptation;
 import SelfAdaptation.Instrumentation.MoteEffector;
 import SelfAdaptation.Instrumentation.MoteProbe;
+import SensorDataGenerators.CarbonDioxideDataGenerator;
+import SensorDataGenerators.OzoneDataGenerator;
+import SensorDataGenerators.ParticulateMatterDataGenerator;
+import SensorDataGenerators.SootDataGenerator;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -64,6 +68,7 @@ import java.awt.image.FilteredImageSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 
@@ -192,17 +197,15 @@ public class MainGUI extends JFrame {
                 JFileChooser fc = new JFileChooser();
                 fc.setDialogTitle("Load a configuration");
                 fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-                try {
-                    File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                    file = new File(file.getParent() + "/user/configurations");
-                    fc.setCurrentDirectory(file);
-                } catch (URISyntaxException e1) {
-                    System.out.println(e1);
-                }
-                int returnVal = fc.showOpenDialog(mainPanel);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
 
+                File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+                String basePath = file.getParentFile().getParent();
+                fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+
+                int returnVal = fc.showOpenDialog(mainPanel);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    file = fc.getSelectedFile();
 
                     JFrame frame = new JFrame("Loading configuration");
                     LoadingGUI loadingGUI = new LoadingGUI();
@@ -226,7 +229,7 @@ public class MainGUI extends JFrame {
                                 , Double.valueOf(origin.getElementsByTagName("longitude").item(0).getTextContent()));
                         Integer width = Integer.valueOf(region.getElementsByTagName("width").item(0).getTextContent());
                         Integer height = Integer.valueOf(region.getElementsByTagName("height").item(0).getTextContent());
-                        Integer numberOfZones = Integer.valueOf(((Element) characteristics.getElementsByTagName("regionProperty").item(0)).getAttribute("numberOfZones"));
+                        int numberOfZones = Integer.valueOf(((Element) characteristics.getElementsByTagName("regionProperty").item(0)).getAttribute("numberOfZones"));
 
                         Characteristic[][] characteristicsMap = new Characteristic[width][height];
                         for (int j = 0; j < Math.round(Math.sqrt(numberOfZones)); j++) {
@@ -255,7 +258,7 @@ public class MainGUI extends JFrame {
                             wayPointsSet.add(new GeoPosition(wayPointLatitude, wayPointLongitude));
                         }
 
-                        simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, wayPointsSet));
+                        simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, wayPointsSet, numberOfZones));
 
                         Element moteNode;
 
@@ -270,13 +273,16 @@ public class MainGUI extends JFrame {
                             Integer energyLevel = Integer.valueOf(moteNode.getElementsByTagName("energyLevel").item(0).getTextContent());
                             Integer samplingRate = Integer.valueOf(moteNode.getElementsByTagName("samplingRate").item(0).getTextContent());
                             Double movementSpeed = Double.valueOf(moteNode.getElementsByTagName("movementSpeed").item(0).getTextContent());
+
                             Element sensors = (Element) moteNode.getElementsByTagName("sensors").item(0);
-                            Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(0);
                             LinkedList<MoteSensor> moteSensors = new LinkedList<>();
-                            while (sensornode != null) {
+                            for (int j = 0; j < sensors.getElementsByTagName("sensors").getLength(); j++) {
+                                Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(j);
                                 moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
-                                sensornode = (Element) sensornode.getNextSibling();
                             }
+//                            while (sensornode != null) {
+//                                sensornode = (Element) sensornode.getNextSibling();
+//                            }
                             Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
                             Element waypoint;
                             LinkedList<GeoPosition> path = new LinkedList<>();
@@ -522,7 +528,7 @@ public class MainGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 GenericFeedbackLoop selectedAlgorithm = algorithms.get(0);
                 for (GenericFeedbackLoop algorithm : algorithms) {
-                    if (algorithm.getName() == adaptationComboBox.getSelectedItem()) {
+                    if (algorithm.getName().equals(adaptationComboBox.getSelectedItem())) {
                         selectedAlgorithm = algorithm;
                     }
                 }
@@ -1806,18 +1812,6 @@ public class MainGUI extends JFrame {
         ozonePanel.revalidate();
     }
 
-    private static Double particulateMatter(double x, double y) {
-        Random random = new Random();
-        if (x < 250 && y < 250)
-            return (double) 97 + (x + y) / 250 + 0.3 * random.nextGaussian();
-        else if (x < 750 && y < 750)
-            return 90 + Math.log10((x + y) / 50) + 0.3 * random.nextGaussian();
-        else if (x < 1250 && y < 1250)
-            return 95 + 3 * Math.cos(Math.PI * (x + y) / (150 * 8)) + 1.5 * Math.sin(Math.PI * (x + y) / (150 * 6)) + 0.3 * random.nextGaussian();
-        else
-            return 85 + (x + y) / 200 + 0.1 * random.nextGaussian();
-    }
-
     private ChartPanel generateParticulateMatterGraph(Mote mote) {
 
         XYSeriesCollection dataParticulateMatter = new XYSeriesCollection();
@@ -1825,7 +1819,7 @@ public class MainGUI extends JFrame {
         XYSeries seriesParticulateMatter = new XYSeries("Particulate Matter");
         if (mote.getSensors().contains(MoteSensor.PARTICULATE_MATTER)) {
             for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesParticulateMatter.add(i * 10, particulateMatter(transmission.getXPos(), transmission.getYPos()));
+                seriesParticulateMatter.add(i * 10, ParticulateMatterDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
                 i = i + 1;
             }
         }
@@ -1849,55 +1843,6 @@ public class MainGUI extends JFrame {
         return new ChartPanel(ParticulateMatterChart);
 
     }
-
-    /**
-     * private JFreeChart createHeatChart(XYZDataset dataset, JPanel panel) {
-     * <p>
-     * ValueAxis xAxis = new NumberAxis("x-distance from grid zero in meter");
-     * ValueAxis yAxis = new NumberAxis("y-distance from grid zero in meter");
-     * <p>
-     * // create a paint-scale and a legend showing it
-     * SpectrumPaintScale paintScale = new SpectrumPaintScale(80, 100);
-     * <p>
-     * <p>
-     * PaintScaleLegend psl = new PaintScaleLegend(paintScale, new NumberAxis());
-     * psl.setPosition(RectangleEdge.RIGHT);
-     * psl.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
-     * psl.setMargin(50.0, 20.0, 80.0, 0.0);
-     * <p>
-     * // finally a renderer and a plot
-     * XYPlot plot = new XYPlot(dataset, xAxis, yAxis, new XYShapeRenderer());
-     * ((XYShapeRenderer) plot.getRenderer()).setPaintScale(paintScale);
-     * plot.getRenderer().setDefaultShape(new Ellipse2D.Double(0, 0, 20, 20));
-     * plot.getDomainAxis().setRange(0, ((double) panel.getWidth()) / ((double) panel.getHeight()) * plot.getRangeAxis().getUpperBound());
-     * <p>
-     * <p>
-     * JFreeChart chart = new JFreeChart(null, null, plot, false);
-     * chart.addSubtitle(psl);
-     * chart.getXYPlot().setDomainGridlinesVisible(false);
-     * chart.getXYPlot().setRangeGridlinesVisible(false);
-     * Color trans = new Color(0xFF, 0xFF, 0xFF, 0);
-     * chart.getPlot().setBackgroundPaint(trans);
-     * <p>
-     * BufferedImage img = null;
-     * try {
-     * <p>
-     * img = ImageIO.read(getClass().getResource("/GUI/map.png"));
-     * } catch (IOException e) {
-     * e.printStackTrace();
-     * }
-     * Image img2 = img.getScaledInstance((int) Math.round(img.getWidth() * 1.25), (int) Math.round(img.getHeight() * 1.25), Image.SCALE_DEFAULT);
-     * BufferedImage img3 = new BufferedImage((int) Math.round(img.getWidth() * 1.25), (int) Math.round(img.getHeight() * 1.25), BufferedImage.TYPE_INT_RGB);
-     * Graphics bg = img3.getGraphics();
-     * bg.drawImage(img2, 0, 0, null);
-     * bg.dispose();
-     * img3 = img3.getSubimage(30, 100, img.getWidth(), img.getHeight());
-     * <p>
-     * chart.setBackgroundImage(img3);
-     * return chart;
-     * <p>
-     * }
-     **/
 
     private Pair<JPanel, JComponent> createHeatChart(LinkedList<Pair<GeoPosition, Double>> dataSet, Environment environment) {
 
@@ -1959,10 +1904,10 @@ public class MainGUI extends JFrame {
                         }
                     }
                     if (seriesParticulateMatterList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesParticulateMatterList.get(new Pair<>(xPos, yPos)).add(particulateMatter(xPos, yPos));
+                        seriesParticulateMatterList.get(new Pair<>(xPos, yPos)).add(ParticulateMatterDataGenerator.generateData(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(particulateMatter(xPos, yPos));
+                        dataList.add(ParticulateMatterDataGenerator.generateData(xPos, yPos));
                         seriesParticulateMatterList.put(new Pair<>(xPos, yPos), dataList);
                     }
                 }
@@ -1996,18 +1941,6 @@ public class MainGUI extends JFrame {
 
     }
 
-    private static Double carbonDioxide(double x, double y) {
-        Random random = new Random();
-        if (x < 200 && y < 230)
-            return (double) 97 - 20 + (x + y) / 250 + 0.3 * random.nextGaussian();
-        else if (x < 1000 && y < 1000)
-            return 90 - 20 + Math.log10((x + y) / 50) + 0.3 * random.nextGaussian();
-        else if (x < 1400 && y < 1400)
-            return 95 - 20 + 3 * Math.cos(Math.PI * (x + y) / (150 * 8)) + 1.5 * Math.sin(Math.PI * (x + y) / (150 * 6)) + 0.3 * random.nextGaussian();
-        else
-            return 85 - 17.5 + (x + y) / 200 + 0.1 * random.nextGaussian();
-    }
-
     private ChartPanel generateCarbonDioxideGraph(Mote mote) {
         XYSeriesCollection dataCarbonDioxide = new XYSeriesCollection();
         int i = 0;
@@ -2015,7 +1948,7 @@ public class MainGUI extends JFrame {
         XYSeries seriesCarbonDioxide = new XYSeries("Carbon Dioxide");
         if (mote.getSensors().contains(MoteSensor.CARBON_DIOXIDE)) {
             for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesCarbonDioxide.add(i * 10, carbonDioxide(transmission.getXPos(), transmission.getYPos()));
+                seriesCarbonDioxide.add(i * 10, CarbonDioxideDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
                 i = i + 1;
             }
         }
@@ -2056,10 +1989,10 @@ public class MainGUI extends JFrame {
                         }
                     }
                     if (seriesCarbonDioxideList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesCarbonDioxideList.get(new Pair<>(xPos, yPos)).add(carbonDioxide(xPos, yPos));
+                        seriesCarbonDioxideList.get(new Pair<>(xPos, yPos)).add(CarbonDioxideDataGenerator.generateData(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(carbonDioxide(xPos, yPos));
+                        dataList.add(CarbonDioxideDataGenerator.generateData(xPos, yPos));
                         seriesCarbonDioxideList.put(new Pair<>(xPos, yPos), dataList);
                     }
                 }
@@ -2091,25 +2024,13 @@ public class MainGUI extends JFrame {
 
     }
 
-    private static Double soot(double x, double y) {
-        Random random = new Random();
-        if (x < 210 && y < 230)
-            return (double) 97 - 10 + (x + y) / 250 + 0.3 * random.nextGaussian();
-        else if (x < 1100 && y < 1100)
-            return 98 - 10 + Math.log10((x + y) / 50) + 0.3 * random.nextGaussian();
-        else if (x < 1400 && y < 1700)
-            return 95 - 4 + 3 * Math.cos(Math.PI * (x + y) / (150 * 8)) + 1.5 * Math.sin(Math.PI * (x + y) / (150 * 6)) + 0.3 * random.nextGaussian();
-        else
-            return 85 - 2 + (x + y) / 200 + 0.1 * random.nextGaussian();
-    }
-
     private ChartPanel generateSootGraph(Mote mote) {
         XYSeriesCollection dataSoot = new XYSeriesCollection();
         int i = 0;
         XYSeries seriesSoot = new XYSeries("Soot");
         if (mote.getSensors().contains(MoteSensor.SOOT)) {
             for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesSoot.add(i * 10, soot(transmission.getXPos(), transmission.getYPos()));
+                seriesSoot.add(i * 10, SootDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
                 i = i + 1;
             }
             dataSoot.addSeries(seriesSoot);
@@ -2150,10 +2071,10 @@ public class MainGUI extends JFrame {
                         }
                     }
                     if (seriesSootList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesSootList.get(new Pair<>(xPos, yPos)).add(soot(xPos, yPos));
+                        seriesSootList.get(new Pair<>(xPos, yPos)).add(SootDataGenerator.generateData(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(soot(xPos, yPos));
+                        dataList.add(SootDataGenerator.generateData(xPos, yPos));
                         seriesSootList.put(new Pair<>(xPos, yPos), dataList);
                     }
                 }
@@ -2185,25 +2106,13 @@ public class MainGUI extends JFrame {
 
     }
 
-    private static Double ozone(double x, double y) {
-        Random random = new Random();
-        if (x < 200 && y < 200)
-            return (double) 97 - 30 + (x + y) / 250 + 0.3 * random.nextGaussian();
-        else if (x < 1000 && y < 1000)
-            return 98 - 30 + Math.log10((x + y) / 50) + 0.3 * random.nextGaussian();
-        else if (x < 1200 && y < 1200)
-            return 95 - 24.5 + 3 * Math.cos(Math.PI * (x + y) / (150 * 8)) + 0.3 * random.nextGaussian();
-        else
-            return 85 - 24 + (x + y) / 200 + 0.1 * random.nextGaussian();
-    }
-
     private ChartPanel generateOzoneGraph(Mote mote) {
         XYSeriesCollection dataOzone = new XYSeriesCollection();
         int i = 0;
         XYSeries seriesOzone = new XYSeries("Ozone");
         if (mote.getSensors().contains(MoteSensor.OZONE)) {
             for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesOzone.add(i * 10, ozone(transmission.getXPos(), transmission.getYPos()));
+                seriesOzone.add(i * 10, OzoneDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
                 i = i + 1;
             }
         }
@@ -2244,10 +2153,10 @@ public class MainGUI extends JFrame {
                         }
                     }
                     if (seriesOzoneList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesOzoneList.get(new Pair<>(xPos, yPos)).add(ozone(xPos, yPos));
+                        seriesOzoneList.get(new Pair<>(xPos, yPos)).add(OzoneDataGenerator.generateData(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(ozone(xPos, yPos));
+                        dataList.add(OzoneDataGenerator.generateData(xPos, yPos));
                         seriesOzoneList.put(new Pair<>(xPos, yPos), dataList);
                     }
                 }
