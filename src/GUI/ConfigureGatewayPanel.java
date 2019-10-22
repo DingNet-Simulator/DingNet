@@ -1,7 +1,7 @@
 package GUI;
 
 
-import GUI.MapViewer.BorderPainter;
+import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.GatewayNumberWaypointPainter;
 import GUI.MapViewer.GatewayWaypointPainter;
 import IotDomain.Environment;
@@ -102,11 +102,11 @@ public class ConfigureGatewayPanel {
         painters.add(gatewayNumberPainter);
 
         for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new BorderPainter(verticalLine));
+            painters.add(new LinePainter(verticalLine));
         }
 
         for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new BorderPainter(horizontalLine));
+            painters.add(new LinePainter(horizontalLine));
         }
 
 

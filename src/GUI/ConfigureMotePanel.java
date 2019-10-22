@@ -1,7 +1,7 @@
 package GUI;
 
 
-import GUI.MapViewer.BorderPainter;
+import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.MoteNumberWaypointPainter;
 import GUI.MapViewer.MoteWaypointPainter;
 import IotDomain.Environment;
@@ -99,11 +99,11 @@ public class ConfigureMotePanel {
         painters.add(moteNumberPainter);
 
         for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new BorderPainter(verticalLine));
+            painters.add(new LinePainter(verticalLine));
         }
 
         for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new BorderPainter(horizontalLine));
+            painters.add(new LinePainter(horizontalLine));
         }
 
 

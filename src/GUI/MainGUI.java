@@ -521,7 +521,7 @@ public class MainGUI extends JFrame {
         painters.add(gateWayNumberPainter);
 
         for (Mote mote : environment.getMotes()) {
-            painters.add(new TrackPainter(mote.getPath().getWayPoints()));
+            painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED));
         }
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);

@@ -1,6 +1,6 @@
 package GUI;
 
-import GUI.MapViewer.BorderPainter;
+import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.CharacteristicPainter;
 import IotDomain.Characteristic;
 import IotDomain.Environment;
@@ -128,11 +128,11 @@ public class ConfigureRegionPanel {
         }
 
         for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new BorderPainter(verticalLine));
+            painters.add(new LinePainter(verticalLine));
         }
 
         for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new BorderPainter(horizontalLine));
+            painters.add(new LinePainter(horizontalLine));
         }
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);

@@ -13,21 +13,24 @@ import java.util.List;
  * Paints a route
  * @author Martin Steiger
  */
-public class BorderPainter implements Painter<JXMapViewer>
+public class LinePainter implements Painter<JXMapViewer>
 {
-    private Color color = Color.BLACK;
+    private Color color;
     private boolean antiAlias = true;
 
     private List<GeoPosition> track;
 
-    /**
-     * @param track the track
-     */
-    public BorderPainter(List<GeoPosition> track)
+
+    public LinePainter(List<GeoPosition> track) {
+        this(track, Color.BLACK);
+    }
+
+    public LinePainter(List<GeoPosition> track, Color color)
     {
         // copy the list so that changes in the
         // original list do not have an effect here
-        this.track = new ArrayList<GeoPosition>(track);
+        this.track = new ArrayList<>(track);
+        this.color = color;
     }
 
     @Override

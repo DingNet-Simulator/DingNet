@@ -44,17 +44,17 @@ public class ConfigureMapPanel {
     private List<Long> currentWayPoints;
     private GraphStructure graph;
 
-    private Boolean guided = false;
     private Mote currentMote = null;
     private MainGUI parent;
 
     public ConfigureMapPanel(Environment environment, MainGUI parent) {
         this.parent = parent;
         this.environment = environment;
+        graph = GraphStructure.getInstance();
+        currentWayPoints = new LinkedList<>();
+
         loadMap(false);
 
-        currentWayPoints = new LinkedList<>();
-        graph = GraphStructure.getInstance();
 
         mapViewer.addMouseListener(new MapMouseAdapter());
         mapViewer.setZoom(6);
@@ -65,7 +65,6 @@ public class ConfigureMapPanel {
         saveTrackButton.addActionListener(new MapSaveTrackActionLister());
         cancelButton.addActionListener(new MapCancelActionLister());
         guidedButton.addActionListener(e -> {
-            guided = true;
             loadMap(true);
             errorLabel.setText("<html><br>1. Select mote<br> by clicking on <br>mote symbol<br><br>2. Select first<br>" +
                     "waypoint<br>along the path<br><br>3.<br>Continue<br>selecting<br>waypoints<br>until the end<br>of " +
@@ -73,11 +72,6 @@ public class ConfigureMapPanel {
         });
         freeButton.addActionListener(e -> {
             JOptionPane.showMessageDialog(null, "Only guided path configuration is supported for now.", "Notification", JOptionPane.ERROR_MESSAGE);
-//            guided = false;
-//            loadMap(true);
-//            errorLabel.setText("<html><br>1. Select mote<br> by clicking on <br>mote symbol<br><br>2. Click " +
-//                    "on first<br>position<br><br>3.<br>Continue<br>clicking on<br>positions<br>until the end<br>" +
-//                    "of the path<br><br>4. Save the<br>path</html>");
         });
     }
 
@@ -131,28 +125,28 @@ public class ConfigureMapPanel {
 
 
         for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new BorderPainter(verticalLine));
+            painters.add(new LinePainter(verticalLine));
         }
 
         for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new BorderPainter(horizontalLine));
+            painters.add(new LinePainter(horizontalLine));
         }
 
         if (currentMote == null) {
             for (Mote mote : environment.getMotes()) {
-                painters.add(new TrackPainter(mote.getPath().getWayPoints()));
+                painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED));
             }
         }
 
-        if (guided) {
-            HashSet<DefaultWaypoint> set = new HashSet<>();
-            PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
-            for (GeoPosition waypoint : graph.getWayPoints().values()) {
-                set.add(new DefaultWaypoint(waypoint));
-            }
-            waypointPainter.setWaypoints(set);
-            painters.add(waypointPainter);
+
+        HashSet<DefaultWaypoint> set = new HashSet<>();
+        PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
+        for (GeoPosition waypoint : graph.getWayPoints().values()) {
+            set.add(new DefaultWaypoint(waypoint));
         }
+        waypointPainter.setWaypoints(set);
+        painters.add(waypointPainter);
+
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
@@ -261,40 +255,35 @@ public class ConfigureMapPanel {
                         currentWayPoints.add(wayPointID);
                     }
                 } else {
-                    if (guided) {
-
-                        Map<Long, Double> distances = new HashMap<>();
-                        for (var me : graph.getWayPoints().entrySet()) {
-                            double distance = MapHelper.distance(geo, me.getValue());
-                            distances.put(me.getKey(), distance);
-                        }
-                        Map.Entry<Long, Double> nearest = distances.entrySet().stream()
-                            .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
-                            .orElse(null);
-
-                        if (nearest != null) {
-
-                            // Make sure there is a connection between the last point and the currently selected point
-                            if (graph.connectionExists(currentWayPoints.get(currentWayPoints.size() - 1), nearest.getKey())) {
-                                loadMap(true);
-                                currentWayPoints.add(nearest.getKey());
-                            }
-                        }
-                    } else {
-                        // TODO non guided -> create new waypoints (or maybe move this to a new window and disable non-guided paths)
-//                        loadMap(true);
-//                        currentTrack.add(geo);
-//                        CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
-//                        painter.addPainter(new TrackPainter(currentTrack));
-//                        mapViewer.setOverlayPainter(painter);
+                    Map<Long, Double> distances = new HashMap<>();
+                    for (var me : graph.getWayPoints().entrySet()) {
+                        double distance = MapHelper.distance(geo, me.getValue());
+                        distances.put(me.getKey(), distance);
                     }
+                    Map.Entry<Long, Double> nearest = distances.entrySet().stream()
+                        .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                        .orElse(null);
+
+                    if (nearest != null) {
+
+                        // Make sure there is a connection between the last point and the currently selected point
+                        if (graph.connectionExists(currentWayPoints.get(currentWayPoints.size() - 1), nearest.getKey())) {
+                            loadMap(true);
+                            currentWayPoints.add(nearest.getKey());
+                        }
+                    }
+                }
+
+
+
+                if (currentWayPoints.size() == 0) {
+                    return;
                 }
 
                 // TODO add visualization of possible paths from current waypoint
                 CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
-                painter.addPainter(new TrackPainter(currentWayPoints.stream()
-                    .map(graph::getWayPoint)
-                    .collect(Collectors.toList()))
+                painter.addPainter(
+                    new LinePainter(currentWayPoints.stream().map(graph::getWayPoint).collect(Collectors.toList()), Color.RED)
                 );
                 mapViewer.setOverlayPainter(painter);
 
