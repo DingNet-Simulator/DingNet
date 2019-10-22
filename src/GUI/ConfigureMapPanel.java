@@ -10,10 +10,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
-import util.GraphStructure;
-import util.MapHelper;
-import util.Pair;
-import util.Path;
+import util.*;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -280,11 +277,25 @@ public class ConfigureMapPanel {
                     return;
                 }
 
-                // TODO add visualization of possible paths from current waypoint
                 CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
                 painter.addPainter(
                     new LinePainter(currentWayPoints.stream().map(graph::getWayPoint).collect(Collectors.toList()), Color.RED)
                 );
+
+
+                List<Connection> connections = graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size() - 1));
+                // Filter out the previous connection, in case at least one connection has already been made
+                if (currentWayPoints.size() > 1) {
+                    connections = connections.stream()
+                        .filter(o -> o.getTo() != currentWayPoints.get(currentWayPoints.size() - 2))
+                        .collect(Collectors.toList());
+                }
+
+                for (var con : connections) {
+                    painter.addPainter(
+                        new LinePainter(List.of(graph.getWayPoint(con.getFrom()), graph.getWayPoint(con.getTo())), Color.GREEN)
+                    );
+                }
                 mapViewer.setOverlayPainter(painter);
 
             }

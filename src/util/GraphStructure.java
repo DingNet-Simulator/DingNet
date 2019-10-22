@@ -3,7 +3,9 @@ package util;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GraphStructure {
     private static GraphStructure instance = null;
@@ -96,6 +98,13 @@ public class GraphStructure {
         return connections;
     }
 
+
+    public List<Connection> getOutgoingConnections(long wayPointID) {
+        return connections.entrySet().stream()
+            .filter(o -> o.getValue().getFrom() == wayPointID)
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toList());
+    }
 
     /**
      * Check whether a connection exists between 2 wayPoints.
