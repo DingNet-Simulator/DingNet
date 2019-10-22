@@ -49,6 +49,7 @@ public class ConfigureMapPanel {
         this.environment = environment;
         graph = GraphStructure.getInstance();
         currentWayPoints = new LinkedList<>();
+        saveTrackButton.setEnabled(false);
 
         loadMap(false);
 
@@ -286,6 +287,7 @@ public class ConfigureMapPanel {
                 List<Connection> connections = graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size() - 1));
                 // Filter out the previous connection, in case at least one connection has already been made
                 if (currentWayPoints.size() > 1) {
+                    saveTrackButton.setEnabled(true);
                     connections = connections.stream()
                         .filter(o -> o.getTo() != currentWayPoints.get(currentWayPoints.size() - 2))
                         .collect(Collectors.toList());
@@ -343,6 +345,7 @@ public class ConfigureMapPanel {
                 loadMap(true);
 
                 parent.refresh();
+                saveTrackButton.setEnabled(false);
             }
         }
     }
