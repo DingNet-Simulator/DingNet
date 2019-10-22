@@ -183,4 +183,13 @@ public class MapHelper {
             return dist;
         }
     }
+
+    static public Pair<Integer, Pair<Integer, Double>> toDgreeMinuteSecond(double latOrLong){
+        int degrees = (int) Math.round(Math.floor(latOrLong));
+        int minutes = (int) Math.round(Math.floor((latOrLong - degrees) * 60));
+        double seconds = (double) Math.round(((latOrLong - degrees) * 60 - minutes) * 60 * 1000d) / 1000d;
+        return new Pair<>(degrees, new Pair<>(minutes, seconds));
+    }
+
+
 }
