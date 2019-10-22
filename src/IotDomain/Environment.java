@@ -139,43 +139,6 @@ public class Environment implements Serializable {
         this.numberOfZones = numberOfZones;
     }
 
-    /**
-     * Adds a waypoint to the configuration
-     * @param wayPoint The waypoint to add
-     */
-    public void addWayPoint(Long ID, GeoPosition wayPoint) {
-        this.graph.addWayPoint(ID, wayPoint);
-    }
-
-
-    public void setWayPoints(Map<Long, GeoPosition> waypoints) {
-        for (var me : waypoints.entrySet()) {
-            this.graph.addWayPoint(me.getKey(), me.getValue());
-        }
-    }
-
-    /**
-     * Gets the paths.
-     * @return The paths.
-     */
-    public Map<Long, GeoPosition> getWayPoints() {
-        return this.graph.getWayPoints();
-    }
-
-
-    public void setConnections(Map<Long, Connection> connections) {
-        for (var me : connections.entrySet()) {
-            this.graph.addConnection(me.getKey(), me.getValue());
-        }
-    }
-
-    public Map<Long, Connection> getConnections() {
-        return this.graph.getConnections();
-    }
-
-    public GraphStructure getGraph() {
-        return this.graph;
-    }
 
 
     /**

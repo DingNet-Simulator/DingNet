@@ -52,6 +52,8 @@ public class GraphStructure {
         }
     }
 
+
+
     /**
      * Gets the ID of the closest wayPoint to a given location.
      * @param pos the location.

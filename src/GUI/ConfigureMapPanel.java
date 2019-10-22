@@ -147,7 +147,7 @@ public class ConfigureMapPanel {
         if (guided) {
             HashSet<DefaultWaypoint> set = new HashSet<>();
             PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
-            for (GeoPosition waypoint : environment.getWayPoints().values()) {
+            for (GeoPosition waypoint : graph.getWayPoints().values()) {
                 set.add(new DefaultWaypoint(waypoint));
             }
             waypointPainter.setWaypoints(set);
@@ -264,7 +264,7 @@ public class ConfigureMapPanel {
                     if (guided) {
 
                         Map<Long, Double> distances = new HashMap<>();
-                        for (var me : environment.getWayPoints().entrySet()) {
+                        for (var me : graph.getWayPoints().entrySet()) {
                             double distance = MapHelper.distance(geo, me.getValue());
                             distances.put(me.getKey(), distance);
                         }

@@ -23,6 +23,8 @@ public class ConfigurationWriter {
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Environment environment = simulation.getEnvironment();
+            GraphStructure graph = GraphStructure.getInstance();
+
             // root element
             Element rootElement = doc.createElement("configuration");
             doc.appendChild(rootElement);
@@ -89,7 +91,6 @@ public class ConfigurationWriter {
             //      Motes
             // ---------------
 
-            GraphStructure graph = GraphStructure.getInstance();
             Element motes = doc.createElement("motes");
 
             for (Mote mote : environment.getMotes()) {
@@ -197,7 +198,7 @@ public class ConfigurationWriter {
             // ---------------
 
             Element wayPointsElement = doc.createElement("wayPoints");
-            var wayPoints = environment.getWayPoints();
+            var wayPoints = graph.getWayPoints();
 
             for (var me : wayPoints.entrySet()) {
                 Element wayPointElement = doc.createElement("wayPoint");
@@ -216,7 +217,7 @@ public class ConfigurationWriter {
             // ---------------
 
             Element connectionsElement = doc.createElement("connections");
-            var connections = environment.getConnections();
+            var connections = graph.getConnections();
 
             for (var me : connections.entrySet()) {
                 Element connectionElement = doc.createElement("connection");
