@@ -47,7 +47,7 @@ public class ConfigurationReader {
             Characteristic[][] characteristicsMap = new Characteristic[width][height];
 
             for (int i = 0; i < n; i++) {
-                String[] characteristicsRow = XMLHelper.readChild(characteristics, "row").split("-");
+                String[] characteristicsRow = characteristics.getElementsByTagName("row").item(i).getTextContent().split("-");
                 for (int j = 0; j < characteristicsRow.length; j++) {
                     Characteristic characteristic = Characteristic.valueOf(characteristicsRow[j]);
 
