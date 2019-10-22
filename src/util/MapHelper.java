@@ -153,6 +153,20 @@ public class MapHelper {
 
     }
 
+    public GeoPosition toGeoPosition(Pair<Integer, Integer> coords) {
+        return new GeoPosition(this.toLatitude(coords.getRight()), this.toLongitude(coords.getLeft()));
+    }
+
+    public GeoPosition toGeoPosition(int x, int y) {
+        return toGeoPosition(new Pair<>(x, y));
+    }
+
+    /**
+     * Calculate the distance (in km) between two geo coordinates.
+     * @param pos1 position 1
+     * @param pos2 position 2
+     * @return The distance between the two positions in km.
+     */
     static public double distance(GeoPosition pos1, GeoPosition pos2) {
         double lat1 = pos1.getLatitude(), lon1 = pos1.getLongitude();
         double lat2 = pos2.getLatitude(), lon2 = pos2.getLongitude();

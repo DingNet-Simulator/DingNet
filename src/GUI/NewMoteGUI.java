@@ -116,7 +116,7 @@ public class NewMoteGUI {
             }
             new Mote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
                     (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
-                    (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(), (Integer) samplingSpinner.getValue(), (Double) movementSpinner.getValue());
+                    (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(environment.getGraph()), (Integer) samplingSpinner.getValue(), (Double) movementSpinner.getValue());
             parent.refresh();
             frame.dispose();
 

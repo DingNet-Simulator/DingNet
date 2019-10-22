@@ -2,6 +2,7 @@ package IotDomain;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Connection;
 import util.GraphStructure;
 import util.MapHelper;
 import util.Pair;
@@ -9,7 +10,6 @@ import util.Pair;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A class representing a map of the environment.
@@ -69,7 +69,6 @@ public class Environment implements Serializable {
      * A constructor generating a new environment with a given map with characteristics.
      * @param mapOrigin coordinates of the point [0,0] on the map.
      * @param characteristics   The map with the characteristics of the current environment.
-     * @param wayPoints The WayPoints of the configuration.
      * @Post    Sets the max x-coordinate to the x size of the map if the map is valid.
      * @Post    Sets the max y-coordinate to the y size of the map if the map is valid.
      * @Post    Sets the characteristics to the given map if the map is valid.
@@ -77,7 +76,7 @@ public class Environment implements Serializable {
      * @Post    Sets the max y-coordinate to 0 if the map is not valid.
      * @Post    Sets the characteristics to an empty list if the map is not valid.
      */
-    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, Map<Long, GeoPosition> wayPoints, int numberOfZones){
+    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, int numberOfZones){
         if (areValidCharacteristics(characteristics)) {
             maxXpos = characteristics.length-1;
             maxYpos = characteristics[0].length-1;
@@ -93,9 +92,6 @@ public class Environment implements Serializable {
         this.mapHelper = MapHelper.getInstance();
         this.mapHelper.setMapOrigin(mapOrigin);
         this.graph = new GraphStructure();
-        for (var me : wayPoints.entrySet()) {
-            this.graph.addWayPoint(me.getKey(), me.getValue());
-        }
 
         numberOfRuns = 1;
     }
@@ -146,6 +142,13 @@ public class Environment implements Serializable {
         this.graph.addWayPoint(ID, wayPoint);
     }
 
+
+    public void setWayPoints(Map<Long, GeoPosition> waypoints) {
+        for (var me : waypoints.entrySet()) {
+            this.graph.addWayPoint(me.getKey(), me.getValue());
+        }
+    }
+
     /**
      * Gets the paths.
      * @return The paths.
@@ -153,6 +156,22 @@ public class Environment implements Serializable {
     public Map<Long, GeoPosition> getWayPoints() {
         return this.graph.getWayPoints();
     }
+
+
+    public void setConnections(Map<Long, Connection> connections) {
+        for (var me : connections.entrySet()) {
+            this.graph.addConnection(me.getKey(), me.getValue());
+        }
+    }
+
+    public Map<Long, Connection> getConnections() {
+        return this.graph.getConnections();
+    }
+
+    public GraphStructure getGraph() {
+        return this.graph;
+    }
+
 
     /**
      * Determines if a x-coordinate is valid on the map

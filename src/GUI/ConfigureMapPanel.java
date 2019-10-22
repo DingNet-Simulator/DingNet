@@ -10,7 +10,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
-import util.Connection;
+import util.MapHelper;
 import util.Pair;
 import util.Path;
 
@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConfigureMapPanel {
     private JPanel mainPanel;
@@ -38,7 +39,9 @@ public class ConfigureMapPanel {
     // Create a TileFactoryInfo for OpenStreetMap
     private static TileFactoryInfo info = new OSMTileFactoryInfo();
     private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    private LinkedList<GeoPosition> currentTrack;
+
+    private List<Long> currentWayPoints;
+
     private Boolean guided = false;
     private Mote currentMote = null;
     private MainGUI parent;
@@ -47,7 +50,7 @@ public class ConfigureMapPanel {
         this.parent = parent;
         this.environment = environment;
         loadMap(false);
-        currentTrack = new LinkedList<>();
+        currentWayPoints = new LinkedList<>();
         mapViewer.addMouseListener(new MapMouseAdapter());
         mapViewer.setZoom(6);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
@@ -76,7 +79,7 @@ public class ConfigureMapPanel {
 
     private void loadMap(Boolean isRefresh) {
         GeoPosition centerPosition = mapViewer.getCenterPosition();
-        Integer zoom = mapViewer.getZoom();
+        int zoom = mapViewer.getZoom();
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
@@ -85,7 +88,7 @@ public class ConfigureMapPanel {
         for (int i = 0; i <= environment.getMaxXpos(); i += environment.getMaxXpos()) {
             points.add(new LinkedList<>());
             for (int j = 0; j <= environment.getMaxYpos(); j += environment.getMaxYpos()) {
-                points.getLast().add(new Pair(environment.toLatitude(j), environment.toLongitude(i)));
+                points.getLast().add(new Pair<>(environment.toLatitude(j), environment.toLongitude(i)));
             }
         }
         LinkedList<LinkedList<GeoPosition>> verticalLines = new LinkedList<>();
@@ -104,7 +107,7 @@ public class ConfigureMapPanel {
 
 
         int i = 1;
-        Map<Waypoint, Integer> motes = new HashMap();
+        Map<Waypoint, Integer> motes = new HashMap<>();
         for (Mote mote : environment.getMotes()) {
             motes.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(mote.getYPos()), environment.toLongitude(mote.getXPos()))), i);
             i++;
@@ -137,7 +140,7 @@ public class ConfigureMapPanel {
         }
 
         if (guided) {
-            HashSet<DefaultWaypoint> set = new HashSet<DefaultWaypoint>();
+            HashSet<DefaultWaypoint> set = new HashSet<>();
             PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
             for (GeoPosition waypoint : environment.getWayPoints().values()) {
                 set.add(new DefaultWaypoint(waypoint));
@@ -227,55 +230,68 @@ public class ConfigureMapPanel {
         @Override
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 1) {
+
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
 
-                // FIXME in the guided case, calculate distance to all motes, and then choose nearest one
-                // FIXME currently the last one that is close enough is chosen
-                if (currentTrack.size() > 0) {
-                    if (guided) {
-                        GeoPosition nearestWayPoint = null;
-                        for (GeoPosition wayPoint : environment.getWayPoints().values()) {
-                            Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - environment.toMapXCoordinate(wayPoint));
-                            Integer yDistance = Math.abs(environment.toMapYCoordinate(geo) - environment.toMapYCoordinate(wayPoint));
+                if (currentWayPoints.size() == 0) {
+                    // No mote has been selected yet -> find the nearest mote
+                    Map<Mote, Double> moteDistances = new HashMap<>();
 
-                            if (xDistance < 100 && yDistance < 100) {
-                                nearestWayPoint = wayPoint;
-                            }
-                            if (nearestWayPoint != null) {
+                    for (Mote mote : environment.getMotes()) {
+                        double distance = MapHelper.distance(geo, MapHelper.getInstance().toGeoPosition(mote.getPos()));
+                        moteDistances.put(mote, distance);
+                    }
+
+                    Map.Entry<Mote, Double> nearest = moteDistances.entrySet().stream()
+//                        .min(Double::compare(Map.Entry::getValue))
+                        .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                        .orElse(null);
+
+                    if (nearest != null) {
+                        currentMote = nearest.getKey();
+                        loadMap(true);
+                        GeoPosition motePosition = MapHelper.getInstance().toGeoPosition(currentMote.getPos());
+                        long wayPointID = environment.getGraph().getClosestWayPoint(motePosition);
+                        currentWayPoints.add(wayPointID);
+                    }
+                } else {
+                    if (guided) {
+
+                        Map<Long, Double> distances = new HashMap<>();
+                        for (var me : environment.getWayPoints().entrySet()) {
+                            double distance = MapHelper.distance(geo, me.getValue());
+                            distances.put(me.getKey(), distance);
+                        }
+                        Map.Entry<Long, Double> nearest = distances.entrySet().stream()
+                            .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                            .orElse(null);
+
+                        if (nearest != null) {
+
+                            // Make sure there is a connection between the last point and the currently selected point
+                            if (environment.getGraph().connectionExists(currentWayPoints.get(currentWayPoints.size() - 1), nearest.getKey())) {
                                 loadMap(true);
-                                currentTrack.add(nearestWayPoint);
-                                CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
-                                painter.addPainter(new TrackPainter(currentTrack));
-                                mapViewer.setOverlayPainter(painter);
+                                currentWayPoints.add(nearest.getKey());
                             }
                         }
                     } else {
-                        loadMap(true);
-                        currentTrack.add(geo);
-                        CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
-                        painter.addPainter(new TrackPainter(currentTrack));
-                        mapViewer.setOverlayPainter(painter);
-                    }
-                } else {
-                    Mote nearestMote = null;
-                    for (Mote mote : environment.getMotes()) {
-                        Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());
-                        Integer yDistance = Math.abs(environment.toMapYCoordinate(geo) - mote.getYPos());
-
-                        if (xDistance < 100 && yDistance < 100) {
-                            nearestMote = mote;
-                        }
-                        if (nearestMote != null) {
-                            currentMote = nearestMote;
-                            loadMap(true);
-                            currentTrack.add(new GeoPosition(environment.toLatitude(nearestMote.getYPos()), environment.toLongitude(nearestMote.getXPos())));
-                            CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
-                            painter.addPainter(new TrackPainter(currentTrack));
-                            mapViewer.setOverlayPainter(painter);
-                        }
+                        // TODO non guided -> create new waypoints (or maybe move this to a new window and disable non-guided paths)
+//                        loadMap(true);
+//                        currentTrack.add(geo);
+//                        CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
+//                        painter.addPainter(new TrackPainter(currentTrack));
+//                        mapViewer.setOverlayPainter(painter);
                     }
                 }
+
+                // TODO add visualization of possible paths from current waypoint
+                CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
+                painter.addPainter(new TrackPainter(currentWayPoints.stream()
+                    .map(environment.getGraph()::getWayPoint)
+                    .collect(Collectors.toList()))
+                );
+                mapViewer.setOverlayPainter(painter);
 
             }
         }
@@ -309,18 +325,18 @@ public class ConfigureMapPanel {
     private class MapSaveTrackActionLister implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            Path path = new Path();
+            var graph = environment.getGraph();
+            Path path = new Path(graph);
 
-            for (int i = 0; i < currentTrack.size() - 1; i++) {
-                path.addConnection(new Connection(currentTrack.get(i), currentTrack.get(i+1)));
+            for (int i = 0; i < currentWayPoints.size() - 1; i++) {
+                path.addConnection(graph.getConnection(currentWayPoints.get(i), currentWayPoints.get(i+1)));
             }
 
-            if (currentTrack.size() > 1) {
+            if (currentWayPoints.size() > 1) {
                 currentMote.setPath(path);
                 currentMote = null;
-                currentTrack = new LinkedList<>();
+                currentWayPoints = new LinkedList<>();
                 loadMap(true);
-
 
                 parent.refresh();
             }
@@ -330,7 +346,7 @@ public class ConfigureMapPanel {
     private class MapCancelActionLister implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            currentTrack = new LinkedList<>();
+            currentWayPoints = new LinkedList<>();
             currentMote = null;
             loadMap(true);
         }

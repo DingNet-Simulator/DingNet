@@ -1,9 +1,9 @@
 package util.xml;
 
 import IotDomain.*;
-import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import util.Path;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -136,11 +136,13 @@ public class ConfigurationWriter {
 
 
                 Element pathElement = doc.createElement("path");
-                for (GeoPosition waypoint : mote.getPath()) {
-                    Element waypointElement = doc.createElement("wayPoint");
-                    waypointElement.appendChild(doc.createTextNode(environment.toMapXCoordinate(waypoint) + "," + environment.toMapYCoordinate(waypoint)));
-                    pathElement.appendChild(waypointElement);
+                Path path = mote.getPath();
+                for (Long id : path.getConnectionsByID()) {
+                    Element connectionElement = doc.createElement("connection");
+                    connectionElement.setAttribute("id", Long.toString(id));
+                    pathElement.appendChild(connectionElement);
                 }
+
                 moteElement.appendChild(pathElement);
                 motes.appendChild(moteElement);
             }
@@ -148,10 +150,10 @@ public class ConfigurationWriter {
             rootElement.appendChild(motes);
 
 
+
             // ---------------
             //    Gateways
             // ---------------
-
 
             Element gateways = doc.createElement("gateways");
 
@@ -185,23 +187,45 @@ public class ConfigurationWriter {
             rootElement.appendChild(gateways);
 
 
+            // TODO could reassign IDs here so that they are sequential/'defragmented' again (starting from 1)
+
             // ---------------
             //    WayPoints
             // ---------------
 
-            Element wayPoints = doc.createElement("wayPoints");
+            Element wayPointsElement = doc.createElement("wayPoints");
+            var wayPoints = environment.getWayPoints();
 
-            for (var me : environment.getWayPoints().entrySet()) {
+            for (var me : wayPoints.entrySet()) {
                 Element wayPointElement = doc.createElement("wayPoint");
 
                 wayPointElement.setAttribute("id", me.getKey().toString());
                 var wayPoint = me.getValue();
                 wayPointElement.appendChild(doc.createTextNode(wayPoint.getLatitude() + "," + wayPoint.getLongitude()));
-                wayPoints.appendChild(wayPointElement);
+                wayPointsElement.appendChild(wayPointElement);
             }
 
-            rootElement.appendChild(wayPoints);
+            rootElement.appendChild(wayPointsElement);
 
+
+            // ---------------
+            //   Connections
+            // ---------------
+
+            Element connectionsElement = doc.createElement("connections");
+            var connections = environment.getConnections();
+
+            for (var me : connections.entrySet()) {
+                Element connectionElement = doc.createElement("connection");
+
+                connectionElement.setAttribute("id", me.getKey().toString());
+                connectionElement.setAttribute("src", Long.toString(me.getValue().getFrom()));
+                connectionElement.setAttribute("dst", Long.toString(me.getValue().getTo()));
+
+                connectionsElement.appendChild(connectionElement);
+            }
+
+            rootElement.appendChild(connectionsElement);
 
 
             // ---------------

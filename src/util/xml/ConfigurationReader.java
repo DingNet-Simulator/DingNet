@@ -72,30 +72,48 @@ public class ConfigurationReader {
             //    WayPoints
             // ---------------
 
-            Element wayPoints = (Element) configuration.getElementsByTagName("wayPoints").item(0);
+            Element wayPointsElement = (Element) configuration.getElementsByTagName("wayPoints").item(0);
 
-            Map<Long, GeoPosition> wayPointsSet = new HashMap<>();
-            for (int i = 0; i < wayPoints.getElementsByTagName("wayPoint").getLength(); i++) {
-                Element waypoint = (Element) wayPoints.getElementsByTagName("wayPoint").item(i);
+            Map<Long, GeoPosition> wayPoints = new HashMap<>();
+            for (int i = 0; i < wayPointsElement.getElementsByTagName("wayPoint").getLength(); i++) {
+                Element waypoint = (Element) wayPointsElement.getElementsByTagName("wayPoint").item(i);
                 double wayPointLatitude = Double.parseDouble(waypoint.getTextContent().split(",")[0]);
                 double wayPointLongitude = Double.parseDouble(waypoint.getTextContent().split(",")[1]);
                 long ID = Long.parseLong(waypoint.getAttribute("id"));
 
-                wayPointsSet.put(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
+                wayPoints.put(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
             }
 
-            simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, wayPointsSet, numberOfZones));
+            simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones));
+            simulation.getEnvironment().setWayPoints(wayPoints);
 
 
             // ---------------
             //   Connections
             // ---------------
 
-            if (configuration.getElementsByTagName("connections").getLength() != 0) {
-                Element connections = (Element) configuration.getElementsByTagName("connections").item(0);
+            Map<Long, Connection> connections = new HashMap<>();
 
-                // TODO add routes to graph
+            if (configuration.getElementsByTagName("connections").getLength() != 0) {
+                Element connectionsElement = (Element) configuration.getElementsByTagName("connections").item(0);
+
+                var con = connectionsElement.getElementsByTagName("connection");
+
+                for (int i = 0; i < con.getLength(); i++) {
+                    Element connectionNode = (Element) con.item(i);
+
+                    connections.put(
+                        Long.parseLong(connectionNode.getAttribute("id")),
+                        new Connection(
+                            Long.parseLong(connectionNode.getAttribute("src")),
+                            Long.parseLong(connectionNode.getAttribute("dst"))
+                        )
+                    );
+                }
             }
+            simulation.getEnvironment().setConnections(connections);
+
+
 
             // ---------------
             //      Motes
@@ -124,18 +142,13 @@ public class ConfigurationReader {
                     moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
                 }
 
+
+                Path path = new Path(simulation.getEnvironment().getGraph());
                 Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
-                Element waypoint;
-                LinkedList<GeoPosition> waypoints = new LinkedList<>();
-                for (int j = 0; j < pathElement.getElementsByTagName("wayPoint").getLength(); j++) {
-                    waypoint = (Element) pathElement.getElementsByTagName("wayPoint").item(j);
-                    int wayPointX = Integer.parseInt(waypoint.getTextContent().split(",")[0]);
-                    int wayPointY = Integer.parseInt(waypoint.getTextContent().split(",")[1]);
-                    waypoints.add(new GeoPosition(simulation.getEnvironment().toLatitude(wayPointY), simulation.getEnvironment().toLongitude(wayPointX)));
-                }
-                Path path = new Path();
-                for (int j = 0; j < waypoints.size() - 1; j++) {
-                    path.addConnection(new Connection(waypoints.get(j), waypoints.get(j+1)));
+                for (int j = 0; j < pathElement.getElementsByTagName("connection").getLength(); j++) {
+                    Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(j);
+
+                    path.addConnection(connections.get(Long.parseLong(connectionElement.getAttribute("id"))));
                 }
 
                 new Mote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, samplingRate, movementSpeed);
