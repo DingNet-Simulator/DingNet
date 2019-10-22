@@ -6,6 +6,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import util.Connection;
+import util.MapHelper;
+import util.Pair;
 import util.Path;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -125,9 +127,11 @@ public class ConfigurationReader {
             for (int i = 0; i < motes.getElementsByTagName("mote").getLength(); i++) {
                 moteNode = (Element) motes.getElementsByTagName("mote").item(i);
                 long devEUI = Long.parseUnsignedLong(XMLHelper.readChild(moteNode, "devEUI"));
+
                 Element location = (Element) moteNode.getElementsByTagName("location").item(0);
-                int xPos = Integer.parseInt(XMLHelper.readChild(location, "xPos"));
-                int yPos = Integer.parseInt(XMLHelper.readChild(location, "yPos"));
+                Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
+                GeoPosition position = wayPoints.get(Long.parseLong(waypoint.getAttribute("id")));
+                Pair<Integer, Integer> coords = MapHelper.getInstance().toMapCoordinate(position);
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(moteNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(moteNode, "spreadingFactor"));
@@ -151,7 +155,18 @@ public class ConfigurationReader {
                     path.addConnection(connections.get(Long.parseLong(connectionElement.getAttribute("id"))));
                 }
 
-                new Mote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, samplingRate, movementSpeed);
+                new Mote(devEUI,
+                    coords.getLeft(),
+                    coords.getRight(),
+                    simulation.getEnvironment(),
+                    transmissionPower,
+                    spreadingFactor,
+                    moteSensors,
+                    energyLevel,
+                    path,
+                    samplingRate,
+                    movementSpeed
+                );
             }
 
 

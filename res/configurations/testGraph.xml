@@ -26,8 +26,7 @@
         <mote>
             <devEUI>17900769297804672070</devEUI>
             <location>
-                <xPos>189</xPos>
-                <yPos>256</yPos>
+                <waypoint id="21"/>
             </location>
             <transmissionPower>10</transmissionPower>
             <spreadingFactor>12</spreadingFactor>
@@ -126,7 +125,6 @@
         <wayPoint id="27">50.86773010475475,4.678711010182462</wayPoint>
         <wayPoint id="28">50.86968172653381,4.676659560075795</wayPoint>
     </wayPoints>
-
     <connections>
         <!--<connection id="1" src="1" dst="2"/>-->
         <!--<connection id="2" src="2" dst="3"/>-->

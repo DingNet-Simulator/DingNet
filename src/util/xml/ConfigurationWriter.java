@@ -1,8 +1,10 @@
 package util.xml;
 
 import IotDomain.*;
+import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import util.MapHelper;
 import util.Path;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -95,12 +97,11 @@ public class ConfigurationWriter {
                 devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(mote.getEUI())));
 
                 Element location = doc.createElement("location");
-                Element xPos = doc.createElement("xPos");
-                xPos.appendChild(doc.createTextNode(mote.getXPos().toString()));
-                Element yPos = doc.createElement("yPos");
-                yPos.appendChild(doc.createTextNode(mote.getYPos().toString()));
-                location.appendChild(xPos);
-                location.appendChild(yPos);
+                Element waypoint = doc.createElement("waypoint");
+
+                GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPos());
+                waypoint.setAttribute("id", Long.toString(environment.getGraph().getClosestWayPoint(position)));
+                location.appendChild(waypoint);
 
                 Element transmissionPower = doc.createElement("transmissionPower");
                 transmissionPower.appendChild(doc.createTextNode(mote.getTransmissionPower().toString()));
@@ -187,8 +188,8 @@ public class ConfigurationWriter {
             rootElement.appendChild(gateways);
 
 
-            // TODO could reassign IDs here so that they are sequential/'defragmented' again (starting from 1)
 
+            // TODO could reassign IDs here so that they are sequential/'defragmented' again (starting from 1) for both waypoints and connections
             // ---------------
             //    WayPoints
             // ---------------
