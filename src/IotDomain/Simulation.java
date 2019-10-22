@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * A class representing a simulation.
@@ -124,9 +125,9 @@ public class Simulation {
     }
     // <GetterSetters>
 
-    public void updateMotesLocation(HashMap<Mote, Pair<Integer,Integer>> locations)
+    public void updateMotesLocation(Map<Mote, Pair<Integer,Integer>> locations)
     {
-        LinkedList<Mote> motes = this.environment.getMotes();
+        List<Mote> motes = this.environment.getMotes();
         for (Mote mote : motes) {
             Pair<Integer,Integer> location = locations.get(mote);
             mote.setXPos(location.getLeft());
@@ -164,15 +165,13 @@ public class Simulation {
 
     private SimulationResult simulate(Predicate<Environment> predicate){
         LinkedList<Mote> motes = this.environment.getMotes();
-        HashMap<Mote,Integer> wayPointMap = new HashMap<>();
-        HashMap<Mote,LocalTime> timeMap = new HashMap<>();
-        HashMap<Mote, Pair<Integer,Integer>> locationMap = new HashMap<>();
-        HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
+        Map<Mote, Integer> wayPointMap = new HashMap<>();
+        Map<Mote, LocalTime> timeMap = new HashMap<>();
+        Map<Mote, List<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
         for(Mote mote : motes){
             timeMap.put(mote, this.environment.getClock().getTime());
-            locationMap.put(mote,new Pair<>(mote.getXPos(), mote.getYPos()));
             locationHistoryMap.put(mote, new LinkedList<>());
-            LinkedList<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
+            List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
             historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
             locationHistoryMap.put(mote, historyMap);
             wayPointMap.put(mote,0);
@@ -198,7 +197,7 @@ public class Simulation {
                         timeMap.put(mote, this.environment.getClock().getTime());
                         if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
                             this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
-                            LinkedList<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
+                            List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
                             historyMap.add(mote.getPos());
                             locationHistoryMap.put(mote, historyMap);
                             if (mote.shouldSend()) {
@@ -214,7 +213,7 @@ public class Simulation {
             }
             this.environment.getClock().tick(1);
         }
-        return new SimulationResult(locationMap, locationHistoryMap);
+        return new SimulationResult(locationHistoryMap);
     }
 
     /**
@@ -270,20 +269,20 @@ public class Simulation {
 
 
     public class SimulationResult {
-        // FIXME is locationMap unnecessary here? Could use the first entries in locationHistoryMap instead
-        private HashMap<Mote, Pair<Integer,Integer>> locationMap;
-        private HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap;
+        private Map<Mote, List<Pair<Integer,Integer>>> locationHistoryMap;
 
-        SimulationResult(HashMap<Mote, Pair<Integer,Integer>> locationMap, HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap){
-            this.locationMap = locationMap;
+        SimulationResult(Map<Mote, List<Pair<Integer,Integer>>> locationHistoryMap){
             this.locationHistoryMap = locationHistoryMap;
         }
 
-        public HashMap<Mote, Pair<Integer, Integer>> getLocationMap(){
-            return this.locationMap;
+        public Map<Mote, Pair<Integer, Integer>> getLocationMap(){
+            return this.locationHistoryMap.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> e.getValue().get(0)
+            ));
         }
 
-        public HashMap<Mote, LinkedList<Pair<Integer, Integer>>> getLocationHistoryMap(){
+        public Map<Mote, List<Pair<Integer, Integer>>> getLocationHistoryMap(){
             return this.locationHistoryMap;
         }
     }

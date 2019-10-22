@@ -1709,8 +1709,8 @@ public class MainGUI extends JFrame {
 
 
 
-    private void animate(HashMap<Mote, Pair<Integer,Integer>> locationMap,
-                         HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap,
+    private void animate(Map<Mote, Pair<Integer,Integer>> locationMap,
+                         Map<Mote, List<Pair<Integer,Integer>>> locationHistoryMap,
                          int speed) {
         simulationRunner.getSimulation().updateMotesLocation(locationMap);
 
@@ -1724,16 +1724,16 @@ public class MainGUI extends JFrame {
      */
     private class AnimationTimerTask extends TimerTask {
 
-        HashMap<Mote,Integer> timeMap = new HashMap<>();
+        Map<Mote, Integer> timeMap = new HashMap<>();
         // Used to store the index of the waypoint at which the motes are currently present in the animation
-        HashMap<Mote,Integer> waypointMap = new HashMap<>();
+        Map<Mote, Integer> waypointMap = new HashMap<>();
 
-        Boolean arrived = false;
-        HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap;
+        boolean arrived = false;
+        Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap;
         int i = 0;
 
 
-        public AnimationTimerTask(HashMap<Mote,LinkedList<Pair<Integer,Integer>>> locationHistoryMap){
+        public AnimationTimerTask(Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap){
             for (Mote mote: simulationRunner.getEnvironment().getMotes()) {
                 timeMap.put(mote, 0);
                 waypointMap.put(mote, 0);
@@ -1766,7 +1766,7 @@ public class MainGUI extends JFrame {
 
             if (arrived) {
                 for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-                    Pair<Integer,Integer> location = locationHistoryMap.get(mote).getFirst();
+                    Pair<Integer,Integer> location = locationHistoryMap.get(mote).get(0);
                     mote.setXPos(location.getLeft());
                     mote.setYPos(location.getRight());
                 }
