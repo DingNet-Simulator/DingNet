@@ -21,7 +21,9 @@ public class CarbonDioxideDataGenerator implements SensorDataGenerator {
         else
             return 85 - 17.5 + (x + y) / 200 + 0.1 * random.nextGaussian();
     }
-
+    public double nonStaticDataGeneration(double x, double y) {
+        return ParticulateMatterDataGenerator.generateData(x,y);
+    }
     /**
      * A function generating senor data for carbon dioxide.
      * @param x The x position of the measurement.

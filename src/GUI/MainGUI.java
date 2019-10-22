@@ -1340,10 +1340,10 @@ public class MainGUI extends JFrame {
                         }
                     }
                     if (seriesList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesList.get(new Pair<>(xPos, yPos)).add(ParticulateMatterDataGenerator.generateData(xPos, yPos));
+                        seriesList.get(new Pair<>(xPos, yPos)).add(moteSensor.getValue(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(ParticulateMatterDataGenerator.generateData(xPos, yPos));
+                        dataList.add(moteSensor.getValue(xPos, yPos));
                         seriesList.put(new Pair<>(xPos, yPos), dataList);
                     }
                 }
@@ -1372,6 +1372,35 @@ public class MainGUI extends JFrame {
         }
         data.addSeries(keyName, seriesParticulateMatter);
         return createHeatChart(dataSet, environment);
+    }
+
+    private ChartPanel generateGraph(Mote mote, MoteSensor moteSensor, String keyName) {
+        XYSeriesCollection dataSoot = new XYSeriesCollection();
+        int i = 0;
+        XYSeries seriesSoot = new XYSeries(keyName);
+        if (mote.getSensors().contains(moteSensor)) {
+            for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
+                seriesSoot.add(i * 10, SootDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
+                i = i + 1;
+            }
+            dataSoot.addSeries(seriesSoot);
+        }
+
+        JFreeChart sootChart = ChartFactory.createScatterPlot(
+            null, // chart title
+            "Distance traveled in meter", // x axis label
+            keyName, // y axis label
+            dataSoot, // data
+            PlotOrientation.VERTICAL,
+            true, // include legend
+            true, // tooltips
+            false // urls
+        );
+        Shape shape = new Ellipse2D.Double(0, 0, 3, 3);
+        XYPlot plot = (XYPlot) sootChart.getPlot();
+        XYItemRenderer renderer = plot.getRenderer();
+        renderer.setSeriesShape(0, shape);
+        return new ChartPanel(sootChart);
     }
 
     private Pair<JPanel, JComponent> generateParticulateMatterGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {

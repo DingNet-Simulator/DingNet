@@ -21,6 +21,9 @@ public class ParticulateMatterDataGenerator implements SensorDataGenerator{
             return 85 + (x + y) / 200 + 0.1 * random.nextGaussian();
     }
 
+    public double nonStaticDataGeneration(double x, double y) {
+        return ParticulateMatterDataGenerator.generateData(x,y);
+    }
     /**
      * A function generating senor data for particulate matter.
      * @param x The x position of the measurement.
