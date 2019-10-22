@@ -10,6 +10,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+import util.GraphStructure;
 import util.MapHelper;
 import util.Pair;
 import util.Path;
@@ -41,6 +42,7 @@ public class ConfigureMapPanel {
     private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
 
     private List<Long> currentWayPoints;
+    private GraphStructure graph;
 
     private Boolean guided = false;
     private Mote currentMote = null;
@@ -50,7 +52,10 @@ public class ConfigureMapPanel {
         this.parent = parent;
         this.environment = environment;
         loadMap(false);
+
         currentWayPoints = new LinkedList<>();
+        graph = GraphStructure.getInstance();
+
         mapViewer.addMouseListener(new MapMouseAdapter());
         mapViewer.setZoom(6);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
@@ -252,7 +257,7 @@ public class ConfigureMapPanel {
                         currentMote = nearest.getKey();
                         loadMap(true);
                         GeoPosition motePosition = MapHelper.getInstance().toGeoPosition(currentMote.getPos());
-                        long wayPointID = environment.getGraph().getClosestWayPoint(motePosition);
+                        long wayPointID = graph.getClosestWayPoint(motePosition);
                         currentWayPoints.add(wayPointID);
                     }
                 } else {
@@ -270,7 +275,7 @@ public class ConfigureMapPanel {
                         if (nearest != null) {
 
                             // Make sure there is a connection between the last point and the currently selected point
-                            if (environment.getGraph().connectionExists(currentWayPoints.get(currentWayPoints.size() - 1), nearest.getKey())) {
+                            if (graph.connectionExists(currentWayPoints.get(currentWayPoints.size() - 1), nearest.getKey())) {
                                 loadMap(true);
                                 currentWayPoints.add(nearest.getKey());
                             }
@@ -288,7 +293,7 @@ public class ConfigureMapPanel {
                 // TODO add visualization of possible paths from current waypoint
                 CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
                 painter.addPainter(new TrackPainter(currentWayPoints.stream()
-                    .map(environment.getGraph()::getWayPoint)
+                    .map(graph::getWayPoint)
                     .collect(Collectors.toList()))
                 );
                 mapViewer.setOverlayPainter(painter);
@@ -325,8 +330,7 @@ public class ConfigureMapPanel {
     private class MapSaveTrackActionLister implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            var graph = environment.getGraph();
-            Path path = new Path(graph);
+            Path path = new Path();
 
             for (int i = 0; i < currentWayPoints.size() - 1; i++) {
                 path.addConnection(graph.getConnection(currentWayPoints.get(i), currentWayPoints.get(i+1)));

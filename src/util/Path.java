@@ -13,11 +13,12 @@ public class Path implements Iterable<GeoPosition> {
     // The Graph which contains all the waypoints and connections
     private GraphStructure graphStructure;
 
-    public Path(GraphStructure graphStructure) { this(graphStructure, new ArrayList<>()); }
 
-    public Path(GraphStructure graphStructure, List<Connection> connections) {
+    public Path() { this(new ArrayList<>()); }
+
+    public Path(List<Connection> connections) {
         this.connections = connections;
-        this.graphStructure = graphStructure;
+        this.graphStructure = GraphStructure.getInstance();
     }
 
     public LinkedList<GeoPosition> getWayPoints() {

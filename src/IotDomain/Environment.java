@@ -67,8 +67,11 @@ public class Environment implements Serializable {
 
     /**
      * A constructor generating a new environment with a given map with characteristics.
-     * @param mapOrigin coordinates of the point [0,0] on the map.
      * @param characteristics   The map with the characteristics of the current environment.
+     * @param mapOrigin coordinates of the point [0,0] on the map.
+     * @param numberOfZones the number of zones defined in the region.
+     * @param wayPoints a map of waypoints (ID -> coordinates).
+     * @param connections a map of connections (ID -> connection).
      * @Post    Sets the max x-coordinate to the x size of the map if the map is valid.
      * @Post    Sets the max y-coordinate to the y size of the map if the map is valid.
      * @Post    Sets the characteristics to the given map if the map is valid.
@@ -76,22 +79,24 @@ public class Environment implements Serializable {
      * @Post    Sets the max y-coordinate to 0 if the map is not valid.
      * @Post    Sets the characteristics to an empty list if the map is not valid.
      */
-    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, int numberOfZones){
+    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, int numberOfZones,
+                       Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         if (areValidCharacteristics(characteristics)) {
             maxXpos = characteristics.length-1;
             maxYpos = characteristics[0].length-1;
             this.characteristics = characteristics;
         } else {
-            // FIXME this is buggy -> maxXpos of 0 would mean that index 0 is still valid, whilst it shouldn't be
             maxXpos = 0;
             maxYpos = 0;
             this.characteristics = new Characteristic[0][0];
         }
+
         this.numberOfZones = numberOfZones;
         this.clock = new GlobalClock();
         this.mapHelper = MapHelper.getInstance();
         this.mapHelper.setMapOrigin(mapOrigin);
-        this.graph = new GraphStructure();
+
+        this.graph = GraphStructure.initialize(wayPoints, connections);
 
         numberOfRuns = 1;
     }

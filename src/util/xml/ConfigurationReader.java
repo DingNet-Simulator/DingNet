@@ -5,10 +5,7 @@ import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import util.Connection;
-import util.MapHelper;
-import util.Pair;
-import util.Path;
+import util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -86,8 +83,6 @@ public class ConfigurationReader {
                 wayPoints.put(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
             }
 
-            simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones));
-            simulation.getEnvironment().setWayPoints(wayPoints);
 
 
             // ---------------
@@ -113,7 +108,9 @@ public class ConfigurationReader {
                     );
                 }
             }
-            simulation.getEnvironment().setConnections(connections);
+
+
+            simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones, wayPoints, connections));
 
 
 
@@ -147,7 +144,7 @@ public class ConfigurationReader {
                 }
 
 
-                Path path = new Path(simulation.getEnvironment().getGraph());
+                Path path = new Path();
                 Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
                 for (int j = 0; j < pathElement.getElementsByTagName("connection").getLength(); j++) {
                     Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(j);

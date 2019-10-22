@@ -4,6 +4,7 @@ import IotDomain.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import util.GraphStructure;
 import util.MapHelper;
 import util.Path;
 
@@ -88,6 +89,7 @@ public class ConfigurationWriter {
             //      Motes
             // ---------------
 
+            GraphStructure graph = GraphStructure.getInstance();
             Element motes = doc.createElement("motes");
 
             for (Mote mote : environment.getMotes()) {
@@ -100,7 +102,7 @@ public class ConfigurationWriter {
                 Element waypoint = doc.createElement("waypoint");
 
                 GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPos());
-                waypoint.setAttribute("id", Long.toString(environment.getGraph().getClosestWayPoint(position)));
+                waypoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
                 location.appendChild(waypoint);
 
                 Element transmissionPower = doc.createElement("transmissionPower");

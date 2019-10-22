@@ -3,23 +3,42 @@ package util;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class GraphStructure {
-    private Map<Long, GeoPosition> waypoints;
+    private static GraphStructure instance = null;
+
+    private Map<Long, GeoPosition> wayPoints;
     private Map<Long, Connection> connections;
 
 
-    public GraphStructure() {
-        waypoints = new HashMap<>();
-        connections = new HashMap<>();
+    private GraphStructure(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
+        this.wayPoints = wayPoints;
+        this.connections = connections;
     }
 
+    public static GraphStructure getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("Graphstructure not initialized yet before calling 'getInstance'.");
+        }
+        return instance;
+    }
+
+    public static GraphStructure initialize(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
+        if (instance != null) {
+            throw new UnsupportedOperationException("Graphstructure has already been initialized.");
+        }
+
+        instance = new GraphStructure(wayPoints, connections);
+        return instance;
+    }
+
+
+
+
     public void addWayPoint(long id, GeoPosition pos) {
-        if (!waypoints.containsKey(id)) {
-            waypoints.put(id, pos);
+        if (!wayPoints.containsKey(id)) {
+            wayPoints.put(id, pos);
         } else {
             throw new RuntimeException(String.format("WayPoint with id=%d exists already.", id));
         }
@@ -39,11 +58,11 @@ public class GraphStructure {
      * @return the ID of the closest wayPoint
      */
     public Long getClosestWayPoint(GeoPosition pos) {
-        assert !waypoints.isEmpty();
+        assert !wayPoints.isEmpty();
 
         Map<Long, Double> distances = new HashMap<>();
 
-        for (var me : waypoints.entrySet()) {
+        for (var me : wayPoints.entrySet()) {
             distances.put(me.getKey(), MapHelper.distance(me.getValue(), pos));
         }
 
@@ -54,11 +73,11 @@ public class GraphStructure {
     }
 
     public GeoPosition getWayPoint(long id) {
-        return waypoints.get(id);
+        return wayPoints.get(id);
     }
 
     public Map<Long, GeoPosition> getWayPoints() {
-        return waypoints;
+        return wayPoints;
     }
 
 
@@ -77,7 +96,7 @@ public class GraphStructure {
 
 
     /**
-     * Check whether a connection exists between 2 waypoints.
+     * Check whether a connection exists between 2 wayPoints.
      * @param from the source waypoint ID.
      * @param to the destination waypoint ID.
      * @return True if a connection exists.
