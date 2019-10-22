@@ -133,7 +133,9 @@ public class SimulationRunner {
         simulation.multipleRuns(fn);
     }
 
-
+    public void timedRun() {
+        simulation.timedRun();
+    }
 
 
 
