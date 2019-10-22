@@ -1247,38 +1247,6 @@ public class MainGUI extends JFrame {
         ozonePanel.revalidate();
     }
 
-    private ChartPanel generateParticulateMatterGraph(Mote mote) {
-
-        XYSeriesCollection dataParticulateMatter = new XYSeriesCollection();
-        int i = 0;
-        XYSeries seriesParticulateMatter = new XYSeries("Particulate Matter");
-        if (mote.getSensors().contains(MoteSensor.PARTICULATE_MATTER)) {
-            for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesParticulateMatter.add(i * 10, ParticulateMatterDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
-                i = i + 1;
-            }
-        }
-        dataParticulateMatter.addSeries(seriesParticulateMatter);
-
-        JFreeChart ParticulateMatterChart = ChartFactory.createScatterPlot(
-                null, // chart title
-                "Distance traveled in meter", // x axis label
-                "Particulate Matter", // y axis label
-                dataParticulateMatter, // data
-                PlotOrientation.VERTICAL,
-                true, // include legend
-                true, // tooltips
-                false // urls
-        );
-        Shape shape = new Ellipse2D.Double(0, 0, 3, 3);
-        XYPlot plot = (XYPlot) ParticulateMatterChart.getPlot();
-        XYItemRenderer renderer = plot.getRenderer();
-        renderer.setSeriesShape(0, shape);
-
-        return new ChartPanel(ParticulateMatterChart);
-
-    }
-
     private Pair<JPanel, JComponent> createHeatChart(LinkedList<Pair<GeoPosition, Double>> dataSet, Environment environment) {
 
         // create a paint-scale and a legend showing it
@@ -1377,16 +1345,16 @@ public class MainGUI extends JFrame {
     private ChartPanel generateGraph(Mote mote, MoteSensor moteSensor, String keyName) {
         XYSeriesCollection dataSoot = new XYSeriesCollection();
         int i = 0;
-        XYSeries seriesSoot = new XYSeries(keyName);
+        XYSeries series = new XYSeries(keyName);
         if (mote.getSensors().contains(moteSensor)) {
             for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesSoot.add(i * 10, SootDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
+                series.add(i * 10, moteSensor.getValue(transmission.getXPos(), transmission.getYPos()));
                 i = i + 1;
             }
-            dataSoot.addSeries(seriesSoot);
+            dataSoot.addSeries(series);
         }
 
-        JFreeChart sootChart = ChartFactory.createScatterPlot(
+        JFreeChart chart = ChartFactory.createScatterPlot(
             null, // chart title
             "Distance traveled in meter", // x axis label
             keyName, // y axis label
@@ -1397,10 +1365,14 @@ public class MainGUI extends JFrame {
             false // urls
         );
         Shape shape = new Ellipse2D.Double(0, 0, 3, 3);
-        XYPlot plot = (XYPlot) sootChart.getPlot();
+        XYPlot plot = (XYPlot) chart.getPlot();
         XYItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesShape(0, shape);
-        return new ChartPanel(sootChart);
+        return new ChartPanel(chart);
+    }
+
+    private ChartPanel generateParticulateMatterGraph(Mote mote) {
+        return this.generateGraph(mote, MoteSensor.PARTICULATE_MATTER, "Particulate Matter");
     }
 
     private Pair<JPanel, JComponent> generateParticulateMatterGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
@@ -1408,33 +1380,7 @@ public class MainGUI extends JFrame {
     }
 
     private ChartPanel generateCarbonDioxideGraph(Mote mote) {
-        XYSeriesCollection dataCarbonDioxide = new XYSeriesCollection();
-        int i = 0;
-
-        XYSeries seriesCarbonDioxide = new XYSeries("Carbon Dioxide");
-        if (mote.getSensors().contains(MoteSensor.CARBON_DIOXIDE)) {
-            for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesCarbonDioxide.add(i * 10, CarbonDioxideDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
-                i = i + 1;
-            }
-        }
-        dataCarbonDioxide.addSeries(seriesCarbonDioxide);
-
-        JFreeChart spreadingFactorChartMote = ChartFactory.createScatterPlot(
-                null, // chart title
-                "Distance traveled in meter", // x axis label
-                "Carbon Dioxide", // y axis label
-                dataCarbonDioxide, // data
-                PlotOrientation.VERTICAL,
-                true, // include legend
-                true, // tooltips
-                false // urls
-        );
-        Shape shape = new Ellipse2D.Double(0, 0, 3, 3);
-        XYPlot plot = (XYPlot) spreadingFactorChartMote.getPlot();
-        XYItemRenderer renderer = plot.getRenderer();
-        renderer.setSeriesShape(0, shape);
-        return new ChartPanel(spreadingFactorChartMote);
+        return this.generateGraph(mote, MoteSensor.CARBON_DIOXIDE, "Carbon Dioxide");
     }
 
     private Pair<JPanel, JComponent> generateCarbonDioxideGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
@@ -1443,32 +1389,7 @@ public class MainGUI extends JFrame {
     }
 
     private ChartPanel generateSootGraph(Mote mote) {
-        XYSeriesCollection dataSoot = new XYSeriesCollection();
-        int i = 0;
-        XYSeries seriesSoot = new XYSeries("Soot");
-        if (mote.getSensors().contains(MoteSensor.SOOT)) {
-            for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesSoot.add(i * 10, SootDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
-                i = i + 1;
-            }
-            dataSoot.addSeries(seriesSoot);
-        }
-
-        JFreeChart sootChart = ChartFactory.createScatterPlot(
-                null, // chart title
-                "Distance traveled in meter", // x axis label
-                "Soot", // y axis label
-                dataSoot, // data
-                PlotOrientation.VERTICAL,
-                true, // include legend
-                true, // tooltips
-                false // urls
-        );
-        Shape shape = new Ellipse2D.Double(0, 0, 3, 3);
-        XYPlot plot = (XYPlot) sootChart.getPlot();
-        XYItemRenderer renderer = plot.getRenderer();
-        renderer.setSeriesShape(0, shape);
-        return new ChartPanel(sootChart);
+        return this.generateGraph(mote, MoteSensor.SOOT, "Soot");
     }
 
     private Pair<JPanel, JComponent> generateSootGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
@@ -1476,32 +1397,7 @@ public class MainGUI extends JFrame {
     }
 
     private ChartPanel generateOzoneGraph(Mote mote) {
-        XYSeriesCollection dataOzone = new XYSeriesCollection();
-        int i = 0;
-        XYSeries seriesOzone = new XYSeries("Ozone");
-        if (mote.getSensors().contains(MoteSensor.OZONE)) {
-            for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                seriesOzone.add(i * 10, OzoneDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
-                i = i + 1;
-            }
-        }
-        dataOzone.addSeries(seriesOzone);
-
-        JFreeChart ozoneChart = ChartFactory.createScatterPlot(
-                null, // chart title
-                "Distance traveled in meter", // x axis label
-                "Ozone", // y axis label
-                dataOzone, // data
-                PlotOrientation.VERTICAL,
-                true, // include legend
-                true, // tooltips
-                false // urls
-        );
-        Shape shape = new Ellipse2D.Double(0, 0, 3, 3);
-        XYPlot plot = (XYPlot) ozoneChart.getPlot();
-        XYItemRenderer renderer = plot.getRenderer();
-        renderer.setSeriesShape(0, shape);
-        return new ChartPanel(ozoneChart);
+        return this.generateGraph(mote, MoteSensor.OZONE, "Ozone");
     }
 
     private Pair<JPanel, JComponent> generateOzoneGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
