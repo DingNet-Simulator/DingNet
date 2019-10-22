@@ -56,25 +56,20 @@ public class ConfigureMapPanel {
         mapViewer.addMouseMotionListener(mia);
         saveTrackButton.addActionListener(new MapSaveTrackActionLister());
         cancelButton.addActionListener(new MapCancelActionLister());
-        guidedButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                guided = true;
-                loadMap(true);
-                errorLabel.setText("<html><br>1. Select mote<br> by clicking on <br>mote symbol<br><br>2. Select first<br>" +
-                        "waypoint<br>along the path<br><br>3.<br>Continue<br>selecting<br>waypoints<br>until the end<br>of " +
-                        "the path<br><br>4. Save the<br>path</html>");
-            }
+        guidedButton.addActionListener(e -> {
+            guided = true;
+            loadMap(true);
+            errorLabel.setText("<html><br>1. Select mote<br> by clicking on <br>mote symbol<br><br>2. Select first<br>" +
+                    "waypoint<br>along the path<br><br>3.<br>Continue<br>selecting<br>waypoints<br>until the end<br>of " +
+                    "the path<br><br>4. Save the<br>path</html>");
         });
-        freeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                guided = false;
-                loadMap(true);
-                errorLabel.setText("<html><br>1. Select mote<br> by clicking on <br>mote symbol<br><br>2. Click " +
-                        "on first<br>position<br><br>3.<br>Continue<br>clicking on<br>positions<br>until the end<br>" +
-                        "of the path<br><br>4. Save the<br>path</html>");
-            }
+        freeButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(null, "Only guided path configuration is supported for now.", "Notification", JOptionPane.ERROR_MESSAGE);
+//            guided = false;
+//            loadMap(true);
+//            errorLabel.setText("<html><br>1. Select mote<br> by clicking on <br>mote symbol<br><br>2. Click " +
+//                    "on first<br>position<br><br>3.<br>Continue<br>clicking on<br>positions<br>until the end<br>" +
+//                    "of the path<br><br>4. Save the<br>path</html>");
         });
     }
 
