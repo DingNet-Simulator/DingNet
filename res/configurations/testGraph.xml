@@ -96,9 +96,9 @@
         </gateway>
     </gateways>
     <wayPoints>
-        <wayPoint id="1">50.857852,4.679702</wayPoint>
-        <wayPoint id="2">50.860061,4.683473</wayPoint>
-        <wayPoint id="3">50.861985,4.680993</wayPoint>
+        <!--<wayPoint id="1">50.857852,4.679702</wayPoint>-->
+        <!--<wayPoint id="2">50.860061,4.683473</wayPoint>-->
+        <!--<wayPoint id="3">50.861985,4.680993</wayPoint>-->
         <!--<wayPoint id="4">50.862263,4.680672</wayPoint>-->
         <!--<wayPoint id="5">50.862696,4.680416</wayPoint>-->
         <!--<wayPoint id="6">50.863049,4.680321</wayPoint>-->
@@ -128,8 +128,8 @@
     </wayPoints>
 
     <connections>
-        <connection id="1" src="1" dst="2"/>
-        <connection id="2" src="2" dst="3"/>
+        <!--<connection id="1" src="1" dst="2"/>-->
+        <!--<connection id="2" src="2" dst="3"/>-->
         <connection id="3" src="21" dst="22"/>
         <connection id="4" src="22" dst="23"/>
         <connection id="5" src="23" dst="24"/>
