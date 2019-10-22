@@ -82,4 +82,9 @@ public class IAQDataGeneratorSingleton implements SensorDataGenerator {
     public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time) {
         return generateData(pos.getLeft(), pos.getRight(), time);
     }
+
+    @Override
+    public double nonStaticDataGeneration(double x, double y){
+        return 0.0;
+    }
 }

@@ -21,7 +21,9 @@ public class SootDataGenerator implements SensorDataGenerator {
         else
             return 85 - 2 + (x + y) / 200 + 0.1 * random.nextGaussian();
     }
-
+    public double nonStaticDataGeneration(double x, double y) {
+        return ParticulateMatterDataGenerator.generateData(x,y);
+    }
     /**
      * A function generating senor data for soot.
      * @param x The x position of the measurement.

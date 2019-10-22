@@ -21,7 +21,9 @@ public class OzoneDataGenerator implements SensorDataGenerator {
         else
             return 85 - 24 + (x + y) / 200 + 0.1 * random.nextGaussian();
     }
-
+    public double nonStaticDataGeneration(double x, double y) {
+        return ParticulateMatterDataGenerator.generateData(x,y);
+    }
     /**
      * A function generating senor data for ozone.
      * @param x The x position of the measurement.

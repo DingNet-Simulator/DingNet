@@ -1321,58 +1321,89 @@ public class MainGUI extends JFrame {
 
     }
 
-    private Pair<JPanel, JComponent> generateParticulateMatterGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
 
-        DefaultXYZDataset dataParticulateMatter = new DefaultXYZDataset();
-        HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesParticulateMatterList = new HashMap<>();
+    private Pair<JPanel, JComponent> generateGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment, MoteSensor moteSensor, String keyName) {
+        DefaultXYZDataset data = new DefaultXYZDataset();
+        HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesList = new HashMap<>();
         LinkedList<Pair<GeoPosition, Double>> dataSet = new LinkedList<>();
+
         for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-            if (mote.getSensors().contains(MoteSensor.PARTICULATE_MATTER)) {
+            if (mote.getSensors().contains(moteSensor)) {
                 for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
                     Integer xPos = transmission.getXPos();
                     Integer yPos = transmission.getYPos();
-                    for (Pair<Integer, Integer> key : seriesParticulateMatterList.keySet()) {
+                    for (Pair<Integer, Integer> key : seriesList.keySet()) {
                         if (Math.sqrt(Math.pow(key.getLeft() - xPos, 2) + Math.pow(key.getRight() - yPos, 2)) < 300) {
                             xPos = key.getLeft();
                             yPos = key.getRight();
                         }
                     }
-                    if (seriesParticulateMatterList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesParticulateMatterList.get(new Pair<>(xPos, yPos)).add(ParticulateMatterDataGenerator.generateData(xPos, yPos));
+                    if (seriesList.keySet().contains(new Pair<>(xPos, yPos))) {
+                        seriesList.get(new Pair<>(xPos, yPos)).add(moteSensor.getValue(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(ParticulateMatterDataGenerator.generateData(xPos, yPos));
-                        seriesParticulateMatterList.put(new Pair<>(xPos, yPos), dataList);
+                        dataList.add(moteSensor.getValue(xPos, yPos));
+                        seriesList.put(new Pair<>(xPos, yPos), dataList);
                     }
                 }
             }
         }
-        for (Pair<Integer, Integer> key : seriesParticulateMatterList.keySet()) {
+        for (Pair<Integer, Integer> key : seriesList.keySet()) {
             Double average = 0.0;
             Integer amount = 0;
-            for (Double value : seriesParticulateMatterList.get(key)) {
+            for (Double value : seriesList.get(key)) {
                 average = average + value;
                 amount++;
             }
             average = average / amount;
-            seriesParticulateMatterList.get(key).clear();
-            seriesParticulateMatterList.get(key).add(average);
+            seriesList.get(key).clear();
+            seriesList.get(key).add(average);
             dataSet.add(new Pair<>(new GeoPosition(environment.toLatitude(key.getRight()), environment.toLongitude(key.getLeft())), average));
         }
 
-        double[][] seriesParticulateMatter = new double[3][seriesParticulateMatterList.size()];
+        double[][] seriesParticulateMatter = new double[3][seriesList.size()];
         int i = 0;
-        for (Pair<Integer, Integer> key : seriesParticulateMatterList.keySet()) {
+        for (Pair<Integer, Integer> key : seriesList.keySet()) {
             seriesParticulateMatter[0][i] = key.getLeft();
             seriesParticulateMatter[1][i] = key.getRight();
-            seriesParticulateMatter[2][i] = seriesParticulateMatterList.get(key).get(0);
+            seriesParticulateMatter[2][i] = seriesList.get(key).get(0);
             i++;
         }
-        dataParticulateMatter.addSeries("Particulate Matter", seriesParticulateMatter);
-
-
+        data.addSeries(keyName, seriesParticulateMatter);
         return createHeatChart(dataSet, environment);
+    }
 
+    private ChartPanel generateGraph(Mote mote, MoteSensor moteSensor, String keyName) {
+        XYSeriesCollection dataSoot = new XYSeriesCollection();
+        int i = 0;
+        XYSeries seriesSoot = new XYSeries(keyName);
+        if (mote.getSensors().contains(moteSensor)) {
+            for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
+                seriesSoot.add(i * 10, SootDataGenerator.generateData(transmission.getXPos(), transmission.getYPos()));
+                i = i + 1;
+            }
+            dataSoot.addSeries(seriesSoot);
+        }
+
+        JFreeChart sootChart = ChartFactory.createScatterPlot(
+            null, // chart title
+            "Distance traveled in meter", // x axis label
+            keyName, // y axis label
+            dataSoot, // data
+            PlotOrientation.VERTICAL,
+            true, // include legend
+            true, // tooltips
+            false // urls
+        );
+        Shape shape = new Ellipse2D.Double(0, 0, 3, 3);
+        XYPlot plot = (XYPlot) sootChart.getPlot();
+        XYItemRenderer renderer = plot.getRenderer();
+        renderer.setSeriesShape(0, shape);
+        return new ChartPanel(sootChart);
+    }
+
+    private Pair<JPanel, JComponent> generateParticulateMatterGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
+        return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.PARTICULATE_MATTER, "Particulate Matter");
     }
 
     private ChartPanel generateCarbonDioxideGraph(Mote mote) {
@@ -1407,55 +1438,7 @@ public class MainGUI extends JFrame {
 
     private Pair<JPanel, JComponent> generateCarbonDioxideGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
 
-        DefaultXYZDataset dataCarbonDioxide = new DefaultXYZDataset();
-        HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesCarbonDioxideList = new HashMap<>();
-        LinkedList<Pair<GeoPosition, Double>> dataSet = new LinkedList<>();
-
-        for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-            if (mote.getSensors().contains(MoteSensor.CARBON_DIOXIDE)) {
-                for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                    Integer xPos = transmission.getXPos();
-                    Integer yPos = transmission.getYPos();
-                    for (Pair<Integer, Integer> key : seriesCarbonDioxideList.keySet()) {
-                        if (Math.sqrt(Math.pow(key.getLeft() - xPos, 2) + Math.pow(key.getRight() - yPos, 2)) < 300) {
-                            xPos = key.getLeft();
-                            yPos = key.getRight();
-                        }
-                    }
-                    if (seriesCarbonDioxideList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesCarbonDioxideList.get(new Pair<>(xPos, yPos)).add(CarbonDioxideDataGenerator.generateData(xPos, yPos));
-                    } else {
-                        LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(CarbonDioxideDataGenerator.generateData(xPos, yPos));
-                        seriesCarbonDioxideList.put(new Pair<>(xPos, yPos), dataList);
-                    }
-                }
-            }
-        }
-        for (Pair<Integer, Integer> key : seriesCarbonDioxideList.keySet()) {
-            Double average = 0.0;
-            Integer amount = 0;
-            for (Double value : seriesCarbonDioxideList.get(key)) {
-                average = average + value;
-                amount++;
-            }
-            average = average / amount;
-            seriesCarbonDioxideList.get(key).clear();
-            seriesCarbonDioxideList.get(key).add(average);
-            dataSet.add(new Pair<>(new GeoPosition(environment.toLatitude(key.getRight()), environment.toLongitude(key.getLeft())), average));
-        }
-
-        double[][] seriesCarbonDioxide = new double[3][seriesCarbonDioxideList.size()];
-        int i = 0;
-        for (Pair<Integer, Integer> key : seriesCarbonDioxideList.keySet()) {
-            seriesCarbonDioxide[0][i] = key.getLeft();
-            seriesCarbonDioxide[1][i] = key.getRight();
-            seriesCarbonDioxide[2][i] = seriesCarbonDioxideList.get(key).get(0);
-            i++;
-        }
-        dataCarbonDioxide.addSeries("Carbon Dioxide", seriesCarbonDioxide);
-        return createHeatChart(dataSet, environment);
-
+        return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.CARBON_DIOXIDE, "Carbon Dioxide");
     }
 
     private ChartPanel generateSootGraph(Mote mote) {
@@ -1488,56 +1471,7 @@ public class MainGUI extends JFrame {
     }
 
     private Pair<JPanel, JComponent> generateSootGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
-
-        DefaultXYZDataset dataSoot = new DefaultXYZDataset();
-        HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesSootList = new HashMap<>();
-        LinkedList<Pair<GeoPosition, Double>> dataSet = new LinkedList<>();
-
-        for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-            if (mote.getSensors().contains(MoteSensor.SOOT)) {
-                for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                    Integer xPos = transmission.getXPos();
-                    Integer yPos = transmission.getYPos();
-                    for (Pair<Integer, Integer> key : seriesSootList.keySet()) {
-                        if (Math.sqrt(Math.pow(key.getLeft() - xPos, 2) + Math.pow(key.getRight() - yPos, 2)) < 300) {
-                            xPos = key.getLeft();
-                            yPos = key.getRight();
-                        }
-                    }
-                    if (seriesSootList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesSootList.get(new Pair<>(xPos, yPos)).add(SootDataGenerator.generateData(xPos, yPos));
-                    } else {
-                        LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(SootDataGenerator.generateData(xPos, yPos));
-                        seriesSootList.put(new Pair<>(xPos, yPos), dataList);
-                    }
-                }
-            }
-        }
-        for (Pair<Integer, Integer> key : seriesSootList.keySet()) {
-            Double average = 0.0;
-            Integer amount = 0;
-            for (Double value : seriesSootList.get(key)) {
-                average = average + value;
-                amount++;
-            }
-            average = average / amount;
-            seriesSootList.get(key).clear();
-            seriesSootList.get(key).add(average);
-            dataSet.add(new Pair<>(new GeoPosition(environment.toLatitude(key.getRight()), environment.toLongitude(key.getLeft())), average));
-        }
-
-        double[][] seriesSoot = new double[3][seriesSootList.size()];
-        int i = 0;
-        for (Pair<Integer, Integer> key : seriesSootList.keySet()) {
-            seriesSoot[0][i] = key.getLeft();
-            seriesSoot[1][i] = key.getRight();
-            seriesSoot[2][i] = seriesSootList.get(key).get(0);
-            i++;
-        }
-        dataSoot.addSeries("Soot", seriesSoot);
-        return createHeatChart(dataSet, environment);
-
+        return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.SOOT, "Soot");
     }
 
     private ChartPanel generateOzoneGraph(Mote mote) {
@@ -1570,56 +1504,7 @@ public class MainGUI extends JFrame {
     }
 
     private Pair<JPanel, JComponent> generateOzoneGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
-
-        DefaultXYZDataset dataOzone = new DefaultXYZDataset();
-        HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesOzoneList = new HashMap<>();
-        LinkedList<Pair<GeoPosition, Double>> dataSet = new LinkedList<>();
-
-        for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-            if (mote.getSensors().contains(MoteSensor.OZONE)) {
-                for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                    Integer xPos = transmission.getXPos();
-                    Integer yPos = transmission.getYPos();
-                    for (Pair<Integer, Integer> key : seriesOzoneList.keySet()) {
-                        if (Math.sqrt(Math.pow(key.getLeft() - xPos, 2) + Math.pow(key.getRight() - yPos, 2)) < 300) {
-                            xPos = key.getLeft();
-                            yPos = key.getRight();
-                        }
-                    }
-                    if (seriesOzoneList.keySet().contains(new Pair<>(xPos, yPos))) {
-                        seriesOzoneList.get(new Pair<>(xPos, yPos)).add(OzoneDataGenerator.generateData(xPos, yPos));
-                    } else {
-                        LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(OzoneDataGenerator.generateData(xPos, yPos));
-                        seriesOzoneList.put(new Pair<>(xPos, yPos), dataList);
-                    }
-                }
-            }
-        }
-        for (Pair<Integer, Integer> key : seriesOzoneList.keySet()) {
-            Double average = 0.0;
-            Integer amount = 0;
-            for (Double value : seriesOzoneList.get(key)) {
-                average = average + value;
-                amount++;
-            }
-            average = average / amount;
-            seriesOzoneList.get(key).clear();
-            seriesOzoneList.get(key).add(average);
-            dataSet.add(new Pair<>(new GeoPosition(environment.toLatitude(key.getRight()), environment.toLongitude(key.getLeft())), average));
-        }
-
-        double[][] seriesOzone = new double[3][seriesOzoneList.size()];
-        int i = 0;
-        for (Pair<Integer, Integer> key : seriesOzoneList.keySet()) {
-            seriesOzone[0][i] = key.getLeft();
-            seriesOzone[1][i] = key.getRight();
-            seriesOzone[2][i] = seriesOzoneList.get(key).get(0);
-            i++;
-        }
-        dataOzone.addSeries("Ozone", seriesOzone);
-        return createHeatChart(dataSet, environment);
-
+        return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.OZONE, "Ozone");
     }
 
     private class ConfigureActionListener implements ActionListener {

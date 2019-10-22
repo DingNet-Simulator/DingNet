@@ -29,7 +29,9 @@ public enum MoteSensor {
     public byte[] getValue(Integer xpos, Integer ypos, LocalTime time){
         return sensorDataGenerator.generateData(xpos,ypos,time);
     }
-
+    public double getValue(double xpos, double ypos){
+        return sensorDataGenerator.nonStaticDataGeneration(xpos,ypos);
+    }
     public List<Byte> getValueAsList(Integer xpos, Integer ypos, LocalTime time){
         var tmp = sensorDataGenerator.generateData(xpos,ypos,time);
         var ret = new LinkedList<Byte>();

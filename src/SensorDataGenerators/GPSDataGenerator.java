@@ -18,4 +18,7 @@ public class GPSDataGenerator implements SensorDataGenerator {
     public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time){
         return this.generateData(pos.getLeft(), pos.getRight(), time);
     }
+    public double nonStaticDataGeneration(double x, double y) {
+        return 0.0;
+    }
 }
