@@ -15,10 +15,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 public class InputProfilesReader {
     public static List<InputProfile> readInputProfiles() {
@@ -37,6 +35,12 @@ public class InputProfilesReader {
 
                 String name = XMLHelper.readChild(inputProfileElement, "name");
                 int numberOfRuns = Integer.parseInt(XMLHelper.readChild(inputProfileElement, "numberOfRuns"));
+
+                long simulationDuration = Long.parseLong(XMLHelper.readChild(inputProfileElement, "simulationDuration"));
+                String timeUnitName = XMLHelper.readChild(inputProfileElement, "timeUnit");
+                Optional<ChronoUnit> timeUnit = Arrays.stream(ChronoUnit.values())
+                                            .filter(c -> c.toString().equals(timeUnitName))
+                                            .findFirst();
 
                 Element QoSElement = (Element) inputProfileElement.getElementsByTagName("QoS").item(0);
                 HashMap<String, AdaptationGoal> adaptationGoalHashMap = new HashMap<>();
@@ -76,15 +80,26 @@ public class InputProfilesReader {
                     moteProbabilities.put(moteNumber - 1, activationProbability);
                 }
 
-                inputProfiles.add(new InputProfile(
-                    name,
-                    new QualityOfService(adaptationGoalHashMap),
-                    numberOfRuns,
-                    moteProbabilities,
-                    new HashMap<>(),
-                    new HashMap<>(),
-                    inputProfileElement)
-                );
+                InputProfile ip = timeUnit.map(chronoUnit ->
+                    new InputProfile(
+                        name,
+                        new QualityOfService(adaptationGoalHashMap),
+                        numberOfRuns,
+                        moteProbabilities,
+                        new HashMap<>(),
+                        new HashMap<>(),
+                        inputProfileElement,
+                        simulationDuration,
+                        chronoUnit))
+                    .orElseGet(() -> new InputProfile(
+                        name,
+                        new QualityOfService(adaptationGoalHashMap),
+                        numberOfRuns,
+                        moteProbabilities,
+                        new HashMap<>(),
+                        new HashMap<>(),
+                        inputProfileElement));
+                inputProfiles.add(ip);
             }
         } catch (ParserConfigurationException | SAXException | IOException | URISyntaxException e) {
             e.printStackTrace();

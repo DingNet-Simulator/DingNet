@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,16 @@ import java.util.Set;
  * A class representing an input profile for the simulator.
  */
 public class InputProfile {
+
+    /**
+     * The default duration of the simulation.
+     */
+    private static final long DEFAULT_SIMULATION_DURATION = 2;
+    /**
+     * The default unit of measure of the duration.
+     */
+    private static final ChronoUnit DEFAULT_TIME_UNIT = ChronoUnit.HOURS;
+
     /**
      * The name of the input profile.
      */
@@ -31,6 +42,17 @@ public class InputProfile {
      * The number of runs in this inputProfile
      */
     private Integer numberOfRuns;
+
+    /**
+     * The duration of the simulation
+     */
+    private long simulationDuration;
+
+    /**
+     * The unit of measure of the duration.
+     * We use a class instead a interface for deserialize problem.
+     */
+    private ChronoUnit timeUnit;
 
     /**
      * The probabilities for the motes to run a certain path.
@@ -65,6 +87,28 @@ public class InputProfile {
                         Map<Integer, Double> probabilitiesForMotes,
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
                         Element xmlSource){
+        this(name, qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
+            regionProbabilities, xmlSource, DEFAULT_SIMULATION_DURATION, DEFAULT_TIME_UNIT);
+    }
+
+
+    /**
+     * Generates InputProfile with a given qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
+     * regionProbabilities, xmlSource and gui.
+     * @param qualityOfServiceProfile The quality of service profile.
+     * @param numberOfRuns The number of runs.
+     * @param probabilitiesForMotes The probabilities for the motes.
+     * @param probabilitiesForGateways The probabilities for the gateways.
+     * @param regionProbabilities The probabilities for the regions.
+     * @param xmlSource The source of the InputProfile.
+     * @param simulationDuration The duration of the simulation.
+     * @param timeUnit The unit of measure of the duration.
+     */
+    public InputProfile(String name, QualityOfService qualityOfServiceProfile,
+                        Integer numberOfRuns,
+                        Map<Integer, Double> probabilitiesForMotes,
+                        Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
+                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit){
         this.name = name;
         this.qualityOfServiceProfile = qualityOfServiceProfile;
         this.numberOfRuns =numberOfRuns;
@@ -84,6 +128,8 @@ public class InputProfile {
         Node importedNode = newDocument.importNode(node, true);
         newDocument.appendChild(importedNode);
         this.xmlSource = newDocument;
+        this.simulationDuration = simulationDuration;
+        this.timeUnit = timeUnit;
     }
 
     /**
@@ -231,6 +277,34 @@ public class InputProfile {
     }
 
     /**
+     * Returns the duration of the simulation
+     * @return the duration of the simulation
+     */
+    public long getSimulationDuration() {
+        return simulationDuration;
+    }
+
+    /**
+     * Returns the unit of measure of the duration.
+     * @return the unit of measure of the duration
+     */
+    public ChronoUnit getTimeUnit() {
+        return timeUnit;
+    }
+
+    public InputProfile setSimulationDuration(long simulationDuration) {
+        this.simulationDuration = simulationDuration;
+        updateFile();
+        return this;
+    }
+
+    public InputProfile setTimeUnit(ChronoUnit timeUnit) {
+        this.timeUnit = timeUnit;
+        updateFile();
+        return this;
+    }
+
+    /**
      * A function which updates the source file.
      */
     private void updateFile(){
@@ -248,6 +322,14 @@ public class InputProfile {
         Element numberOfRuns = doc.createElement("numberOfRuns");
         numberOfRuns.appendChild(doc.createTextNode(getNumberOfRuns().toString()));
         inputProfileElement.appendChild(numberOfRuns);
+
+        Element simulationDuration = doc.createElement("simulationDuration");
+        simulationDuration.appendChild(doc.createTextNode(""+getSimulationDuration()));
+        inputProfileElement.appendChild(simulationDuration);
+
+        Element timeUnit = doc.createElement("timeUnit");
+        timeUnit.appendChild(doc.createTextNode(getTimeUnit().toString()));
+        inputProfileElement.appendChild(timeUnit);
 
         Element Qos = doc.createElement("QoS");
 
@@ -305,5 +387,4 @@ public class InputProfile {
         this.getQualityOfServiceProfile().putAdaptationGoal(name,adaptationGoal);
         updateFile();
     }
-
 }

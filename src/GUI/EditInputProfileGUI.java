@@ -15,6 +15,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.StringWriter;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 
 
 public class EditInputProfileGUI {
@@ -29,6 +31,8 @@ public class EditInputProfileGUI {
     private JButton updateRegionButton;
     private JComboBox moteNumberComboBox;
     private JLabel QOSLabel;
+    private JSpinner durationSpinner;
+    private JComboBox timeUnitComboBox;
     private JSpinner regionNumberSpinner;
     private InputProfile inputProfile;
     private Environment environment;
@@ -42,6 +46,9 @@ public class EditInputProfileGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 inputProfile.setNumberOfRuns(Integer.valueOf((String) numberOfRoundsComboBox.getSelectedItem()));
+                inputProfile
+                    .setSimulationDuration(((Double)durationSpinner.getValue()).longValue())
+                    .setTimeUnit((ChronoUnit)timeUnitComboBox.getSelectedItem());
                 refresh();
             }
         });
@@ -97,7 +104,8 @@ public class EditInputProfileGUI {
             moteNumberComboBox.removeAllItems();
         }
         moteProbSpinner.setModel(new SpinnerNumberModel(inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()), Double.valueOf(0), Double.valueOf(1), Double.valueOf(0.01)));
-
+        durationSpinner.setModel(new SpinnerNumberModel(inputProfile.getSimulationDuration(), 0L, Long.MAX_VALUE, 1L));
+        timeUnitComboBox.setSelectedItem(inputProfile.getTimeUnit());
     }
 
     public JPanel getMainPanel() {
@@ -191,6 +199,17 @@ public class EditInputProfileGUI {
         defaultComboBoxModel2.addElement("1000");
         numberOfRoundsComboBox.setModel(defaultComboBoxModel2);
         panel1.add(numberOfRoundsComboBox, new com.intellij.uiDesigner.core.GridConstraints(3, 2, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel labelDuration = new JLabel("Duration of simulation");
+        durationSpinner = new JSpinner();
+        final JLabel labelTimeUnit = new JLabel("Time Unit");
+        timeUnitComboBox = new JComboBox();
+        final DefaultComboBoxModel timeUnitModel = new DefaultComboBoxModel();
+        Arrays.stream(ChronoUnit.values()).forEach(c -> timeUnitModel.addElement(c));
+        timeUnitComboBox.setModel(timeUnitModel);
+        panel1.add(labelDuration, new com.intellij.uiDesigner.core.GridConstraints(5, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(durationSpinner, new com.intellij.uiDesigner.core.GridConstraints(5, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(labelTimeUnit, new com.intellij.uiDesigner.core.GridConstraints(5, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(timeUnitComboBox, new com.intellij.uiDesigner.core.GridConstraints(5, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
