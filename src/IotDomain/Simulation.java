@@ -6,13 +6,8 @@ import util.Pair;
 import util.TimeHelper;
 
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.function.Function;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -164,7 +159,11 @@ public class Simulation {
     }
 
 
-
+    /**
+     *
+     * @param predicate predicate to define the condition to terminate the simulation
+     * @return the simulation result
+     */
     private SimulationResult simulate(Predicate<Environment> predicate){
         LinkedList<Mote> motes = this.environment.getMotes();
         Map<Mote, Integer> wayPointMap = new HashMap<>();
@@ -177,15 +176,6 @@ public class Simulation {
             historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
             locationHistoryMap.put(mote, historyMap);
             wayPointMap.put(mote,0);
-            environment.getClock().addTrigger(LocalTime.ofSecondOfDay(30), () -> {
-                if (mote.shouldSend()) {
-                    Byte[] dataByte = mote.getSensors().stream()
-                        .flatMap(s -> s.getValueAsList(mote.getPos(), this.environment.getClock().getTime()).stream())
-                        .toArray(Byte[]::new);
-                    mote.sendToGateWay(dataByte, new HashMap<>());
-                }
-                return environment.getClock().getTime().plusSeconds(30);
-            });
         }
 
 
@@ -219,14 +209,13 @@ public class Simulation {
     }
 
     /**
-     * A method for running a run for a specified period of time without visualisation.
-     * @param time the period of time
-     * @param timeUnit the period unit measure
+     * A method for running a run for a specified period of time (specified in the InputProfile) without visualisation.
      */
-    public void timedRun(long time, TemporalUnit timeUnit) {
+    public void timedRun() {
         setupMotesActivationStatus();
         this.environment.reset();
-        var finalTime = environment.getClock().getTime().plus(time, timeUnit);
+        var finalTime = environment.getClock().getTime()
+            .plus(getInputProfile().getSimulationDuration(), getInputProfile().getTimeUnit());
         this.simulate(env -> env.getClock().getTime().isBefore(finalTime));
     }
 

@@ -52,9 +52,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.*;
 
 public class MainGUI extends JFrame {
     private JPanel map;
@@ -103,6 +103,7 @@ public class MainGUI extends JFrame {
     private JLabel enConLabel;
     private JLabel colBoundLabel;
     private JButton resultsButton;
+    private JButton timedRunButton;
     private JPanel particulateMatterCenterPanel;
     private JPanel particulateMatterRightPanel;
 
@@ -209,6 +210,8 @@ public class MainGUI extends JFrame {
             animate(result.getLocationMap(), result.getLocationHistoryMap(), speedSlider.getValue());
         });
 
+        timedRunButton.addActionListener(e -> simulationRunner.timedRun());
+
         adaptationComboBox.addActionListener((ActionEvent e) -> {
             String chosenOption = (String) adaptationComboBox.getSelectedItem();
             simulationRunner.setApproach(chosenOption);
@@ -314,6 +317,7 @@ public class MainGUI extends JFrame {
             moteCharactesticsDialog.pack();
             moteCharactesticsDialog.setVisible(true);
         });
+
     }
 
 
@@ -917,6 +921,8 @@ public class MainGUI extends JFrame {
         speedSlider.setValue(1);
         speedSlider.setValueIsAdjusting(false);
         toolBarAdaptation.add(speedSlider);
+        timedRunButton = new JButton("Timed Run");
+        toolBarAdaptation.add(timedRunButton);
         final JPanel panel16 = new JPanel();
         panel16.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), 0, 0));
         panel15.add(panel16, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_NORTH, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(350, -1), new Dimension(350, -1), 0, false));

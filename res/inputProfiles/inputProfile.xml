@@ -3,6 +3,8 @@
     <inputProfile>
         <name>ReliableEfficient</name>
         <numberOfRuns>10</numberOfRuns>
+        <simulationDuration>2</simulationDuration>
+        <timeUnit>Hours</timeUnit>
         <QoS>
             <adaptationGoal type="interval">
                 <name>reliableCommunication</name>
@@ -47,6 +49,8 @@
     </inputProfile>
     <inputProfile>
         <name>ReliableEfficientOpen</name>
+        <simulationDuration>2</simulationDuration>
+        <timeUnit>Hours</timeUnit>
         <numberOfRuns>10</numberOfRuns>
         <QoS>
             <adaptationGoal type="interval">
