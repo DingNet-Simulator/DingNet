@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -389,23 +391,28 @@ public abstract class NetworkEntity implements Serializable{
      */
     protected void loraSend(LoraWanPacket message){
         if(!isTransmitting) {
-            LinkedList<LoraTransmission> packetsToSend = new LinkedList<>();
             powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
             spreadingFactorHistory.getLast().add(getSF());
-            for (Gateway gateway : getEnvironment().getGateways()) {
-                if (gateway != this)
-                    packetsToSend.add(new LoraTransmission(this, gateway, getTransmissionPower(), 125, getSF(), message));
+            List<LoraTransmission> packetsToSend = Stream.concat(
+                getEnvironment().getGateways().stream(),
+                getEnvironment().getMotes().stream())
+                    .filter(ne -> filterLoraSend(ne, message))
+                    .map(ne -> new LoraTransmission(this, ne, getTransmissionPower(), 125, getSF(), message))
+                    .collect(Collectors.toList());
+            if (!packetsToSend.isEmpty()) {
+                sentTransmissions.getLast().add(packetsToSend.get(0));
             }
-            for (Mote mote : getEnvironment().getMotes()) {
-                if (mote != this)
-                    packetsToSend.add(new LoraTransmission(this, mote, getTransmissionPower(), 125, getSF(), message));
-            }
-            sentTransmissions.getLast().add(packetsToSend.getFirst());
-            for (LoraTransmission packet : packetsToSend) {
-                packet.depart();
-            }
+            packetsToSend.forEach(LoraTransmission::depart);
         }
     }
+
+    /**
+     *
+     * @param networkEntity the receiver
+     * @param packet the packet to send
+     * @return true if the packet has to be sent
+     */
+    abstract boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet);
 
     /**
      * Checks if two packets collide according to the model

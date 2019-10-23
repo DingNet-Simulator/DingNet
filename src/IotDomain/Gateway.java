@@ -81,6 +81,11 @@ public class Gateway extends NetworkEntity {
         }
     }
 
+    @Override
+    boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
+        return networkEntity.getEUI().equals(packet.getDesignatedReceiverEUI());
+    }
+
     private String getTopic(Long applicationEUI, Long deviceEUI) {
         return new StringBuilder()
             .append("application/")

@@ -134,6 +134,11 @@ public class Mote extends NetworkEntity {
         }
     }
 
+    @Override
+    boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
+        return !networkEntity.equals(this);
+    }
+
     /**
      * a function for the OTAA protocol.
      */
