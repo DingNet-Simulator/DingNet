@@ -199,7 +199,7 @@ public class Simulation {
                         } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
                     }
                 }
-
+                mote.consumePackets();
             }
             this.environment.getClock().tick(1);
         }
