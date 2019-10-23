@@ -367,24 +367,12 @@ public class MainGUI extends JFrame {
             textArea = new JTextArea();
             textArea.append("Gateway " + (environment.getGateways().indexOf(gateway) + 1) + ":\n");
             textArea.append("EUID: " + Long.toUnsignedString(gateway.getEUI()) + "\n");
-
             double latitude = environment.toLatitude(gateway.getYPos());
-            Pair<Integer, Pair<Integer, Double>> latToDMS = MapHelper.toDgreeMinuteSecond(latitude);
-            int latitudeDegrees = latToDMS.getLeft();
-            int latitudeMinutes = latToDMS.getRight().getLeft();
-            double latitudeSeconds = latToDMS.getRight().getRight();
-
             double longitude = environment.toLongitude(gateway.getXPos());
-            Pair<Integer, Pair<Integer, Double>> longToDMS = MapHelper.toDgreeMinuteSecond(longitude);
-            int longitudeDegrees = longToDMS.getLeft();
-            int longitudeMinutes = longToDMS.getRight().getLeft();
-            double longitudeSeconds = longToDMS.getRight().getRight();
-
-
-            textArea.append(((Math.signum(environment.toLatitude(gateway.getYPos())) == 1) ? "N " : "S ") +
-                    latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" " + ", " +
-                    ((Math.signum(environment.toLongitude(gateway.getXPos())) == 1) ? "E " : "W ") +
-                    longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
+            textArea.append(MapHelper.getDirectionSign(latitude, "lat")+
+                MapHelper.toDgreeMinuteSecondText(latitude) + ", " +
+                MapHelper.getDirectionSign(longitude, "long") +
+                MapHelper.toDgreeMinuteSecondText(longitude));
             for (int i = 0; i < textArea.getMouseListeners().length; i++) {
                 textArea.removeMouseListener(textArea.getMouseListeners()[i]);
             }
@@ -395,23 +383,12 @@ public class MainGUI extends JFrame {
             textArea = new JTextArea();
             textArea.append("Mote " + (environment.getMotes().indexOf(mote) + 1) + ":\n");
             textArea.append("EUID: " + Long.toUnsignedString(mote.getEUI()) + "\n");
-
             double latitude = environment.toLatitude(mote.getYPos());
-            Pair<Integer, Pair<Integer, Double>> latToDMS = MapHelper.toDgreeMinuteSecond(latitude);
-            int latitudeDegrees = latToDMS.getLeft();
-            int latitudeMinutes = latToDMS.getRight().getLeft();
-            double latitudeSeconds = latToDMS.getRight().getRight();
-
             double longitude = environment.toLongitude(mote.getXPos());
-            Pair<Integer, Pair<Integer, Double>> longToDMS = MapHelper.toDgreeMinuteSecond(longitude);
-            int longitudeDegrees = longToDMS.getLeft();
-            int longitudeMinutes = longToDMS.getRight().getLeft();
-            double longitudeSeconds = longToDMS.getRight().getRight();
-
-            textArea.append(((Math.signum(environment.toLatitude(mote.getYPos())) == 1) ? "N " : "S ") +
-                    latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" " + ", " +
-                    ((Math.signum(environment.toLongitude(mote.getXPos())) == 1) ? "E " : "W ") +
-                    longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
+            textArea.append(MapHelper.getDirectionSign(latitude, "lat")+
+                    MapHelper.toDgreeMinuteSecondText(latitude) + ", " +
+                    MapHelper.getDirectionSign(longitude, "long") +
+                    MapHelper.toDgreeMinuteSecondText(longitude));
             for (int i = 0; i < textArea.getMouseListeners().length; i++) {
                 textArea.removeMouseListener(textArea.getMouseListeners()[i]);
             }
@@ -542,20 +519,11 @@ public class MainGUI extends JFrame {
         map.add(mapViewer);
 
         double latitude = environment.getMapCenter().getLatitude();
-        Pair<Integer, Pair<Integer, Double>> latToDMS = MapHelper.toDgreeMinuteSecond(latitude);
-        int latitudeDegrees = latToDMS.getLeft();
-        int latitudeMinutes = latToDMS.getRight().getLeft();
-        double latitudeSeconds = latToDMS.getRight().getRight();
-
         double longitude = environment.getMapCenter().getLongitude();
-        Pair<Integer, Pair<Integer, Double>> longToDMS = MapHelper.toDgreeMinuteSecond(longitude);
-        int longitudeDegrees = longToDMS.getLeft();
-        int longitudeMinutes = longToDMS.getRight().getLeft();
-        double longitudeSeconds = longToDMS.getRight().getRight();
-        centerLabel.setText(" " + ((Math.signum(environment.getMapCenter().getLatitude()) == 1) ? "N " : "S ") +
-                latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" " + ", " +
-                ((Math.signum(environment.getMapCenter().getLongitude()) == 1) ? "E " : "W ") +
-                longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
+        centerLabel.setText(" " + MapHelper.getDirectionSign(latitude, "lat") +
+                MapHelper.toDgreeMinuteSecondText(latitude) + ", " +
+                MapHelper.getDirectionSign(longitude, "long")+
+                MapHelper.toDgreeMinuteSecondText(longitude));
 
     }
 
