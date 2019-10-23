@@ -39,6 +39,7 @@ public class ConfigureRegionPanel {
 
     public ConfigureRegionPanel(Environment environment) {
         this.environment = environment;
+        // FIXME Is using math.round a good idea here?
         amountOfSquares = (int) Math.round(Math.sqrt(environment.getNumberOfZones()));
         loadMap(false);
         loadLegend();
@@ -83,53 +84,62 @@ public class ConfigureRegionPanel {
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
         tileFactory.setThreadPoolSize(8);
-        LinkedList<LinkedList<Pair<Double, Double>>> points = new LinkedList<>();
-        LinkedList<LinkedList<GeoPosition>> verticalLines = new LinkedList<>();
-        LinkedList<LinkedList<GeoPosition>> horizontalLines = new LinkedList<>();
-        for (int i = 0; i < (amountOfSquares + 1); i += 1) {
-            points.add(new LinkedList<>());
+
+        List<List<GeoPosition>> points = new LinkedList<>();
+        List<List<GeoPosition>> verticalLines = new LinkedList<>();
+        List<List<GeoPosition>> horizontalLines = new LinkedList<>();
+
+        for (int i = 0; i <= amountOfSquares; i++) {
+            List<GeoPosition> rowPoints = new LinkedList<>();
             horizontalLines.add(new LinkedList<>());
             verticalLines.add(new LinkedList<>());
-            for (int j = 0; j < (amountOfSquares + 1); j += 1) {
-                points.getLast().add(new Pair<>(environment.toLatitude((int) Math.round(j * ((double) environment.getMaxYpos()) / amountOfSquares)), environment.toLongitude((int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares))));
+
+            for (int j = 0; j <= amountOfSquares; j++) {
+                rowPoints.add(new GeoPosition(
+                    environment.toLatitude((int) Math.round(j * ((double) environment.getMaxYpos()) / amountOfSquares)),
+                    environment.toLongitude((int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares)))
+                );
+            }
+            points.add(rowPoints);
+        }
+
+
+
+        for (int i = 0; i < points.size(); i++) {
+            for (int j = 0; j < points.get(i).size(); j++) {
+                verticalLines.get(i).add(points.get(i).get(j));
+                horizontalLines.get(j).add(points.get(i).get(j));
             }
         }
 
 
-        Set<GeoPosition> geoPositionSet = new HashSet<>();
+        List<GeoPosition> centerPoints = new LinkedList<>();
 
-        for (int counter1 = 0; counter1 < points.size(); counter1++) {
-            for (int counter2 = 0; counter2 < points.get(counter1).size(); counter2++) {
-                geoPositionSet.add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-                verticalLines.get(counter1).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-                horizontalLines.get(counter2).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-            }
-        }
-
-        LinkedList<GeoPosition> centerpoints = new LinkedList<>();
-
-        for (int counter1 = 0; counter1 < points.size() - 1; counter1++) {
-            for (int counter2 = 0; counter2 < points.get(counter1).size() - 1; counter2++) {
-                centerpoints.add(new GeoPosition(points.get(counter1).get(counter2).getLeft()
-                        + (points.get(counter1 + 1).get(counter2 + 1).getLeft() - points.get(counter1).get(counter2).getLeft()) / 5
-                        , points.get(counter1 + 1).get(counter2 + 1).getRight() -
-                        (points.get(counter1 + 1).get(counter2 + 1).getRight() - points.get(counter1).get(counter2).getRight()) / 5));
-
+        for (int i = 0; i < points.size() - 1; i++) {
+            for (int j = 0; j < points.get(i).size() - 1; j++) {
+                centerPoints.add(new GeoPosition(
+                    (points.get(i).get(j).getLatitude() + points.get(i+1).get(j+1).getLatitude()) / 2.0,
+                    (points.get(i).get(j).getLongitude() + points.get(i+1).get(j+1).getLongitude()) / 2.0
+                ));
             }
 
         }
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();
 
-        for (GeoPosition geoPosition : centerpoints) {
-            painters.add(new CharacteristicPainter(geoPosition, environment.getCharacteristic(environment.toMapXCoordinate(geoPosition), environment.toMapYCoordinate(geoPosition))));
+        for (GeoPosition geoPosition : centerPoints) {
+            Characteristic ch = environment.getCharacteristic(
+                environment.toMapXCoordinate(geoPosition),
+                environment.toMapYCoordinate(geoPosition)
+            );
+            painters.add(new CharacteristicPainter(geoPosition, ch.getColor()));
         }
 
-        for (LinkedList<GeoPosition> verticalLine : verticalLines) {
+        for (List<GeoPosition> verticalLine : verticalLines) {
             painters.add(new LinePainter(verticalLine));
         }
 
-        for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
+        for (List<GeoPosition> horizontalLine : horizontalLines) {
             painters.add(new LinePainter(horizontalLine));
         }
 
