@@ -116,11 +116,9 @@ public class Mote extends NetworkEntity {
     /**
      * A method describing what the mote should do after successfully receiving a packet.
      * @param packet The received packet.
-     * @param senderEUI The EUI of the sender
-     * @param designatedReceiver The EUI designated receiver for the packet.
      */
     @Override
-    protected void OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver) {
+    protected void OnReceive(LoraWanPacket packet) {
 
     }
 

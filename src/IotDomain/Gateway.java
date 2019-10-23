@@ -67,19 +67,17 @@ public class Gateway extends NetworkEntity {
     /**
      * Sends a received packet directly to the MQTT server.
      * @param packet The received packet.
-     * @param senderEUI The EUI of the sender
-     * @param designatedReceiver The EUI designated receiver for the packet.
      */
     @Override
-    protected void OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver) {
+    protected void OnReceive(LoraWanPacket packet) {
         //manage the message only if it is of a mote
-        if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI().equals(senderEUI))) {
-            var message = new MqttMessage(new LinkedList<>(Arrays.asList(packet)), designatedReceiver, senderEUI, getEUI());
-            mqttClient.publish(getTopic(designatedReceiver, senderEUI), message);
+        if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+            var message = new MqttMessage(new LinkedList<>(Arrays.asList(packet.getPayload())), packet.getDesignatedReceiverEUI(), packet.getSenderEUI(), getEUI());
+            mqttClient.publish(getTopic(packet.getDesignatedReceiverEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
-                moteProbe.trigger(this, senderEUI);
+                moteProbe.trigger(this, packet.getSenderEUI());
             }
-            responseStrategy.retrieveResponse(designatedReceiver, senderEUI).ifPresent(this::loraSend);
+            responseStrategy.retrieveResponse(packet.getDesignatedReceiverEUI(), packet.getSenderEUI()).ifPresent(this::loraSend);
         }
     }
 

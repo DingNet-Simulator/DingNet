@@ -230,7 +230,7 @@ public abstract class NetworkEntity implements Serializable{
             getEnvironment().getClock().addTrigger(transmission.getDepartureTime().plus(transmission.getTimeOnAir().longValue(), ChronoUnit.MILLIS),()->{
                 if(!this.receivedTransmissions.getLast().get(transmission)){
                     handleMacCommands(transmission.getContent());
-                    OnReceive(transmission.getContent().getPayload(), transmission.getContent().getSenderEUI(), transmission.getContent().getDesignatedReceiverEUI());
+                    OnReceive(transmission.getContent());
                 }
                 return LocalTime.of(0,0);
             });
@@ -289,10 +289,8 @@ public abstract class NetworkEntity implements Serializable{
     /**
      * A method describing what the entity should do after successfully receiving a packet.
      * @param packet The received packet.
-     * @param senderEUI The EUI of the sender
-     * @param designatedReceiver The EUI designated receiver for the packet.
      */
-    protected abstract void OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver);
+    protected abstract void OnReceive(LoraWanPacket packet);
 
 
     /**
