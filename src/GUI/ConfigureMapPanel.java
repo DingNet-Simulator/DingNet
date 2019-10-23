@@ -118,7 +118,7 @@ public class ConfigureMapPanel {
         // Draw the path of the currently selected mote in red
         if (currentMote == null) {
             for (Mote mote : environment.getMotes()) {
-                painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED));
+                painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED, 1));
             }
         }
 
@@ -266,7 +266,7 @@ public class ConfigureMapPanel {
 
                 CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
                 painter.addPainter(
-                    new LinePainter(currentWayPoints.stream().map(graph::getWayPoint).collect(Collectors.toList()), Color.RED)
+                    new LinePainter(currentWayPoints.stream().map(graph::getWayPoint).collect(Collectors.toList()), Color.RED, 1)
                 );
 
 
@@ -281,7 +281,7 @@ public class ConfigureMapPanel {
 
                 for (var con : connections) {
                     painter.addPainter(
-                        new LinePainter(List.of(graph.getWayPoint(con.getFrom()), graph.getWayPoint(con.getTo())), Color.GREEN)
+                        new LinePainter(List.of(graph.getWayPoint(con.getFrom()), graph.getWayPoint(con.getTo())), Color.GREEN, 2)
                     );
                 }
                 mapViewer.setOverlayPainter(painter);

@@ -266,11 +266,9 @@ public class Simulation {
             this.locationHistoryMap = locationHistoryMap;
         }
 
-        public Map<Mote, Pair<Integer, Integer>> getLocationMap(){
-            return this.locationHistoryMap.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> e.getValue().get(0)
-            ));
+        public Map<Mote, Pair<Integer, Integer>> getLocationMap() {
+            return this.locationHistoryMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,e -> e.getValue().get(0)));
         }
 
         public Map<Mote, List<Pair<Integer, Integer>>> getLocationHistoryMap(){

@@ -6,10 +6,6 @@ import IotDomain.*;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
-import SensorDataGenerators.CarbonDioxideDataGenerator;
-import SensorDataGenerators.OzoneDataGenerator;
-import SensorDataGenerators.ParticulateMatterDataGenerator;
-import SensorDataGenerators.SootDataGenerator;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -35,7 +31,6 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
 import util.MapHelper;
 import util.Pair;
-import util.Path;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -533,7 +528,7 @@ public class MainGUI extends JFrame {
         painters.add(gateWayNumberPainter);
 
         for (Mote mote : environment.getMotes()) {
-            painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED));
+            painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED, 1));
         }
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);

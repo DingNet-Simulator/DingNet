@@ -19,18 +19,20 @@ public class LinePainter implements Painter<JXMapViewer>
     private boolean antiAlias = true;
 
     private List<GeoPosition> track;
+    private int lineSize;
 
 
     public LinePainter(List<GeoPosition> track) {
-        this(track, Color.BLACK);
+        this(track, Color.BLACK, 1);
     }
 
-    public LinePainter(List<GeoPosition> track, Color color)
+    public LinePainter(List<GeoPosition> track, Color color, int lineSize)
     {
         // copy the list so that changes in the
         // original list do not have an effect here
         this.track = new ArrayList<>(track);
         this.color = color;
+        this.lineSize = lineSize;
     }
 
     @Override
@@ -47,13 +49,13 @@ public class LinePainter implements Painter<JXMapViewer>
 
         // do the drawing
         g.setColor(Color.BLACK);
-        g.setStroke(new BasicStroke(2));
+        g.setStroke(new BasicStroke(this.lineSize+1));
 
         drawRoute(g, map);
 
         // do the drawing again
         g.setColor(color);
-        g.setStroke(new BasicStroke(1));
+        g.setStroke(new BasicStroke(this.lineSize));
 
         drawRoute(g, map);
 

@@ -124,6 +124,11 @@
         <wayPoint id="26">50.86794595232479,4.680092889577101</wayPoint>
         <wayPoint id="27">50.86773010475475,4.678711010182462</wayPoint>
         <wayPoint id="28">50.86968172653381,4.676659560075795</wayPoint>
+        <wayPoint id="29">50.861310,4.685673</wayPoint>
+        <wayPoint id="30">50.861044,4.686012</wayPoint>
+        <wayPoint id="31">50.862842,4.690616</wayPoint>
+        <wayPoint id="32">50.859172,4.688349</wayPoint>
+        <wayPoint id="33">50.866325,4.694462</wayPoint>
     </wayPoints>
     <connections>
         <!--<connection id="1" src="1" dst="2"/>-->
@@ -135,5 +140,10 @@
         <connection id="7" src="25" dst="26"/>
         <connection id="8" src="26" dst="27"/>
         <connection id="9" src="27" dst="28"/>
+        <connection id="10" src="22" dst="29"/>
+        <connection id="11" src="29" dst="30"/>
+        <connection id="12" src="30" dst="31"/>
+        <connection id="13" src="30" dst="32"/>
+        <connection id="14" src="29" dst="33"/>
     </connections>
 </environment>
