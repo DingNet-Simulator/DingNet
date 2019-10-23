@@ -1,5 +1,9 @@
 package IotDomain;
 
+import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
+import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
+import IotDomain.motepacketstrategy.storeStrategy.ReceivedPackedStrategy;
+import IotDomain.motepacketstrategy.storeStrategy.StoreAllMessage;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -60,6 +64,10 @@ public class Mote extends NetworkEntity {
     @Model
     private Integer startOffset;
 
+    private final ReceivedPackedStrategy receivedPackedStrategy = new StoreAllMessage();
+
+    private final ConsumePacketStrategy consumePacketStrategy = new DummyConsumer();
+
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
      * spreading factor, list of MoteSensors, energy level, path, sampling rate, movement speed and start offset.
@@ -119,7 +127,11 @@ public class Mote extends NetworkEntity {
      */
     @Override
     protected void OnReceive(LoraWanPacket packet) {
-
+        //if is a message sent to from a gateway to this mote
+        if (getEUI().equals(packet.getDesignatedReceiverEUI()) &&
+            getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+            receivedPackedStrategy.addReceivedMessage(packet);
+        }
     }
 
     /**
@@ -167,6 +179,12 @@ public class Mote extends NetworkEntity {
 
         LoraWanPacket packet = new LoraWanPacket(getEUI(), (long) 1,payload, new LinkedList<>(macCommands.keySet()));
         loraSend(packet);
+    }
+
+    public void consumePackets() {
+        if (receivedPackedStrategy.hasPackets()) {
+            consumePacketStrategy.consume(this, receivedPackedStrategy.getReceivedPacket());
+        }
     }
 
     /**
