@@ -358,11 +358,7 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Immutable
     public static Boolean isValidSF(Integer SF){
-        if(SF <= 12 && SF >= 7){
-            return true;
-        }
-        else
-            return false;
+        return SF <= 12 && SF >= 7;
     }
 
     /**
@@ -416,18 +412,11 @@ public abstract class NetworkEntity implements Serializable{
      * @return true if the packets collide, false otherwise.
      */
     public Boolean collision(LoraTransmission a, LoraTransmission b){
-        if(a.getSpreadingFactor() == b.getSpreadingFactor()){
-
-            if(a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold()){
-
-                if(Math.abs(Duration.between(a.getDepartureTime().plusNanos(a.getTimeOnAir().longValue()*1000000/2),
-                        b.getDepartureTime().plusNanos(b.getTimeOnAir().longValue()*1000000/2)).toNanos())
-                        < a.getTimeOnAir().longValue()*1000000/2 + b.getTimeOnAir().longValue()*1000000/2){
-                    return true;
-                }
-            }
-        }
-        return false;
+        return a.getSpreadingFactor().equals(b.getSpreadingFactor()) &&     //check spreading factor
+            a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold() && //check transmission power
+            Math.abs(Duration.between(a.getDepartureTime().plusNanos(a.getTimeOnAir().longValue() * 1000000 / 2), //check time on air
+                    b.getDepartureTime().plusNanos(b.getTimeOnAir().longValue() * 1000000 / 2)).toNanos())
+                    < a.getTimeOnAir().longValue() * 1000000 / 2 + b.getTimeOnAir().longValue() * 1000000 / 2;
     }
 
     /**
@@ -436,11 +425,7 @@ public abstract class NetworkEntity implements Serializable{
      * @return
      */
     public Boolean packetStrengthHighEnough(LoraTransmission packet){
-        if(packet.getTransmissionPower() > -174 - 10*Math.log10(packet.getBandwidth())-(2.5*packet.getSpreadingFactor()-10)){
-            return true;
-        }
-        else
-            return false;
+        return packet.getTransmissionPower() > -174 - 10 * Math.log10(packet.getBandwidth()) - (2.5 * packet.getSpreadingFactor() - 10);
     }
 
     /**
