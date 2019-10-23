@@ -52,11 +52,9 @@ public class ConfigureMotePanel {
     }
 
     private void loadMap(Boolean isRefresh) {
-        GeoPosition centerPosition = mapViewer.getCenterPosition();
-        Integer zoom = mapViewer.getZoom();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(1);
+        tileFactory.setThreadPoolSize(8);
         mapViewer.setZoom(0);
 
         int i = 1;
@@ -83,10 +81,8 @@ public class ConfigureMotePanel {
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
-        if (isRefresh) {
-            mapViewer.setAddressLocation(centerPosition);
-            mapViewer.setZoom(zoom);
-        } else {
+
+        if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }

@@ -322,7 +322,7 @@ public class MainGUI extends JFrame {
 
         mapViewer.setTileFactory(tileFactory);
 
-        tileFactory.setThreadPoolSize(4);
+        tileFactory.setThreadPoolSize(8);
 
         JFrame frame = new JFrame("Dynamic DingNet simulator");
         MainGUI gui = new MainGUI();
@@ -485,9 +485,6 @@ public class MainGUI extends JFrame {
 
 
     private void loadMap(Environment environment, JXMapViewer mapViewer, Boolean isRefresh) {
-        GeoPosition centerPosition = mapViewer.getCenterPosition();
-        int zoom = mapViewer.getZoom();
-
         Map<Waypoint, Integer> gateWays = new HashMap<>();
         int i = 1;
         for (Gateway gateway : environment.getGateways()) {
@@ -512,10 +509,7 @@ public class MainGUI extends JFrame {
         MoteNumberWaypointPainter<Waypoint> moteNumberPainter = new MoteNumberWaypointPainter<>();
         moteNumberPainter.setWaypoints(motes);
 
-        if (isRefresh) {
-            mapViewer.setAddressLocation(centerPosition);
-            mapViewer.setZoom(zoom);
-        } else {
+        if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }

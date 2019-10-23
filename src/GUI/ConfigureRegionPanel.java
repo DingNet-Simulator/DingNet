@@ -79,12 +79,10 @@ public class ConfigureRegionPanel {
     }
 
     private void loadMap(Boolean isRefresh) {
-        GeoPosition centerPosition = mapViewer.getCenterPosition();
-        int zoom = mapViewer.getZoom();
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(1);
+        tileFactory.setThreadPoolSize(8);
         LinkedList<LinkedList<Pair<Double, Double>>> points = new LinkedList<>();
         LinkedList<LinkedList<GeoPosition>> verticalLines = new LinkedList<>();
         LinkedList<LinkedList<GeoPosition>> horizontalLines = new LinkedList<>();
@@ -137,10 +135,8 @@ public class ConfigureRegionPanel {
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
-        if (isRefresh) {
-            mapViewer.setAddressLocation(centerPosition);
-            mapViewer.setZoom(zoom);
-        } else {
+
+        if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }

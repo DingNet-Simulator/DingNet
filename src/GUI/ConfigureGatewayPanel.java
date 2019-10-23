@@ -57,8 +57,6 @@ public class ConfigureGatewayPanel {
     }
 
     private void loadMap(Boolean isRefresh) {
-        GeoPosition centerPosition = mapViewer.getCenterPosition();
-        int zoom = mapViewer.getZoom();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
         tileFactory.setThreadPoolSize(8);
@@ -89,10 +87,8 @@ public class ConfigureGatewayPanel {
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
-        if (isRefresh) {
-            mapViewer.setAddressLocation(centerPosition);
-            mapViewer.setZoom(zoom);
-        } else {
+
+        if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }
