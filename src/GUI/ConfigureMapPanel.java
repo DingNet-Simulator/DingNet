@@ -80,29 +80,12 @@ public class ConfigureMapPanel {
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(1);
-        LinkedList<LinkedList<Pair<Double, Double>>> points = new LinkedList<>();
-        for (int i = 0; i <= environment.getMaxXpos(); i += environment.getMaxXpos()) {
-            points.add(new LinkedList<>());
-            for (int j = 0; j <= environment.getMaxYpos(); j += environment.getMaxYpos()) {
-                points.getLast().add(new Pair<>(environment.toLatitude(j), environment.toLongitude(i)));
-            }
-        }
-        LinkedList<LinkedList<GeoPosition>> verticalLines = new LinkedList<>();
-        verticalLines.add(new LinkedList<>());
-        verticalLines.add(new LinkedList<>());
-        LinkedList<LinkedList<GeoPosition>> horizontalLines = new LinkedList<>();
-        horizontalLines.add(new LinkedList<>());
-        horizontalLines.add(new LinkedList<>());
+        tileFactory.setThreadPoolSize(8);
 
-        for (int counter1 = 0; counter1 < points.size(); counter1++) {
-            for (int counter2 = 0; counter2 < points.get(counter1).size(); counter2++) {
-                verticalLines.get(counter1).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-                horizontalLines.get(counter2).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-            }
-        }
+        List<Painter<JXMapViewer>> painters = new ArrayList<>();
 
 
+        // Draw the motes
         int i = 1;
         Map<Waypoint, Integer> motes = new HashMap<>();
         for (Mote mote : environment.getMotes()) {
@@ -116,28 +99,31 @@ public class ConfigureMapPanel {
         MoteNumberWaypointPainter<Waypoint> moteNumberPainter = new MoteNumberWaypointPainter<>();
         moteNumberPainter.setWaypoints(motes);
 
-        List<Painter<JXMapViewer>> painters = new ArrayList<>();
 
         painters.add(motePainter);
         painters.add(moteNumberPainter);
 
 
-        for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new LinePainter(verticalLine));
-        }
+        // Draw the borders
+        var mapHelper = MapHelper.getInstance();
+        int maxX = environment.getMaxXpos();
+        int maxY = environment.getMaxYpos();
 
-        for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new LinePainter(horizontalLine));
-        }
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(0, maxY))));
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(maxX, 0))));
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(maxX, 0), mapHelper.toGeoPosition(maxX, maxY))));
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, maxY), mapHelper.toGeoPosition(maxX, maxY))));
 
+
+        // Draw the path of the currently selected mote in red
         if (currentMote == null) {
             for (Mote mote : environment.getMotes()) {
                 painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED));
             }
         }
 
-
-        HashSet<DefaultWaypoint> set = new HashSet<>();
+        // Draw the waypoints
+        Set<DefaultWaypoint> set = new HashSet<>();
         PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
         for (GeoPosition waypoint : graph.getWayPoints().values()) {
             set.add(new DefaultWaypoint(waypoint));
@@ -320,11 +306,6 @@ public class ConfigureMapPanel {
 
         @Override
         public void mouseExited(MouseEvent e) {
-
-        }
-
-
-        public void actionPerformed(ActionEvent e) {
 
         }
     }

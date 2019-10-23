@@ -4,6 +4,7 @@ package GUI;
 import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.MoteNumberWaypointPainter;
 import GUI.MapViewer.MoteWaypointPainter;
+import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import IotDomain.Mote;
 import org.jxmapviewer.JXMapViewer;
@@ -57,31 +58,9 @@ public class ConfigureMotePanel {
         // Use 8 threads in parallel to load the tiles
         tileFactory.setThreadPoolSize(1);
         mapViewer.setZoom(0);
-        LinkedList<LinkedList<Pair<Double, Double>>> points = new LinkedList<>();
-        for (int i = 0; i <= environment.getMaxXpos(); i += environment.getMaxXpos()) {
-            points.add(new LinkedList<>());
-            for (int j = 0; j <= environment.getMaxYpos(); j += environment.getMaxYpos()) {
-                points.getLast().add(new Pair(environment.toLatitude(j), environment.toLongitude(i)));
-            }
-        }
-        LinkedList<LinkedList<GeoPosition>> verticalLines = new LinkedList<>();
-        verticalLines.add(new LinkedList<>());
-        verticalLines.add(new LinkedList<>());
-
-        LinkedList<LinkedList<GeoPosition>> horizontalLines = new LinkedList<>();
-        horizontalLines.add(new LinkedList<>());
-        horizontalLines.add(new LinkedList<>());
-
-
-        for (int counter1 = 0; counter1 < points.size(); counter1++) {
-            for (int counter2 = 0; counter2 < points.get(counter1).size(); counter2++) {
-                verticalLines.get(counter1).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-                horizontalLines.get(counter2).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-            }
-        }
 
         int i = 1;
-        Map<Waypoint, Integer> motes = new HashMap();
+        Map<Waypoint, Integer> motes = new HashMap<>();
         for (Mote mote : environment.getMotes()) {
             motes.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(mote.getYPos()), environment.toLongitude(mote.getXPos()))), i);
             i++;
@@ -94,17 +73,12 @@ public class ConfigureMotePanel {
         moteNumberPainter.setWaypoints(motes);
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();
-
         painters.add(motePainter);
         painters.add(moteNumberPainter);
 
-        for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new LinePainter(verticalLine));
-        }
 
-        for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new LinePainter(horizontalLine));
-        }
+        // Draw the borders
+        painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
 
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
@@ -180,6 +154,9 @@ public class ConfigureMotePanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
+
+                // TODO make sure the mote is put on a waypoint
+
                 Boolean exists = false;
                 for (Mote mote : environment.getMotes()) {
                     Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());

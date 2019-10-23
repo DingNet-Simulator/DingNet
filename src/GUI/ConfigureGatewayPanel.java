@@ -4,6 +4,7 @@ package GUI;
 import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.GatewayNumberWaypointPainter;
 import GUI.MapViewer.GatewayWaypointPainter;
+import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import IotDomain.Gateway;
 import org.jxmapviewer.JXMapViewer;
@@ -13,6 +14,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+import util.MapHelper;
 import util.Pair;
 
 import javax.swing.*;
@@ -56,35 +58,14 @@ public class ConfigureGatewayPanel {
 
     private void loadMap(Boolean isRefresh) {
         GeoPosition centerPosition = mapViewer.getCenterPosition();
-        Integer zoom = mapViewer.getZoom();
+        int zoom = mapViewer.getZoom();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
         tileFactory.setThreadPoolSize(8);
-        LinkedList<LinkedList<Pair<Double, Double>>> points = new LinkedList<>();
-        for (int i = 0; i <= environment.getMaxXpos(); i += environment.getMaxXpos()) {
-            points.add(new LinkedList<>());
-            for (int j = 0; j <= environment.getMaxYpos(); j += environment.getMaxYpos()) {
-                points.getLast().add(new Pair(environment.toLatitude(j), environment.toLongitude(i)));
-            }
-        }
-        LinkedList<LinkedList<GeoPosition>> verticalLines = new LinkedList<>();
-        verticalLines.add(new LinkedList<>());
-        verticalLines.add(new LinkedList<>());
 
-        LinkedList<LinkedList<GeoPosition>> horizontalLines = new LinkedList<>();
-        horizontalLines.add(new LinkedList<>());
-        horizontalLines.add(new LinkedList<>());
-
-
-        for (int counter1 = 0; counter1 < points.size(); counter1++) {
-            for (int counter2 = 0; counter2 < points.get(counter1).size(); counter2++) {
-                verticalLines.get(counter1).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-                horizontalLines.get(counter2).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-            }
-        }
 
         int i = 1;
-        Map<Waypoint, Integer> gateways = new HashMap();
+        Map<Waypoint, Integer> gateways = new HashMap<>();
         for (Gateway gateway : environment.getGateways()) {
             gateways.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPos()), environment.toLongitude(gateway.getXPos()))), i);
             i++;
@@ -101,13 +82,9 @@ public class ConfigureGatewayPanel {
         painters.add(gatewayPainter);
         painters.add(gatewayNumberPainter);
 
-        for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new LinePainter(verticalLine));
-        }
 
-        for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new LinePainter(horizontalLine));
-        }
+        // Draw the borders
+        painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
 
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
