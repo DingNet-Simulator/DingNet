@@ -109,7 +109,10 @@ public class ConfigurationReader {
                 }
             }
 
-
+            if (GraphStructure.isInitialized()) {
+                // Remove the currently loaded graph for the newly loaded one
+                GraphStructure.getInstance().close();
+            }
             simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones, wayPoints, connections));
 
 

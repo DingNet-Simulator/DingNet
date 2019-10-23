@@ -162,7 +162,7 @@ public class MainGUI extends JFrame {
 
                 simulationRunner.loadConfigurationFromFile(fc.getSelectedFile());
 
-                frame.setVisible(false);
+                frame.dispose();
 
 
                 updateEntries(simulationRunner.getEnvironment());

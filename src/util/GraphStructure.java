@@ -20,19 +20,30 @@ public class GraphStructure {
     }
 
     public static GraphStructure getInstance() {
-        if (instance == null) {
+        if (!isInitialized()) {
             throw new IllegalStateException("Graphstructure not initialized yet before calling 'getInstance'.");
         }
         return instance;
     }
 
     public static GraphStructure initialize(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
-        if (instance != null) {
+        if (isInitialized()) {
             throw new UnsupportedOperationException("Graphstructure has already been initialized.");
         }
 
         instance = new GraphStructure(wayPoints, connections);
         return instance;
+    }
+
+    public static boolean isInitialized() {
+        return instance != null;
+    }
+
+    public void close() {
+        this.wayPoints.clear();
+        this.connections.clear();
+
+        GraphStructure.instance = null;
     }
 
 
