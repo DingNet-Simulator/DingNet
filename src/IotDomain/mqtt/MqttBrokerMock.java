@@ -1,5 +1,7 @@
 package IotDomain.mqtt;
 
+import util.Pair;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +9,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MqttBrokerMock {
+
+    private static final String WILDCARD_SINGLE_LEVEL = "+";
+    private static final String WILDCARD_MULTI_LEVEL = "#";
+    private static final String LEVEL_SEPARATOR = "/";
 
     private final Map<MqttMock, List<String>> clientSubscribed;
 
@@ -36,11 +42,11 @@ public class MqttBrokerMock {
 
     public void publish(String topic, MqttMessage message) {
         clientSubscribed.entrySet().stream()
-            .peek(e -> e.setValue(e.getValue()
-                                    .stream()
-                                    .filter(t -> t.startsWith(topic))
-                                    .collect(Collectors.toList())))
-            .forEach(e-> e.getValue().forEach(t -> e.getKey().dispatch(t, message)));
+            .map(e -> new Pair<>(e.getKey(), e.getValue()
+                .stream()
+                .filter(f -> checkTopicMatch(topic, f))
+                .collect(Collectors.toList())))
+            .forEach(e-> e.getRight().forEach(t -> e.getLeft().dispatch(t, topic, message)));
     }
 
     public void subscribe(MqttMock instance, String topicFilter) {
@@ -55,5 +61,18 @@ public class MqttBrokerMock {
             throw new IllegalStateException();
         }
         clientSubscribed.get(instance).remove(topicFilter);
+    }
+
+    private boolean checkTopicMatch(final String topic, final String filter) {
+        var topicSplitted = topic.split(LEVEL_SEPARATOR);
+        var filterSplitted = filter.split(LEVEL_SEPARATOR);
+        int index = 0;
+        while (index < topicSplitted.length && index < filterSplitted.length &&
+            (topicSplitted[index].equals(filterSplitted[index]) || filterSplitted[index].equals(WILDCARD_SINGLE_LEVEL))) {
+            index++;
+        }
+
+        return (index == filterSplitted.length && index == topicSplitted.length) ||
+            (index == filterSplitted.length - 1 && filterSplitted[index].equals(WILDCARD_MULTI_LEVEL));
     }
 }
