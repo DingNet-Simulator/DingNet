@@ -11,6 +11,7 @@ import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -36,7 +37,7 @@ public class Mote extends NetworkEntity {
      * A LinkedList of GeoPositions representing the path the mote will follow.
      */
     @Model
-    private LinkedList<GeoPosition> path;
+    private List<GeoPosition> path;
 
     /**
      * An integer representing the energy level of the mote.
@@ -70,7 +71,7 @@ public class Mote extends NetworkEntity {
 
     private final ReceivedPackedStrategy receivedPackedStrategy = new StoreAllMessage();
 
-    private final ConsumePacketStrategy consumePacketStrategy = new DummyConsumer();
+    private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
 
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -154,7 +155,7 @@ public class Mote extends NetworkEntity {
      * @return The path of the mote.
      */
     @Basic
-    public LinkedList<GeoPosition> getPath() {
+    public List<GeoPosition> getPath() {
         return path;
     }
 
@@ -163,7 +164,7 @@ public class Mote extends NetworkEntity {
      * @param path The path to set.
      */
     @Basic
-    public void setPath(LinkedList<GeoPosition> path) {
+    public void setPath(List<GeoPosition> path) {
         this.path = path;
     }
 
@@ -196,7 +197,8 @@ public class Mote extends NetworkEntity {
 
     public void consumePackets() {
         if (receivedPackedStrategy.hasPackets()) {
-            consumePacketStrategy.consume(this, receivedPackedStrategy.getReceivedPacket());
+            var packets = receivedPackedStrategy.getReceivedPacket();
+            consumePacketStrategies.forEach(s -> s.consume(this, packets));
         }
     }
 
