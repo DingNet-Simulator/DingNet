@@ -183,7 +183,7 @@ public class Simulation {
                     //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
                     if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                             TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
-                            (this.environment.getClock().getTime().toNanoOfDay() / 100000 > Math.abs(mote.getStartOffset()) * 100000)) {
+                            (TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartOffset())))) {
                         timeMap.put(mote, this.environment.getClock().getTime());
                         if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
                             this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
@@ -203,6 +203,7 @@ public class Simulation {
             }
             this.environment.getClock().tick(1);
         }
+        System.out.println(this.environment.getClock().getTime());
         return new SimulationResult(locationHistoryMap);
     }
 
