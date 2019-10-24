@@ -22,28 +22,29 @@ public class Gateway extends NetworkEntity {
 
     /**
      * A construtor creating a gateway with a given xPos, yPos, environment and transmission power.
-     * @param gatewayEUI gateway identifier.
-     * @param xPos  The x-coordinate of the gateway on the map.
-     * @param yPos  The y-coordinate of the gateway on the map.
-     * @param environment   The map of the environment.
-     * @param transmissionPower   The transmission power of the gateway.
+     * @param gatewayEUI        gateway identifier.
+     * @param xPos              The x-coordinate of the gateway on the map.
+     * @param yPos              The y-coordinate of the gateway on the map.
+     * @param environment       The map of the environment.
+     * @param transmissionPower The transmission power of the gateway.
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
     public Gateway(Long gatewayEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF) {
         this(new NoResponse(), gatewayEUI, xPos, yPos, environment, transmissionPower, SF);
     }
+
     /**
      * A construtor creating a gateway with a given xPos, yPos, environment and transmission power.
-     * @param responseStrategy strategy to enable response to mote
-     * @param gatewayEUI gateway identifier.
-     * @param xPos  The x-coordinate of the gateway on the map.
-     * @param yPos  The y-coordinate of the gateway on the map.
-     * @param environment   The map of the environment.
-     * @param transmissionPower   The transmission power of the gateway.
+     * @param responseStrategy  strategy to enable response to mote
+     * @param gatewayEUI        gateway identifier.
+     * @param xPos              The x-coordinate of the gateway on the map.
+     * @param yPos              The y-coordinate of the gateway on the map.
+     * @param environment       The map of the environment.
+     * @param transmissionPower The transmission power of the gateway.
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
     public Gateway(ResponseStrategy responseStrategy, Long gatewayEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF) {
-        super(gatewayEUI , xPos, yPos, environment, transmissionPower, SF, 1.0);
+        super(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
         environment.addGateway(this);
         subscribedMoteProbes = new LinkedList<>();
         mqttClient = new MqttMock();
@@ -59,7 +60,7 @@ public class Gateway extends NetworkEntity {
     }
 
     public void addSubscription(MoteProbe moteProbe) {
-        if(!getSubscribedMoteProbes().contains(moteProbe)) {
+        if (!getSubscribedMoteProbes().contains(moteProbe)) {
             subscribedMoteProbes.add(moteProbe);
         }
     }
@@ -94,5 +95,9 @@ public class Gateway extends NetworkEntity {
             .append(deviceEUI)
             .append("/rx")
             .toString();
+    }
+
+    public MqttClientBasicApi getMqttClient() {
+        return mqttClient;
     }
 }
