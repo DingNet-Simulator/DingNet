@@ -152,8 +152,8 @@ public class Simulation {
      */
     private Boolean areAllMotesAtDestination() {
         return this.environment.getMotes().stream().noneMatch(m ->
-            m.isEnabled() && !m.getPath().isEmpty() && m.getPath().getLast() != null &&
-            !this.environment.toMapCoordinate(m.getPath().getLast()).equals(m.getPos()));
+            m.isEnabled() && !m.getPath().isEmpty() && m.getPath().get(m.getPath().size()-1) != null &&
+            !this.environment.toMapCoordinate(m.getPath().get(m.getPath().size()-1)).equals(m.getPos()));
     }
 
 
@@ -199,7 +199,7 @@ public class Simulation {
                         } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
                     }
                 }
-
+                mote.consumePackets();
             }
             this.environment.getClock().tick(1);
         }

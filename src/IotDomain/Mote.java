@@ -1,5 +1,9 @@
 package IotDomain;
 
+import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
+import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
+import IotDomain.motepacketstrategy.storeStrategy.ReceivedPackedStrategy;
+import IotDomain.motepacketstrategy.storeStrategy.StoreAllMessage;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -7,6 +11,7 @@ import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -32,7 +37,7 @@ public class Mote extends NetworkEntity {
      * A LinkedList of GeoPositions representing the path the mote will follow.
      */
     @Model
-    private LinkedList<GeoPosition> path;
+    private List<GeoPosition> path;
 
     /**
      * An integer representing the energy level of the mote.
@@ -59,6 +64,14 @@ public class Mote extends NetworkEntity {
      */
     @Model
     private Integer startOffset;
+
+    //TODO add comments and constructor for these parameters
+    private static final long DEFAULT_APPLICATION_EUI = 1;
+    private long applicationEUI = DEFAULT_APPLICATION_EUI;
+
+    private final ReceivedPackedStrategy receivedPackedStrategy = new StoreAllMessage();
+
+    private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
 
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -116,12 +129,19 @@ public class Mote extends NetworkEntity {
     /**
      * A method describing what the mote should do after successfully receiving a packet.
      * @param packet The received packet.
-     * @param senderEUI The EUI of the sender
-     * @param designatedReceiver The EUI designated receiver for the packet.
      */
     @Override
-    protected void OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver) {
+    protected void OnReceive(LoraWanPacket packet) {
+        //if is a message sent to from a gateway to this mote
+        if (getEUI().equals(packet.getDesignatedReceiverEUI()) &&
+            getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+            receivedPackedStrategy.addReceivedMessage(packet);
+        }
+    }
 
+    @Override
+    boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
+        return !networkEntity.equals(this);
     }
 
     /**
@@ -135,7 +155,7 @@ public class Mote extends NetworkEntity {
      * @return The path of the mote.
      */
     @Basic
-    public LinkedList<GeoPosition> getPath() {
+    public List<GeoPosition> getPath() {
         return path;
     }
 
@@ -144,8 +164,12 @@ public class Mote extends NetworkEntity {
      * @param path The path to set.
      */
     @Basic
-    public void setPath(LinkedList<GeoPosition> path) {
+    public void setPath(List<GeoPosition> path) {
         this.path = path;
+    }
+
+    public long getApplicationEUI() {
+        return applicationEUI;
     }
 
     /**
@@ -167,8 +191,15 @@ public class Mote extends NetworkEntity {
             i++;
         }
 
-        LoraWanPacket packet = new LoraWanPacket(getEUI(), (long) 1,payload, new LinkedList<>(macCommands.keySet()));
+        LoraWanPacket packet = new LoraWanPacket(getEUI(), getApplicationEUI(),payload, new LinkedList<>(macCommands.keySet()));
         loraSend(packet);
+    }
+
+    public void consumePackets() {
+        if (receivedPackedStrategy.hasPackets()) {
+            var packets = receivedPackedStrategy.getReceivedPacket();
+            consumePacketStrategies.forEach(s -> s.consume(this, packets));
+        }
     }
 
     /**

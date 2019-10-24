@@ -31,4 +31,8 @@ public class MqttMessage {
     public List<Byte> getData() {
         return data;
     }
+
+    public Byte[] getDataAsArray() {
+        return data.toArray(new Byte[0]);
+    }
 }
