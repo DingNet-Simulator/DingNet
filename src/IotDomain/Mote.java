@@ -64,6 +64,10 @@ public class Mote extends NetworkEntity {
     @Model
     private Integer startOffset;
 
+    //TODO add comments and constructor for these parameters
+    private static final long DEFAULT_APPLICATION_EUI = 1;
+    private long applicationEUI = DEFAULT_APPLICATION_EUI;
+
     private final ReceivedPackedStrategy receivedPackedStrategy = new StoreAllMessage();
 
     private final ConsumePacketStrategy consumePacketStrategy = new DummyConsumer();
@@ -163,6 +167,10 @@ public class Mote extends NetworkEntity {
         this.path = path;
     }
 
+    public long getApplicationEUI() {
+        return applicationEUI;
+    }
+
     /**
      * A function for sending a message with MAC commands to the gateways.
      * @param data The data to send in the message
@@ -182,7 +190,7 @@ public class Mote extends NetworkEntity {
             i++;
         }
 
-        LoraWanPacket packet = new LoraWanPacket(getEUI(), (long) 1,payload, new LinkedList<>(macCommands.keySet()));
+        LoraWanPacket packet = new LoraWanPacket(getEUI(), getApplicationEUI(),payload, new LinkedList<>(macCommands.keySet()));
         loraSend(packet);
     }
 
