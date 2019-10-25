@@ -3,6 +3,7 @@ package IotDomain.motepacketstrategy.storeStrategy;
 import IotDomain.LoraWanPacket;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +22,12 @@ public class MaintainLastPacket implements ReceivedPacketStrategy {
         ByteBuffer buf = ByteBuffer.wrap(sequenceNumberAsBytes);
         var sequenceNumber = buf.getInt();
         if (sequenceNumber > lastPacketReceived) {
+            var newPacket = new LoraWanPacket(packet.getSenderEUI(), packet.getDesignatedReceiverEUI(),
+                Arrays.stream(packet.getPayload()).skip(4).toArray(Byte[]::new),
+                packet.hasHeader(), packet.hasLowDataRateOptimization(),
+                packet.getAmountOfPreambleSymbols(), packet.getCodingRate(), packet.getMacCommands());
             lastPacketReceived = sequenceNumber;
-            this.packet = Optional.of(packet);
+            this.packet = Optional.of(newPacket);
         }
     }
 
