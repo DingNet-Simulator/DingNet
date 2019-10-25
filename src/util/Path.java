@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Path implements Iterable<GeoPosition> {
     private List<GeoPosition> points;
@@ -34,11 +33,19 @@ public class Path implements Iterable<GeoPosition> {
 
     // NOTE: The following functions are only used during setup/saving of the configuration, not at runtime
 
+    /**
+     * Add a waypoint at the end of this path.
+     * @param point The waypoint which is added at the end of the path.
+     */
     public void addPosition(GeoPosition point) {
         this.points.add(point);
     }
 
 
+    /**
+     * Retrieve the used connections in this path.
+     * @return A list of connection ids of the connections in this path.
+     */
     public List<Long> getConnectionsByID() {
         var connectionsMap = graphStructure.getConnections();
         List<Long> connections = new ArrayList<>();
@@ -50,8 +57,8 @@ public class Path implements Iterable<GeoPosition> {
                 .filter(o -> o.getValue().getFrom() == graphStructure.getClosestWayPoint(points.get(index))
                     && o.getValue().getTo() == graphStructure.getClosestWayPoint(points.get(index+1)))
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList())
-                .get(0);
+                .findFirst()
+                .orElseThrow();
 
             connections.add(connectionId);
         }
@@ -61,8 +68,8 @@ public class Path implements Iterable<GeoPosition> {
 
 
     /**
-     * Remove all the waypoints in the path from the given waypoint (including this waypoint itself)
-     * @param waypointId the id of the waypoint from which the path should be shortened
+     * Remove all the waypoints in the path from the given waypoint (including this waypoint itself).
+     * @param waypointId The id of the waypoint from which the path should be shortened.
      */
     public void shortenPathFromWayPoint(long waypointId) {
         int index = 0;
@@ -77,6 +84,11 @@ public class Path implements Iterable<GeoPosition> {
         this.points = this.points.subList(0, index);
     }
 
+
+    /**
+     * Remove waypoints in the path from the given connection (including waypoints in this connection).
+     * @param connectionId The id of the connection.
+     */
     public void shortenPathFromConnection(long connectionId) {
         var connection = graphStructure.getConnection(connectionId);
         int index = 0;

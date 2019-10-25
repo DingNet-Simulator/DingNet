@@ -22,8 +22,6 @@ import util.MapHelper;
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
@@ -42,15 +40,17 @@ public class ConfigureConnectionsPanel {
     private static TileFactoryInfo info = new OSMTileFactoryInfo();
     private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
     private MainGUI parent;
+    private CompoundPainter<JXMapViewer> painter;
 
     private Mode mode;
-    long firstWayPoint;
-    long secondWayPoint;
+    private long firstWayPoint;
+    private long secondWayPoint;
 
 
     ConfigureConnectionsPanel(Environment environment, MainGUI parent) {
         this.parent = parent;
         this.environment = environment;
+        this.painter = new CompoundPainter<>();
 
         this.mode = Mode.ADD;
         firstWayPoint = -1;
@@ -126,8 +126,7 @@ public class ConfigureConnectionsPanel {
         // Draw the borders
         painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
 
-
-        CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
+        painter.setPainters(painters);
         mapViewer.setOverlayPainter(painter);
 
         if (!isRefresh) {
@@ -220,7 +219,7 @@ public class ConfigureConnectionsPanel {
                 Map<Long, Double> distances = new HashMap<>();
                 graph.getWayPoints().forEach((k, v) -> distances.put(k, MapHelper.distance(v, geo)));
                 var closestWayPoint = distances.entrySet().stream()
-                    .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                    .min(Comparator.comparing(Map.Entry::getValue))
                     .map(Map.Entry::getKey)
                     .orElse(-1L);
 
@@ -231,9 +230,7 @@ public class ConfigureConnectionsPanel {
                 if (firstWayPoint == -1) {
                     firstWayPoint = closestWayPoint;
 
-
                     // color the selected waypoint to indicate the first step
-                    CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
                     var wayPointPainter = new PathWaypointPainter<DefaultWaypoint>(Color.BLUE);
                     wayPointPainter.setWaypoints(Set.of(new DefaultWaypoint(graph.getWayPoint(firstWayPoint))));
                     painter.addPainter(wayPointPainter);

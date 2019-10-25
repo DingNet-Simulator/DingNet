@@ -20,8 +20,6 @@ import util.MapHelper;
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
@@ -196,7 +194,7 @@ public class ConfigureWayPointsPanel {
 
                     // TODO ask for confirmation from the user? (Visualize deleted routes as well)
                     distances.entrySet().stream()
-                        .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                        .min(Comparator.comparing(Map.Entry::getValue))
                         .ifPresent(o -> graph.deleteWayPoint(o.getKey(), environment));
 
                     parent.refresh();

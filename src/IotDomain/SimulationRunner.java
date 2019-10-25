@@ -23,8 +23,7 @@ public class SimulationRunner {
     private List<InputProfile> inputProfiles;
     private Simulation simulation;
     private List<GenericFeedbackLoop> algorithms;
-    private LinkedList<MoteProbe> moteProbe;
-    private LinkedList<MoteEffector> moteEffector;
+    private List<MoteProbe> moteProbe;
     private QualityOfService QoS;
 
 
@@ -46,7 +45,7 @@ public class SimulationRunner {
         inputProfiles = loadInputProfiles();
 
 
-        /**
+        /*
          * Loading all the algorithms
          */
         GenericFeedbackLoop noAdaptation = new GenericFeedbackLoop("No Adaptation") {
@@ -66,11 +65,11 @@ public class SimulationRunner {
         algorithms.add(reliableEfficientDistanceGateway);
 
 
-        /**
+        /*
          * Setting the mote probes
          */
         moteProbe = new LinkedList<>();
-        moteEffector = new LinkedList<>();
+        List<MoteEffector> moteEffector = new LinkedList<>();
         for (int i = 0; i < algorithms.size(); i++) {
             moteProbe.add(new MoteProbe());
             moteEffector.add(new MoteEffector());
@@ -104,17 +103,14 @@ public class SimulationRunner {
 
 
     public void setApproach(String name) {
-        GenericFeedbackLoop selectedAlgorithm = null;
-        for (GenericFeedbackLoop algorithm : algorithms) {
-            if (algorithm.getName().equals(name)) {
-                selectedAlgorithm = algorithm;
-            }
-        }
+        var selectedAlgorithm = algorithms.stream()
+            .filter(o -> o.getName().equals(name))
+            .findFirst();
 
-        if (selectedAlgorithm == null) {
+        if (!selectedAlgorithm.isPresent()) {
             throw new RuntimeException(String.format("Could not load approach with name %s", name));
         }
-        simulation.setApproach(selectedAlgorithm);
+        simulation.setApproach(selectedAlgorithm.get());
     }
 
 
@@ -125,6 +121,7 @@ public class SimulationRunner {
     }
 
 
+    @SuppressWarnings("unused")
     public void totalRun() {
         totalRun(null);
     }

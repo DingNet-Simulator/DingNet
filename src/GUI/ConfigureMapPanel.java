@@ -47,6 +47,7 @@ public class ConfigureMapPanel {
 
     private Mote currentMote = null;
     private MainGUI parent;
+    private CompoundPainter<JXMapViewer> painter;
 
     public ConfigureMapPanel(Environment environment, MainGUI parent) {
         this.parent = parent;
@@ -54,6 +55,7 @@ public class ConfigureMapPanel {
         graph = GraphStructure.getInstance();
         currentWayPoints = new LinkedList<>();
         saveTrackButton.setEnabled(false);
+        this.painter = new CompoundPainter<>();
 
         loadMap(false);
 
@@ -72,9 +74,9 @@ public class ConfigureMapPanel {
                     "waypoint<br>along the path<br><br>3.<br>Continue<br>selecting<br>waypoints<br>until the end<br>of " +
                     "the path<br><br>4. Save the<br>path</html>");
         });
-        freeButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(null, "Only guided path configuration is supported for now.", "Notification", JOptionPane.ERROR_MESSAGE);
-        });
+        freeButton.addActionListener(e ->
+            JOptionPane.showMessageDialog(null, "Only guided path configuration is supported for now.", "Notification", JOptionPane.ERROR_MESSAGE)
+        );
     }
 
 
@@ -125,8 +127,7 @@ public class ConfigureMapPanel {
         waypointPainter.setWaypoints(set);
         painters.add(waypointPainter);
 
-
-        CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
+        painter.setPainters(painters);
         mapViewer.setOverlayPainter(painter);
         if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
@@ -218,8 +219,7 @@ public class ConfigureMapPanel {
                     }
 
                     Map.Entry<Mote, Double> nearest = moteDistances.entrySet().stream()
-//                        .min(Double::compare(Map.Entry::getValue))
-                        .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                        .min(Comparator.comparing(Map.Entry::getValue))
                         .orElse(null);
 
                     if (nearest != null) {
@@ -236,7 +236,7 @@ public class ConfigureMapPanel {
                         distances.put(me.getKey(), distance);
                     }
                     Map.Entry<Long, Double> nearest = distances.entrySet().stream()
-                        .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                        .min(Comparator.comparing(Map.Entry::getValue))
                         .orElse(null);
 
                     if (nearest != null) {
@@ -254,7 +254,6 @@ public class ConfigureMapPanel {
                     return;
                 }
 
-                CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
                 painter.addPainter(
                     new LinePainter(currentWayPoints.stream().map(graph::getWayPoint).collect(Collectors.toList()), Color.RED, 1)
                 );
@@ -280,24 +279,13 @@ public class ConfigureMapPanel {
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {
-
-        }
-
+        public void mousePressed(MouseEvent e) {}
         @Override
-        public void mouseReleased(MouseEvent e) {
-
-        }
-
+        public void mouseReleased(MouseEvent e) {}
         @Override
-        public void mouseEntered(MouseEvent e) {
-
-        }
-
+        public void mouseEntered(MouseEvent e) {}
         @Override
-        public void mouseExited(MouseEvent e) {
-
-        }
+        public void mouseExited(MouseEvent e) {}
     }
 
     private class MapSaveTrackActionLister implements ActionListener {

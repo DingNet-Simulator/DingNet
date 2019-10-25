@@ -439,9 +439,9 @@ public class MainGUI extends JFrame {
             panel.setPreferredSize(new Dimension(InputProfilePanel.getWidth() - 10, 50));
             panel.setBackground(Color.white);
             panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-            Image unselectedImage = null;
-            Image selectedImage = null;
-            Image editImage = null;
+            Image unselectedImage;
+            Image selectedImage;
+            Image editImage;
             try {
                 unselectedImage = ImageIO.read(getClass().getResource("/GUI/circle_unselected.png"));
                 unselectedImage = unselectedImage.getScaledInstance(23, 23, 0);
@@ -561,12 +561,11 @@ public class MainGUI extends JFrame {
 
     }
 
-    public void refreshMap() {
+    private void refreshMap() {
         loadMap(simulationRunner.getEnvironment(), mapViewer, true);
     }
 
     private MouseAdapter gateWayMouse = new MouseAdapter() {
-
         @Override
         public void mouseClicked(MouseEvent e) {
             JTextArea jTextArea = (JTextArea) e.getSource();
@@ -1168,7 +1167,7 @@ public class MainGUI extends JFrame {
      * @param moteIndex The index of the mote.
      * @param run       The number of the run.
      */
-    public void setCharacteristics(Integer moteIndex, Integer run) {
+    void setCharacteristics(int moteIndex, int run) {
 
         moteCharacteristicsLabel.setText("Mote " + (moteIndex + 1) + " | Run " + (run + 1));
         // update received power graph
@@ -1206,7 +1205,7 @@ public class MainGUI extends JFrame {
 
     }
 
-    public void setApplicationGraphs(int index) {
+    void setApplicationGraphs(int index) {
         moteApplicationLabel.setText("Mote " + (index + 1));
         // update particulate matter field
         particulateMatterPanel.removeAll();
@@ -1230,7 +1229,7 @@ public class MainGUI extends JFrame {
         ozonePanel.revalidate();
     }
 
-    public void setApplicationGraphs(int xBase, int yBase, int xSize, int ySize, Environment environment) {
+    private void setApplicationGraphs(int xBase, int yBase, int xSize, int ySize, Environment environment) {
         moteApplicationLabel.setText("Region 1");
         // update particulate matter field
         particulateMatterPanel.removeAll();
@@ -1308,7 +1307,7 @@ public class MainGUI extends JFrame {
     }
 
 
-    private Pair<JPanel, JComponent> generateGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment, MoteSensor moteSensor, String keyName) {
+    private Pair<JPanel, JComponent> generateGraph(int xBase, int yBase, int xSize, int ySize, Environment environment, MoteSensor moteSensor, String keyName) {
         DefaultXYZDataset data = new DefaultXYZDataset();
         HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesList = new HashMap<>();
         LinkedList<Pair<GeoPosition, Double>> dataSet = new LinkedList<>();
@@ -1392,7 +1391,7 @@ public class MainGUI extends JFrame {
         return this.generateGraph(mote, MoteSensor.PARTICULATE_MATTER, "Particulate Matter");
     }
 
-    private Pair<JPanel, JComponent> generateParticulateMatterGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
+    private Pair<JPanel, JComponent> generateParticulateMatterGraph(int xBase, int yBase, int xSize, int ySize, Environment environment) {
         return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.PARTICULATE_MATTER, "Particulate Matter");
     }
 
@@ -1400,7 +1399,7 @@ public class MainGUI extends JFrame {
         return this.generateGraph(mote, MoteSensor.CARBON_DIOXIDE, "Carbon Dioxide");
     }
 
-    private Pair<JPanel, JComponent> generateCarbonDioxideGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
+    private Pair<JPanel, JComponent> generateCarbonDioxideGraph(int xBase, int yBase, int xSize, int ySize, Environment environment) {
 
         return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.CARBON_DIOXIDE, "Carbon Dioxide");
     }
@@ -1409,7 +1408,7 @@ public class MainGUI extends JFrame {
         return this.generateGraph(mote, MoteSensor.SOOT, "Soot");
     }
 
-    private Pair<JPanel, JComponent> generateSootGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
+    private Pair<JPanel, JComponent> generateSootGraph(int xBase, int yBase, int xSize, int ySize, Environment environment) {
         return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.SOOT, "Soot");
     }
 
@@ -1417,7 +1416,7 @@ public class MainGUI extends JFrame {
         return this.generateGraph(mote, MoteSensor.OZONE, "Ozone");
     }
 
-    private Pair<JPanel, JComponent> generateOzoneGraph(Integer xBase, Integer yBase, Integer xSize, Integer ySize, Environment environment) {
+    private Pair<JPanel, JComponent> generateOzoneGraph(int xBase, int yBase, int xSize, int ySize, Environment environment) {
         return this.generateGraph(xBase, yBase, xSize, ySize, environment, MoteSensor.OZONE, "Ozone");
     }
 
@@ -1455,11 +1454,11 @@ public class MainGUI extends JFrame {
      * @param run  The run to generate the graph of
      * @return A Pair containing ChartPanel containing a received power graph and another pair containing 2 integers: the amount of packets sent and the amount lost.
      */
-    public static Pair<ChartPanel, Pair<Integer, Integer>> generateReceivedPowerGraphForMotes(Mote mote, Integer run) {
+    private Pair<ChartPanel, Pair<Integer, Integer>> generateReceivedPowerGraphForMotes(Mote mote, int run) {
         LinkedList<LinkedList<Pair<NetworkEntity, Pair<Integer, Double>>>> transmissionsMote = new LinkedList<>();
 
-        Integer amountSent = 0;
-        Integer amountLost = 0;
+        int amountSent = 0;
+        int amountLost = 0;
 
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
@@ -1519,7 +1518,7 @@ public class MainGUI extends JFrame {
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a spreading factor graph.
      */
-    public static ChartPanel generateSpreadingFactorGraph(NetworkEntity mote, Integer run) {
+    private ChartPanel generateSpreadingFactorGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataSpreadingFactorMote = new XYSeriesCollection();
         XYSeries seriesSpreadingFactorMote = new XYSeries("Spreading factor");
         int i = 0;
@@ -1547,7 +1546,7 @@ public class MainGUI extends JFrame {
         XYItemRenderer renderer = plot.getRenderer();
 
         XYLineAndShapeRenderer LineRenderer = new XYLineAndShapeRenderer();
-        for (Integer series = 0; series < plot.getSeriesCount(); series++) {
+        for (int series = 0; series < plot.getSeriesCount(); series++) {
             LineRenderer.setSeriesPaint(series, renderer.getSeriesPaint(series));
             LineRenderer.setSeriesStroke(series, new BasicStroke(1.0f));
             LineRenderer.setSeriesShape(series, shape);
@@ -1565,7 +1564,7 @@ public class MainGUI extends JFrame {
      * @param run  The run to generate the graph of
      * @return A Pair withChartPanel containing a used energy graph and a double the total ued energy.
      */
-    public static Pair<ChartPanel, Double> generateUsedEnergyGraph(NetworkEntity mote, Integer run) {
+    private Pair<ChartPanel, Double> generateUsedEnergyGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataUsedEnergyEntity = new XYSeriesCollection();
         int i = 0;
         XYSeries seriesUsedEnergyEntity = new XYSeries("Used energy");
@@ -1591,7 +1590,7 @@ public class MainGUI extends JFrame {
         XYItemRenderer renderer = plot.getRenderer();
 
         XYLineAndShapeRenderer LineRenderer = new XYLineAndShapeRenderer();
-        for (Integer series = 0; series < plot.getSeriesCount(); series++) {
+        for (int series = 0; series < plot.getSeriesCount(); series++) {
             LineRenderer.setSeriesPaint(series, renderer.getSeriesPaint(series));
             LineRenderer.setSeriesStroke(series, new BasicStroke(1.0f));
             LineRenderer.setSeriesShape(series, shape);
@@ -1609,7 +1608,7 @@ public class MainGUI extends JFrame {
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a distance to gateway graph.
      */
-    public static ChartPanel generateDistanceToGatewayGraph(Mote mote, Integer run) {
+    private ChartPanel generateDistanceToGatewayGraph(Mote mote, int run) {
         LinkedList<LinkedList<LoraTransmission>> transmissionsMote = new LinkedList<>();
 
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
@@ -1627,7 +1626,7 @@ public class MainGUI extends JFrame {
 
         for (LinkedList<LoraTransmission> list : transmissionsMote) {
             XYSeries series = new XYSeries("gateway " + (mote.getEnvironment().getGateways().indexOf(list.get(0).getReceiver()) + 1));
-            Integer i = 0;
+            int i = 0;
             for (LoraTransmission transmission : list) {
                 series.add(i, (Number) Math.sqrt(Math.pow(transmission.getReceiver().getYPos() - transmission.getYPos(), 2) +
                         Math.pow(transmission.getReceiver().getXPos() - transmission.getXPos(), 2)));
@@ -1651,7 +1650,7 @@ public class MainGUI extends JFrame {
         XYItemRenderer renderer = plot.getRenderer();
 
         XYLineAndShapeRenderer LineRenderer = new XYLineAndShapeRenderer();
-        for (Integer series = 0; series < plot.getSeriesCount(); series++) {
+        for (int series = 0; series < plot.getSeriesCount(); series++) {
             LineRenderer.setSeriesPaint(series, renderer.getSeriesPaint(series));
             LineRenderer.setSeriesStroke(series, new BasicStroke(1.0f));
             LineRenderer.setSeriesShape(series, shape);
@@ -1668,7 +1667,7 @@ public class MainGUI extends JFrame {
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a power setting graph.
      */
-    public static ChartPanel generatePowerSettingGraph(NetworkEntity mote, Integer run) {
+    private ChartPanel generatePowerSettingGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataPowerSettingMote = new XYSeriesCollection();
         XYSeries seriesPowerSettingMote = new XYSeries("Power setting");
         for (Pair<Integer, Integer> powerSetting : mote.getPowerSettingHistory(run)) {
@@ -1691,7 +1690,6 @@ public class MainGUI extends JFrame {
         range.setRange(0.0, 15.0);
         range.setTickUnit(new NumberTickUnit(1.0));
         return new ChartPanel(powerSettingChartMote);
-
     }
 
     void setRelCom(IntervalAdaptationGoal intervalAdaptationGoal) {
