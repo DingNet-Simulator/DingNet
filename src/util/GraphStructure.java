@@ -95,10 +95,6 @@ public class GraphStructure {
     }
 
     public void deleteWayPoint(long id, Environment environment) {
-        // TODO figure out what to do with routes of motes
-        // -> Maybe proxy this method through the simulation class and do checks there
-        // -> (e.g. cutoff route of mote up until the deleted waypoint (possibly resulting in the mote not having a path)
-
         wayPoints.remove(id);
         var connToDelete  = connections.entrySet().stream()
             .filter(o -> o.getValue().getTo() == id || o.getValue().getFrom() == id)
@@ -111,6 +107,21 @@ public class GraphStructure {
 
         // Make sure to also delete part of the paths of motes which use this waypoint
         environment.removeWayPointFromMotes(id);
+    }
+
+    public void deleteConnection(long idFrom, long idTo, Environment environment) {
+        var possibleConnections = connections.entrySet().stream()
+            .filter(o -> o.getValue().getTo() == idTo && o.getValue().getFrom() == idFrom)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
+
+        if (possibleConnections.size() == 0) {
+            return;
+        }
+        assert possibleConnections.size() == 1;
+
+        environment.removeConnectionFromMotes(possibleConnections.get(0));
+        connections.remove(possibleConnections.get(0));
     }
 
 
@@ -143,6 +154,11 @@ public class GraphStructure {
         return wayPoints;
     }
 
+
+
+    public Connection getConnection(long id) {
+        return this.connections.get(id);
+    }
 
     public Connection getConnection(long from, long to) {
         for (var conn : connections.values()) {

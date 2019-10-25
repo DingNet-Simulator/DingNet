@@ -20,6 +20,7 @@ public class ConfigureGUI {
     private JPanel configurePanel;
     private JButton mapButton;
     private JButton waypointsButton;
+    private JButton connectionsButton;
     private Environment environment;
     private MainGUI parent;
     private JFrame frame;
@@ -76,6 +77,15 @@ public class ConfigureGUI {
         waypointsButton.setBorder(new EmptyBorder(0, 0, 0, 0));
         waypointsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        connectionsButton.setFocusPainted(false);
+        connectionsButton.setMargin(new Insets(0, 0, 0, 0));
+        connectionsButton.setContentAreaFilled(false);
+        connectionsButton.setBorderPainted(false);
+        connectionsButton.setOpaque(false);
+        connectionsButton.setBorder(new EmptyBorder(0, 0, 0, 0));
+        connectionsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+
         this.environment = environment;
 
         regionButton.addActionListener(e -> {
@@ -119,6 +129,14 @@ public class ConfigureGUI {
             configurePanel.repaint();
             configurePanel.revalidate();
         });
+
+        connectionsButton.addActionListener(e -> {
+            ConfigureConnectionsPanel configureConnectionsPanel = new ConfigureConnectionsPanel(environment, parent);
+            configurePanel.removeAll();
+            configurePanel.add(configureConnectionsPanel.getMainPanel());
+            configurePanel.repaint();
+            configurePanel.revalidate();
+        });
     }
 
     public JPanel getMainPanel() {
@@ -143,7 +161,7 @@ public class ConfigureGUI {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(13, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(15, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(50, -1), null, 0, false));
         final JSeparator separator1 = new JSeparator();
         panel1.add(separator1, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -158,7 +176,7 @@ public class ConfigureGUI {
         panel1.add(moteButton, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         closeButton = new JButton();
         closeButton.setText("Close");
-        panel1.add(closeButton, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(closeButton, new GridConstraints(13, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JSeparator separator4 = new JSeparator();
         panel1.add(separator4, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
@@ -176,11 +194,16 @@ public class ConfigureGUI {
         waypointsButton.setText("WayPoints");
         panel1.add(waypointsButton, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JSeparator separator5 = new JSeparator();
-        panel1.add(separator5, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(separator5, new GridConstraints(12, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
-        panel1.add(spacer3, new GridConstraints(12, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel1.add(spacer3, new GridConstraints(14, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JSeparator separator6 = new JSeparator();
         panel1.add(separator6, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JSeparator separator7 = new JSeparator();
+        panel1.add(separator7, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        connectionsButton = new JButton();
+        connectionsButton.setText("Connections");
+        panel1.add(connectionsButton, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer4 = new Spacer();
         mainPanel.add(spacer4, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 5), null, 0, false));
         final Spacer spacer5 = new Spacer();

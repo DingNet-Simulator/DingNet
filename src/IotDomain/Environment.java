@@ -389,8 +389,16 @@ public class Environment implements Serializable {
     }
 
 
-    public void removeWayPointFromMotes(long id) {
-        motes.forEach(o -> o.shortenPathFromWayPoint(id));
+    /**
+     * Shortens the routes of motes which contain the given waypoint.
+     * @param wayPointId The ID of the waypoint.
+     */
+    public void removeWayPointFromMotes(long wayPointId) {
+        motes.forEach(o -> o.shortenPathFromWayPoint(wayPointId));
+    }
+
+    public void removeConnectionFromMotes(long connectionId) {
+        motes.forEach(o -> o.shortenPathFromConnection(connectionId));
     }
 }
 

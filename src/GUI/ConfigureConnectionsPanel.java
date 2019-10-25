@@ -1,6 +1,7 @@
 package GUI;
 
 
+import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.PathWaypointPainter;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
@@ -14,6 +15,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+import util.Connection;
 import util.GraphStructure;
 import util.MapHelper;
 
@@ -27,12 +29,13 @@ import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
 
-public class ConfigureWayPointsPanel {
+public class ConfigureConnectionsPanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
     private JRadioButton addRadioBtn;
     private JPanel configurePanel;
     private JRadioButton deleteRadioBtn;
+    private JButton cancelButton;
     private Environment environment;
 
     private static JXMapViewer mapViewer = new JXMapViewer();
@@ -41,13 +44,17 @@ public class ConfigureWayPointsPanel {
     private MainGUI parent;
 
     private Mode mode;
+    long firstWayPoint;
+    long secondWayPoint;
 
 
-    ConfigureWayPointsPanel(Environment environment, MainGUI parent) {
+    ConfigureConnectionsPanel(Environment environment, MainGUI parent) {
         this.parent = parent;
         this.environment = environment;
 
         this.mode = Mode.ADD;
+        firstWayPoint = -1;
+        secondWayPoint = -1;
 
         loadMap(false);
 
@@ -78,6 +85,10 @@ public class ConfigureWayPointsPanel {
             deleteRadioBtn.setSelected(true);
             this.mode = Mode.DELETE;
         });
+        cancelButton.addActionListener(e -> {
+            this.resetSelectedWayPoints();
+            refresh();
+        });
     }
 
     public void refresh() {
@@ -92,15 +103,25 @@ public class ConfigureWayPointsPanel {
 
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();
+        GraphStructure graph = GraphStructure.getInstance();
+
 
         // Draw the waypoints
         Set<DefaultWaypoint> set = new HashSet<>();
         PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
-        for (GeoPosition waypoint : GraphStructure.getInstance().getWayPoints().values()) {
+        for (GeoPosition waypoint : graph.getWayPoints().values()) {
             set.add(new DefaultWaypoint(waypoint));
         }
         waypointPainter.setWaypoints(set);
         painters.add(waypointPainter);
+
+        // Draw the connections
+        var connections = graph.getConnections().values();
+        for (var conn : connections) {
+            painters.add(new LinePainter(
+                List.of(graph.getWayPoint(conn.getFrom()), graph.getWayPoint(conn.getTo())), Color.RED, 2
+            ));
+        }
 
         // Draw the borders
         painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
@@ -115,6 +136,11 @@ public class ConfigureWayPointsPanel {
         }
 
         drawPanel.add(mapViewer);
+    }
+
+    private void resetSelectedWayPoints() {
+        firstWayPoint = -1;
+        secondWayPoint = -1;
     }
 
 
@@ -152,7 +178,7 @@ public class ConfigureWayPointsPanel {
         final Spacer spacer4 = new Spacer();
         mainPanel.add(spacer4, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(15, -1), new Dimension(14, 337), null, 0, false));
         configurePanel = new JPanel();
-        configurePanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        configurePanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(configurePanel, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 40), new Dimension(-1, 40), new Dimension(-1, 40), 0, false));
         addRadioBtn = new JRadioButton();
         addRadioBtn.setSelected(true);
@@ -161,6 +187,9 @@ public class ConfigureWayPointsPanel {
         deleteRadioBtn = new JRadioButton();
         deleteRadioBtn.setText("Delete");
         configurePanel.add(deleteRadioBtn, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cancelButton = new JButton();
+        cancelButton.setText("Cancel");
+        configurePanel.add(cancelButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -177,6 +206,7 @@ public class ConfigureWayPointsPanel {
 
     private class MapMouseAdapter implements MouseListener {
 
+
         MapMouseAdapter() {
         }
 
@@ -186,43 +216,66 @@ public class ConfigureWayPointsPanel {
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
                 GraphStructure graph = GraphStructure.getInstance();
 
-                if (ConfigureWayPointsPanel.this.mode == Mode.ADD) {
-                    graph.addWayPoint(geo);
-                } else if (ConfigureWayPointsPanel.this.mode == Mode.DELETE) {
-                    // Calculate the distances to the closest wayPoints
-                    Map<Long, Double> distances = new HashMap<>();
+                // Calculate the distances to the closest wayPoints
+                Map<Long, Double> distances = new HashMap<>();
+                graph.getWayPoints().forEach((k, v) -> distances.put(k, MapHelper.distance(v, geo)));
+                var closestWayPoint = distances.entrySet().stream()
+                    .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
+                    .map(Map.Entry::getKey)
+                    .orElse(-1L);
 
-                    graph.getWayPoints().forEach((k, v) -> distances.put(k, MapHelper.distance(v, geo)));
-
-                    // TODO ask for confirmation from the user? (Visualize deleted routes as well)
-                    distances.entrySet().stream()
-                        .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
-                        .ifPresent(o -> graph.deleteWayPoint(o.getKey(), environment));
-
-                    parent.refresh();
+                if (closestWayPoint == -1) {
+                    return;
                 }
-                loadMap(true);
+
+                if (firstWayPoint == -1) {
+                    firstWayPoint = closestWayPoint;
+
+
+                    // color the selected waypoint to indicate the first step
+                    CompoundPainter<JXMapViewer> painter = (CompoundPainter<JXMapViewer>) mapViewer.getOverlayPainter();
+                    var wayPointPainter = new PathWaypointPainter<DefaultWaypoint>(Color.BLUE);
+                    wayPointPainter.setWaypoints(Set.of(new DefaultWaypoint(graph.getWayPoint(firstWayPoint))));
+                    painter.addPainter(wayPointPainter);
+
+
+                    // Also color the outgoing connections from the selected mote separately
+                    for (var conn : graph.getOutgoingConnections(firstWayPoint)) {
+                        painter.addPainter(
+                            new LinePainter(List.of(graph.getWayPoint(conn.getFrom()), graph.getWayPoint(conn.getTo())), Color.GREEN, 2)
+                        );
+                    }
+                } else {
+                    secondWayPoint = closestWayPoint;
+
+                    if (ConfigureConnectionsPanel.this.mode == Mode.ADD) {
+                        graph.addConnection(new Connection(firstWayPoint, secondWayPoint));
+                    } else if (ConfigureConnectionsPanel.this.mode == Mode.DELETE) {
+                        graph.deleteConnection(firstWayPoint, secondWayPoint, environment);
+                    }
+
+                    loadMap(true);
+                    parent.refresh();
+                    resetSelectedWayPoints();
+                }
             }
         }
 
+
         @Override
         public void mousePressed(MouseEvent e) {
-
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-
         }
 
         @Override
         public void mouseEntered(MouseEvent e) {
-
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-
         }
     }
 

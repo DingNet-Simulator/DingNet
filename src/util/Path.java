@@ -58,13 +58,27 @@ public class Path implements Iterable<GeoPosition> {
 
     /**
      * Remove all the waypoints in the path from the given waypoint (including this waypoint itself)
-     * @param waypointID the id of the waypoint from which the path should be shortened
+     * @param waypointId the id of the waypoint from which the path should be shortened
      */
-    public void shortenPathFromWayPoint(Long waypointID) {
+    public void shortenPathFromWayPoint(long waypointId) {
         int index = 0;
 
         for (var conn : this.connections) {
-            if (conn.getFrom() == waypointID || conn.getTo() == waypointID) {
+            if (conn.getFrom() == waypointId || conn.getTo() == waypointId) {
+                break;
+            }
+            index++;
+        }
+
+        this.connections = this.connections.subList(0, index);
+    }
+
+    public void shortenPathFromConnection(long connectionId) {
+        var connection = GraphStructure.getInstance().getConnection(connectionId);
+        int index = 0;
+
+        for (var conn : this.connections) {
+            if (conn.equals(connection)) {
                 break;
             }
             index++;

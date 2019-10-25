@@ -158,6 +158,15 @@ public class Mote extends NetworkEntity {
     }
 
     /**
+     * Shorten the path of this mote from a given connection ID.
+     * @param connectionId The connection ID from which the path is shortened (inclusive).
+     */
+    public void shortenPathFromConnection(long connectionId) {
+        this.path.shortenPathFromConnection(connectionId);
+    }
+
+
+    /**
      * A function for sending a message with MAC commands to the gateways.
      * @param data The data to send in the message
      * @param macCommands the MAC commands to include in the message.

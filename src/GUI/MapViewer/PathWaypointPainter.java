@@ -18,13 +18,19 @@ import java.util.Set;
 public class PathWaypointPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private WaypointRenderer<? super W> renderer;
     private Set<W> waypoints;
+    private Color color;
 
     /**
      * Creates a new instance of WaypointPainter
      */
     public PathWaypointPainter() {
+        this(new Color(102,0,153));
+    }
+
+    public PathWaypointPainter(Color color) {
         setAntialiasing(true);
         setCacheable(false);
+        this.color = color;
     }
 
     /**
@@ -53,7 +59,7 @@ public class PathWaypointPainter<W extends Waypoint> extends AbstractPainter<JXM
         g.translate(-viewportBounds.getX(), -viewportBounds.getY());
 
         for (W w : getWaypoints()) {
-            renderer = new PathWaypointRenderer();
+            renderer = new PathWaypointRenderer(this.color);
             renderer.paintWaypoint(g, map, w);
         }
 

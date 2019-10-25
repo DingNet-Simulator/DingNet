@@ -23,24 +23,20 @@ public class PathWaypointRenderer implements WaypointRenderer<Waypoint>
     /**
      * Uses a default wayPoint image
      */
-    public PathWaypointRenderer()
-    {
-
+    public PathWaypointRenderer(Color color) {
         img = new BufferedImage(12, 12, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = img.createGraphics();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
         g.fillRect(0, 0, 12, 12);
         //reset composite
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-        g.setColor(new Color(102,0,153));
+        g.setColor(color);
         g.fill(new Ellipse2D.Double(0, 0, 12, 12));
-
-
     }
 
+
     @Override
-    public void paintWaypoint(Graphics2D g, JXMapViewer map, Waypoint w)
-    {
+    public void paintWaypoint(Graphics2D g, JXMapViewer map, Waypoint w) {
         if (img == null)
             return;
 
