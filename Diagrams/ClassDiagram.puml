@@ -98,11 +98,11 @@ Class Mote{
 - samplingRate : Integer
 - numberOfRequests : Integer
 - movementSpeed : Double
-- startOffset : Integer
+- startMovementOffset : Integer
 
 + <<constructor>> Mote(Long DevEUI, Integer xPos, Integer yPos, Configuration environment, Integer transmissionPower,
   {method}Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path,
-  Integer samplingRate, Double movementSpeed, Integer startOffset)
+  Integer samplingRate, Double movementSpeed, Integer startMovementOffset)
 
 + <<constructor>> Mote(Long DevEUI, Integer xPos, Integer yPos, Configuration environment, Integer transmissionPower,
  {method} Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path,

@@ -174,28 +174,28 @@ public class Simulation {
             historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
             locationHistoryMap.put(mote, historyMap);
             wayPointMap.put(mote,0);
+            environment.getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
+                mote.sendToGateWay(
+                    mote.getSensors().stream()
+                        .flatMap(s -> s.getValueAsList(mote.getPos(), this.environment.getClock().getTime()).stream())
+                        .toArray(Byte[]::new),
+                    new HashMap<>());
+                return environment.getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
+            });
         }
-
 
         while (predicate.test(environment)) {
             for(Mote mote : motes){
                 if(mote.isEnabled() && mote.getPath().size() > wayPointMap.get(mote)) {
-                    //? What is the offset for the mote? Is in second, mili second or what? Why multiplies to 1e6?
                     if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                             TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
-                            (TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartOffset())))) {
+                            (TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))) {
                         timeMap.put(mote, this.environment.getClock().getTime());
                         if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
                             this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
                             List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
                             historyMap.add(mote.getPos());
                             locationHistoryMap.put(mote, historyMap);
-                            if (mote.shouldSend()) {
-                                Byte[] dataByte = mote.getSensors().stream()
-                                    .flatMap(s -> s.getValueAsList(mote.getPos(), this.environment.getClock().getTime()).stream())
-                                    .toArray(Byte[]::new);
-                                mote.sendToGateWay(dataByte, new HashMap<>());
-                            }
                         } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
                     }
                 }
@@ -203,7 +203,6 @@ public class Simulation {
             }
             this.environment.getClock().tick(1);
         }
-        System.out.println(this.environment.getClock().getTime());
         return new SimulationResult(locationHistoryMap);
     }
 
