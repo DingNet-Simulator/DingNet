@@ -12,7 +12,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -167,10 +166,14 @@ public class ConfigurationReader {
                 Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
                 for (int j = 0; j < pathElement.getElementsByTagName("connection").getLength(); j++) {
                     Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(j);
+                    long connectionId = IDMappingConnections.get(Long.parseLong(connectionElement.getAttribute("id")));
 
-                    path.addConnection(connections.get(
-                        IDMappingConnections.get(Long.parseLong(connectionElement.getAttribute("id")))
-                    ));
+                    path.addPosition(wayPoints.get(connections.get(connectionId).getFrom()));
+
+                    if (j == pathElement.getElementsByTagName("connection").getLength() - 1) {
+                        // Add the last destination
+                        path.addPosition(wayPoints.get(connections.get(connectionId).getTo()));
+                    }
                 }
 
                 new Mote(devEUI,

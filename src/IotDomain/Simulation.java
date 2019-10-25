@@ -154,8 +154,8 @@ public class Simulation {
         return this.environment.getMotes().stream().noneMatch(m ->
                 m.isEnabled() &&
                 !m.getPath().getWayPoints().isEmpty() &&
-                m.getPath().getWayPoints().getLast() != null &&
-                !this.environment.toMapCoordinate(m.getPath().getWayPoints().getLast()).equals(m.getPos()));
+                m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1) != null &&
+                !this.environment.toMapCoordinate(m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1)).equals(m.getPos()));
     }
 
 

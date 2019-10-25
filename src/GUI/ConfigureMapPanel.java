@@ -305,9 +305,7 @@ public class ConfigureMapPanel {
         public void actionPerformed(ActionEvent e) {
             Path path = new Path();
 
-            for (int i = 0; i < currentWayPoints.size() - 1; i++) {
-                path.addConnection(graph.getConnection(currentWayPoints.get(i), currentWayPoints.get(i + 1)));
-            }
+            currentWayPoints.forEach(o -> path.addPosition(graph.getWayPoint(o)));
 
             if (currentWayPoints.size() > 1) {
                 currentMote.setPath(path);
