@@ -208,7 +208,7 @@ extends <a href="../IotDomain/NetworkEntity.html" title="class in IotDomain">Net
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private java.lang.Integer</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../IotDomain/Mote.html#startOffset">startOffset</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../IotDomain/Mote.html#startMovementOffset">startMovementOffset</a></span></code></th>
 <td class="colLast">
 <div class="block">An integer representing the start offset of the mote.</div>
 </td>
@@ -257,7 +257,7 @@ extends <a href="../IotDomain/NetworkEntity.html" title="class in IotDomain">Net
     java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection,
     java.lang.Integer&nbsp;samplingRate,
     java.lang.Double&nbsp;movementSpeed,
-    java.lang.Integer&nbsp;startOffset)</code></th>
+    java.lang.Integer&nbsp;startMovementOffset)</code></th>
 <td class="colLast">
 <div class="block">A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
  spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.</div>
@@ -496,14 +496,14 @@ private&nbsp;java.lang.Double movementSpeed</pre>
 <div class="block">A Double representing the movement speed of the mote.</div>
 </li>
 </ul>
-<a name="startOffset">
+<a name="startMovementOffset">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>startOffset</h4>
+<h4>startMovementOffset</h4>
 <pre>@Model
-private&nbsp;java.lang.Integer startOffset</pre>
+private&nbsp;java.lang.Integer startMovementOffset</pre>
 <div class="block">An integer representing the start offset of the mote.</div>
 </li>
 </ul>
@@ -533,7 +533,7 @@ public&nbsp;Mote&#8203;(java.lang.Long&nbsp;DevEUI,
             java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection,
             java.lang.Integer&nbsp;samplingRate,
             java.lang.Double&nbsp;movementSpeed,
-            java.lang.Integer&nbsp;startOffset)</pre>
+            java.lang.Integer&nbsp;startMovementOffset)</pre>
 <div class="block">A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
  spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.</div>
 <dl>
@@ -549,7 +549,7 @@ public&nbsp;Mote&#8203;(java.lang.Long&nbsp;DevEUI,
 <dd><code>connection</code> - The connection for this mote to follow.</dd>
 <dd><code>samplingRate</code> - The sampling rate of this mote.</dd>
 <dd><code>movementSpeed</code> - The movement speed of this mote.</dd>
-<dd><code>startOffset</code> - The start offset of this mote.</dd>
+<dd><code>startMovementOffset</code> - The start offset of this mote.</dd>
 </dl>
 </li>
 </ul>

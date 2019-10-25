@@ -25,27 +25,27 @@ public class MqttMock implements MqttClientBasicApi {
     }
 
     /**
-     * Subscribe to all the topic that start with startTopic
-     * @param startTopic
+     * Subscribe to all the topic that start with topicFilter
+     * @param topicFilter
      * @param messageListener
      */
     @Override
-    public void subscribe(String startTopic, BiConsumer<String, MqttMessage> messageListener) {
-        if (!subscribed.containsKey(startTopic)) {
-            broker.subscribe(this, startTopic);
+    public void subscribe(String topicFilter, BiConsumer<String, MqttMessage> messageListener) {
+        if (!subscribed.containsKey(topicFilter)) {
+            broker.subscribe(this, topicFilter);
         }
-        subscribed.put(startTopic, messageListener);
+        subscribed.put(topicFilter, messageListener);
     }
 
     @Override
-    public void unsubscribe(String topic) {
-        subscribed.remove(topic);
-        broker.unsubscribe(this, topic);
+    public void unsubscribe(String topicFilter) {
+        subscribed.remove(topicFilter);
+        broker.unsubscribe(this, topicFilter);
     }
 
-    public void dispatch(String topic, MqttMessage message) {
-        if (subscribed.containsKey(topic)) {
-            subscribed.get(topic).accept(topic, message);
+    public void dispatch(String filter, String topic, MqttMessage message) {
+        if (subscribed.containsKey(filter)) {
+            subscribed.get(filter).accept(topic, message);
         }
     }
 }

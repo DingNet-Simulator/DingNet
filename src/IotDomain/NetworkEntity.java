@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -230,7 +232,7 @@ public abstract class NetworkEntity implements Serializable{
             getEnvironment().getClock().addTrigger(transmission.getDepartureTime().plus(transmission.getTimeOnAir().longValue(), ChronoUnit.MILLIS),()->{
                 if(!this.receivedTransmissions.getLast().get(transmission)){
                     handleMacCommands(transmission.getContent());
-                    OnReceive(transmission.getContent().getPayload(), transmission.getContent().getSenderEUI(), transmission.getContent().getDesignatedReceiverEUI());
+                    OnReceive(transmission.getContent());
                 }
                 return LocalTime.of(0,0);
             });
@@ -289,10 +291,8 @@ public abstract class NetworkEntity implements Serializable{
     /**
      * A method describing what the entity should do after successfully receiving a packet.
      * @param packet The received packet.
-     * @param senderEUI The EUI of the sender
-     * @param designatedReceiver The EUI designated receiver for the packet.
      */
-    protected abstract void OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver);
+    protected abstract void OnReceive(LoraWanPacket packet);
 
 
     /**
@@ -358,11 +358,7 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Immutable
     public static Boolean isValidSF(Integer SF){
-        if(SF <= 12 && SF >= 7){
-            return true;
-        }
-        else
-            return false;
+        return SF <= 12 && SF >= 7;
     }
 
     /**
@@ -391,23 +387,28 @@ public abstract class NetworkEntity implements Serializable{
      */
     protected void loraSend(LoraWanPacket message){
         if(!isTransmitting) {
-            LinkedList<LoraTransmission> packetsToSend = new LinkedList<>();
             powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
             spreadingFactorHistory.getLast().add(getSF());
-            for (Gateway gateway : getEnvironment().getGateways()) {
-                if (gateway != this)
-                    packetsToSend.add(new LoraTransmission(this, gateway, getTransmissionPower(), 125, getSF(), message));
+            List<LoraTransmission> packetsToSend = Stream.concat(
+                getEnvironment().getGateways().stream(),
+                getEnvironment().getMotes().stream())
+                    .filter(ne -> filterLoraSend(ne, message))
+                    .map(ne -> new LoraTransmission(this, ne, getTransmissionPower(), 125, getSF(), message))
+                    .collect(Collectors.toList());
+            if (!packetsToSend.isEmpty()) {
+                sentTransmissions.getLast().add(packetsToSend.get(0));
             }
-            for (Mote mote : getEnvironment().getMotes()) {
-                if (mote != this)
-                    packetsToSend.add(new LoraTransmission(this, mote, getTransmissionPower(), 125, getSF(), message));
-            }
-            sentTransmissions.getLast().add(packetsToSend.getFirst());
-            for (LoraTransmission packet : packetsToSend) {
-                packet.depart();
-            }
+            packetsToSend.forEach(LoraTransmission::depart);
         }
     }
+
+    /**
+     *
+     * @param networkEntity the receiver
+     * @param packet the packet to send
+     * @return true if the packet has to be sent
+     */
+    abstract boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet);
 
     /**
      * Checks if two packets collide according to the model
@@ -416,18 +417,11 @@ public abstract class NetworkEntity implements Serializable{
      * @return true if the packets collide, false otherwise.
      */
     public Boolean collision(LoraTransmission a, LoraTransmission b){
-        if(a.getSpreadingFactor() == b.getSpreadingFactor()){
-
-            if(a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold()){
-
-                if(Math.abs(Duration.between(a.getDepartureTime().plusNanos(a.getTimeOnAir().longValue()*1000000/2),
-                        b.getDepartureTime().plusNanos(b.getTimeOnAir().longValue()*1000000/2)).toNanos())
-                        < a.getTimeOnAir().longValue()*1000000/2 + b.getTimeOnAir().longValue()*1000000/2){
-                    return true;
-                }
-            }
-        }
-        return false;
+        return a.getSpreadingFactor().equals(b.getSpreadingFactor()) &&     //check spreading factor
+            a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold() && //check transmission power
+            Math.abs(Duration.between(a.getDepartureTime().plusNanos(a.getTimeOnAir().longValue() * 1000000 / 2), //check time on air
+                    b.getDepartureTime().plusNanos(b.getTimeOnAir().longValue() * 1000000 / 2)).toNanos())
+                    < a.getTimeOnAir().longValue() * 1000000 / 2 + b.getTimeOnAir().longValue() * 1000000 / 2;
     }
 
     /**
@@ -436,11 +430,7 @@ public abstract class NetworkEntity implements Serializable{
      * @return
      */
     public Boolean packetStrengthHighEnough(LoraTransmission packet){
-        if(packet.getTransmissionPower() > -174 - 10*Math.log10(packet.getBandwidth())-(2.5*packet.getSpreadingFactor()-10)){
-            return true;
-        }
-        else
-            return false;
+        return packet.getTransmissionPower() > -174 - 10 * Math.log10(packet.getBandwidth()) - (2.5 * packet.getSpreadingFactor() - 10);
     }
 
     /**

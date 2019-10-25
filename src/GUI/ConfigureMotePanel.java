@@ -1,8 +1,7 @@
 package GUI;
 
 
-import GUI.MapViewer.LinePainter;
-import GUI.MapViewer.MoteNumberWaypointPainter;
+import GUI.MapViewer.NumberPainter;
 import GUI.MapViewer.MoteWaypointPainter;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
@@ -17,7 +16,6 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
-import util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -70,7 +68,7 @@ public class ConfigureMotePanel {
         MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
         motePainter.setWaypoints(motes.keySet());
 
-        MoteNumberWaypointPainter<Waypoint> moteNumberPainter = new MoteNumberWaypointPainter<>();
+        NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
         moteNumberPainter.setWaypoints(motes);
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();

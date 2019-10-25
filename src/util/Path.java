@@ -29,6 +29,14 @@ public class Path implements Iterable<GeoPosition> {
     }
 
 
+    /**
+     * Set the path to a given list of positions.
+     * @param positions The list of GeoPositions.
+     */
+    public void setPath(List<GeoPosition> positions) {
+        this.points = positions;
+    }
+
 
 
     // NOTE: The following functions are only used during setup/saving of the configuration, not at runtime

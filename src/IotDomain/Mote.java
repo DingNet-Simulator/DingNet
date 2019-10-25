@@ -1,12 +1,18 @@
 package IotDomain;
 
+import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
+import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
+import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
+import IotDomain.motepacketstrategy.storeStrategy.StoreAllMessage;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Path;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -19,7 +25,7 @@ public class Mote extends NetworkEntity {
      * @return The mote sensors of the mote.
      */
     @Basic
-    public LinkedList<MoteSensor> getSensors() {
+    public List<MoteSensor> getSensors() {
         return moteSensors;
     }
 
@@ -27,7 +33,7 @@ public class Mote extends NetworkEntity {
      * A LinkedList MoteSensors representing all sensors on the mote.
      */
     @Model
-    private LinkedList<MoteSensor> moteSensors = new LinkedList<>();
+    private List<MoteSensor> moteSensors;
     /**
      * A path representing the connections the mote will follow.
      */
@@ -39,26 +45,40 @@ public class Mote extends NetworkEntity {
      */
     @Model
     private Integer energyLevel;
-    /**
-     * An integer representing the sampling rate of the mote.
-     */
-    @Model
-    private Integer samplingRate;
-    /**
-     * An integer representing the number of requests for data of the mote.
-     */
-    @Model
-    private Integer numberOfRequests;
+
     /**
      * A Double representing the movement speed of the mote.
      */
     @Model
     private Double movementSpeed;
     /**
-     * An integer representing the start offset of the mote.
+     * An integer representing the start offset of the mote in seconds.
      */
     @Model
-    private Integer startOffset;
+    private Integer startMovementOffset;
+
+    //TODO add comments and constructor for these parameters
+    //both in seconds
+    private static final int DEFAULT_START_SENDING_OFFSET = 1;
+    private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
+    /**
+     * time to await before send the first packet (in seconds)
+     */
+    private final int startSendingOffset;
+    /**
+     * period to define how many seconds the mote has to send a packet (in seconds)
+     */
+    private int periodSendingPacket;
+
+    private static final long DEFAULT_APPLICATION_EUI = 1;
+    /**
+     * application identifier
+     */
+    private long applicationEUI = DEFAULT_APPLICATION_EUI;
+
+    private final ReceivedPacketStrategy receivedPacketStrategy = new StoreAllMessage();
+
+    private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
 
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -72,24 +92,25 @@ public class Mote extends NetworkEntity {
      * @param moteSensors The mote sensors for this mote.
      * @param energyLevel The energy level for this mote.
      * @param path The path for this mote to follow.
-     * @param samplingRate The sampling rate of this mote.
      * @param movementSpeed The movement speed of this mote.
-     * @param startOffset The start offset of this mote.
+     * @param startMovementOffset The start offset of this mote (in seconds).
+     * @param periodSendingPacket period to define how many seconds the mote has to send a packet (in seconds)
+     * @param startSendingOffset time to await before send the first packet (in seconds)
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Integer samplingRate, Double movementSpeed, Integer startOffset){
-       super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
+                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path,
+                Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset){
+        super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
         environment.addMote(this);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
         this.path = path;
         this.energyLevel = energyLevel;
-        this.samplingRate = samplingRate;
-        this.numberOfRequests = samplingRate;
         this.movementSpeed = movementSpeed;
-        this.startOffset = startOffset;
-
+        this.startMovementOffset = startMovementOffset;
+        this.periodSendingPacket = periodSendingPacket;
+        this.startSendingOffset = startSendingOffset;
     }
 
     /**
@@ -110,18 +131,26 @@ public class Mote extends NetworkEntity {
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
                 Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Integer samplingRate, Double movementSpeed){
-        this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel, path, samplingRate, movementSpeed,Math.abs((new Random()).nextInt(5)));
+        this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
+            Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
 
     /**
      * A method describing what the mote should do after successfully receiving a packet.
      * @param packet The received packet.
-     * @param senderEUI The EUI of the sender
-     * @param designatedReceiver The EUI designated receiver for the packet.
      */
     @Override
-    protected void OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver) {
+    protected void OnReceive(LoraWanPacket packet) {
+        //if is a message sent to from a gateway to this mote
+        if (getEUI().equals(packet.getDesignatedReceiverEUI()) &&
+            getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+            receivedPacketStrategy.addReceivedMessage(packet);
+        }
+    }
 
+    @Override
+    boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
+        return !networkEntity.equals(this);
     }
 
     /**
@@ -148,6 +177,10 @@ public class Mote extends NetworkEntity {
         this.path = path;
     }
 
+    public void setPath(List<GeoPosition> positions) {
+        this.path.setPath(positions);
+    }
+
 
     /**
      * Shorten the path of this mote from a given waypoint ID.
@@ -167,26 +200,44 @@ public class Mote extends NetworkEntity {
 
 
     /**
+     *
+     * @return ID of application to send the package to
+     */
+    public long getApplicationEUI() {
+        return applicationEUI;
+    }
+
+    /**
      * A function for sending a message with MAC commands to the gateways.
      * @param data The data to send in the message
      * @param macCommands the MAC commands to include in the message.
      */
     public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands){
         Byte[] payload = new Byte[data.length+macCommands.size()];
-        int i = 0;
-        for(MacCommand key : macCommands.keySet()){
-            for(Byte dataByte : macCommands.get(key)){
-            payload[i] = dataByte;
-            i++;
+        if (payload.length > 0) {
+            int i = 0;
+            for (MacCommand key : macCommands.keySet()) {
+                for (Byte dataByte : macCommands.get(key)) {
+                    payload[i] = dataByte;
+                    i++;
+                }
             }
+            for (int j = 0; j < data.length; j++) {
+                payload[i] = data[j];
+                i++;
+            }
+            loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(), payload, new LinkedList<>(macCommands.keySet())));
         }
-        for(int j =0; j< data.length;j++){
-            payload[i] = data[j];
-            i++;
-        }
+    }
 
-        LoraWanPacket packet = new LoraWanPacket(getEUI(), (long) 1,payload, new LinkedList<>(macCommands.keySet()));
-        loraSend(packet);
+    /**
+     * consume all the packet arrived with the strategies previous defined
+     */
+    public void consumePackets() {
+        if (receivedPacketStrategy.hasPackets()) {
+            var packets = receivedPacketStrategy.getReceivedPacket();
+            consumePacketStrategies.forEach(s -> s.consume(this, packets));
+        }
     }
 
     /**
@@ -217,59 +268,6 @@ public class Mote extends NetworkEntity {
     }
 
     /**
-     * Returns the sampling rate of the mote.
-     * @return The sampling rate of the mote.
-     */
-    @Basic
-    public Integer getSamplingRate() {
-        return samplingRate;
-    }
-
-    /**
-     * Returns the number of requests for data.
-     * @return The number of requests for data.
-     */
-    @Basic
-    public Integer getNumberOfRequests() {
-        return numberOfRequests;
-    }
-
-    /**
-     * Sets the sampling rate of the mote.
-     * @param samplingRate The sampling rate of the mote
-     */
-    @Basic
-    public void setSamplingRate(Integer samplingRate){
-        this.samplingRate = samplingRate;
-        setNumberOfRequests(getSamplingRate());
-    }
-
-    /**
-     * Sets the number of requests for data.
-     * @param numberOfRequests The number of requests for data.
-     */
-    @Model
-    private void setNumberOfRequests(Integer numberOfRequests) {
-        this.numberOfRequests = numberOfRequests;
-    }
-
-    /**
-     * Returns if a mote should send data on this request.
-     * @return true if the number of request since last answer is the sampling rate.
-     * @return false otherwise.
-     */
-    public boolean shouldSend(){
-        if(getNumberOfRequests() == 0){
-            setNumberOfRequests(getSamplingRate());
-            return true;
-        }
-        else{
-            setNumberOfRequests(getNumberOfRequests()-1);
-            return false;
-        }
-    }
-
-    /**
      * Returns the movementSpeed of the mote.
      * @return The movementSpeed of the mote.
      */
@@ -288,11 +286,27 @@ public class Mote extends NetworkEntity {
     }
 
     /**
-     * Returns the start offset of the mote.
-     * @return the start offset of the mote.
+     * Returns the start offset of the mote in seconds.
+     * @return the start offset of the mote in seconds.
      */
     @Basic
-    public Integer getStartOffset(){
-        return this.startOffset;
+    public Integer getStartMovementOffset(){
+        return this.startMovementOffset;
+    }
+
+    /**
+     *
+     * @return time to await before send the first packet (in seconds)
+     */
+    public int getStartSendingOffset() {
+        return startSendingOffset;
+    }
+
+    /**
+     *
+     * @return period to define how many seconds the mote has to send a packet (in seconds)
+     */
+    public int getPeriodSendingPacket() {
+        return periodSendingPacket;
     }
 }

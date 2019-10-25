@@ -10,7 +10,7 @@ public interface MqttClientBasicApi {
 
     void publish(String topic, MqttMessage message);
 
-    void subscribe(String topic, BiConsumer<String, MqttMessage> messageListener);
+    void subscribe(String topicFilter, BiConsumer<String, MqttMessage> messageListener);
 
-    void unsubscribe(String topic);
+    void unsubscribe(String topicFilter);
 }

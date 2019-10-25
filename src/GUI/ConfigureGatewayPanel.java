@@ -1,10 +1,9 @@
 package GUI;
 
 
-import GUI.MapViewer.LinePainter;
-import GUI.MapViewer.GatewayNumberWaypointPainter;
 import GUI.MapViewer.GatewayWaypointPainter;
 import GUI.util.GUIUtil;
+import GUI.MapViewer.NumberPainter;
 import IotDomain.Environment;
 import IotDomain.Gateway;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -17,8 +16,6 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
-import util.MapHelper;
-import util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -75,7 +72,7 @@ public class ConfigureGatewayPanel {
         GatewayWaypointPainter<Waypoint> gatewayPainter = new GatewayWaypointPainter<>();
         gatewayPainter.setWaypoints(gateways.keySet());
 
-        GatewayNumberWaypointPainter<Waypoint> gatewayNumberPainter = new GatewayNumberWaypointPainter<>();
+        NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
         gatewayNumberPainter.setWaypoints(gateways);
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();

@@ -167,7 +167,7 @@ public class MapHelper {
      * @param pos2 position 2
      * @return The distance between the two positions in km.
      */
-    static public double distance(GeoPosition pos1, GeoPosition pos2) {
+    public static double distance(GeoPosition pos1, GeoPosition pos2) {
         double lat1 = pos1.getLatitude(), lon1 = pos1.getLongitude();
         double lat2 = pos2.getLatitude(), lon2 = pos2.getLongitude();
         if ((lat1 == lat2) && (lon1 == lon2)) {
@@ -184,12 +184,34 @@ public class MapHelper {
         }
     }
 
-    static public Pair<Integer, Pair<Integer, Double>> toDgreeMinuteSecond(double latOrLong){
+    public static Pair<Integer, Pair<Integer, Double>> toDgreeMinuteSecond(double latOrLong){
         int degrees = (int) Math.round(Math.floor(latOrLong));
         int minutes = (int) Math.round(Math.floor((latOrLong - degrees) * 60));
         double seconds = (double) Math.round(((latOrLong - degrees) * 60 - minutes) * 60 * 1000d) / 1000d;
         return new Pair<>(degrees, new Pair<>(minutes, seconds));
     }
 
+    public static String toDgreeMinuteSecondText(double latOrLong){
+        var result = MapHelper.toDgreeMinuteSecond(latOrLong);
+        return result.getLeft() + "° " + result.getRight().getLeft() + "' " + result.getRight().getRight() + "\" ";
+    }
+
+
+    /**
+     * This function return "N" and "S" for latitude input and "E" and "W" for longitude input
+     * base on their value
+     * @param axis could have two values "lat" or "long"
+     */
+    public static String getDirectionSign(double val, String axis){
+        if(axis == "lat"){
+            return (Math.signum(val) == 1) ? "N " : "S ";
+        }
+        else if(axis == "long") {
+            return Math.signum(val) == 1 ? "E " : "W ";
+        }
+        else{
+            throw new IllegalArgumentException("The value of axis must be one of 'lat' or 'long'");
+        }
+    }
 
 }

@@ -100,7 +100,7 @@ public class ConfigureMapPanel {
         MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
         motePainter.setWaypoints(motes.keySet());
 
-        MoteNumberWaypointPainter<Waypoint> moteNumberPainter = new MoteNumberWaypointPainter<>();
+        NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
         moteNumberPainter.setWaypoints(motes);
 
 
@@ -279,13 +279,20 @@ public class ConfigureMapPanel {
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {}
+        public void mousePressed(MouseEvent e) {
+        }
+
         @Override
-        public void mouseReleased(MouseEvent e) {}
+        public void mouseReleased(MouseEvent e) {
+        }
+
         @Override
-        public void mouseEntered(MouseEvent e) {}
+        public void mouseEntered(MouseEvent e) {
+        }
+
         @Override
-        public void mouseExited(MouseEvent e) {}
+        public void mouseExited(MouseEvent e) {
+        }
     }
 
     private class MapSaveTrackActionLister implements ActionListener {
