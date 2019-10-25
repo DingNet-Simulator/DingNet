@@ -30,7 +30,6 @@ public class NewMoteGUI {
     private JButton addButton;
     private JList sensorList;
     private JComboBox sensorComboBox;
-    private JSpinner samplingSpinner;
     private JSpinner movementSpinner;
     private JSpinner movementStartOffsetSpinner;
     private JSpinner periodSpinner;
@@ -51,7 +50,6 @@ public class NewMoteGUI {
         SFSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(12), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
         periodSpinner.setModel(new SpinnerNumberModel(30, 1, Integer.MAX_VALUE, 1));
         offsetSendingSpinner.setModel(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        samplingSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(1), Integer.valueOf(1000), Integer.valueOf(1)));
         movementSpinner.setModel(new SpinnerNumberModel(Double.valueOf(1), Double.valueOf(0.000001), Double.valueOf(1000.0), Double.valueOf(0.000001)));
         movementStartOffsetSpinner.setModel(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
         saveButton.addActionListener(saveActionListener);
@@ -114,7 +112,7 @@ public class NewMoteGUI {
             new Mote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
                     (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
                     (Integer) SFSpinner.getValue(), moteSensors, 20, new LinkedList<>(),
-                    (Integer) samplingSpinner.getValue(), (Double) movementSpinner.getValue(),
+                    (Double) movementSpinner.getValue(),
                     (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
                     (int) offsetSendingSpinner.getValue());
             parent.refresh();
@@ -210,22 +208,14 @@ public class NewMoteGUI {
         mainPanel.add(sensorList, new GridConstraints(12, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         sensorComboBox = new JComboBox();
         mainPanel.add(sensorComboBox, new GridConstraints(11, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label9 = new JLabel();
-        label9.setText("Sampling rate");
-        mainPanel.add(label9, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label10 = new JLabel();
         label10.setText("Movement speed");
         mainPanel.add(label10, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        samplingSpinner = new JSpinner();
-        mainPanel.add(samplingSpinner, new GridConstraints(8, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         movementSpinner = new JSpinner();
         mainPanel.add(movementSpinner, new GridConstraints(9, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label11 = new JLabel();
         label11.setText("m/s");
         mainPanel.add(label11, new GridConstraints(9, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label12 = new JLabel();
-        label12.setText("m");
-        mainPanel.add(label12, new GridConstraints(8, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label13 = new JLabel();
         label13.setText("Offset start movement ");
         mainPanel.add(label13, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

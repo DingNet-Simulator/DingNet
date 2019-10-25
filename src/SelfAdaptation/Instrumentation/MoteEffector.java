@@ -32,15 +32,6 @@ public class MoteEffector {
     }
 
     /**
-     * A method to set the sampling rate of a mote.
-     * @param mote The mote to set the sampling rate of.
-     * @param samplingRate The sampling rate to set.
-     */
-    public void setSamplingRate(Mote mote, Integer samplingRate){
-        mote.setSamplingRate(samplingRate);
-    }
-
-    /**
      * A method to set the movement speed of a mote.
      * @param mote The mote to set the movement speed of.
      * @param movementSpeed The movement speed to set.

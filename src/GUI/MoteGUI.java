@@ -24,7 +24,6 @@ public class MoteGUI extends JFrame {
     private JComboBox sensorSpinner;
     private JButton addButton;
     private JList sensorList;
-    private JSpinner samplingSpinner;
     private JSpinner movementSpinner;
     private Mote mote;
     private JFrame frame;
@@ -50,7 +49,6 @@ public class MoteGUI extends JFrame {
         yPosSpinner.setModel(new SpinnerNumberModel(mote.getYPos().intValue(), 0, mote.getEnvironment().getMaxYpos(), 1));
         powerSpinner.setModel(new SpinnerNumberModel(mote.getTransmissionPower(), Integer.valueOf(-3), Integer.valueOf(14), Integer.valueOf(1)));
         SFSpinner.setModel(new SpinnerNumberModel(mote.getSF(), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
-        samplingSpinner.setModel(new SpinnerNumberModel(mote.getSamplingRate(), Integer.valueOf(1), Integer.valueOf(1000), Integer.valueOf(1)));
         movementSpinner.setModel(new SpinnerNumberModel(mote.getMovementSpeed(), Double.valueOf(0.01), Double.valueOf(1000.0), Double.valueOf(0.01)));
         TPThresholdText.setText(mote.getTransmissionPowerThreshold().toString());
         saveButton.addActionListener(saveActionListener);
@@ -115,7 +113,6 @@ public class MoteGUI extends JFrame {
                 moteSensors.add((MoteSensor) moteSensor);
             }
             mote.setSensors(moteSensors);
-            mote.setSamplingRate((Integer) samplingSpinner.getValue());
             mote.setMovementSpeed((Double) movementSpinner.getValue());
             refresh();
             frame.dispose();
@@ -204,22 +201,14 @@ public class MoteGUI extends JFrame {
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         sensorSpinner.setModel(defaultComboBoxModel1);
         mainPanel.add(sensorSpinner, new com.intellij.uiDesigner.core.GridConstraints(10, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label9 = new JLabel();
-        label9.setText("Sampling rate");
-        mainPanel.add(label9, new com.intellij.uiDesigner.core.GridConstraints(8, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label10 = new JLabel();
         label10.setText("Movement speed");
         mainPanel.add(label10, new com.intellij.uiDesigner.core.GridConstraints(9, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        samplingSpinner = new JSpinner();
-        mainPanel.add(samplingSpinner, new com.intellij.uiDesigner.core.GridConstraints(8, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         movementSpinner = new JSpinner();
         mainPanel.add(movementSpinner, new com.intellij.uiDesigner.core.GridConstraints(9, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label11 = new JLabel();
         label11.setText("m/s");
         mainPanel.add(label11, new com.intellij.uiDesigner.core.GridConstraints(9, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label12 = new JLabel();
-        label12.setText("m");
-        mainPanel.add(label12, new com.intellij.uiDesigner.core.GridConstraints(8, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.setHorizontalScrollBarPolicy(31);
         mainPanel.add(scrollPane1, new com.intellij.uiDesigner.core.GridConstraints(11, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, new Dimension(-1, 90), 0, false));

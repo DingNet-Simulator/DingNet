@@ -111,9 +111,6 @@ public class ConfigurationWriter {
                 Element energyLevel = doc.createElement("energyLevel");
                 energyLevel.appendChild(doc.createTextNode(mote.getEnergyLevel().toString()));
 
-                Element samplingRate = doc.createElement("samplingRate");
-                samplingRate.appendChild(doc.createTextNode(mote.getSamplingRate().toString()));
-
                 Element movementSpeed = doc.createElement("movementSpeed");
                 movementSpeed.appendChild(doc.createTextNode(mote.getMovementSpeed().toString()));
 
@@ -122,7 +119,6 @@ public class ConfigurationWriter {
                 moteElement.appendChild(transmissionPower);
                 moteElement.appendChild(spreadingFactor);
                 moteElement.appendChild(energyLevel);
-                moteElement.appendChild(samplingRate);
                 moteElement.appendChild(movementSpeed);
 
 

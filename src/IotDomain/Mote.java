@@ -44,16 +44,7 @@ public class Mote extends NetworkEntity {
      */
     @Model
     private Integer energyLevel;
-    /**
-     * An integer representing the sampling rate of the mote.
-     */
-    @Model
-    private Integer samplingRate;
-    /**
-     * An integer representing the number of requests for data of the mote.
-     */
-    @Model
-    private Integer numberOfRequests;
+
     /**
      * A Double representing the movement speed of the mote.
      */
@@ -100,7 +91,6 @@ public class Mote extends NetworkEntity {
      * @param moteSensors The mote sensors for this mote.
      * @param energyLevel The energy level for this mote.
      * @param path The path for this mote to follow.
-     * @param samplingRate The sampling rate of this mote.
      * @param movementSpeed The movement speed of this mote.
      * @param startMovementOffset The start offset of this mote (in seconds).
      * @param periodSendingPacket period to define how many seconds the mote has to send a packet (in seconds)
@@ -109,15 +99,13 @@ public class Mote extends NetworkEntity {
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
                 Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path,
-                Integer samplingRate, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset){
+                Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset){
        super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
         environment.addMote(this);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
         this.path = path;
         this.energyLevel = energyLevel;
-        this.samplingRate = samplingRate;
-        numberOfRequests = samplingRate;
         this.movementSpeed = movementSpeed;
         this.startMovementOffset = startMovementOffset;
         this.periodSendingPacket = periodSendingPacket;
@@ -142,7 +130,7 @@ public class Mote extends NetworkEntity {
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
                 Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Integer samplingRate, Double movementSpeed){
-        this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path,samplingRate, movementSpeed,
+        this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
 
@@ -254,59 +242,6 @@ public class Mote extends NetworkEntity {
     @Basic
     public void setSensors(LinkedList<MoteSensor> moteSensors) {
         this.moteSensors = moteSensors;
-    }
-
-    /**
-     * Returns the sampling rate of the mote.
-     * @return The sampling rate of the mote.
-     */
-    @Basic
-    public Integer getSamplingRate() {
-        return samplingRate;
-    }
-
-    /**
-     * Returns the number of requests for data.
-     * @return The number of requests for data.
-     */
-    @Basic
-    public Integer getNumberOfRequests() {
-        return numberOfRequests;
-    }
-
-    /**
-     * Sets the sampling rate of the mote.
-     * @param samplingRate The sampling rate of the mote
-     */
-    @Basic
-    public void setSamplingRate(Integer samplingRate){
-        this.samplingRate = samplingRate;
-        setNumberOfRequests(getSamplingRate());
-    }
-
-    /**
-     * Sets the number of requests for data.
-     * @param numberOfRequests The number of requests for data.
-     */
-    @Model
-    private void setNumberOfRequests(Integer numberOfRequests) {
-        this.numberOfRequests = numberOfRequests;
-    }
-
-    /**
-     * Returns if a mote should send data on this request.
-     * @return true if the number of request since last answer is the sampling rate.
-     * @return false otherwise.
-     */
-    public boolean shouldSend(){
-        if(getNumberOfRequests() == 0){
-            setNumberOfRequests(getSamplingRate());
-            return true;
-        }
-        else{
-            setNumberOfRequests(getNumberOfRequests()-1);
-            return false;
-        }
     }
 
     /**
