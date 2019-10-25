@@ -83,7 +83,7 @@ public class MapHelper {
     }
 
     /**
-     * Converts a GeoPostion to an coordinate on the map.
+     * Converts a GeoPosition to an coordinate on the map.
      * @param geoPosition the GeoPosition to convert.
      * @param mapOrigin the coordinates of the point [0,0] on the map.
      * @return The coordinate on the map of the GeoPosition.

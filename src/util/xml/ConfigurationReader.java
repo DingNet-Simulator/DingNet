@@ -73,14 +73,22 @@ public class ConfigurationReader {
 
             Element wayPointsElement = (Element) configuration.getElementsByTagName("wayPoints").item(0);
 
+            // Remapping of the waypoint IDs to start from 1
+            Map<Long, Long> IDMappingWayPoints = new HashMap<>();
+            long currentIDWayPoint = 1;
+
             Map<Long, GeoPosition> wayPoints = new HashMap<>();
             for (int i = 0; i < wayPointsElement.getElementsByTagName("wayPoint").getLength(); i++) {
                 Element waypoint = (Element) wayPointsElement.getElementsByTagName("wayPoint").item(i);
+
                 double wayPointLatitude = Double.parseDouble(waypoint.getTextContent().split(",")[0]);
                 double wayPointLongitude = Double.parseDouble(waypoint.getTextContent().split(",")[1]);
-                long ID = Long.parseLong(waypoint.getAttribute("id"));
 
-                wayPoints.put(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
+                long ID = Long.parseLong(waypoint.getAttribute("id"));
+                IDMappingWayPoints.put(ID, currentIDWayPoint);
+                currentIDWayPoint++;
+
+                wayPoints.put(IDMappingWayPoints.get(ID), new GeoPosition(wayPointLatitude, wayPointLongitude));
             }
 
 
@@ -91,6 +99,10 @@ public class ConfigurationReader {
 
             Map<Long, Connection> connections = new HashMap<>();
 
+            // Remapping of the connection IDs to start from 1
+            Map<Long, Long> IDMappingConnections = new HashMap<>();
+            long currentIDConnection = 1;
+
             if (configuration.getElementsByTagName("connections").getLength() != 0) {
                 Element connectionsElement = (Element) configuration.getElementsByTagName("connections").item(0);
 
@@ -99,11 +111,15 @@ public class ConfigurationReader {
                 for (int i = 0; i < con.getLength(); i++) {
                     Element connectionNode = (Element) con.item(i);
 
+                    long ID = Long.parseLong(connectionNode.getAttribute("id"));
+                    IDMappingConnections.put(ID, currentIDConnection);
+                    currentIDConnection++;
+
                     connections.put(
-                        Long.parseLong(connectionNode.getAttribute("id")),
+                        IDMappingConnections.get(ID),
                         new Connection(
-                            Long.parseLong(connectionNode.getAttribute("src")),
-                            Long.parseLong(connectionNode.getAttribute("dst"))
+                            IDMappingWayPoints.get(Long.parseLong(connectionNode.getAttribute("src"))),
+                            IDMappingWayPoints.get(Long.parseLong(connectionNode.getAttribute("dst")))
                         )
                     );
                 }
@@ -130,7 +146,7 @@ public class ConfigurationReader {
 
                 Element location = (Element) moteNode.getElementsByTagName("location").item(0);
                 Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
-                GeoPosition position = wayPoints.get(Long.parseLong(waypoint.getAttribute("id")));
+                GeoPosition position = wayPoints.get(IDMappingWayPoints.get(Long.parseLong(waypoint.getAttribute("id"))));
                 Pair<Integer, Integer> coords = MapHelper.getInstance().toMapCoordinate(position);
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(moteNode, "transmissionPower"));
@@ -152,7 +168,9 @@ public class ConfigurationReader {
                 for (int j = 0; j < pathElement.getElementsByTagName("connection").getLength(); j++) {
                     Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(j);
 
-                    path.addConnection(connections.get(Long.parseLong(connectionElement.getAttribute("id"))));
+                    path.addConnection(connections.get(
+                        IDMappingConnections.get(Long.parseLong(connectionElement.getAttribute("id")))
+                    ));
                 }
 
                 new Mote(devEUI,
