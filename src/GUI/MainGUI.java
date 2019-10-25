@@ -132,6 +132,9 @@ public class MainGUI extends JFrame {
         editColBoundButton.setEnabled(false);
         editEnConButton.setEnabled(false);
         editRelComButton.setEnabled(false);
+        configureButton.setEnabled(false);
+        environmentSaveButton.setEnabled(false);
+
 
         ConfigureActionListener configureActionListener = new ConfigureActionListener(this);
         configureButton.addActionListener(configureActionListener);
@@ -169,6 +172,9 @@ public class MainGUI extends JFrame {
                 mapViewer.addMouseMotionListener(mia);
                 mapViewer.addMouseListener(new CenterMapListener(mapViewer));
                 mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+
+                configureButton.setEnabled(true);
+                environmentSaveButton.setEnabled(true);
             }
         });
 
