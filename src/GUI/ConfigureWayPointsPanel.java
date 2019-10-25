@@ -200,6 +200,7 @@ public class ConfigureWayPointsPanel {
                         .min((o1, o2) -> Double.compare(o1.getValue(), o2.getValue()))
                         .ifPresent(o -> graph.deleteWayPoint(o.getKey(), environment));
 
+                    parent.refresh();
                 }
                 loadMap(true);
             }
