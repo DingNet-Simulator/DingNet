@@ -387,5 +387,10 @@ public class Environment implements Serializable {
     public int getNumberOfRuns(){
         return numberOfRuns;
     }
+
+
+    public void removeWayPointFromMotes(long id) {
+        motes.forEach(o -> o.shortenPathFromWayPoint(id));
+    }
 }
 

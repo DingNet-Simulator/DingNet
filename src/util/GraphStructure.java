@@ -1,7 +1,9 @@
 package util;
 
+import IotDomain.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +15,22 @@ public class GraphStructure {
     private Map<Long, GeoPosition> wayPoints;
     private Map<Long, Connection> connections;
 
+    private long newWayPointID;
+    private long newConnectionID;
+
 
     private GraphStructure(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         this.wayPoints = wayPoints;
         this.connections = connections;
+
+        newWayPointID = wayPoints.entrySet().stream()
+            .map(Map.Entry::getKey)
+            .max(Long::compare)
+            .orElse(0L) + 1;
+        newConnectionID = connections.entrySet().stream()
+            .map(Map.Entry::getKey)
+            .max(Long::compare)
+            .orElse(0L) + 1;
     }
 
     public static GraphStructure getInstance() {
@@ -49,20 +63,54 @@ public class GraphStructure {
 
 
 
-    public void addWayPoint(long id, GeoPosition pos) {
-        if (!wayPoints.containsKey(id)) {
-            wayPoints.put(id, pos);
-        } else {
+    public void addWayPoint(GeoPosition pos) {
+        this.addWayPoint(this.newWayPointID, pos);
+    }
+
+    public void addConnection(Connection connection) {
+        this.addConnection(this.newConnectionID, connection);
+    }
+
+
+    private void addWayPoint(long id, GeoPosition pos) {
+        if (wayPoints.containsKey(id)) {
             throw new RuntimeException(String.format("WayPoint with id=%d exists already.", id));
+        }
+
+        wayPoints.put(id, pos);
+        if (id >= this.newWayPointID) {
+            this.newWayPointID = id + 1;
         }
     }
 
     public void addConnection(long id, Connection connection) {
-        if (!connections.containsKey(id)) {
-            connections.put(id, connection);
-        } else {
+        if (connections.containsKey(id)) {
             throw new RuntimeException(String.format("Connection with id=%d exists already.", id));
         }
+
+        connections.put(id, connection);
+        if (id >= this.newConnectionID) {
+            this.newWayPointID = id + 1;
+        }
+    }
+
+    public void deleteWayPoint(long id, Environment environment) {
+        // TODO figure out what to do with routes of motes
+        // -> Maybe proxy this method through the simulation class and do checks there
+        // -> (e.g. cutoff route of mote up until the deleted waypoint (possibly resulting in the mote not having a path)
+
+        wayPoints.remove(id);
+        var connToDelete  = connections.entrySet().stream()
+            .filter(o -> o.getValue().getTo() == id || o.getValue().getFrom() == id)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
+
+        for (var conn : connToDelete) {
+            connections.remove(conn);
+        }
+
+        // Make sure to also delete part of the paths of motes which use this waypoint
+        environment.removeWayPointFromMotes(id);
     }
 
 

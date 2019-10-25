@@ -148,6 +148,15 @@ public class Mote extends NetworkEntity {
         this.path = path;
     }
 
+
+    /**
+     * Shorten the path of this mote from a given waypoint ID.
+     * @param wayPointId The waypoint ID from which the path is shortened (inclusive).
+     */
+    public void shortenPathFromWayPoint(long wayPointId) {
+        this.path.shortenPathFromWayPoint(wayPointId);
+    }
+
     /**
      * A function for sending a message with MAC commands to the gateways.
      * @param data The data to send in the message
