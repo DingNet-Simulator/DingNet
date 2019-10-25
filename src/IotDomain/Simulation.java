@@ -185,22 +185,22 @@ public class Simulation {
         }
 
         while (predicate.test(environment)) {
-            for(Mote mote : motes){
-                if(mote.isEnabled() && mote.getPath().size() > wayPointMap.get(mote)) {
-                    if (TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
-                            TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()) &&
-                            (TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))) {
-                        timeMap.put(mote, this.environment.getClock().getTime());
-                        if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
-                            this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
-                            List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
-                            historyMap.add(mote.getPos());
-                            locationHistoryMap.put(mote, historyMap);
-                        } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
-                    }
-                }
-                mote.consumePackets();
-            }
+            motes.stream()
+                .filter(Mote::isEnabled)
+                .peek(Mote::consumePackets)
+                .filter(mote -> mote.getPath().size() > wayPointMap.get(mote))
+                .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
+                    TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
+                .filter(mote -> TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
+                .peek(mote -> timeMap.put(mote, this.environment.getClock().getTime()))
+                .forEach(mote -> {
+                    if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
+                        this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
+                        List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
+                        historyMap.add(mote.getPos());
+                        locationHistoryMap.put(mote, historyMap);
+                    } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
+                });
             this.environment.getClock().tick(1);
         }
         return new SimulationResult(locationHistoryMap);
