@@ -5,7 +5,7 @@ import IotDomain.LoraWanPacket;
 import java.util.List;
 import java.util.stream.Stream;
 
-public interface ReceivedPackedStrategy {
+public interface ReceivedPacketStrategy {
 
     void addReceivedMessage(LoraWanPacket packet);
 

@@ -2,7 +2,7 @@ package IotDomain;
 
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
-import IotDomain.motepacketstrategy.storeStrategy.ReceivedPackedStrategy;
+import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
 import IotDomain.motepacketstrategy.storeStrategy.StoreAllMessage;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
@@ -75,7 +75,7 @@ public class Mote extends NetworkEntity {
      */
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
 
-    private final ReceivedPackedStrategy receivedPackedStrategy = new StoreAllMessage();
+    private final ReceivedPacketStrategy receivedPacketStrategy = new StoreAllMessage();
 
     private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
 
@@ -143,7 +143,7 @@ public class Mote extends NetworkEntity {
         //if is a message sent to from a gateway to this mote
         if (getEUI().equals(packet.getDesignatedReceiverEUI()) &&
             getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
-            receivedPackedStrategy.addReceivedMessage(packet);
+            receivedPacketStrategy.addReceivedMessage(packet);
         }
     }
 
@@ -211,8 +211,8 @@ public class Mote extends NetworkEntity {
      * consume all the packet arrived with the strategies previous defined
      */
     public void consumePackets() {
-        if (receivedPackedStrategy.hasPackets()) {
-            var packets = receivedPackedStrategy.getReceivedPacket();
+        if (receivedPacketStrategy.hasPackets()) {
+            var packets = receivedPacketStrategy.getReceivedPacket();
             consumePacketStrategies.forEach(s -> s.consume(this, packets));
         }
     }

@@ -5,7 +5,7 @@ import IotDomain.LoraWanPacket;
 import java.util.Collections;
 import java.util.List;
 
-public class IgnoreAllMessage implements ReceivedPackedStrategy {
+public class IgnoreAllMessage implements ReceivedPacketStrategy {
 
     @Override
     public void addReceivedMessage(LoraWanPacket packet) { }

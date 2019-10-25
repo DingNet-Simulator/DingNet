@@ -5,7 +5,7 @@ import IotDomain.LoraWanPacket;
 import java.util.LinkedList;
 import java.util.List;
 
-public class StoreAllMessage implements ReceivedPackedStrategy {
+public class StoreAllMessage implements ReceivedPacketStrategy {
 
     private List<LoraWanPacket> packets = new LinkedList<>();
 
