@@ -2,8 +2,8 @@ package GUI;
 
 
 import GUI.MapViewer.BorderPainter;
-import GUI.MapViewer.GatewayNumberWaypointPainter;
 import GUI.MapViewer.GatewayWaypointPainter;
+import GUI.MapViewer.NumberPainter;
 import IotDomain.Environment;
 import IotDomain.Gateway;
 import org.jxmapviewer.JXMapViewer;
@@ -84,7 +84,7 @@ public class ConfigureGatewayPanel {
         }
 
         int i = 1;
-        Map<Waypoint, Integer> gateways = new HashMap();
+        Map<Waypoint, Integer> gateways = new HashMap<>();
         for (Gateway gateway : environment.getGateways()) {
             gateways.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPos()), environment.toLongitude(gateway.getXPos()))), i);
             i++;
@@ -93,7 +93,7 @@ public class ConfigureGatewayPanel {
         GatewayWaypointPainter<Waypoint> gatewayPainter = new GatewayWaypointPainter<>();
         gatewayPainter.setWaypoints(gateways.keySet());
 
-        GatewayNumberWaypointPainter<Waypoint> gatewayNumberPainter = new GatewayNumberWaypointPainter<>();
+        NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
         gatewayNumberPainter.setWaypoints(gateways);
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();

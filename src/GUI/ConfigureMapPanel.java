@@ -116,7 +116,7 @@ public class ConfigureMapPanel {
         MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
         motePainter.setWaypoints(motes.keySet());
 
-        MoteNumberWaypointPainter<Waypoint> moteNumberPainter = new MoteNumberWaypointPainter<>();
+        NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
         moteNumberPainter.setWaypoints(motes);
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();

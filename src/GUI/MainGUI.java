@@ -6,10 +6,6 @@ import IotDomain.*;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
-import SensorDataGenerators.CarbonDioxideDataGenerator;
-import SensorDataGenerators.OzoneDataGenerator;
-import SensorDataGenerators.ParticulateMatterDataGenerator;
-import SensorDataGenerators.SootDataGenerator;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -483,8 +479,8 @@ public class MainGUI extends JFrame {
             motes.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(mote.getYPos()), environment.toLongitude(mote.getXPos()))), i);
             i++;
         }
-        GatewayNumberWaypointPainter<Waypoint> gateWayNumberPainter = new GatewayNumberWaypointPainter<>();
-        gateWayNumberPainter.setWaypoints(gateWays);
+        NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
+        gatewayNumberPainter.setWaypoints(gateWays);
 
         GatewayWaypointPainter<Waypoint> gateWayPainter = new GatewayWaypointPainter<>();
         gateWayPainter.setWaypoints(gateWays.keySet());
@@ -492,7 +488,7 @@ public class MainGUI extends JFrame {
         MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
         motePainter.setWaypoints(motes.keySet());
 
-        MoteNumberWaypointPainter<Waypoint> moteNumberPainter = new MoteNumberWaypointPainter<>();
+        NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
         moteNumberPainter.setWaypoints(motes);
 
         if (isRefresh) {
@@ -508,7 +504,7 @@ public class MainGUI extends JFrame {
         painters.add(gateWayPainter);
         painters.add(motePainter);
         painters.add(moteNumberPainter);
-        painters.add(gateWayNumberPainter);
+        painters.add(gatewayNumberPainter);
 
         for (Mote mote : environment.getMotes()) {
             painters.add(new TrackPainter(mote.getPath()));

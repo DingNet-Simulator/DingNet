@@ -6,6 +6,7 @@ import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointRenderer;
 
 import java.awt.*;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,21 +18,23 @@ import java.util.Set;
  * @param <W> the waypoint type
  * @author rbair
  */
-public class GatewayNumberWaypointPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
-    private WaypointRenderer<? super W> renderer;
+public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Map<W,Integer> waypoints = new HashMap<>();
+    private int xOffset;
+    private int yOffset;
 
-    /**
-     * Creates a new instance of WaypointPainter
-     */
-    public GatewayNumberWaypointPainter() {
+
+    public NumberPainter(Type type) {
+        this.xOffset = type.xOffset;
+        this.yOffset = type.yOffset;
+
         setAntialiasing(true);
         setCacheable(false);
     }
 
+
     /**
      * Gets the current set of waypoints to paint
-     *
      * @return a typed Set of Waypoints
      */
     public Set<W> getWaypoints() {
@@ -40,10 +43,9 @@ public class GatewayNumberWaypointPainter<W extends Waypoint> extends AbstractPa
 
     /**
      * Sets the current set of waypoints to paint
-     *
      * @param waypoints the new Set of Waypoints to use
      */
-    public void setWaypoints(Map<? extends W,Integer> waypoints) {
+    public void setWaypoints(Map<? extends W, Integer> waypoints) {
         this.waypoints.clear();
         this.waypoints.putAll(waypoints);
     }
@@ -56,11 +58,25 @@ public class GatewayNumberWaypointPainter<W extends Waypoint> extends AbstractPa
         g.translate(-viewportBounds.getX(), -viewportBounds.getY());
 
         for (W w : getWaypoints()) {
-            renderer = new GatewayNumberWaypointRenderer(waypoints.get(w));
+            NumberRenderer renderer = new NumberRenderer(waypoints.get(w), xOffset, yOffset);
             renderer.paintWaypoint(g, map, w);
         }
 
         g.translate(viewportBounds.getX(), viewportBounds.getY());
 
     }
+
+    public enum Type {
+        MOTE(20, -20),
+        GATEWAY(15, -30);
+
+        public int xOffset;
+        public int yOffset;
+
+        Type(int xOffset, int yOffset) {
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+        }
+    }
 }
+

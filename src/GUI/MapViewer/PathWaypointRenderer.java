@@ -16,7 +16,7 @@ import java.awt.image.BufferedImage;
  */
 public class PathWaypointRenderer implements WaypointRenderer<Waypoint>
 {
-    private static final Log log = LogFactory.getLog(MoteNumberWaypointRenderer.class);
+    private static final Log log = LogFactory.getLog(NumberRenderer.class);
 
     private BufferedImage img = null;
 

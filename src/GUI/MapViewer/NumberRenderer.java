@@ -1,7 +1,5 @@
 package GUI.MapViewer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointRenderer;
@@ -14,21 +12,20 @@ import java.awt.image.BufferedImage;
 
 /**
  * This is a standard waypoint renderer.
- * @author joshy
  */
-public class GatewayNumberWaypointRenderer implements WaypointRenderer<Waypoint>
-{
-    private static final Log log = LogFactory.getLog(GatewayNumberWaypointRenderer.class);
-
-    private BufferedImage img = null;
+public class NumberRenderer implements WaypointRenderer<Waypoint> {
+    private BufferedImage img;
+    private int xOffset;
+    private int yOffset;
 
     /**
      * Uses a default waypoint image
      */
-    public GatewayNumberWaypointRenderer(Integer number)
-    {
+    NumberRenderer(int number, int xOffset, int yOffset) {
+        this.img = generateGraphics(Integer.toString(number));
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
 
-        img = generateGraphics(number.toString());
         int w = img.getWidth();
         int h = img.getHeight();
         BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -36,24 +33,23 @@ public class GatewayNumberWaypointRenderer implements WaypointRenderer<Waypoint>
         at.scale(0.35, 0.35);
         AffineTransformOp scaleOp =
                 new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        img = scaleOp.filter(img, after);
+        this.img = scaleOp.filter(img, after);
     }
 
     @Override
-    public void paintWaypoint(Graphics2D g, JXMapViewer map, Waypoint w)
-    {
+    public void paintWaypoint(Graphics2D g, JXMapViewer map, Waypoint w) {
         if (img == null)
             return;
 
         Point2D point = map.getTileFactory().geoToPixel(w.getPosition(), map.getZoom());
 
-        int x = (int)point.getX() +15;
-        int y = (int)point.getY() -30;
+        int x = (int) point.getX() + this.xOffset;
+        int y = (int) point.getY() + this.yOffset;
 
         g.drawImage(img, x, y, null);
     }
 
-    private BufferedImage generateGraphics(String number){
+    private BufferedImage generateGraphics(String number) {
         /*
            Because font metrics is based on a graphics context, we need to create
            a small, temporary image so we can ascertain the width and height
