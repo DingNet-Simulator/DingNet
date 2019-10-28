@@ -20,12 +20,10 @@ public class GraphStructure {
         this.wayPoints = wayPoints;
         this.connections = connections;
 
-        newWayPointID = wayPoints.entrySet().stream()
-            .map(Map.Entry::getKey)
+        newWayPointID = wayPoints.keySet().stream()
             .max(Long::compare)
             .orElse(0L) + 1;
-        newConnectionID = connections.entrySet().stream()
-            .map(Map.Entry::getKey)
+        newConnectionID = connections.keySet().stream()
             .max(Long::compare)
             .orElse(0L) + 1;
     }
@@ -160,9 +158,8 @@ public class GraphStructure {
      * @return A list of connections which all start at {@code wayPointId}.
      */
     public List<Connection> getOutgoingConnections(long wayPointId) {
-        return connections.entrySet().stream()
-            .filter(o -> o.getValue().getFrom() == wayPointId)
-            .map(Map.Entry::getValue)
+        return connections.values().stream()
+            .filter(c -> c.getFrom() == wayPointId)
             .collect(Collectors.toList());
     }
 
