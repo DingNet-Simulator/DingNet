@@ -94,6 +94,12 @@ public class ConfigurationWriter {
                 Element devEUI = doc.createElement("devEUI");
                 devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(mote.getEUI())));
 
+                if (mote instanceof UserMote) {
+                    Element isActive = doc.createElement("userMoteState");
+                    isActive.appendChild(doc.createTextNode(""+((UserMote)mote).isActive()));
+                    moteElement.appendChild(isActive);
+                }
+
                 Element location = doc.createElement("location");
                 Element xPos = doc.createElement("xPos");
                 xPos.appendChild(doc.createTextNode(mote.getXPos().toString()));

@@ -117,14 +117,24 @@ public class ConfigurationReader {
                     int wayPointY = Integer.parseInt(waypoint.getTextContent().split(",")[1]);
                     path.add(new GeoPosition(simulation.getEnvironment().toLatitude(wayPointY), simulation.getEnvironment().toLongitude(wayPointX)));
                 }
-                try {
+                if (hasChild(moteNode, "startMovementOffset") &&
+                    hasChild(moteNode, "periodSendingPacket") &&
+                    hasChild(moteNode, "startSendingOffset")) {
+
                     int startMovementOffset = Integer.parseInt(XMLHelper.readChild(moteNode, "startMovementOffset"));
                     int periodSendingPacket = Integer.parseInt(XMLHelper.readChild(moteNode, "periodSendingPacket"));
                     int startSendingOffset = Integer.parseInt(XMLHelper.readChild(moteNode, "startSendingOffset"));
-                    MoteFactory.createMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower,
-                        spreadingFactor, moteSensors, energyLevel, path, movementSpeed, startMovementOffset,
-                        periodSendingPacket, startSendingOffset);
-                } catch (NullPointerException e) {
+                    if (hasChild(moteNode, "userMoteState")) {
+                        boolean isActive = Boolean.parseBoolean(XMLHelper.readChild(moteNode, "userMoteState"));
+                        MoteFactory.createUserMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower,
+                            spreadingFactor, moteSensors, energyLevel, path, movementSpeed, startMovementOffset,
+                            periodSendingPacket, startSendingOffset).setActive(isActive);
+                    } else {
+                        MoteFactory.createMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower,
+                            spreadingFactor, moteSensors, energyLevel, path, movementSpeed, startMovementOffset,
+                            periodSendingPacket, startSendingOffset);
+                    }
+                } else {
                     //old configuration file version
                     MoteFactory.createMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, movementSpeed);
                 }
@@ -153,5 +163,9 @@ public class ConfigurationReader {
         } catch (ParserConfigurationException | SAXException | IOException e1) {
             e1.printStackTrace();
         }
+    }
+
+    private static boolean hasChild(Element root, String childName) {
+        return root.getElementsByTagName(childName).getLength() != 0;
     }
 }
