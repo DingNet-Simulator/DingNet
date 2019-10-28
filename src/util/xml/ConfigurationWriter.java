@@ -114,13 +114,24 @@ public class ConfigurationWriter {
                 Element movementSpeed = doc.createElement("movementSpeed");
                 movementSpeed.appendChild(doc.createTextNode(mote.getMovementSpeed().toString()));
 
+                Element startMovementOffset = doc.createElement("startMovementOffset");
+                startMovementOffset.appendChild(doc.createTextNode(mote.getStartMovementOffset().toString()));
+
+                Element periodSendingPacket = doc.createElement("periodSendingPacket");
+                periodSendingPacket.appendChild(doc.createTextNode(""+mote.getPeriodSendingPacket()));
+
+                Element startSendingOffset = doc.createElement("startSendingOffset");
+                startSendingOffset.appendChild(doc.createTextNode(""+mote.getStartSendingOffset()));
+
                 moteElement.appendChild(devEUI);
                 moteElement.appendChild(location);
                 moteElement.appendChild(transmissionPower);
                 moteElement.appendChild(spreadingFactor);
                 moteElement.appendChild(energyLevel);
                 moteElement.appendChild(movementSpeed);
-
+                moteElement.appendChild(startMovementOffset);
+                moteElement.appendChild(periodSendingPacket);
+                moteElement.appendChild(startSendingOffset);
 
                 Element sensors = doc.createElement("sensors");
                 for (MoteSensor sensor : mote.getSensors()) {

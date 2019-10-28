@@ -99,7 +99,6 @@ public class ConfigurationReader {
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(moteNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(moteNode, "spreadingFactor"));
                 int energyLevel = Integer.parseInt(XMLHelper.readChild(moteNode, "energyLevel"));
-                int samplingRate = Integer.parseInt(XMLHelper.readChild(moteNode, "samplingRate"));
                 double movementSpeed = Double.parseDouble(XMLHelper.readChild(moteNode, "movementSpeed"));
 
                 Element sensors = (Element) moteNode.getElementsByTagName("sensors").item(0);
@@ -118,7 +117,17 @@ public class ConfigurationReader {
                     int wayPointY = Integer.parseInt(waypoint.getTextContent().split(",")[1]);
                     path.add(new GeoPosition(simulation.getEnvironment().toLatitude(wayPointY), simulation.getEnvironment().toLongitude(wayPointX)));
                 }
-                MoteFactory.createMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, movementSpeed);
+                try {
+                    int startMovementOffset = Integer.parseInt(XMLHelper.readChild(moteNode, "startMovementOffset"));
+                    int periodSendingPacket = Integer.parseInt(XMLHelper.readChild(moteNode, "periodSendingPacket"));
+                    int startSendingOffset = Integer.parseInt(XMLHelper.readChild(moteNode, "startSendingOffset"));
+                    MoteFactory.createMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower,
+                        spreadingFactor, moteSensors, energyLevel, path, movementSpeed, startMovementOffset,
+                        periodSendingPacket, startSendingOffset);
+                } catch (NullPointerException e) {
+                    //old configuration file version
+                    MoteFactory.createMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, movementSpeed);
+                }
             }
 
 
