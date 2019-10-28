@@ -118,7 +118,7 @@ public class ConfigurationReader {
                     int wayPointY = Integer.parseInt(waypoint.getTextContent().split(",")[1]);
                     path.add(new GeoPosition(simulation.getEnvironment().toLatitude(wayPointY), simulation.getEnvironment().toLongitude(wayPointX)));
                 }
-                new Mote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, samplingRate, movementSpeed);
+                MoteFactory.createMote(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, movementSpeed);
             }
 
 
