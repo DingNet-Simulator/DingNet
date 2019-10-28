@@ -3,7 +3,7 @@ package GUI;
 
 import GUI.MapViewer.BorderPainter;
 import GUI.MapViewer.NumberPainter;
-import GUI.MapViewer.MoteWaypointPainter;
+import GUI.MapViewer.MotePainter;
 import IotDomain.Environment;
 import IotDomain.Mote;
 import org.jxmapviewer.JXMapViewer;
@@ -87,7 +87,7 @@ public class ConfigureMotePanel {
             i++;
         }
 
-        MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
+        MotePainter<Waypoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);

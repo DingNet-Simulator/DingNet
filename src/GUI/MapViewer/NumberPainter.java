@@ -6,6 +6,10 @@ import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointRenderer;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,13 +24,11 @@ import java.util.Set;
  */
 public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Map<W,Integer> waypoints = new HashMap<>();
-    private int xOffset;
-    private int yOffset;
+    private Type type;
 
 
     public NumberPainter(Type type) {
-        this.xOffset = type.xOffset;
-        this.yOffset = type.yOffset;
+        this.type = type;
 
         setAntialiasing(true);
         setCacheable(false);
@@ -50,21 +52,70 @@ public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapView
         this.waypoints.putAll(waypoints);
     }
 
+
     @Override
     protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {
-
         Rectangle viewportBounds = map.getViewportBounds();
-
         g.translate(-viewportBounds.getX(), -viewportBounds.getY());
 
-        for (W w : getWaypoints()) {
-            NumberRenderer renderer = new NumberRenderer(waypoints.get(w), xOffset, yOffset);
-            renderer.paintWaypoint(g, map, w);
+        for (var wp : getWaypoints()) {
+            Point2D point = map.getTileFactory().geoToPixel(wp.getPosition(), map.getZoom());
+
+            int x = (int) point.getX() + this.type.xOffset;
+            int y = (int) point.getY() + this.type.yOffset;
+
+            g.drawImage(generateNumberGraphics(this.waypoints.get(wp)), x, y, null);
         }
 
         g.translate(viewportBounds.getX(), viewportBounds.getY());
-
     }
+
+
+    private BufferedImage generateNumberGraphics(int number) {
+        /*
+           Because font metrics is based on a graphics context, we need to create
+           a small, temporary image so we can ascertain the width and height
+           of the final image
+         */
+        String numberString = Integer.toString(number);
+        BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = img.createGraphics();
+        Font font = new Font("Arial", Font.PLAIN, 48);
+        g2d.setFont(font);
+        FontMetrics fm = g2d.getFontMetrics();
+        int width = fm.stringWidth(numberString);
+        int height = fm.getHeight();
+        g2d.dispose();
+
+        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        g2d = img.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g2d.setFont(font);
+        fm = g2d.getFontMetrics();
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(numberString, 0, fm.getAscent());
+        g2d.dispose();
+
+        int w = img.getWidth();
+        int h = img.getHeight();
+        BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        AffineTransform at = new AffineTransform();
+        at.scale(0.35, 0.35);
+        AffineTransformOp scaleOp =
+            new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+        img = scaleOp.filter(img, after);
+
+        return img;
+    }
+
 
     public enum Type {
         MOTE(20, -20),
