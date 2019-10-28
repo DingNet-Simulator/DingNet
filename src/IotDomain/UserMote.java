@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class UserMote extends Mote {
 
-    private boolean isEnable = false;
+    private boolean isActive = false;
     private final GeoPosition destination = new GeoPosition(1,1);
     private final LocalTime whenAskPath = LocalTime.of(0, 15);
     private boolean alreadyRequested = false;
@@ -26,7 +26,7 @@ public class UserMote extends Mote {
 
     @Override
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand, Byte[]> macCommands) {
-        if (isEnable && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
+        if (isActive && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
             alreadyRequested = true;
             byte[] payload= new byte[17];
             payload[0] = 1;
@@ -42,13 +42,13 @@ public class UserMote extends Mote {
         }
     }
 
-    public void setEnable(boolean enable) {
-        if (enable) {
+    public void setActive(boolean active) {
+        if (active) {
             getEnvironment().getMotes().stream()
                 .filter(m -> m instanceof UserMote)
                 .map(m -> (UserMote)m)
-                .forEach(m -> m.setEnable(false));
+                .forEach(m -> m.setActive(false));
         }
-        isEnable = enable;
+        isActive = active;
     }
 }
