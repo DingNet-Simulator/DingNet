@@ -9,10 +9,7 @@ import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import org.jxmapviewer.viewer.GeoPosition;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 /**
@@ -190,9 +187,17 @@ public class Mote extends NetworkEntity {
      * @param macCommands the MAC commands to include in the message.
      */
     public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands){
-        Byte[] payload = new Byte[data.length+macCommands.size()];
-        if (payload.length > 0) {
-            int i = 0;
+        var packet = composePacket(data, macCommands);
+        if (packet.getPayload().length > 1) {
+            loraSend(packet);
+        }
+    }
+
+    protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand,Byte[]> macCommands) {
+        Byte[] payload = new Byte[data.length+macCommands.size()+1];
+        payload[0] = 0;
+        if (payload.length > 1) {
+            int i = 1;
             for (MacCommand key : macCommands.keySet()) {
                 for (Byte dataByte : macCommands.get(key)) {
                     payload[i] = dataByte;
@@ -203,8 +208,8 @@ public class Mote extends NetworkEntity {
                 payload[i] = data[j];
                 i++;
             }
-            loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(), payload, new LinkedList<>(macCommands.keySet())));
         }
+        return new LoraWanPacket(getEUI(), getApplicationEUI(), payload, new LinkedList<>(macCommands.keySet()));
     }
 
     /**
