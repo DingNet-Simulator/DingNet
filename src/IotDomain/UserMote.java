@@ -42,6 +42,10 @@ public class UserMote extends Mote {
         }
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
     public void setActive(boolean active) {
         if (active) {
             getEnvironment().getMotes().stream()
