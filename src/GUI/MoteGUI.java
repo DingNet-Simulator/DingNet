@@ -2,6 +2,7 @@ package GUI;
 
 import IotDomain.Mote;
 import IotDomain.MoteSensor;
+import IotDomain.UserMote;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -28,6 +29,7 @@ public class MoteGUI extends JFrame {
     private JButton addButton;
     private JList sensorList;
     private JSpinner movementSpinner;
+    private JCheckBox isActiveCheckBox;
     private Mote mote;
     private JFrame frame;
 
@@ -55,6 +57,12 @@ public class MoteGUI extends JFrame {
         movementSpinner.setModel(new SpinnerNumberModel(mote.getMovementSpeed(), Double.valueOf(0.01), Double.valueOf(1000.0), Double.valueOf(0.01)));
         TPThresholdText.setText(mote.getTransmissionPowerThreshold().toString());
         saveButton.addActionListener(saveActionListener);
+        if (mote instanceof UserMote) {
+            isActiveCheckBox.setVisible(true);
+            isActiveCheckBox.setSelected(((UserMote)mote).isActive());
+        } else {
+            isActiveCheckBox.setVisible(false);
+        }
         sensorSpinner.setModel(new DefaultComboBoxModel(MoteSensor.values()));
         DefaultListModel<MoteSensor> sensorListModel = new DefaultListModel<>();
 
@@ -101,7 +109,12 @@ public class MoteGUI extends JFrame {
         powerSpinner.setValue(mote.getTransmissionPower());
         SFSpinner.setValue(mote.getSF());
         TPThresholdText.setText(mote.getTransmissionPowerThreshold().toString());
-
+        if (mote instanceof UserMote) {
+            isActiveCheckBox.setVisible(true);
+            isActiveCheckBox.setSelected(((UserMote)mote).isActive());
+        } else {
+            isActiveCheckBox.setVisible(false);
+        }
     }
 
     ActionListener saveActionListener = new ActionListener() {
@@ -117,6 +130,9 @@ public class MoteGUI extends JFrame {
             }
             mote.setSensors(moteSensors);
             mote.setMovementSpeed((Double) movementSpinner.getValue());
+            if (isActiveCheckBox.isVisible()) {
+                ((UserMote)mote).setActive(isActiveCheckBox.isSelected());
+            }
             refresh();
             frame.dispose();
         }
@@ -217,6 +233,10 @@ public class MoteGUI extends JFrame {
         mainPanel.add(scrollPane1, new GridConstraints(10, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, new Dimension(-1, 90), 0, false));
         sensorList = new JList();
         scrollPane1.setViewportView(sensorList);
+        isActiveCheckBox = new JCheckBox();
+        isActiveCheckBox.setEnabled(true);
+        isActiveCheckBox.setText("is active");
+        mainPanel.add(isActiveCheckBox, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -225,4 +245,5 @@ public class MoteGUI extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }

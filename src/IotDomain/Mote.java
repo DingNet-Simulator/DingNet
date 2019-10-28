@@ -10,10 +10,7 @@ import be.kuleuven.cs.som.annotate.Raw;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Path;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 /**
@@ -125,12 +122,11 @@ public class Mote extends NetworkEntity {
      * @param moteSensors The mote sensors for this mote.
      * @param energyLevel The energy level for this mote.
      * @param path The path for this mote to follow.
-     * @param samplingRate The sampling rate of this mote.
      * @param movementSpeed The movement speed of this mote.
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Integer samplingRate, Double movementSpeed){
+                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed){
         this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
@@ -213,9 +209,17 @@ public class Mote extends NetworkEntity {
      * @param macCommands the MAC commands to include in the message.
      */
     public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands){
-        Byte[] payload = new Byte[data.length+macCommands.size()];
-        if (payload.length > 0) {
-            int i = 0;
+        var packet = composePacket(data, macCommands);
+        if (packet.getPayload().length > 1) {
+            loraSend(packet);
+        }
+    }
+
+    protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand,Byte[]> macCommands) {
+        Byte[] payload = new Byte[data.length+macCommands.size()+1];
+        payload[0] = 0;
+        if (payload.length > 1) {
+            int i = 1;
             for (MacCommand key : macCommands.keySet()) {
                 for (Byte dataByte : macCommands.get(key)) {
                     payload[i] = dataByte;
@@ -226,8 +230,8 @@ public class Mote extends NetworkEntity {
                 payload[i] = data[j];
                 i++;
             }
-            loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(), payload, new LinkedList<>(macCommands.keySet())));
         }
+        return new LoraWanPacket(getEUI(), getApplicationEUI(), payload, new LinkedList<>(macCommands.keySet()));
     }
 
     /**

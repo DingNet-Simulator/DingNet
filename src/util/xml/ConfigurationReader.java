@@ -175,19 +175,7 @@ public class ConfigurationReader {
                         path.addPosition(wayPoints.get(connections.get(connectionId).getTo()));
                     }
                 }
-
-                new Mote(devEUI,
-                    coords.getLeft(),
-                    coords.getRight(),
-                    simulation.getEnvironment(),
-                    transmissionPower,
-                    spreadingFactor,
-                    moteSensors,
-                    energyLevel,
-                    path,
-                    samplingRate,
-                    movementSpeed
-                );
+                MoteFactory.createMote(devEUI, coords.getLeft(), coords.getRight(), simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, movementSpeed);
             }
 
 
