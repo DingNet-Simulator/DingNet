@@ -97,7 +97,7 @@ public class ConfigureMapPanel {
             i++;
         }
 
-        MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
+        MotePainter<Waypoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
@@ -120,7 +120,7 @@ public class ConfigureMapPanel {
 
         // Draw the waypoints
         Set<DefaultWaypoint> set = new HashSet<>();
-        PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
+        PathPainter<DefaultWaypoint> waypointPainter = new PathPainter<>();
         for (GeoPosition waypoint : graph.getWayPoints().values()) {
             set.add(new DefaultWaypoint(waypoint));
         }

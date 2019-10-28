@@ -1,7 +1,7 @@
 package GUI;
 
 
-import GUI.MapViewer.PathWaypointPainter;
+import GUI.MapViewer.PathPainter;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -93,7 +93,7 @@ public class ConfigureWayPointsPanel {
 
         // Draw the waypoints
         Set<DefaultWaypoint> set = new HashSet<>();
-        PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
+        PathPainter<DefaultWaypoint> waypointPainter = new PathPainter<>();
         for (GeoPosition waypoint : GraphStructure.getInstance().getWayPoints().values()) {
             set.add(new DefaultWaypoint(waypoint));
         }

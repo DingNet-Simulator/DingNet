@@ -484,10 +484,10 @@ public class MainGUI extends JFrame {
         NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
         gatewayNumberPainter.setWaypoints(gateWays);
 
-        GatewayWaypointPainter<Waypoint> gateWayPainter = new GatewayWaypointPainter<>();
+        GatewayPainter<Waypoint> gateWayPainter = new GatewayPainter<>();
         gateWayPainter.setWaypoints(gateWays.keySet());
 
-        MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
+        MotePainter<Waypoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);

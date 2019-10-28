@@ -2,7 +2,7 @@ package GUI;
 
 
 import GUI.MapViewer.LinePainter;
-import GUI.MapViewer.PathWaypointPainter;
+import GUI.MapViewer.PathPainter;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -108,7 +108,7 @@ public class ConfigureConnectionsPanel {
 
         // Draw the waypoints
         Set<DefaultWaypoint> set = new HashSet<>();
-        PathWaypointPainter<DefaultWaypoint> waypointPainter = new PathWaypointPainter<>();
+        PathPainter<DefaultWaypoint> waypointPainter = new PathPainter<>();
         for (GeoPosition waypoint : graph.getWayPoints().values()) {
             set.add(new DefaultWaypoint(waypoint));
         }
@@ -231,7 +231,7 @@ public class ConfigureConnectionsPanel {
                     firstWayPoint = closestWayPoint;
 
                     // color the selected waypoint to indicate the first step
-                    var wayPointPainter = new PathWaypointPainter<DefaultWaypoint>(Color.BLUE);
+                    var wayPointPainter = new PathPainter<DefaultWaypoint>(Color.BLUE);
                     wayPointPainter.setWaypoints(Set.of(new DefaultWaypoint(graph.getWayPoint(firstWayPoint))));
                     painter.addPainter(wayPointPainter);
 

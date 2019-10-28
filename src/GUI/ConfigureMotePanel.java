@@ -2,8 +2,8 @@ package GUI;
 
 
 import GUI.MapViewer.NumberPainter;
-import GUI.MapViewer.MoteWaypointPainter;
 import GUI.util.GUIUtil;
+import GUI.MapViewer.MotePainter;
 import IotDomain.Environment;
 import IotDomain.Mote;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -65,7 +65,7 @@ public class ConfigureMotePanel {
             i++;
         }
 
-        MoteWaypointPainter<Waypoint> motePainter = new MoteWaypointPainter<>();
+        MotePainter<Waypoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);

@@ -6,6 +6,9 @@ import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointRenderer;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Set;
 
@@ -15,22 +18,26 @@ import java.util.Set;
  * @param <W> the waypoint type
  * @author rbair
  */
-public class PathWaypointPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
-    private WaypointRenderer<? super W> renderer;
+public class PathPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Set<W> waypoints;
-    private Color color;
+    private BufferedImage img;
 
-    /**
-     * Creates a new instance of WaypointPainter
-     */
-    public PathWaypointPainter() {
+    public PathPainter() {
         this(new Color(102,0,153));
     }
 
-    public PathWaypointPainter(Color color) {
+    public PathPainter(Color color) {
         setAntialiasing(true);
         setCacheable(false);
-        this.color = color;
+
+        this.img = new BufferedImage(12, 12, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = this.img.createGraphics();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+        g.fillRect(0, 0, 12, 12);
+        //reset composite
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+        g.setColor(color);
+        g.fill(new Ellipse2D.Double(0, 0, 12, 12));
     }
 
     /**
@@ -53,18 +60,19 @@ public class PathWaypointPainter<W extends Waypoint> extends AbstractPainter<JXM
 
     @Override
     protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {
-
         Rectangle viewportBounds = map.getViewportBounds();
-
         g.translate(-viewportBounds.getX(), -viewportBounds.getY());
 
-        for (W w : getWaypoints()) {
-            renderer = new PathWaypointRenderer(this.color);
-            renderer.paintWaypoint(g, map, w);
+        for (var wp : getWaypoints()) {
+            Point2D point = map.getTileFactory().geoToPixel(wp.getPosition(), map.getZoom());
+
+            int x = (int) Math.round(point.getX() - (img.getWidth() / 2.0));
+            int y = (int) Math.round(point.getY() - (img.getHeight() / 2.0));
+
+            g.drawImage(img, x, y, null);
         }
 
         g.translate(viewportBounds.getX(), viewportBounds.getY());
-
     }
 }
 

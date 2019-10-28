@@ -1,8 +1,8 @@
 package GUI;
 
 
-import GUI.MapViewer.GatewayWaypointPainter;
 import GUI.util.GUIUtil;
+import GUI.MapViewer.GatewayPainter;
 import GUI.MapViewer.NumberPainter;
 import IotDomain.Environment;
 import IotDomain.Gateway;
@@ -69,7 +69,7 @@ public class ConfigureGatewayPanel {
             i++;
         }
 
-        GatewayWaypointPainter<Waypoint> gatewayPainter = new GatewayWaypointPainter<>();
+        GatewayPainter<Waypoint> gatewayPainter = new GatewayPainter<>();
         gatewayPainter.setWaypoints(gateways.keySet());
 
         NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
