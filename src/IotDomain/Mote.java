@@ -121,12 +121,11 @@ public class Mote extends NetworkEntity {
      * @param moteSensors The mote sensors for this mote.
      * @param energyLevel The energy level for this mote.
      * @param path The path for this mote to follow.
-     * @param samplingRate The sampling rate of this mote.
      * @param movementSpeed The movement speed of this mote.
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Integer samplingRate, Double movementSpeed){
+                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Double movementSpeed){
         this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }

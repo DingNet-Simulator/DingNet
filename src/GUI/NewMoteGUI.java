@@ -2,9 +2,8 @@ package GUI;
 
 
 import IotDomain.Environment;
-import IotDomain.Mote;
+import IotDomain.MoteFactory;
 import IotDomain.MoteSensor;
-import IotDomain.UserMote;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -133,7 +132,7 @@ public class NewMoteGUI {
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
             moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
         }
-        new Mote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
+        MoteFactory.createMote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
             (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
             (Integer) SFSpinner.getValue(), moteSensors, 20, new LinkedList<>(),
             (Double) movementSpinner.getValue(),
@@ -146,7 +145,7 @@ public class NewMoteGUI {
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
             moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
         }
-        new UserMote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
+        MoteFactory.createUserMote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
             (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
             (Integer) SFSpinner.getValue(), moteSensors, 20, new LinkedList<>(),
             (Double) movementSpinner.getValue(),
