@@ -20,11 +20,12 @@ public enum MoteSensor {
     GPS(new GPSDataGenerator()),
     IAQ(IAQDataGeneratorSingleton.getInstance());
 
+
+    private SensorDataGenerator sensorDataGenerator;
+
     MoteSensor(SensorDataGenerator sensorDataGenerator){
         this.sensorDataGenerator = sensorDataGenerator;
     }
-
-    private SensorDataGenerator sensorDataGenerator;
 
     public byte[] getValue(Integer xpos, Integer ypos, LocalTime time){
         return sensorDataGenerator.generateData(xpos,ypos,time);
@@ -45,5 +46,21 @@ public enum MoteSensor {
     }
     public List<Byte> getValueAsList(Pair<Integer, Integer> pos, LocalTime time){
         return getValueAsList(pos.getLeft(), pos.getRight(), time);
+    }
+
+    public int getAmountOfData() {
+        switch (this) {
+            case SOOT:
+            case IAQ:
+            case OZONE:
+            case CARBON_DIOXIDE:
+            case PARTICULATE_MATTER:
+                return 1;
+            case GPS:
+                return 8;
+        }
+        throw new IllegalStateException(
+            String.format("Method 'getAmountOfData' unsupported for sensor type %s", this.toString())
+        );
     }
 }
