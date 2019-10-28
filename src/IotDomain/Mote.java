@@ -8,6 +8,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Path;
 
 import java.util.*;
 
@@ -31,10 +32,10 @@ public class Mote extends NetworkEntity {
     @Model
     private List<MoteSensor> moteSensors;
     /**
-     * A LinkedList of GeoPositions representing the path the mote will follow.
+     * A path representing the connections the mote will follow.
      */
     @Model
-    private List<GeoPosition> path;
+    private Path path;
 
     /**
      * An integer representing the energy level of the mote.
@@ -78,7 +79,7 @@ public class Mote extends NetworkEntity {
 
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
-     * spreading factor, list of MoteSensors, energy level, path, sampling rate, movement speed and start offset.
+     * spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.
      * @param DevEUI The device's unique identifier
      * @param xPos  The x-coordinate of the node.
      * @param yPos  The y-coordinate of the node.
@@ -95,9 +96,9 @@ public class Mote extends NetworkEntity {
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path,
+                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path,
                 Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset){
-       super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
+        super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
         environment.addMote(this);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
@@ -111,7 +112,7 @@ public class Mote extends NetworkEntity {
 
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
-     * spreading factor, list of MoteSensors, energy level, path, sampling rate and movement speed and  random start offset.
+     * spreading factor, list of MoteSensors, energy level, connection, sampling rate and movement speed and  random start offset.
      * @param DevEUI The device's unique identifier
      * @param xPos  The x-coordinate of the node.
      * @param yPos  The y-coordinate of the node.
@@ -125,7 +126,7 @@ public class Mote extends NetworkEntity {
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Double movementSpeed){
+                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed){
         this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
@@ -159,7 +160,7 @@ public class Mote extends NetworkEntity {
      * @return The path of the mote.
      */
     @Basic
-    public List<GeoPosition> getPath() {
+    public Path getPath() {
         return path;
     }
 
@@ -168,9 +169,31 @@ public class Mote extends NetworkEntity {
      * @param path The path to set.
      */
     @Basic
-    public void setPath(List<GeoPosition> path) {
+    public void setPath(Path path) {
         this.path = path;
     }
+
+    public void setPath(List<GeoPosition> positions) {
+        this.path.setPath(positions);
+    }
+
+
+    /**
+     * Shorten the path of this mote from a given waypoint ID.
+     * @param wayPointId The waypoint ID from which the path is shortened (inclusive).
+     */
+    public void shortenPathFromWayPoint(long wayPointId) {
+        this.path.shortenPathFromWayPoint(wayPointId);
+    }
+
+    /**
+     * Shorten the path of this mote from a given connection ID.
+     * @param connectionId The connection ID from which the path is shortened (inclusive).
+     */
+    public void shortenPathFromConnection(long connectionId) {
+        this.path.shortenPathFromConnection(connectionId);
+    }
+
 
     /**
      *

@@ -4,6 +4,9 @@ import IotDomain.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import util.GraphStructure;
+import util.MapHelper;
+import util.Path;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -20,6 +23,8 @@ public class ConfigurationWriter {
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Environment environment = simulation.getEnvironment();
+            GraphStructure graph = GraphStructure.getInstance();
+
             // root element
             Element rootElement = doc.createElement("configuration");
             doc.appendChild(rootElement);
@@ -101,12 +106,11 @@ public class ConfigurationWriter {
                 }
 
                 Element location = doc.createElement("location");
-                Element xPos = doc.createElement("xPos");
-                xPos.appendChild(doc.createTextNode(mote.getXPos().toString()));
-                Element yPos = doc.createElement("yPos");
-                yPos.appendChild(doc.createTextNode(mote.getYPos().toString()));
-                location.appendChild(xPos);
-                location.appendChild(yPos);
+                Element waypoint = doc.createElement("waypoint");
+
+                GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPos());
+                waypoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
+                location.appendChild(waypoint);
 
                 Element transmissionPower = doc.createElement("transmissionPower");
                 transmissionPower.appendChild(doc.createTextNode(mote.getTransmissionPower().toString()));
@@ -149,11 +153,13 @@ public class ConfigurationWriter {
 
 
                 Element pathElement = doc.createElement("path");
-                for (GeoPosition waypoint : mote.getPath()) {
-                    Element waypointElement = doc.createElement("wayPoint");
-                    waypointElement.appendChild(doc.createTextNode(environment.toMapXCoordinate(waypoint) + "," + environment.toMapYCoordinate(waypoint)));
-                    pathElement.appendChild(waypointElement);
+                Path path = mote.getPath();
+                for (Long id : path.getConnectionsByID()) {
+                    Element connectionElement = doc.createElement("connection");
+                    connectionElement.setAttribute("id", Long.toString(id));
+                    pathElement.appendChild(connectionElement);
                 }
+
                 moteElement.appendChild(pathElement);
                 motes.appendChild(moteElement);
             }
@@ -161,10 +167,10 @@ public class ConfigurationWriter {
             rootElement.appendChild(motes);
 
 
+
             // ---------------
             //    Gateways
             // ---------------
-
 
             Element gateways = doc.createElement("gateways");
 
@@ -198,20 +204,45 @@ public class ConfigurationWriter {
             rootElement.appendChild(gateways);
 
 
+
+            // TODO could reassign IDs here so that they are sequential/'defragmented' again (starting from 1) for both waypoints and connections
             // ---------------
             //    WayPoints
             // ---------------
 
-            Element wayPoints = doc.createElement("wayPoints");
+            Element wayPointsElement = doc.createElement("wayPoints");
+            var wayPoints = graph.getWayPoints();
 
-            for (GeoPosition wayPoint : environment.getWayPoints()) {
+            for (var me : wayPoints.entrySet()) {
                 Element wayPointElement = doc.createElement("wayPoint");
+
+                wayPointElement.setAttribute("id", me.getKey().toString());
+                var wayPoint = me.getValue();
                 wayPointElement.appendChild(doc.createTextNode(wayPoint.getLatitude() + "," + wayPoint.getLongitude()));
-                wayPoints.appendChild(wayPointElement);
+                wayPointsElement.appendChild(wayPointElement);
             }
 
-            rootElement.appendChild(wayPoints);
+            rootElement.appendChild(wayPointsElement);
 
+
+            // ---------------
+            //   Connections
+            // ---------------
+
+            Element connectionsElement = doc.createElement("connections");
+            var connections = graph.getConnections();
+
+            for (var me : connections.entrySet()) {
+                Element connectionElement = doc.createElement("connection");
+
+                connectionElement.setAttribute("id", me.getKey().toString());
+                connectionElement.setAttribute("src", Long.toString(me.getValue().getFrom()));
+                connectionElement.setAttribute("dst", Long.toString(me.getValue().getTo()));
+
+                connectionsElement.appendChild(connectionElement);
+            }
+
+            rootElement.appendChild(connectionsElement);
 
 
             // ---------------

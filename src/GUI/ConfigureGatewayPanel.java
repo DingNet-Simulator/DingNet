@@ -1,11 +1,14 @@
 package GUI;
 
 
-import GUI.MapViewer.BorderPainter;
-import GUI.MapViewer.GatewayWaypointPainter;
+import GUI.util.GUIUtil;
+import GUI.MapViewer.GatewayPainter;
 import GUI.MapViewer.NumberPainter;
 import IotDomain.Environment;
 import IotDomain.Gateway;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -13,7 +16,6 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
-import util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -55,33 +57,10 @@ public class ConfigureGatewayPanel {
     }
 
     private void loadMap(Boolean isRefresh) {
-        GeoPosition centerPosition = mapViewer.getCenterPosition();
-        Integer zoom = mapViewer.getZoom();
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
         tileFactory.setThreadPoolSize(8);
-        LinkedList<LinkedList<Pair<Double, Double>>> points = new LinkedList<>();
-        for (int i = 0; i <= environment.getMaxXpos(); i += environment.getMaxXpos()) {
-            points.add(new LinkedList<>());
-            for (int j = 0; j <= environment.getMaxYpos(); j += environment.getMaxYpos()) {
-                points.getLast().add(new Pair(environment.toLatitude(j), environment.toLongitude(i)));
-            }
-        }
-        LinkedList<LinkedList<GeoPosition>> verticalLines = new LinkedList<>();
-        verticalLines.add(new LinkedList<>());
-        verticalLines.add(new LinkedList<>());
 
-        LinkedList<LinkedList<GeoPosition>> horizontalLines = new LinkedList<>();
-        horizontalLines.add(new LinkedList<>());
-        horizontalLines.add(new LinkedList<>());
-
-
-        for (int counter1 = 0; counter1 < points.size(); counter1++) {
-            for (int counter2 = 0; counter2 < points.get(counter1).size(); counter2++) {
-                verticalLines.get(counter1).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-                horizontalLines.get(counter2).add(new GeoPosition(points.get(counter1).get(counter2).getLeft(), points.get(counter1).get(counter2).getRight()));
-            }
-        }
 
         int i = 1;
         Map<Waypoint, Integer> gateways = new HashMap<>();
@@ -90,7 +69,7 @@ public class ConfigureGatewayPanel {
             i++;
         }
 
-        GatewayWaypointPainter<Waypoint> gatewayPainter = new GatewayWaypointPainter<>();
+        GatewayPainter<Waypoint> gatewayPainter = new GatewayPainter<>();
         gatewayPainter.setWaypoints(gateways.keySet());
 
         NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
@@ -101,21 +80,15 @@ public class ConfigureGatewayPanel {
         painters.add(gatewayPainter);
         painters.add(gatewayNumberPainter);
 
-        for (LinkedList<GeoPosition> verticalLine : verticalLines) {
-            painters.add(new BorderPainter(verticalLine));
-        }
 
-        for (LinkedList<GeoPosition> horizontalLine : horizontalLines) {
-            painters.add(new BorderPainter(horizontalLine));
-        }
+        // Draw the borders
+        painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
 
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
-        if (isRefresh) {
-            mapViewer.setAddressLocation(centerPosition);
-            mapViewer.setZoom(zoom);
-        } else {
+
+        if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }
@@ -144,19 +117,19 @@ public class ConfigureGatewayPanel {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
         drawPanel = new JPanel();
         drawPanel.setLayout(new BorderLayout(0, 0));
-        mainPanel.add(drawPanel, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        mainPanel.add(drawPanel, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         drawPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), null));
-        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
-        mainPanel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 15), null, null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer2 = new com.intellij.uiDesigner.core.Spacer();
-        mainPanel.add(spacer2, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 15), null, null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer3 = new com.intellij.uiDesigner.core.Spacer();
-        mainPanel.add(spacer3, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(15, -1), null, null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer4 = new com.intellij.uiDesigner.core.Spacer();
-        mainPanel.add(spacer4, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(15, -1), null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        mainPanel.add(spacer1, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 15), null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        mainPanel.add(spacer2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 15), null, null, 0, false));
+        final Spacer spacer3 = new Spacer();
+        mainPanel.add(spacer3, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(15, -1), null, null, 0, false));
+        final Spacer spacer4 = new Spacer();
+        mainPanel.add(spacer4, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(15, -1), null, null, 0, false));
     }
 
     /**

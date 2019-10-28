@@ -152,8 +152,10 @@ public class Simulation {
      */
     private Boolean areAllMotesAtDestination() {
         return this.environment.getMotes().stream().noneMatch(m ->
-            m.isEnabled() && !m.getPath().isEmpty() && m.getPath().get(m.getPath().size()-1) != null &&
-            !this.environment.toMapCoordinate(m.getPath().get(m.getPath().size()-1)).equals(m.getPos()));
+                m.isEnabled() &&
+                !m.getPath().getWayPoints().isEmpty() &&
+                m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1) != null &&
+                !this.environment.toMapCoordinate(m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1)).equals(m.getPos()));
     }
 
 
@@ -188,14 +190,14 @@ public class Simulation {
             motes.stream()
                 .filter(Mote::isEnabled)
                 .peek(Mote::consumePackets)
-                .filter(mote -> mote.getPath().size() > wayPointMap.get(mote))
+                .filter(mote -> mote.getPath().getWayPoints().size() > wayPointMap.get(mote))
                 .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                     TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
                 .filter(mote -> TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
                 .peek(mote -> timeMap.put(mote, this.environment.getClock().getTime()))
                 .forEach(mote -> {
-                    if (!this.environment.toMapCoordinate(mote.getPath().get(wayPointMap.get(mote))).equals(mote.getPos())) {
-                        this.environment.moveMote(mote, mote.getPath().get(wayPointMap.get(mote)));
+                    if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPos())) {
+                        this.environment.moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
                         List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
                         historyMap.add(mote.getPos());
                         locationHistoryMap.put(mote, historyMap);
@@ -264,11 +266,9 @@ public class Simulation {
             this.locationHistoryMap = locationHistoryMap;
         }
 
-        public Map<Mote, Pair<Integer, Integer>> getLocationMap(){
-            return this.locationHistoryMap.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> e.getValue().get(0)
-            ));
+        public Map<Mote, Pair<Integer, Integer>> getLocationMap() {
+            return this.locationHistoryMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,e -> e.getValue().get(0)));
         }
 
         public Map<Mote, List<Pair<Integer, Integer>>> getLocationHistoryMap(){

@@ -3,6 +3,7 @@ package IotDomain;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.MapHelper;
+import util.Path;
 
 import java.nio.ByteBuffer;
 import java.time.LocalTime;
@@ -16,11 +17,11 @@ public class UserMote extends Mote {
     private final LocalTime whenAskPath = LocalTime.of(0, 15);
     private boolean alreadyRequested = false;
 
-    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset) {
+    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
     }
 
-    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path, Double movementSpeed) {
+    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed);
     }
 

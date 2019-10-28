@@ -194,9 +194,9 @@ extends <a href="../IotDomain/NetworkEntity.html" title="class in IotDomain">Net
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../IotDomain/Mote.html#path">path</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../IotDomain/Mote.html#connection">connection</a></span></code></th>
 <td class="colLast">
-<div class="block">A LinkedList of GeoPositions representing the path the mote will follow.</div>
+<div class="block">A LinkedList of GeoPositions representing the connection the mote will follow.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -237,12 +237,12 @@ extends <a href="../IotDomain/NetworkEntity.html" title="class in IotDomain">Net
     java.lang.Integer&nbsp;SF,
     java.util.LinkedList&lt;<a href="../IotDomain/MoteSensor.html" title="enum in IotDomain">MoteSensor</a>&gt;&nbsp;moteSensors,
     java.lang.Integer&nbsp;energyLevel,
-    java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;path,
+    java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection,
     java.lang.Integer&nbsp;samplingRate,
     java.lang.Double&nbsp;movementSpeed)</code></th>
 <td class="colLast">
 <div class="block">A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
- spreading factor, list of MoteSensors, energy level, path, sampling rate and movement speed and  random start offset.</div>
+ spreading factor, list of MoteSensors, energy level, connection, sampling rate and movement speed and  random start offset.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -254,13 +254,13 @@ extends <a href="../IotDomain/NetworkEntity.html" title="class in IotDomain">Net
     java.lang.Integer&nbsp;SF,
     java.util.LinkedList&lt;<a href="../IotDomain/MoteSensor.html" title="enum in IotDomain">MoteSensor</a>&gt;&nbsp;moteSensors,
     java.lang.Integer&nbsp;energyLevel,
-    java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;path,
+    java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection,
     java.lang.Integer&nbsp;samplingRate,
     java.lang.Double&nbsp;movementSpeed,
     java.lang.Integer&nbsp;startMovementOffset)</code></th>
 <td class="colLast">
 <div class="block">A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
- spreading factor, list of MoteSensors, energy level, path, sampling rate, movement speed and start offset.</div>
+ spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.</div>
 </td>
 </tr>
 </table>
@@ -304,7 +304,7 @@ extends <a href="../IotDomain/NetworkEntity.html" title="class in IotDomain">Net
 <td class="colFirst"><code>java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../IotDomain/Mote.html#getPath--">getPath</a></span>&#8203;()</code></th>
 <td class="colLast">
-<div class="block">Returns the path of the mote.</div>
+<div class="block">Returns the connection of the mote.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -375,9 +375,9 @@ extends <a href="../IotDomain/NetworkEntity.html" title="class in IotDomain">Net
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../IotDomain/Mote.html#setPath-java.util.LinkedList-">setPath</a></span>&#8203;(java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;path)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../IotDomain/Mote.html#setPath-java.util.LinkedList-">setPath</a></span>&#8203;(java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection)</code></th>
 <td class="colLast">
-<div class="block">Sets the path of the mote to a given path.</div>
+<div class="block">Sets the connection of the mote to a given connection.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
@@ -441,15 +441,15 @@ private&nbsp;java.util.LinkedList&lt;<a href="../IotDomain/MoteSensor.html" titl
 <div class="block">A LinkedList MoteSensors representing all sensors on the mote.</div>
 </li>
 </ul>
-<a name="path">
+<a name="connection">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>path</h4>
+<h4>connection</h4>
 <pre>@Model
-private&nbsp;java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt; path</pre>
-<div class="block">A LinkedList of GeoPositions representing the path the mote will follow.</div>
+private&nbsp;java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt; connection</pre>
+<div class="block">A LinkedList of GeoPositions representing the connection the mote will follow.</div>
 </li>
 </ul>
 <a name="energyLevel">
@@ -530,12 +530,12 @@ public&nbsp;Mote&#8203;(java.lang.Long&nbsp;DevEUI,
             java.lang.Integer&nbsp;SF,
             java.util.LinkedList&lt;<a href="../IotDomain/MoteSensor.html" title="enum in IotDomain">MoteSensor</a>&gt;&nbsp;moteSensors,
             java.lang.Integer&nbsp;energyLevel,
-            java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;path,
+            java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection,
             java.lang.Integer&nbsp;samplingRate,
             java.lang.Double&nbsp;movementSpeed,
             java.lang.Integer&nbsp;startMovementOffset)</pre>
 <div class="block">A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
- spreading factor, list of MoteSensors, energy level, path, sampling rate, movement speed and start offset.</div>
+ spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>DevEUI</code> - The device's unique identifier</dd>
@@ -546,7 +546,7 @@ public&nbsp;Mote&#8203;(java.lang.Long&nbsp;DevEUI,
 <dd><code>transmissionPower</code> - The transmitting power of the node.</dd>
 <dd><code>moteSensors</code> - The mote sensors for this mote.</dd>
 <dd><code>energyLevel</code> - The energy level for this mote.</dd>
-<dd><code>path</code> - The path for this mote to follow.</dd>
+<dd><code>connection</code> - The connection for this mote to follow.</dd>
 <dd><code>samplingRate</code> - The sampling rate of this mote.</dd>
 <dd><code>movementSpeed</code> - The movement speed of this mote.</dd>
 <dd><code>startMovementOffset</code> - The start offset of this mote.</dd>
@@ -568,11 +568,11 @@ public&nbsp;Mote&#8203;(java.lang.Long&nbsp;DevEUI,
             java.lang.Integer&nbsp;SF,
             java.util.LinkedList&lt;<a href="../IotDomain/MoteSensor.html" title="enum in IotDomain">MoteSensor</a>&gt;&nbsp;moteSensors,
             java.lang.Integer&nbsp;energyLevel,
-            java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;path,
+            java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection,
             java.lang.Integer&nbsp;samplingRate,
             java.lang.Double&nbsp;movementSpeed)</pre>
 <div class="block">A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
- spreading factor, list of MoteSensors, energy level, path, sampling rate and movement speed and  random start offset.</div>
+ spreading factor, list of MoteSensors, energy level, connection, sampling rate and movement speed and  random start offset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>DevEUI</code> - The device's unique identifier</dd>
@@ -583,7 +583,7 @@ public&nbsp;Mote&#8203;(java.lang.Long&nbsp;DevEUI,
 <dd><code>transmissionPower</code> - The transmitting power of the node.</dd>
 <dd><code>moteSensors</code> - The mote sensors for this mote.</dd>
 <dd><code>energyLevel</code> - The energy level for this mote.</dd>
-<dd><code>path</code> - The path for this mote to follow.</dd>
+<dd><code>connection</code> - The connection for this mote to follow.</dd>
 <dd><code>samplingRate</code> - The sampling rate of this mote.</dd>
 <dd><code>movementSpeed</code> - The movement speed of this mote.</dd>
 </dl>
@@ -650,10 +650,10 @@ public&nbsp;java.util.LinkedList&lt;<a href="../IotDomain/MoteSensor.html" title
 <h4>getPath</h4>
 <pre>@Basic
 public&nbsp;java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;getPath&#8203;()</pre>
-<div class="block">Returns the path of the mote.</div>
+<div class="block">Returns the connection of the mote.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The path of the mote.</dd>
+<dd>The connection of the mote.</dd>
 </dl>
 </li>
 </ul>
@@ -664,11 +664,11 @@ public&nbsp;java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;
 <li class="blockList">
 <h4>setPath</h4>
 <pre>@Basic
-public&nbsp;void&nbsp;setPath&#8203;(java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;path)</pre>
-<div class="block">Sets the path of the mote to a given path.</div>
+public&nbsp;void&nbsp;setPath&#8203;(java.util.LinkedList&lt;org.jxmapviewer.viewer.GeoPosition&gt;&nbsp;connection)</pre>
+<div class="block">Sets the connection of the mote to a given connection.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - The path to set.</dd>
+<dd><code>connection</code> - The connection to set.</dd>
 </dl>
 </li>
 </ul>

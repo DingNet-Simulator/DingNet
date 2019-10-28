@@ -83,7 +83,7 @@ public class MapHelper {
     }
 
     /**
-     * Converts a GeoPostion to an coordinate on the map.
+     * Converts a GeoPosition to an coordinate on the map.
      * @param geoPosition the GeoPosition to convert.
      * @param mapOrigin the coordinates of the point [0,0] on the map.
      * @return The coordinate on the map of the GeoPosition.
@@ -153,7 +153,21 @@ public class MapHelper {
 
     }
 
-    public static  double distance(GeoPosition pos1, GeoPosition pos2) {
+    public GeoPosition toGeoPosition(Pair<Integer, Integer> coords) {
+        return new GeoPosition(this.toLatitude(coords.getRight()), this.toLongitude(coords.getLeft()));
+    }
+
+    public GeoPosition toGeoPosition(int x, int y) {
+        return toGeoPosition(new Pair<>(x, y));
+    }
+
+    /**
+     * Calculate the distance (in km) between two geo coordinates.
+     * @param pos1 position 1
+     * @param pos2 position 2
+     * @return The distance between the two positions in km.
+     */
+    public static double distance(GeoPosition pos1, GeoPosition pos2) {
         double lat1 = pos1.getLatitude(), lon1 = pos1.getLongitude();
         double lat2 = pos2.getLatitude(), lon2 = pos2.getLongitude();
         if ((lat1 == lat2) && (lon1 == lon2)) {

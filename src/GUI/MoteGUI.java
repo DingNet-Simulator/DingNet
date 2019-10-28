@@ -59,7 +59,7 @@ public class MoteGUI extends JFrame {
         saveButton.addActionListener(saveActionListener);
         if (mote instanceof UserMote) {
             isActiveCheckBox.setVisible(true);
-            isActiveCheckBox.setSelected(((UserMote)mote).isActive());
+            isActiveCheckBox.setSelected(((UserMote) mote).isActive());
         } else {
             isActiveCheckBox.setVisible(false);
         }
@@ -111,7 +111,7 @@ public class MoteGUI extends JFrame {
         TPThresholdText.setText(mote.getTransmissionPowerThreshold().toString());
         if (mote instanceof UserMote) {
             isActiveCheckBox.setVisible(true);
-            isActiveCheckBox.setSelected(((UserMote)mote).isActive());
+            isActiveCheckBox.setSelected(((UserMote) mote).isActive());
         } else {
             isActiveCheckBox.setVisible(false);
         }
@@ -131,7 +131,7 @@ public class MoteGUI extends JFrame {
             mote.setSensors(moteSensors);
             mote.setMovementSpeed((Double) movementSpinner.getValue());
             if (isActiveCheckBox.isVisible()) {
-                ((UserMote)mote).setActive(isActiveCheckBox.isSelected());
+                ((UserMote) mote).setActive(isActiveCheckBox.isSelected());
             }
             refresh();
             frame.dispose();

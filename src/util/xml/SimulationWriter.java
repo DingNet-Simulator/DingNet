@@ -74,9 +74,13 @@ public class SimulationWriter {
             Element sender = doc.createElement("sender");
 
             if (transmission.getSender().getClass() == Mote.class) {
-                sender.appendChild(doc.createTextNode("Mote " + simulation.getEnvironment().getMotes().indexOf((Mote) transmission.getSender())));
+                Mote mote = (Mote) transmission.getSender();
+                int moteId = simulation.getEnvironment().getMotes().indexOf(mote);
+                sender.appendChild(doc.createTextNode("Mote " + moteId));
             } else {
-                sender.appendChild(doc.createTextNode("Gateway " + simulation.getEnvironment().getGateways().indexOf((Gateway) transmission.getSender())));
+                Gateway gateway = (Gateway) transmission.getSender();
+                int gatewayId = simulation.getEnvironment().getGateways().indexOf(gateway);
+                sender.appendChild(doc.createTextNode("Gateway " + gatewayId));
             }
 
             Element transmissionPower = doc.createElement("transmissionPower");

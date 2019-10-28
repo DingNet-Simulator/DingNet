@@ -2,12 +2,14 @@ package IotDomain;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Connection;
+import util.GraphStructure;
 import util.MapHelper;
 import util.Pair;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * A class representing a map of the environment.
@@ -46,11 +48,13 @@ public class Environment implements Serializable {
     /**
      * The number of zones in the configuration.
      */
+
     private int numberOfZones;
     /**
-     * The WayPoints in the configurations.
+     * The graph used for routing.
      */
-    private LinkedHashSet<GeoPosition> wayPoints;
+    private GraphStructure graph;
+
     /**
      * The number of runs with this configuration.
      */
@@ -63,9 +67,11 @@ public class Environment implements Serializable {
 
     /**
      * A constructor generating a new environment with a given map with characteristics.
-     * @param mapOrigin coordinates of the point [0,0] on the map.
      * @param characteristics   The map with the characteristics of the current environment.
-     * @param wayPoints The WayPoints of the configuration.
+     * @param mapOrigin coordinates of the point [0,0] on the map.
+     * @param numberOfZones the number of zones defined in the region.
+     * @param wayPoints a map of waypoints (ID -> coordinates).
+     * @param connections a map of connections (ID -> connection).
      * @Post    Sets the max x-coordinate to the x size of the map if the map is valid.
      * @Post    Sets the max y-coordinate to the y size of the map if the map is valid.
      * @Post    Sets the characteristics to the given map if the map is valid.
@@ -73,22 +79,25 @@ public class Environment implements Serializable {
      * @Post    Sets the max y-coordinate to 0 if the map is not valid.
      * @Post    Sets the characteristics to an empty list if the map is not valid.
      */
-    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, LinkedHashSet<GeoPosition> wayPoints, int numberOfZones){
+    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, int numberOfZones,
+                       Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         if (areValidCharacteristics(characteristics)) {
             maxXpos = characteristics.length-1;
             maxYpos = characteristics[0].length-1;
             this.characteristics = characteristics;
         } else {
-            // FIXME this is buggy -> maxXpos of 0 would mean that index 0 is still valid, whilst it shouldn't be
             maxXpos = 0;
             maxYpos = 0;
             this.characteristics = new Characteristic[0][0];
         }
+
         this.numberOfZones = numberOfZones;
-        mapHelper = MapHelper.getInstance();
-        mapHelper.setMapOrigin(mapOrigin);
-        clock = new GlobalClock();
-        this.wayPoints = wayPoints;
+        this.clock = new GlobalClock();
+        this.mapHelper = MapHelper.getInstance();
+        this.mapHelper.setMapOrigin(mapOrigin);
+
+        this.graph = GraphStructure.initialize(wayPoints, connections);
+
         numberOfRuns = 1;
     }
 
@@ -130,21 +139,7 @@ public class Environment implements Serializable {
         this.numberOfZones = numberOfZones;
     }
 
-    /**
-     * Adds a waypoint to the configuration
-     * @param wayPoint The waypoint to add
-     */
-    public void addWayPoint(GeoPosition wayPoint){
-        this.wayPoints.add(wayPoint);
-    }
 
-    /**
-     * Gets the paths.
-     * @return The paths.
-     */
-    public LinkedHashSet<GeoPosition> getWayPoints() {
-        return wayPoints;
-    }
 
     /**
      * Determines if a x-coordinate is valid on the map
@@ -391,6 +386,19 @@ public class Environment implements Serializable {
     @Basic
     public int getNumberOfRuns(){
         return numberOfRuns;
+    }
+
+
+    /**
+     * Shortens the routes of motes which contain the given waypoint.
+     * @param wayPointId The ID of the waypoint.
+     */
+    public void removeWayPointFromMotes(long wayPointId) {
+        motes.forEach(o -> o.shortenPathFromWayPoint(wayPointId));
+    }
+
+    public void removeConnectionFromMotes(long connectionId) {
+        motes.forEach(o -> o.shortenPathFromConnection(connectionId));
     }
 }
 
