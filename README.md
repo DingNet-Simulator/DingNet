@@ -22,6 +22,15 @@ The simulator can also be started from the main method in the MainGUI class. -->
 
 ## TODO
 
+- [ ] Add graph structure of roads
+- [ ] Add transparent panel over grid on the map which shows the air quality in different regions
+- [ ] Cleanup simulation code
+- [ ] Implement basic path finding algorithm with A\*, keeping the air quality of regions in mind
+- [ ] Create configuration which can be used as a demo for 'Science day'
+- [ ] \(Not important) Allow creation of circular routes for motes
+
+<br />
+
 - [ ] Refactor GUI
 - [ ] Implement clock-based simulation, not event-based
 - [ ] Correct bug concerning event-based handeling of recieved signal
