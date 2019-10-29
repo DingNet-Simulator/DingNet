@@ -52,6 +52,6 @@ public class BasicFrameHeader implements FrameHeader {
 
     @Override
     public byte[] getFOpts() {
-        throw new UnsupportedOperationException();
+        return new byte[0];
     }
 }

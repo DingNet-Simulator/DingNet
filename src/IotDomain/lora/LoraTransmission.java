@@ -11,7 +11,9 @@ import util.Pair;
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * A class representing a packet in the LoraWan simulation.
@@ -69,6 +71,8 @@ public class LoraTransmission implements Serializable{
      * A Random necessary for the gaussian in the model.
      */
     private final Random random = new Random();
+
+    private final List<RegionalParameters> regionalParameters = EU868ParameterByDataRate.valuesAsList();
 
     /**
      * The departure time of the message
@@ -268,11 +272,21 @@ public class LoraTransmission implements Serializable{
      * @Effect  Tells the receiver to receiveTransmission this transmission.
      */
     public void depart(){
+        var par = regionalParameters.stream().filter(p -> p.getSpreadingFactor() == getSpreadingFactor() &&
+            p.getBandwidth() == getBandwidth()).collect(Collectors.toList());
+        if (par.isEmpty()) {
+            throw new IllegalArgumentException("No regional parameter found with spreading factor: "
+                + getSpreadingFactor() + " and bandwidth: " + getBandwidth());
+        }
+        var payloadSize = getContent().getPayload().length + getContent().getHeader().map(m -> m.getFOpts().length).orElse(0);
+        if (par.stream().noneMatch(p -> p.getMaximumPayloadSize() >= payloadSize)) {
+            throw new IllegalArgumentException("No regional parameter found with spreading factor: "
+                + getSpreadingFactor() + " and bandwidth: " + getBandwidth() + " and payload size: " + payloadSize);
+        }
         if(getReceiver() != null){
             moveTo(getReceiver().getXPos(),getReceiver().getYPos());
             getReceiver().receiveTransmission(this);
         }
-
     }
 
     /**
