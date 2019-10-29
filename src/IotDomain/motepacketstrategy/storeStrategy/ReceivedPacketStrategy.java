@@ -2,8 +2,7 @@ package IotDomain.motepacketstrategy.storeStrategy;
 
 import IotDomain.lora.LoraWanPacket;
 
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 public interface ReceivedPacketStrategy {
 
@@ -11,9 +10,5 @@ public interface ReceivedPacketStrategy {
 
     boolean hasPackets();
 
-    List<LoraWanPacket> getReceivedPacket();
-
-    default Stream<LoraWanPacket> getReceivedPacketAsStream() {
-        return getReceivedPacket().stream();
-    }
+    Optional<LoraWanPacket> getReceivedPacket();
 }

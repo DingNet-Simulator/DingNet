@@ -4,8 +4,6 @@ import IotDomain.lora.LoraWanPacket;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public class MaintainLastPacket implements ReceivedPacketStrategy {
@@ -37,7 +35,9 @@ public class MaintainLastPacket implements ReceivedPacketStrategy {
     }
 
     @Override
-    public List<LoraWanPacket> getReceivedPacket() {
-        return hasPackets() ? List.of(packet.get()) : Collections.emptyList();
+    public Optional<LoraWanPacket> getReceivedPacket() {
+        var tmp = packet;
+        packet = Optional.empty();
+        return tmp;
     }
 }

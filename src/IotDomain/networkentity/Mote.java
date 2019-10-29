@@ -6,8 +6,8 @@ import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
+import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
-import IotDomain.motepacketstrategy.storeStrategy.StoreAllMessage;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -79,7 +79,7 @@ public class Mote extends NetworkEntity {
      */
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
 
-    private final ReceivedPacketStrategy receivedPacketStrategy = new StoreAllMessage();
+    private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
 
     private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
 
@@ -245,10 +245,7 @@ public class Mote extends NetworkEntity {
      * consume all the packet arrived with the strategies previous defined
      */
     public void consumePackets() {
-        if (receivedPacketStrategy.hasPackets()) {
-            var packets = receivedPacketStrategy.getReceivedPacket();
-            consumePacketStrategies.forEach(s -> s.consume(this, packets));
-        }
+        receivedPacketStrategy.getReceivedPacket().ifPresent(packet -> consumePacketStrategies.forEach(s -> s.consume(this, packet)));
     }
 
     /**

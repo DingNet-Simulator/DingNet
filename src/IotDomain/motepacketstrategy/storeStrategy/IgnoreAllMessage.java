@@ -2,8 +2,7 @@ package IotDomain.motepacketstrategy.storeStrategy;
 
 import IotDomain.lora.LoraWanPacket;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 
 public class IgnoreAllMessage implements ReceivedPacketStrategy {
 
@@ -16,7 +15,7 @@ public class IgnoreAllMessage implements ReceivedPacketStrategy {
     }
 
     @Override
-    public List<LoraWanPacket> getReceivedPacket() {
-        return Collections.emptyList();
+    public Optional<LoraWanPacket> getReceivedPacket() {
+        return Optional.empty();
     }
 }
