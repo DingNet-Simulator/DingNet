@@ -68,7 +68,7 @@ public class PollutionMonitor extends Application {
             return;
         }
 
-        this.pollutionGrid.addMeasurement(position, new PollutionLevel(this.determinePollutionLevel(sensorData)));
+        this.pollutionGrid.addMeasurement(message.getDeviceEUI(), position, new PollutionLevel(this.determinePollutionLevel(sensorData)));
     }
 
     @Override
