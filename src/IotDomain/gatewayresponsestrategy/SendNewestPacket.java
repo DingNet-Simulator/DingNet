@@ -1,7 +1,7 @@
 package IotDomain.gatewayresponsestrategy;
 
 import IotDomain.Gateway;
-import IotDomain.LoraWanPacket;
+import IotDomain.lora.LoraWanPacket;
 import util.Pair;
 
 import java.util.HashMap;

@@ -1,5 +1,7 @@
 package IotDomain;
 
+import IotDomain.lora.LoraWanPacket;
+import IotDomain.lora.MacCommand;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;

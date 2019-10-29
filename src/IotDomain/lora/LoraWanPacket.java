@@ -1,4 +1,4 @@
-package IotDomain;
+package IotDomain.lora;
 
 import java.io.Serializable;
 import java.util.LinkedList;

@@ -1,8 +1,8 @@
 package SelfAdaptation.FeedbackLoop;
 
 import IotDomain.Gateway;
-import IotDomain.LoraTransmission;
 import IotDomain.Mote;
+import IotDomain.lora.LoraTransmission;
 import SelfAdaptation.Instrumentation.FeedbackLoopGatewayBuffer;
 import be.kuleuven.cs.som.annotate.Model;
 

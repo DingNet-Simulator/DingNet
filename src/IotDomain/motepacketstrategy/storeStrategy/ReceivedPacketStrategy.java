@@ -1,6 +1,6 @@
 package IotDomain.motepacketstrategy.storeStrategy;
 
-import IotDomain.LoraWanPacket;
+import IotDomain.lora.LoraWanPacket;
 
 import java.util.List;
 import java.util.stream.Stream;

@@ -1,5 +1,7 @@
 package IotDomain;
 
+import IotDomain.lora.LoraWanPacket;
+import IotDomain.lora.MacCommand;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.MapHelper;

@@ -3,6 +3,7 @@ package IotDomain;
 
 import IotDomain.gatewayresponsestrategy.NoResponse;
 import IotDomain.gatewayresponsestrategy.ResponseStrategy;
+import IotDomain.lora.LoraWanPacket;
 import IotDomain.mqtt.MqttClientBasicApi;
 import IotDomain.mqtt.MqttMessage;
 import IotDomain.mqtt.MqttMock;

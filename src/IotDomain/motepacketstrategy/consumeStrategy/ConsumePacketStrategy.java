@@ -1,7 +1,7 @@
 package IotDomain.motepacketstrategy.consumeStrategy;
 
-import IotDomain.LoraWanPacket;
 import IotDomain.Mote;
+import IotDomain.lora.LoraWanPacket;
 
 import java.util.List;
 

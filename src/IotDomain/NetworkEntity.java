@@ -1,5 +1,8 @@
 package IotDomain;
 
+import IotDomain.lora.LoraTransmission;
+import IotDomain.lora.LoraWanPacket;
+import IotDomain.lora.MacCommand;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
