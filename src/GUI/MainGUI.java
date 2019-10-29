@@ -2,6 +2,7 @@ package GUI;
 
 
 import GUI.MapViewer.*;
+import GUI.util.SpectrumPaintScale;
 import IotDomain.*;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
