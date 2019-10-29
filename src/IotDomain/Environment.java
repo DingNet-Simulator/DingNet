@@ -96,7 +96,12 @@ public class Environment implements Serializable {
         this.mapHelper = MapHelper.getInstance();
         this.mapHelper.setMapOrigin(mapOrigin);
 
-        this.graph = GraphStructure.initialize(wayPoints, connections);
+        if (GraphStructure.isInitialized()) {
+            // Reinitialize the graph structure if a configuration has already been loaded in previously
+            this.graph = GraphStructure.getInstance().reInitialize(wayPoints, connections);
+        } else {
+            this.graph = GraphStructure.initialize(wayPoints, connections);
+        }
 
         numberOfRuns = 1;
     }
