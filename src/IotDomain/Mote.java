@@ -1,5 +1,6 @@
 package IotDomain;
 
+import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
@@ -55,6 +56,8 @@ public class Mote extends NetworkEntity {
      */
     @Model
     private Integer startMovementOffset;
+
+    private short frameCounter = 0;
 
     //TODO add comments and constructor for these parameters
     //both in seconds
@@ -233,7 +236,8 @@ public class Mote extends NetworkEntity {
                 i++;
             }
         }
-        return new LoraWanPacket(getEUI(), getApplicationEUI(), payload, new LinkedList<>(macCommands.keySet()));
+        return new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
+            new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
     }
 
     /**
@@ -315,4 +319,8 @@ public class Mote extends NetworkEntity {
     public int getPeriodSendingPacket() {
         return periodSendingPacket;
     }
+
+    protected short incrementFrameCounter() {return frameCounter++;}
+
+    public short getFrameCounter() {return frameCounter;}
 }

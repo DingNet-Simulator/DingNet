@@ -1,5 +1,6 @@
 package IotDomain;
 
+import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -39,7 +40,8 @@ public class UserMote extends Mote {
             ByteBuffer.wrap(payload, 5, 4).putFloat((float)lon);
             ByteBuffer.wrap(payload, 9, 4).putFloat((float)destination.getLatitude());
             ByteBuffer.wrap(payload, 13, 4).putFloat((float)destination.getLongitude());
-            return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload), new LinkedList<>(macCommands.keySet()));
+            return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
+                new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
         } else {
             return super.composePacket(data, macCommands);
         }
