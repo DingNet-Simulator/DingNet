@@ -234,12 +234,7 @@ public class LoraTransmission implements Serializable{
      */
     @Immutable
     private static boolean isValidBandwidth(Integer bandwidth) {
-        if(bandwidth > 0){
-            return true;
-
-        }
-        else
-            return false;
+        return bandwidth > 0;
     }
 
     /**
@@ -256,11 +251,7 @@ public class LoraTransmission implements Serializable{
      * @return  True if the given factor is smaller than 13 and bigger than 6. False otherwise.
      */
     private boolean isValidSpreadingFactor(Integer spreadingFactor) {
-        if(spreadingFactor <= 12 && spreadingFactor >= 7){
-            return true;
-        }
-        else
-            return false;
+        return spreadingFactor <= 12 && spreadingFactor >= 7;
     }
 
     /**
@@ -339,44 +330,6 @@ public class LoraTransmission implements Serializable{
 
         }
         setTransmissionPower(getTransmissionPower() - random.nextGaussian() * characteristic.getShadowFading());
-
-        /*
-        xDist = Math.abs(xPos - getXPos());
-        yDist = Math.abs(yPos - getYPos());
-        xDir = Integer.signum(xPos - getXPos());
-        yDir = Integer.signum(yPos - getYPos());
-        characteristic = getEnvironment().getCharacteristic(xPos, yPos);
-        if(getTransmissionPower() > -300) {
-            if(xDist + yDist > 1){
-                if(xDist >  2*yDist || yDist >  2*xDist){
-                    setTransmissionPower(getTransmissionPower() - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1)));
-                    if(xDist >  2*yDist) {
-                        moveTo(xPos - xDir, yPos);
-                    }
-                    else{
-                        moveTo(xPos, yPos - yDir);
-                    }
-                }
-                else {
-                    setTransmissionPower(getTransmissionPower() - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - Math.sqrt(2))));
-                    moveTo(xPos - xDir, yPos - yDir);
-                }
-            }
-
-            else if (xDist + yDist == 1){
-                if(xDist >  yDist){
-                    moveTo(xPos - xDir, yPos);
-                }
-                else {
-                    moveTo(xPos, yPos - yDir);
-                }
-                }
-            else {
-                setTransmissionPower(getTransmissionPower() - random.nextGaussian() * characteristic.getShadowFading());
-            }
-
-        }
-        */
     }
 
 
