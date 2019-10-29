@@ -62,6 +62,10 @@ public class Mote extends NetworkEntity {
 
     private boolean canReceive = false;
 
+    private String keepAliveTriggerId;
+
+    private LoraWanPacket lastPacketSent;
+
     //TODO add comments and constructor for these parameters
     //both in seconds
     private static final int DEFAULT_START_SENDING_OFFSET = 1;
@@ -85,6 +89,7 @@ public class Mote extends NetworkEntity {
 
     private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
 
+    // region constructor
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
      * spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.
@@ -116,6 +121,7 @@ public class Mote extends NetworkEntity {
         this.startMovementOffset = startMovementOffset;
         this.periodSendingPacket = periodSendingPacket;
         this.startSendingOffset = startSendingOffset;
+        resetKeepAliveTrigger();
     }
 
     /**
@@ -138,6 +144,8 @@ public class Mote extends NetworkEntity {
         this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
+
+    //endregion
 
     /**
      * A method describing what the mote should do after successfully receiving a packet.
@@ -212,6 +220,21 @@ public class Mote extends NetworkEntity {
         return applicationEUI;
     }
 
+    private void resetKeepAliveTrigger() {
+        if (keepAliveTriggerId != null) {
+            getEnvironment().getClock().removeTrigger(keepAliveTriggerId);
+        }
+        keepAliveTriggerId = getEnvironment().getClock().addTrigger(
+            getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5), //TODO configure parameter
+            () -> {
+                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{2},
+                    new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
+                loraSend(packet);
+                return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
+            }
+        );
+    }
+
     /**
      * A function for sending a message with MAC commands to the gateways.
      * @param data The data to send in the message
@@ -219,9 +242,12 @@ public class Mote extends NetworkEntity {
      */
     public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands){
         var packet = composePacket(data, macCommands);
-        if (packet.getPayload().length > 1) {
+        if (packet.getPayload().length > 1 &&
+            (lastPacketSent == null || !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload()))) {
             loraSend(packet);
             canReceive = true;
+            lastPacketSent = packet;
+            resetKeepAliveTrigger();
         }
     }
 
@@ -236,8 +262,8 @@ public class Mote extends NetworkEntity {
                     i++;
                 }
             }
-            for (int j = 0; j < data.length; j++) {
-                payload[i] = data[j];
+            for (Byte datum : data) {
+                payload[i] = datum;
                 i++;
             }
         }
