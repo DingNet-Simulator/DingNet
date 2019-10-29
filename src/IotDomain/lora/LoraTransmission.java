@@ -2,7 +2,7 @@ package IotDomain.lora;
 
 import IotDomain.Characteristic;
 import IotDomain.Environment;
-import IotDomain.NetworkEntity;
+import IotDomain.networkentity.NetworkEntity;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;

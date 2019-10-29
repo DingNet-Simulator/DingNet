@@ -1,4 +1,4 @@
-package IotDomain;
+package IotDomain.networkentity;
 
 import SensorDataGenerators.*;
 import SensorDataGenerators.IAQSensor.IAQDataGeneratorSingleton;

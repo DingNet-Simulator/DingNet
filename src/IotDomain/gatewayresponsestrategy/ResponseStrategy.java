@@ -1,7 +1,7 @@
 package IotDomain.gatewayresponsestrategy;
 
-import IotDomain.Gateway;
 import IotDomain.lora.LoraWanPacket;
+import IotDomain.networkentity.Gateway;
 
 import java.util.Optional;
 

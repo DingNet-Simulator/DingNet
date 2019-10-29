@@ -1,6 +1,7 @@
-package IotDomain;
+package IotDomain.networkentity;
 
 
+import IotDomain.Environment;
 import IotDomain.gatewayresponsestrategy.NoResponse;
 import IotDomain.gatewayresponsestrategy.ResponseStrategy;
 import IotDomain.lora.LoraWanPacket;

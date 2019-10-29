@@ -1,5 +1,6 @@
-package IotDomain;
+package IotDomain.networkentity;
 
+import IotDomain.Environment;
 import IotDomain.lora.LoraTransmission;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;

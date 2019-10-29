@@ -1,6 +1,6 @@
-package IotDomain;
+package IotDomain.networkentity;
 
-import org.jxmapviewer.viewer.GeoPosition;
+import IotDomain.Environment;
 import util.Path;
 
 import java.util.LinkedList;

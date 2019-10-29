@@ -1,6 +1,11 @@
 package util.xml;
 
-import IotDomain.*;
+import IotDomain.Environment;
+import IotDomain.Simulation;
+import IotDomain.networkentity.Gateway;
+import IotDomain.networkentity.Mote;
+import IotDomain.networkentity.MoteSensor;
+import IotDomain.networkentity.UserMote;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

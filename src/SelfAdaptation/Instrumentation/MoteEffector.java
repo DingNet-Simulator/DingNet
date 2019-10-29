@@ -1,6 +1,6 @@
 package SelfAdaptation.Instrumentation;
 
-import IotDomain.Mote;
+import IotDomain.networkentity.Mote;
 
 /**
  * A class to allow self-adaptation software to edit mote settings.

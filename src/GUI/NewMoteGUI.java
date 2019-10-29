@@ -2,8 +2,8 @@ package GUI;
 
 
 import IotDomain.Environment;
-import IotDomain.MoteFactory;
-import IotDomain.MoteSensor;
+import IotDomain.networkentity.MoteFactory;
+import IotDomain.networkentity.MoteSensor;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;

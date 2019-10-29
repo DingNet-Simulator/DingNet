@@ -1,7 +1,7 @@
 package IotDomain.motepacketstrategy.consumeStrategy;
 
-import IotDomain.Mote;
 import IotDomain.lora.LoraWanPacket;
+import IotDomain.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
