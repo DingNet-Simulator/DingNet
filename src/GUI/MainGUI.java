@@ -420,11 +420,11 @@ public class MainGUI extends JFrame {
             Image selectedImage;
             Image editImage;
             try {
-                unselectedImage = ImageIO.read(getClass().getResource("/GUI/circle_unselected.png"));
+                unselectedImage = ImageIO.read(getClass().getResource("/images/Circle_unselected.png"));
                 unselectedImage = unselectedImage.getScaledInstance(23, 23, 0);
-                selectedImage = ImageIO.read(getClass().getResource("/GUI/circle_selected.png"));
+                selectedImage = ImageIO.read(getClass().getResource("/images/Circle_selected.png"));
                 selectedImage = selectedImage.getScaledInstance(23, 23, 0);
-                editImage = ImageIO.read(getClass().getResource("/GUI/edit_icon.png"));
+                editImage = ImageIO.read(getClass().getResource("/images/Edit_icon.png"));
                 editImage = editImage.getScaledInstance(23, 23, 0);
             } catch (IOException e) {
                 e.printStackTrace();

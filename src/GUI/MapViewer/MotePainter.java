@@ -2,9 +2,7 @@ package GUI.MapViewer;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
-import org.jxmapviewer.viewer.DefaultWaypointRenderer;
 import org.jxmapviewer.viewer.Waypoint;
-import org.jxmapviewer.viewer.WaypointRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -31,7 +29,7 @@ public class MotePainter<W extends Waypoint> extends AbstractPainter<JXMapViewer
         setCacheable(false);
 
         try {
-            img = ImageIO.read(this.getClass().getResource("/GUI/MapViewer/Mote.png"));
+            img = ImageIO.read(this.getClass().getResource("/images/Mote.png"));
             int w = img.getWidth();
             int h = img.getHeight();
             BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);

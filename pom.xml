@@ -57,23 +57,12 @@
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
 			<resource>
-				<directory>src/GUI/</directory>
+				<directory>res/GUI/</directory>
                 <includes>
                     <include>*.png</include>
-                    <include>*.jpeg</include>
-                    <include>*.jpg</include>
                 </includes>
-                <targetPath>GUI</targetPath>
+                <targetPath>images</targetPath>
 			</resource>
-            <resource>
-                <directory>src/GUI/MapViewer/</directory>
-                <includes>
-                    <include>*.png</include>
-                    <include>*.jpeg</include>
-                    <include>*.jpg</include>
-                </includes>
-                <targetPath>GUI/MapViewer</targetPath>
-            </resource>
             <resource>
                 <directory>res/sensorsConfigurations/</directory>
                 <includes>
@@ -145,22 +134,6 @@
                             <resources>
                                 <resource>
                                     <directory>${basedir}/res/inputProfiles</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-configurations</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/configurations/</outputDirectory>
-                            <encoding>UTF-8</encoding>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/res/configurations/</directory>
                                 </resource>
                             </resources>
                         </configuration>

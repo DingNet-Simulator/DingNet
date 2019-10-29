@@ -2,9 +2,7 @@ package GUI.MapViewer;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
-import org.jxmapviewer.viewer.DefaultWaypointRenderer;
 import org.jxmapviewer.viewer.Waypoint;
-import org.jxmapviewer.viewer.WaypointRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -32,7 +30,7 @@ public class GatewayPainter<W extends Waypoint> extends AbstractPainter<JXMapVie
         setCacheable(false);
 
         try {
-            img = ImageIO.read(this.getClass().getResource("/GUI/MapViewer/Gateway.png"));
+            img = ImageIO.read(this.getClass().getResource("/images/Gateway.png"));
             int w = img.getWidth();
             int h = img.getHeight();
             BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
