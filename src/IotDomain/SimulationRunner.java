@@ -113,6 +113,10 @@ public class SimulationRunner {
         simulation.setApproach(selectedAlgorithm.get());
     }
 
+    public void updateQoS(QualityOfService QoS) {
+        this.QoS.updateAdaptationGoals(QoS);
+    }
+
 
 
 

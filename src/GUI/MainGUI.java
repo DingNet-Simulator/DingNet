@@ -2,6 +2,7 @@ package GUI;
 
 
 import GUI.MapViewer.*;
+import GUI.util.GUIUtil;
 import GUI.util.SpectrumPaintScale;
 import IotDomain.*;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
@@ -63,7 +64,7 @@ public class MainGUI extends JFrame {
     private JToolBar toolBarEnvironment;
     private JToolBar toolBarAdaptation;
     private JTabbedPane tabbedPaneGraphs;
-    private JButton openButton;
+    private JButton openConfigurationButton;
     private JButton configureButton;
     private JButton helpButton;
     private JButton aboutButton;
@@ -75,7 +76,7 @@ public class MainGUI extends JFrame {
     private JPanel receivedPowerGraph;
     private JPanel powerSettingGraph;
     private JPanel spreadingFactorGraph;
-    private JButton environmentSaveButton;
+    private JButton saveConfigurationButton;
     private JPanel usedEnergyGraph;
     private JPanel transmissionsPanel;
     private JButton moteApplicationButton;
@@ -121,93 +122,34 @@ public class MainGUI extends JFrame {
 
 
     public MainGUI() {
-
         simulationRunner = SimulationRunner.getInstance();
 
         updateInputProfiles();
         updateAdaptationGoals();
 
-
         resultsButton.setEnabled(false);
-
         editColBoundButton.setEnabled(false);
         editEnConButton.setEnabled(false);
         editRelComButton.setEnabled(false);
         configureButton.setEnabled(false);
-        environmentSaveButton.setEnabled(false);
+        saveConfigurationButton.setEnabled(false);
 
 
-        ConfigureActionListener configureActionListener = new ConfigureActionListener(this);
-        configureButton.addActionListener(configureActionListener);
+        // ===========================================
+        // Action listeners for the buttons in the GUI
+        // ===========================================
 
-
-        openButton.addActionListener((ActionEvent e) -> {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Load a configuration");
-            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
-
-            int returnVal = fc.showOpenDialog(mainPanel);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-                JFrame frame = new JFrame("Loading configuration");
-                LoadingGUI loadingGUI = new LoadingGUI();
-                frame.setContentPane(loadingGUI.getMainPanel());
-                frame.setMinimumSize(new Dimension(300, 300));
-                frame.setVisible(true);
-
-                simulationRunner.loadConfigurationFromFile(fc.getSelectedFile());
-
-                frame.dispose();
-
-
-                updateEntries(simulationRunner.getEnvironment());
-                loadMap(simulationRunner.getEnvironment(), mapViewer, false);
-
-                MouseInputListener mia = new PanMouseInputListener(mapViewer);
-                mapViewer.addMouseListener(mia);
-                mapViewer.addMouseMotionListener(mia);
-                mapViewer.addMouseListener(new CenterMapListener(mapViewer));
-                mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
-
-                configureButton.setEnabled(true);
-                environmentSaveButton.setEnabled(true);
-            }
-        });
-
-        environmentSaveButton.addActionListener((ActionEvent e) -> {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Save a configuration");
-            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
-
-            int returnVal = fc.showSaveDialog(mainPanel);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                file = fc.getSelectedFile();
-                String name = file.getName();
-
-                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
-                    file = new File(file.getPath() + ".xml");
-                } else {
-                    file = new File(file.getPath());
-                }
-                simulationRunner.saveConfigurationToFile(file);
-            }
-        });
-
-
+        configureButton.addActionListener(new ConfigureActionListener(this));
         moteCharacteristicsButton.addActionListener(new MoteSelectActionListener(this));
         moteApplicationButton.addActionListener(new MoteApplicationSelectActionListener(this));
+        editRelComButton.addActionListener(new ComRelActionListener(this));
+        editColBoundButton.addActionListener(new ColBoundActionListener(this));
+        editEnConButton.addActionListener(new EnConActionListener(this));
+        openConfigurationButton.addActionListener(new OpenConfigurationListener());
+        saveConfigurationButton.addActionListener(new SaveConfigurationListener());
+        simulationSaveButton.addActionListener(new SaveSimulationResultListener());
 
-        regionButton.addActionListener(e -> setApplicationGraphs(0, 0, 0, 0, simulationRunner.getEnvironment()));
+        regionButton.addActionListener(e -> this.setApplicationGraphs(simulationRunner.getEnvironment()));
 
         singleRunButton.addActionListener((ActionEvent e) -> {
             var result = simulationRunner.singleRun();
@@ -221,84 +163,24 @@ public class MainGUI extends JFrame {
             simulationRunner.setApproach(chosenOption);
         });
 
-
         clearButton.addActionListener((ActionEvent e) -> {
             moteCharacteristicsLabel.setText("");
-            // update received power graph
-            receivedPowerGraph.removeAll();
-            receivedPowerGraph.repaint();
-            receivedPowerGraph.revalidate();
-            // update power setting graph
-            powerSettingGraph.removeAll();
-            powerSettingGraph.repaint();
-            powerSettingGraph.revalidate();
-            // update spreading factor graph
-            spreadingFactorGraph.removeAll();
-            spreadingFactorGraph.repaint();
-            spreadingFactorGraph.revalidate();
-            // update used energy graph
-            usedEnergyGraph.removeAll();
-            usedEnergyGraph.repaint();
-            usedEnergyGraph.revalidate();
-            // update distance to gateway graph
-            distanceToGatewayGraph.removeAll();
-            distanceToGatewayGraph.repaint();
-            distanceToGatewayGraph.revalidate();
-
             moteApplicationLabel.setText("");
-
-            ozonePanel.removeAll();
-            ozonePanel.repaint();
-            ozonePanel.revalidate();
-
-            sootPanel.removeAll();
-            sootPanel.repaint();
-            sootPanel.revalidate();
-
-            carbonDioxideField.removeAll();
-            carbonDioxideField.repaint();
-            carbonDioxideField.revalidate();
-
-            particulateMatterPanel.removeAll();
-            particulateMatterPanel.repaint();
-            particulateMatterPanel.revalidate();
-
             resultsButton.setEnabled(false);
-        });
 
+            List.of(receivedPowerGraph, powerSettingGraph, spreadingFactorGraph, usedEnergyGraph, distanceToGatewayGraph,
+                ozonePanel, sootPanel, carbonDioxideField, particulateMatterPanel)
+                .forEach((JPanel panel) -> {
+                    panel.removeAll();
+                    panel.repaint();
+                    panel.revalidate();
+                });
+        });
 
         totalRunButton.addActionListener(e -> simulationRunner.totalRun(p -> {
             this.setProgress(p);
             return null;
         }));
-        simulationSaveButton.addActionListener((ActionEvent e) -> {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Save output");
-            fc.setFileFilter(new FileNameExtensionFilter("xml output", "xml"));
-
-            // TODO probably adjust output path here to different directory
-            try {
-                File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                file = new File(file.getParent() + "/user/output");
-                fc.setCurrentDirectory(file);
-            } catch (URISyntaxException e1) {
-                System.out.println("URi");
-            }
-
-            int returnVal = fc.showSaveDialog(mainPanel);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                String name = file.getName();
-
-                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
-                    file = new File(file.getPath() + ".xml");
-                } else {
-                    file = new File(file.getPath());
-                }
-                simulationRunner.saveSimulationToFile(file);
-            }
-        });
-
 
         helpButton.addActionListener((ActionEvent e) -> {
             HelpGUI helpgui = new HelpGUI();
@@ -312,18 +194,12 @@ public class MainGUI extends JFrame {
             aboutSimDialog.setVisible(true);
         });
 
-
-        editRelComButton.addActionListener(new ComRelActionListener(this));
-        editColBoundButton.addActionListener(new ColBoundActionListener(this));
-        editEnConButton.addActionListener(new EnConActionListener(this));
-
         resultsButton.addActionListener((ActionEvent e) -> {
             MoteCharactesticsDialog moteCharactesticsDialog =
                 new MoteCharactesticsDialog(usedEnergy, packetsSent, packetsLost);
             moteCharactesticsDialog.pack();
             moteCharactesticsDialog.setVisible(true);
         });
-
     }
 
 
@@ -476,12 +352,9 @@ public class MainGUI extends JFrame {
             gateWays.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPos()), environment.toLongitude(gateway.getXPos()))), i);
             i++;
         }
-        i = 1;
-        Map<Waypoint, Integer> motes = new HashMap<>();
-        for (Mote mote : environment.getMotes()) {
-            motes.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(mote.getYPos()), environment.toLongitude(mote.getXPos()))), i);
-            i++;
-        }
+
+        Map<Waypoint, Integer> motes = GUIUtil.getMoteMap(environment);
+
         NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
         gatewayNumberPainter.setWaypoints(gateWays);
 
@@ -520,7 +393,6 @@ public class MainGUI extends JFrame {
                 MapHelper.toDgreeMinuteSecondText(latitude) + ", " +
                 MapHelper.getDirectionSign(longitude, "long") +
                 MapHelper.toDgreeMinuteSecondText(longitude));
-
     }
 
 
@@ -539,7 +411,7 @@ public class MainGUI extends JFrame {
         public void mouseClicked(MouseEvent e) {
             JTextArea jTextArea = (JTextArea) e.getSource();
             String text = jTextArea.getText();
-            Integer index = Integer.parseInt(text.substring(8, text.indexOf(":")));
+            int index = Integer.parseInt(text.substring(8, text.indexOf(":")));
             if (e.getClickCount() == 2) {
                 JFrame frame = new JFrame("Gateway settings");
                 GatewayGUI gatewayGUI = new GatewayGUI(simulationRunner.getEnvironment().getGateways().get(index - 1), frame);
@@ -549,7 +421,6 @@ public class MainGUI extends JFrame {
                 frame.setVisible(true);
             }
         }
-
     };
 
     private MouseAdapter moteMouse = new MouseAdapter() {
@@ -603,14 +474,14 @@ public class MainGUI extends JFrame {
         toolBarEnvironment.add(label1);
         final JToolBar.Separator toolBar$Separator1 = new JToolBar.Separator();
         toolBarEnvironment.add(toolBar$Separator1);
-        openButton = new JButton();
-        openButton.setText("Open");
-        toolBarEnvironment.add(openButton);
+        openConfigurationButton = new JButton();
+        openConfigurationButton.setText("Open");
+        toolBarEnvironment.add(openConfigurationButton);
         final JToolBar.Separator toolBar$Separator2 = new JToolBar.Separator();
         toolBarEnvironment.add(toolBar$Separator2);
-        environmentSaveButton = new JButton();
-        environmentSaveButton.setText("Save");
-        toolBarEnvironment.add(environmentSaveButton);
+        saveConfigurationButton = new JButton();
+        saveConfigurationButton.setText("Save");
+        toolBarEnvironment.add(saveConfigurationButton);
         final JToolBar.Separator toolBar$Separator3 = new JToolBar.Separator();
         toolBarEnvironment.add(toolBar$Separator3);
         configureButton = new JButton();
@@ -964,7 +835,7 @@ public class MainGUI extends JFrame {
     class MoteSelectActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public MoteSelectActionListener(MainGUI mainGui) {
+        MoteSelectActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -982,7 +853,7 @@ public class MainGUI extends JFrame {
     class ComRelActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public ComRelActionListener(MainGUI mainGui) {
+        ComRelActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1000,7 +871,7 @@ public class MainGUI extends JFrame {
     class EnConActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public EnConActionListener(MainGUI mainGui) {
+        EnConActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1018,7 +889,7 @@ public class MainGUI extends JFrame {
     class ColBoundActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public ColBoundActionListener(MainGUI mainGui) {
+        ColBoundActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1036,7 +907,7 @@ public class MainGUI extends JFrame {
     class MoteApplicationSelectActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public MoteApplicationSelectActionListener(MainGUI mainGui) {
+        MoteApplicationSelectActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1049,7 +920,6 @@ public class MainGUI extends JFrame {
             frame.setPreferredSize(new Dimension(600, 400));
             frame.setMinimumSize(new Dimension(600, 400));
             frame.setVisible(true);
-
         }
     }
 
@@ -1057,7 +927,7 @@ public class MainGUI extends JFrame {
 
         private InputProfile inputProfile;
 
-        public InputProfileEditMouse(InputProfile inputProfile) {
+        InputProfileEditMouse(InputProfile inputProfile) {
             this.inputProfile = inputProfile;
         }
 
@@ -1072,17 +942,16 @@ public class MainGUI extends JFrame {
                 frame.setMinimumSize(new Dimension(750, 400));
                 frame.setVisible(true);
             } else {
-                JOptionPane.showMessageDialog(null, "Load a configuration before editing an input profile", "InfoBox: " + "Edit InputProfile", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Load a configuration before editing an input profile", "InfoBox: Edit InputProfile", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
 
 
     private class InputProfileSelectMouse extends MouseAdapter {
-
         private InputProfile inputProfile;
 
-        public InputProfileSelectMouse(InputProfile inputProfile) {
+        InputProfileSelectMouse(InputProfile inputProfile) {
             this.inputProfile = inputProfile;
         }
 
@@ -1091,29 +960,14 @@ public class MainGUI extends JFrame {
             if (simulationRunner.getEnvironment() != null) {
                 Simulation simulation = simulationRunner.getSimulation();
                 if (inputProfile != simulation.getInputProfile()) {
-                    QualityOfService QoS = simulationRunner.getQoS();
+                    // Adjust the used inputprofile and QoS in the simulation
                     simulation.setInputProfile(inputProfile);
-                    if (inputProfile.getQualityOfServiceProfile().getNames().contains("reliableCommunication") &&
-                            inputProfile.getQualityOfServiceProfile().getAdaptationGoal("reliableCommunication").getClass() == IntervalAdaptationGoal.class) {
-                        QoS.putAdaptationGoal("reliableCommunication", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("reliableCommunication"));
-                        editRelComButton.setEnabled(true);
-                    } else {
-                        editRelComButton.setEnabled(false);
-                    }
-                    if (inputProfile.getQualityOfServiceProfile().getNames().contains("energyConsumption") &&
-                            inputProfile.getQualityOfServiceProfile().getAdaptationGoal("energyConsumption").getClass() == ThresholdAdaptationGoal.class) {
-                        QoS.putAdaptationGoal("energyConsumption", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("energyConsumption"));
-                        editEnConButton.setEnabled(true);
-                    } else {
-                        editEnConButton.setEnabled(false);
-                    }
-                    if (inputProfile.getQualityOfServiceProfile().getNames().contains("collisionBound") &&
-                            inputProfile.getQualityOfServiceProfile().getAdaptationGoal("collisionBound").getClass() == ThresholdAdaptationGoal.class) {
-                        QoS.putAdaptationGoal("collisionBound", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("collisionBound"));
-                        editColBoundButton.setEnabled(true);
-                    } else {
-                        editColBoundButton.setEnabled(false);
-                    }
+                    simulationRunner.updateQoS(inputProfile.getQualityOfServiceProfile());
+
+                    Set<String> qualityNames = inputProfile.getQualityOfServiceProfile().getNames();
+                    editRelComButton.setEnabled(qualityNames.contains("reliableCommunication"));
+                    editEnConButton.setEnabled(qualityNames.contains("energyConsumption"));
+                    editColBoundButton.setEnabled(qualityNames.contains("collisionBound"));
                 } else {
                     simulation.setInputProfile(null);
                     editRelComButton.setEnabled(false);
@@ -1122,23 +976,22 @@ public class MainGUI extends JFrame {
                 }
                 updateInputProfiles();
                 updateAdaptationGoals();
-
             } else {
                 JOptionPane.showMessageDialog(null, "Load a configuration before selecting an input profile",
-                        "InfoBox: " + "Select InputProfile", JOptionPane.INFORMATION_MESSAGE);
+                    "InfoBox: Select InputProfile", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
 
     /**
      * Sets the graphs of the corresponding characteristics of a given mote of a given run.
-     *
      * @param moteIndex The index of the mote.
      * @param run       The number of the run.
      */
     void setCharacteristics(int moteIndex, int run) {
-
         moteCharacteristicsLabel.setText("Mote " + (moteIndex + 1) + " | Run " + (run + 1));
+        resultsButton.setEnabled(true);
+
         // update received power graph
         receivedPowerGraph.removeAll();
         Pair<ChartPanel, Pair<Integer, Integer>> powerData = generateReceivedPowerGraphForMotes(simulationRunner.getEnvironment().getMotes().get(moteIndex), run);
@@ -1167,11 +1020,9 @@ public class MainGUI extends JFrame {
         distanceToGatewayGraph.repaint();
         distanceToGatewayGraph.revalidate();
 
-        resultsButton.setEnabled(true);
         usedEnergy = energyData.getRight();
         packetsSent = powerData.getRight().getLeft();
         packetsLost = powerData.getRight().getRight();
-
     }
 
     void setApplicationGraphs(int index) {
@@ -1196,6 +1047,10 @@ public class MainGUI extends JFrame {
         ozonePanel.add(generateOzoneGraph(simulationRunner.getEnvironment().getMotes().get(index)));
         ozonePanel.repaint();
         ozonePanel.revalidate();
+    }
+
+    private void setApplicationGraphs(Environment environment) {
+        this.setApplicationGraphs(0, 0, 0, 0, environment);
     }
 
     private void setApplicationGraphs(int xBase, int yBase, int xSize, int ySize, Environment environment) {
@@ -1284,15 +1139,15 @@ public class MainGUI extends JFrame {
         for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
             if (mote.getSensors().contains(moteSensor)) {
                 for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                    Integer xPos = transmission.getXPos();
-                    Integer yPos = transmission.getYPos();
+                    int xPos = transmission.getXPos();
+                    int yPos = transmission.getYPos();
                     for (Pair<Integer, Integer> key : seriesList.keySet()) {
                         if (Math.sqrt(Math.pow(key.getLeft() - xPos, 2) + Math.pow(key.getRight() - yPos, 2)) < 300) {
                             xPos = key.getLeft();
                             yPos = key.getRight();
                         }
                     }
-                    if (seriesList.keySet().contains(new Pair<>(xPos, yPos))) {
+                    if (seriesList.containsKey(new Pair<>(xPos, yPos))) {
                         seriesList.get(new Pair<>(xPos, yPos)).add(moteSensor.getValue(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
@@ -1303,13 +1158,11 @@ public class MainGUI extends JFrame {
             }
         }
         for (Pair<Integer, Integer> key : seriesList.keySet()) {
-            Double average = 0.0;
-            Integer amount = 0;
-            for (Double value : seriesList.get(key)) {
-                average = average + value;
-                amount++;
-            }
-            average = average / amount;
+            double average = seriesList.get(key).stream()
+                .mapToDouble(o -> o)
+                .average()
+                .orElse(0.0);
+
             seriesList.get(key).clear();
             seriesList.get(key).add(average);
             dataSet.add(new Pair<>(new GeoPosition(environment.toLatitude(key.getRight()), environment.toLongitude(key.getLeft())), average));
@@ -1406,10 +1259,101 @@ public class MainGUI extends JFrame {
             frame.setVisible(true);
 
         }
-
     }
 
-    public void setProgress(Pair<Integer, Integer> progress) {
+    private class OpenConfigurationListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Load a configuration");
+            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
+
+            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String basePath = file.getParentFile().getParent();
+            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+
+            int returnVal = fc.showOpenDialog(mainPanel);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                JFrame frame = new JFrame("Loading configuration");
+                LoadingGUI loadingGUI = new LoadingGUI();
+                frame.setContentPane(loadingGUI.getMainPanel());
+                frame.setMinimumSize(new Dimension(300, 300));
+                frame.setVisible(true);
+
+                simulationRunner.loadConfigurationFromFile(fc.getSelectedFile());
+
+                frame.dispose();
+
+                updateEntries(simulationRunner.getEnvironment());
+                loadMap(simulationRunner.getEnvironment(), mapViewer, false);
+
+                MouseInputListener mia = new PanMouseInputListener(mapViewer);
+                mapViewer.addMouseListener(mia);
+                mapViewer.addMouseMotionListener(mia);
+                mapViewer.addMouseListener(new CenterMapListener(mapViewer));
+                mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+
+                configureButton.setEnabled(true);
+                saveConfigurationButton.setEnabled(true);
+            }
+        }
+    }
+
+    private class SaveConfigurationListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Save a configuration");
+            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
+
+            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String basePath = file.getParentFile().getParent();
+            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+
+            int returnVal = fc.showSaveDialog(mainPanel);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                file = fc.getSelectedFile();
+                String name = file.getName();
+
+                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
+                    file = new File(file.getPath() + ".xml");
+                } else {
+                    file = new File(file.getPath());
+                }
+                simulationRunner.saveConfigurationToFile(file);
+            }
+        }
+    }
+
+    private class SaveSimulationResultListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Save output");
+            fc.setFileFilter(new FileNameExtensionFilter("xml output", "xml"));
+
+            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            file = new File(file.getParent());
+            fc.setCurrentDirectory(file);
+
+            int returnVal = fc.showSaveDialog(mainPanel);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                file = fc.getSelectedFile();
+                String name = file.getName();
+
+                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
+                    file = new File(file.getPath() + ".xml");
+                } else {
+                    file = new File(file.getPath());
+                }
+                simulationRunner.saveSimulationToFile(file);
+            }
+        }
+    }
+
+    private void setProgress(Pair<Integer, Integer> progress) {
         totalRunProgressBar.setMinimum(0);
         totalRunProgressBar.setMaximum(progress.getRight());
         totalRunProgressBar.setValue(progress.getLeft());
@@ -1482,7 +1426,6 @@ public class MainGUI extends JFrame {
 
     /**
      * Generates a spreading factor graph for a specific mote for a specific run.
-     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a spreading factor graph.
@@ -1490,10 +1433,11 @@ public class MainGUI extends JFrame {
     private ChartPanel generateSpreadingFactorGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataSpreadingFactorMote = new XYSeriesCollection();
         XYSeries seriesSpreadingFactorMote = new XYSeries("Spreading factor");
+
         int i = 0;
-        for (Integer spreadingFactor : mote.getSpreadingFactorHistory(run)) {
+        for (int spreadingFactor : mote.getSpreadingFactorHistory(run)) {
             seriesSpreadingFactorMote.add(i, spreadingFactor);
-            i = i + 1;
+            i++;
         }
         dataSpreadingFactorMote.addSeries(seriesSpreadingFactorMote);
 
