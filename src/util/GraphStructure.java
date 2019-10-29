@@ -17,6 +17,10 @@ public class GraphStructure {
 
 
     private GraphStructure(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
+        init(wayPoints, connections);
+    }
+
+    private void init(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         this.wayPoints = wayPoints;
         this.connections = connections;
 
@@ -51,15 +55,9 @@ public class GraphStructure {
         return instance != null;
     }
 
-
-    /**
-     * Close the current {@code GraphStructure} object by clearing the waypoints/connections and clearing the instance.
-     */
-    public void close() {
-        this.wayPoints.clear();
-        this.connections.clear();
-
-        GraphStructure.instance = null;
+    public GraphStructure reInitialize(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
+        this.init(wayPoints, connections);
+        return instance;
     }
 
 
