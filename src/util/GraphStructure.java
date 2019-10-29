@@ -111,11 +111,34 @@ public class GraphStructure {
 
 
     /**
-     * Gets the ID of the closest wayPoint to a given location.
+     * Gets the ID of the closest waypoint to a given location.
      * @param pos The location.
-     * @return The ID of the closest wayPoint, or a runtime exception in case no waypoints are present.
+     * @return The ID of the closest waypoint, or a runtime exception in case no waypoints are present.
      */
     public Long getClosestWayPoint(GeoPosition pos) {
+        return this.getClosestWayPointWithDistance(pos).getLeft();
+    }
+
+    /**
+     * Get the closest waypoint to a given location, if the closest waypoint is withing a specified range of that location.
+     * @param pos The location.
+     * @param range The maximum range between the closest waypoint and the position (expressed in km).
+     * @return The closest waypoint ID if it is within the specified range, otherwise an empty Optional.
+     */
+    public Optional<Long> getClosestWayPointWithinRange(GeoPosition pos, double range) {
+        var wp = this.getClosestWayPointWithDistance(pos);
+        if (wp.getRight() <= range) {
+            return Optional.of(wp.getLeft());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Get the closest waypoint to a given location, including the distance between the waypoint and the location.
+     * @param pos The location.
+     * @return A pair of the waypoint id and the distance (in km) to it.
+     */
+    private Pair<Long, Double> getClosestWayPointWithDistance(GeoPosition pos) {
         assert !wayPoints.isEmpty();
 
         Map<Long, Double> distances = new HashMap<>();
@@ -126,7 +149,7 @@ public class GraphStructure {
 
         return distances.entrySet().stream()
             .min(Comparator.comparing(Map.Entry::getValue))
-            .map(Map.Entry::getKey)
+            .map(o -> new Pair<>(o.getKey(), o.getValue()))
             .orElseThrow();
     }
 
@@ -161,8 +184,21 @@ public class GraphStructure {
             .collect(Collectors.toList());
     }
 
+
     /**
-     * Check whether a connection exists between 2 wayPoints.
+     * Retrieve a list of connection ids which have the given waypoint as source.
+     * @param wayPointId The waypion at which the connections start.
+     * @return A list of connection ids which all start at {@code wayPointId}.
+     */
+    public List<Long> getOutgoingConnectionsById(long wayPointId) {
+        return connections.entrySet().stream()
+            .filter(c -> c.getValue().getFrom() == wayPointId)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Check whether a connection exists between 2 waypoints.
      * @param fromWayPointId The source waypoint id.
      * @param toWayPointId The destination waypoint id.
      * @return True if a connection exists.
@@ -188,10 +224,9 @@ public class GraphStructure {
     }
 
 
-
     /**
      * Delete a waypoint in the graph.
-     * Note: this also shortens the paths of moets which make use of this waypoint.
+     * Note: this also shortens the paths of motes which make use of this waypoint.
      * @param wayPointId The id of the waypoint to be deleted.
      * @param environment The environment of the simulation.
      */

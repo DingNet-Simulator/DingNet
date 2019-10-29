@@ -184,6 +184,11 @@ public class MapHelper {
         }
     }
 
+    public static GeoPosition meanPosition(GeoPosition pos1, GeoPosition pos2) {
+        return new GeoPosition((pos1.getLatitude() + pos2.getLatitude()) / 2,
+            (pos1.getLongitude() + pos2.getLongitude()) / 2);
+    }
+
     public static Pair<Integer, Pair<Integer, Double>> toDgreeMinuteSecond(double latOrLong){
         int degrees = (int) Math.round(Math.floor(latOrLong));
         int minutes = (int) Math.round(Math.floor((latOrLong - degrees) * 60));

@@ -8,7 +8,6 @@ import util.PollutionGrid;
 import util.PollutionLevel;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,13 +54,8 @@ public class PollutionMonitor extends Application {
         var position = MapHelper.getInstance().toGeoPosition(mote.getPos());
 
         // Retrieve the individual sensor readings
-        Map<MoteSensor, Byte[]> sensorData = new HashMap<>();
+        Map<MoteSensor, Byte[]> sensorData = this.retrieveSensorData(mote, message.getData());
 
-        for (var sensor : mote.getSensors()) {
-            int amtBytes = sensor.getAmountOfData();
-            sensorData.put(sensor, body.subList(0, amtBytes).toArray(Byte[]::new));
-            body = body.subList(amtBytes, body.size());
-        }
 
         // Make sure the IAQ sensor is present in the currently processed mote
         if (!sensorData.containsKey(MoteSensor.IAQ)) {

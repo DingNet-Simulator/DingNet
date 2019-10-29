@@ -11,7 +11,7 @@ public class PollutionLevel {
         this.level = level;
     }
 
-    private double getLevel() {
+    public double getPollutionFactor() {
         return level;
     }
 
@@ -36,7 +36,7 @@ public class PollutionLevel {
             .sum();
 
         double resultingPollutionLevel = measurements.stream()
-            .mapToDouble(e -> (1 / e.getLeft()) / totalInverted  * e.getRight().getLevel())
+            .mapToDouble(e -> (1 / e.getLeft()) / totalInverted  * e.getRight().getPollutionFactor())
             .sum();
 
         return new PollutionLevel(resultingPollutionLevel);
