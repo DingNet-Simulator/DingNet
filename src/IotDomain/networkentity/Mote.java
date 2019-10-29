@@ -60,6 +60,8 @@ public class Mote extends NetworkEntity {
 
     private short frameCounter = 0;
 
+    private boolean canReceive = false;
+
     //TODO add comments and constructor for these parameters
     //both in seconds
     private static final int DEFAULT_START_SENDING_OFFSET = 1;
@@ -144,8 +146,9 @@ public class Mote extends NetworkEntity {
     @Override
     protected void OnReceive(LoraWanPacket packet) {
         //if is a message sent to from a gateway to this mote
-        if (getEUI().equals(packet.getDesignatedReceiverEUI()) &&
+        if (canReceive && getEUI().equals(packet.getDesignatedReceiverEUI()) &&
             getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+            canReceive = false;
             receivedPacketStrategy.addReceivedMessage(packet);
         }
     }
@@ -218,6 +221,7 @@ public class Mote extends NetworkEntity {
         var packet = composePacket(data, macCommands);
         if (packet.getPayload().length > 1) {
             loraSend(packet);
+            canReceive = true;
         }
     }
 
