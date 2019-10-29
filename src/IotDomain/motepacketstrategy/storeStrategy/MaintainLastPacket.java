@@ -24,7 +24,7 @@ public class MaintainLastPacket implements ReceivedPacketStrategy {
         if (sequenceNumber > lastPacketReceived) {
             var newPacket = new LoraWanPacket(packet.getSenderEUI(), packet.getDesignatedReceiverEUI(),
                 Arrays.stream(packet.getPayload()).skip(4).toArray(Byte[]::new),
-                packet.hasHeader(), packet.hasLowDataRateOptimization(),
+                packet.getHeader().orElse(null), packet.hasLowDataRateOptimization(),
                 packet.getAmountOfPreambleSymbols(), packet.getCodingRate(), packet.getMacCommands());
             lastPacketReceived = sequenceNumber;
             this.packet = Optional.of(newPacket);
