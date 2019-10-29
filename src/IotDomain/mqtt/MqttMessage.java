@@ -1,5 +1,7 @@
 package IotDomain.mqtt;
 
+import IotDomain.lora.FrameHeader;
+
 import java.util.List;
 
 public class MqttMessage {
@@ -8,12 +10,14 @@ public class MqttMessage {
     private final long gatewayEUI;
     private final long applicationEUI;
     private final List<Byte> data;
+    private final FrameHeader header;
 
-    public MqttMessage(List<Byte> packet, long deviceEUI, long gatewayEUI, long applicationEUI) {
+    public MqttMessage(FrameHeader header, List<Byte> packet, long deviceEUI, long gatewayEUI, long applicationEUI) {
         this.deviceEUI = deviceEUI;
         this.gatewayEUI = gatewayEUI;
         this.applicationEUI = applicationEUI;
         data = packet;
+        this.header = header;
     }
 
     public long getDeviceEUI() {
@@ -34,5 +38,9 @@ public class MqttMessage {
 
     public Byte[] getDataAsArray() {
         return data.toArray(new Byte[0]);
+    }
+
+    public FrameHeader getHeader() {
+        return header;
     }
 }
