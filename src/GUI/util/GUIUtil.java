@@ -41,7 +41,7 @@ public class GUIUtil {
     public static File getOutputFile(File givenFile, String extension) {
         String name = givenFile.getName();
 
-        if (name.length() < extension.length() + 2 || !name.substring(name.length() - extension.length()+1).equals("." + extension)) {
+        if (name.length() < extension.length() + 2 || !name.substring(name.length() - (extension.length()+1)).equals("." + extension)) {
             // Either the filename is too short, or it is still missing the (right) extension
             return new File(givenFile.getPath() + "." + extension);
         } else {

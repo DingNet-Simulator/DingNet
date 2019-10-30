@@ -103,7 +103,7 @@ public class GraphStructure {
 
         connections.put(id, connection);
         if (id >= this.newConnectionID) {
-            this.newWayPointID = id + 1;
+            this.newConnectionID = id + 1;
         }
     }
 
