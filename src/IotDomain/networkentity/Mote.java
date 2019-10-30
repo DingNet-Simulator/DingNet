@@ -81,7 +81,7 @@ public class Mote extends NetworkEntity {
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
     private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
 
-    private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
+    protected final List<ConsumePacketStrategy> consumePacketStrategies = new LinkedList<>(List.of(new DummyConsumer()));
 
     //endregion
 

@@ -4,6 +4,7 @@ import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
+import IotDomain.motepacketstrategy.consumeStrategy.ReplacePathWithMiddlePoints;
 import SensorDataGenerators.SensorDataGenerator;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
@@ -23,10 +24,12 @@ public class UserMote extends Mote {
 
     public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
+        consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
     }
 
     public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed);
+        consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
     }
 
     @Override
@@ -40,9 +43,8 @@ public class UserMote extends Mote {
             ByteBuffer.wrap(payload, 13, 4).putFloat((float)destination.getLongitude());
             return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
-        } else {
-            return super.composePacket(data, macCommands);
         }
+        return LoraWanPacket.createEmptyPacket(getEUI(), getApplicationEUI());
     }
 
     private SensorDataGenerator getGPSSensor() {
