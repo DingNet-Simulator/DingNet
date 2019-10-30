@@ -13,7 +13,6 @@ import util.MapHelper;
 import util.Path;
 import util.PathWithMiddlePoints;
 
-import java.nio.ByteBuffer;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.Map;
@@ -47,8 +46,7 @@ public class UserMote extends Mote {
             byte[] payload= new byte[17];
             payload[0] = MessageType.REQUEST_PATH.getCode();
             System.arraycopy(getGPSSensor().generateData(getPos(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
-            ByteBuffer.wrap(payload, 9, 4).putFloat((float)destination.getLatitude());
-            ByteBuffer.wrap(payload, 13, 4).putFloat((float)destination.getLongitude());
+            System.arraycopy(Converter.toByteArray(destination), 0, payload, 9, 8);
             return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
         }
@@ -72,8 +70,13 @@ public class UserMote extends Mote {
     }
 
     private void askNewPartOfPath() {
-        loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(),
-            new Byte[]{MessageType.REQUEST_UPDATE_PATH.getCode()},
+        if (getPath().getDestination().isEmpty()) {
+            throw new IllegalStateException("You can't require new part of path without a previous one");
+        }
+        byte[] payload= new byte[9];
+        payload[0] = MessageType.REQUEST_UPDATE_PATH.getCode();
+        System.arraycopy(Converter.toByteArray(getPath().getDestination().get()), 0, payload, 1, 8);
+        loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
             new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>()));
 
         var clock = getEnvironment().getClock();
