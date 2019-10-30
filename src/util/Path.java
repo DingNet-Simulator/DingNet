@@ -52,6 +52,10 @@ public class Path implements Iterable<GeoPosition> {
         this.points.add(point);
     }
 
+    public void addPositions(List<GeoPosition> points) {
+        this.points.addAll(points);
+    }
+
 
     /**
      * Retrieve the used connections in this path.

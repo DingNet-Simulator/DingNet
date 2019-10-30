@@ -24,20 +24,20 @@ public class PathWithMiddlePoints extends Path {
 
     public PathWithMiddlePoints(List<GeoPosition> points) {
         originalWayPoint = new LinkedList<>();
-        addWayPoints(points);
+        addPositions(points);
     }
 
     private static void loadSubPath() {
         //TODO
     }
 
-    public void addWayPoints(List<GeoPosition> newPath) {
+    @Override
+    public void addPositions(List<GeoPosition> newPath) {
         if (!newPath.isEmpty()) {
             originalWayPoint.addAll(newPath);
             addPosition(newPath.get(0));
             for (int i = originalWayPoint.size() - newPath.size(); i < originalWayPoint.size() - 1; i++) {
-                mapToSubPath.get(new Pair<>(originalWayPoint.get(i), originalWayPoint.get(i + 1)))
-                    .forEach(super::addPosition);
+                super.addPositions(mapToSubPath.get(new Pair<>(originalWayPoint.get(i), originalWayPoint.get(i + 1))));
                 addPosition(originalWayPoint.get(i + 1));
             }
         }
