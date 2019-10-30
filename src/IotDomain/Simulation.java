@@ -153,11 +153,8 @@ public class Simulation {
      * check that do all motes arrive at their destination
      */
     private Boolean areAllMotesAtDestination() {
-        return this.environment.getMotes().stream().noneMatch(m ->
-                m.isEnabled() &&
-                !m.getPath().getWayPoints().isEmpty() &&
-                m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1) != null &&
-                !this.environment.toMapCoordinate(m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1)).equals(m.getPos()));
+        return this.environment.getMotes().stream().allMatch(m ->
+                !m.isEnabled() && m.isArrivedToDestination());
     }
 
 
