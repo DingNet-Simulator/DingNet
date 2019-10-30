@@ -1,5 +1,7 @@
 package IotDomain;
 
+import IotDomain.networkentity.Gateway;
+import IotDomain.networkentity.Mote;
 import be.kuleuven.cs.som.annotate.Basic;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Connection;

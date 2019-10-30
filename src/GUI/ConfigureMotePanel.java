@@ -1,11 +1,11 @@
 package GUI;
 
 
+import GUI.MapViewer.MotePainter;
 import GUI.MapViewer.NumberPainter;
 import GUI.util.GUIUtil;
-import GUI.MapViewer.MotePainter;
 import IotDomain.Environment;
-import IotDomain.Mote;
+import IotDomain.networkentity.Mote;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -22,8 +22,10 @@ import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConfigureMotePanel {
     private JPanel mainPanel;

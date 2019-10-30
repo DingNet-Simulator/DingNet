@@ -3,6 +3,11 @@ package GUI;
 
 import GUI.MapViewer.*;
 import IotDomain.*;
+import IotDomain.lora.LoraTransmission;
+import IotDomain.networkentity.Gateway;
+import IotDomain.networkentity.Mote;
+import IotDomain.networkentity.MoteSensor;
+import IotDomain.networkentity.NetworkEntity;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;

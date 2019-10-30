@@ -1,5 +1,6 @@
 package IotDomain;
 
+import IotDomain.networkentity.Mote;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 import be.kuleuven.cs.som.annotate.Basic;
 import util.Pair;

@@ -1,7 +1,7 @@
 package IotDomain.application;
 
 import IotDomain.Environment;
-import IotDomain.MoteSensor;
+import IotDomain.networkentity.MoteSensor;
 import IotDomain.mqtt.MqttMessage;
 import util.MapHelper;
 import util.PollutionGrid;

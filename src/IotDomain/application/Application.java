@@ -1,10 +1,10 @@
 package IotDomain.application;
 
-import IotDomain.Mote;
-import IotDomain.MoteSensor;
 import IotDomain.mqtt.MqttClientBasicApi;
 import IotDomain.mqtt.MqttMessage;
 import IotDomain.mqtt.MqttMock;
+import IotDomain.networkentity.Mote;
+import IotDomain.networkentity.MoteSensor;
 
 import java.util.HashMap;
 import java.util.List;

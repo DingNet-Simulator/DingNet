@@ -1,7 +1,7 @@
 package IotDomain.gatewayresponsestrategy;
 
-import IotDomain.Gateway;
-import IotDomain.LoraWanPacket;
+import IotDomain.lora.LoraWanPacket;
+import IotDomain.networkentity.Gateway;
 import util.Pair;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class SendNewestPacket implements ResponseStrategy {
             .map(m -> new Pair<>(m.getApplicationEUI(), m.getEUI()))
             .forEach(m -> gateway.getMqttClient().subscribe(
                 getTopic(m.getLeft(), m.getRight()),
-                (t, msg) -> packetBuffer.put(m, new LoraWanPacket(gateway.getEUI(), msg.getDeviceEUI(), msg.getDataAsArray(), new LinkedList<>()))));
+                (t, msg) -> packetBuffer.put(m, new LoraWanPacket(gateway.getEUI(), msg.getDeviceEUI(), msg.getDataAsArray(), msg.getHeader(), new LinkedList<>()))));
     }
 
     private String getTopic(Long applicationEUI, Long deviceEUI) {

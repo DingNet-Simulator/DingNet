@@ -2,21 +2,22 @@ package IotDomain;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class GlobalClock {
-
-    public GlobalClock(){
-        time = LocalTime.of(0,0);
-        triggers = new HashMap<>();
-    }
 
     /**
      * A representation of time.
      */
     private LocalTime time;
+
+    private HashMap<LocalTime, Set<Trigger>> triggers;
+
+    public GlobalClock(){
+        time = LocalTime.of(0,0);
+        triggers = new HashMap<>();
+    }
 
     /**
      * Returns the current time.
@@ -34,7 +35,7 @@ public class GlobalClock {
     public void tick(long milliSeconds) {
         for(long i = milliSeconds; i>0; i--){
             this.time= this.time.plus(1, ChronoUnit.MILLIS);
-            trigger();
+            fireTrigger();
         }
     }
 
@@ -52,29 +53,69 @@ public class GlobalClock {
         return triggers.containsKey(time);
     }
 
-    public void addTrigger(LocalTime time,Supplier<LocalTime> trigger){
+    public String addTrigger(LocalTime time,Supplier<LocalTime> trigger){
+        var trig = new Trigger(trigger);
+        addTrigger(time, trig);
+        return trig.getUid();
+    }
+
+    private void addTrigger(LocalTime time,Trigger trigger) {
         if(containsTriggers(time)){
             triggers.get(time).add(trigger);
         }
         else {
-            LinkedList newtriggers = new LinkedList();
-            newtriggers.add(trigger);
-            triggers.put(time,newtriggers);
+            Set<Trigger> newTriggers = Set.of(trigger);
+            triggers.put(time,newTriggers);
         }
     }
 
-    private void trigger() {
-        if(triggers.get(getTime()) != null) {
-            for (Supplier<LocalTime> trigger : triggers.get(getTime())) {
-                LocalTime newTime = trigger.get();
-                if (newTime.compareTo(getTime()) > 0) {
-                    addTrigger(newTime, trigger);
-                }
-
+    public boolean removeTrigger(String triggerId) {
+        for (Map.Entry<LocalTime, Set<Trigger>> e: triggers.entrySet()) {
+            if (e.getValue().removeIf(p -> p.getUid().equals(triggerId))) {
+                return true;
             }
-            triggers.remove(time);
         }
+        return false;
     }
 
-    private HashMap<LocalTime, LinkedList<Supplier<LocalTime>>> triggers;
+    private void fireTrigger() {
+        triggers.remove(getTime()).forEach(trigger -> {
+            LocalTime newTime = trigger.getCallback().get();
+            if (newTime.isAfter(getTime())) {
+                addTrigger(newTime, trigger);
+            }
+        });
+    }
+
+    private class Trigger {
+
+        private final String uid;
+        private final Supplier<LocalTime> callback;
+
+        public Trigger(Supplier<LocalTime> callback) {
+            uid = UUID.randomUUID().toString();
+            this.callback = callback;
+        }
+
+        public String getUid() {
+            return uid;
+        }
+
+        public Supplier<LocalTime> getCallback() {
+            return callback;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Trigger trigger = (Trigger) o;
+            return Objects.equals(getUid(), trigger.getUid());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getUid());
+        }
+    }
 }

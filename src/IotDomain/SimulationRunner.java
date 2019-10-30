@@ -1,5 +1,7 @@
 package IotDomain;
 
+import IotDomain.networkentity.Gateway;
+import IotDomain.networkentity.Mote;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;

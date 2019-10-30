@@ -1,9 +1,12 @@
 package GUI;
 
-import GUI.MapViewer.*;
+import GUI.MapViewer.LinePainter;
+import GUI.MapViewer.MotePainter;
+import GUI.MapViewer.NumberPainter;
+import GUI.MapViewer.PathPainter;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
-import IotDomain.Mote;
+import IotDomain.networkentity.Mote;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -14,7 +17,10 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
-import util.*;
+import util.Connection;
+import util.GraphStructure;
+import util.MapHelper;
+import util.Path;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -23,8 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ConfigureMapPanel {

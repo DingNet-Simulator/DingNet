@@ -1,7 +1,7 @@
 package GUI;
 
 import IotDomain.Environment;
-import IotDomain.Gateway;
+import IotDomain.networkentity.Gateway;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;

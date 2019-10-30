@@ -1,9 +1,13 @@
-package IotDomain;
+package IotDomain.networkentity;
 
+import IotDomain.Environment;
+import IotDomain.lora.BasicFrameHeader;
+import IotDomain.lora.LoraWanPacket;
+import IotDomain.lora.MacCommand;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
+import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
-import IotDomain.motepacketstrategy.storeStrategy.StoreAllMessage;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -17,26 +21,20 @@ import java.util.*;
  * A class representing the energy bound and moving motes in the network.
  */
 public class Mote extends NetworkEntity {
-    /**
-     * Returns the mote sensors of the mote.
-     * @return The mote sensors of the mote.
-     */
-    @Basic
-    public List<MoteSensor> getSensors() {
-        return moteSensors;
-    }
+
+    //region field
 
     /**
      * A LinkedList MoteSensors representing all sensors on the mote.
      */
     @Model
     private List<MoteSensor> moteSensors;
+
     /**
      * A path representing the connections the mote will follow.
      */
     @Model
     private Path path;
-
     /**
      * An integer representing the energy level of the mote.
      */
@@ -48,14 +46,23 @@ public class Mote extends NetworkEntity {
      */
     @Model
     private Double movementSpeed;
+
     /**
      * An integer representing the start offset of the mote in seconds.
      */
     @Model
     private Integer startMovementOffset;
+    private short frameCounter = 0;
+
+    private boolean canReceive = false;
+
+    private String keepAliveTriggerId;
+
+    private LoraWanPacket lastPacketSent;
 
     //TODO add comments and constructor for these parameters
     //both in seconds
+
     private static final int DEFAULT_START_SENDING_OFFSET = 1;
     private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
     /**
@@ -66,17 +73,19 @@ public class Mote extends NetworkEntity {
      * period to define how many seconds the mote has to send a packet (in seconds)
      */
     private int periodSendingPacket;
-
     private static final long DEFAULT_APPLICATION_EUI = 1;
+
     /**
      * application identifier
      */
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
-
-    private final ReceivedPacketStrategy receivedPacketStrategy = new StoreAllMessage();
+    private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
 
     private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
 
+    //endregion
+
+    // region constructor
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
      * spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.
@@ -108,8 +117,8 @@ public class Mote extends NetworkEntity {
         this.startMovementOffset = startMovementOffset;
         this.periodSendingPacket = periodSendingPacket;
         this.startSendingOffset = startSendingOffset;
+        resetKeepAliveTrigger();
     }
-
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
      * spreading factor, list of MoteSensors, energy level, connection, sampling rate and movement speed and  random start offset.
@@ -131,6 +140,8 @@ public class Mote extends NetworkEntity {
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
 
+
+    //endregion
     /**
      * A method describing what the mote should do after successfully receiving a packet.
      * @param packet The received packet.
@@ -138,8 +149,9 @@ public class Mote extends NetworkEntity {
     @Override
     protected void OnReceive(LoraWanPacket packet) {
         //if is a message sent to from a gateway to this mote
-        if (getEUI().equals(packet.getDesignatedReceiverEUI()) &&
+        if (canReceive && getEUI().equals(packet.getDesignatedReceiverEUI()) &&
             getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+            canReceive = false;
             receivedPacketStrategy.addReceivedMessage(packet);
         }
     }
@@ -153,6 +165,15 @@ public class Mote extends NetworkEntity {
      * a function for the OTAA protocol.
      */
     public void OverTheAirActivation(){
+    }
+
+    /**
+     * Returns the mote sensors of the mote.
+     * @return The mote sensors of the mote.
+     */
+    @Basic
+    public List<MoteSensor> getSensors() {
+        return moteSensors;
     }
 
     /**
@@ -203,6 +224,21 @@ public class Mote extends NetworkEntity {
         return applicationEUI;
     }
 
+    private void resetKeepAliveTrigger() {
+        if (keepAliveTriggerId != null) {
+            getEnvironment().getClock().removeTrigger(keepAliveTriggerId);
+        }
+        keepAliveTriggerId = getEnvironment().getClock().addTrigger(
+            getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5), //TODO configure parameter
+            () -> {
+                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{2},
+                    new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
+                loraSend(packet);
+                return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
+            }
+        );
+    }
+
     /**
      * A function for sending a message with MAC commands to the gateways.
      * @param data The data to send in the message
@@ -210,8 +246,12 @@ public class Mote extends NetworkEntity {
      */
     public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands){
         var packet = composePacket(data, macCommands);
-        if (packet.getPayload().length > 1) {
+        if (packet.getPayload().length > 1 &&
+            (lastPacketSent == null || !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload()))) {
             loraSend(packet);
+            canReceive = true;
+            lastPacketSent = packet;
+            resetKeepAliveTrigger();
         }
     }
 
@@ -226,22 +266,20 @@ public class Mote extends NetworkEntity {
                     i++;
                 }
             }
-            for (int j = 0; j < data.length; j++) {
-                payload[i] = data[j];
+            for (Byte datum : data) {
+                payload[i] = datum;
                 i++;
             }
         }
-        return new LoraWanPacket(getEUI(), getApplicationEUI(), payload, new LinkedList<>(macCommands.keySet()));
+        return new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
+            new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
     }
 
     /**
      * consume all the packet arrived with the strategies previous defined
      */
     public void consumePackets() {
-        if (receivedPacketStrategy.hasPackets()) {
-            var packets = receivedPacketStrategy.getReceivedPacket();
-            consumePacketStrategies.forEach(s -> s.consume(this, packets));
-        }
+        receivedPacketStrategy.getReceivedPacket().ifPresent(packet -> consumePacketStrategies.forEach(s -> s.consume(this, packet)));
     }
 
     /**
@@ -313,4 +351,8 @@ public class Mote extends NetworkEntity {
     public int getPeriodSendingPacket() {
         return periodSendingPacket;
     }
+
+    protected short incrementFrameCounter() {return frameCounter++;}
+
+    public short getFrameCounter() {return frameCounter;}
 }
