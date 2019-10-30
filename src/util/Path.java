@@ -3,7 +3,10 @@ package util;
 import org.jetbrains.annotations.NotNull;
 import org.jxmapviewer.viewer.GeoPosition;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class Path implements Iterable<GeoPosition> {
     private List<GeoPosition> points;
@@ -110,5 +113,9 @@ public class Path implements Iterable<GeoPosition> {
         }
 
         this.points = this.points.subList(0, index);
+    }
+
+    public boolean isEmpty() {
+        return points.isEmpty();
     }
 }
