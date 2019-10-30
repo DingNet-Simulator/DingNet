@@ -44,4 +44,9 @@ public class QualityOfService {
     public void putAdaptationGoal(String name, AdaptationGoal adaptationGoal) {
         this.adaptationGoals.put(name,adaptationGoal);
     }
+
+
+    public void updateAdaptationGoals(QualityOfService QoS) {
+        QoS.getNames().forEach(n -> this.putAdaptationGoal(n, QoS.getAdaptationGoal(n)));
+    }
 }

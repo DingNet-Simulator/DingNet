@@ -2,6 +2,8 @@ package GUI;
 
 
 import GUI.MapViewer.*;
+import GUI.util.GUIUtil;
+import GUI.util.SpectrumPaintScale;
 import IotDomain.*;
 import IotDomain.lora.LoraTransmission;
 import IotDomain.networkentity.Gateway;
@@ -54,20 +56,22 @@ import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Timer;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class MainGUI extends JFrame {
+public class MainGUI extends JFrame implements SimulationUpdateListener {
     private JPanel map;
     private JPanel console;
     private JPanel mainPanel;
     private JToolBar toolBarEnvironment;
     private JToolBar toolBarAdaptation;
     private JTabbedPane tabbedPaneGraphs;
-    private JButton openButton;
+    private JButton openConfigurationButton;
     private JButton configureButton;
     private JButton helpButton;
     private JButton aboutButton;
@@ -79,7 +83,7 @@ public class MainGUI extends JFrame {
     private JPanel receivedPowerGraph;
     private JPanel powerSettingGraph;
     private JPanel spreadingFactorGraph;
-    private JButton environmentSaveButton;
+    private JButton saveConfigurationButton;
     private JPanel usedEnergyGraph;
     private JPanel transmissionsPanel;
     private JButton moteApplicationButton;
@@ -124,185 +128,74 @@ public class MainGUI extends JFrame {
     private int packetsLost;
 
 
-    public MainGUI() {
-
-        simulationRunner = SimulationRunner.getInstance();
+    public MainGUI(SimulationRunner simulationRunner) {
+        this.simulationRunner = simulationRunner;
 
         updateInputProfiles();
         updateAdaptationGoals();
 
-
         resultsButton.setEnabled(false);
-
         editColBoundButton.setEnabled(false);
         editEnConButton.setEnabled(false);
         editRelComButton.setEnabled(false);
         configureButton.setEnabled(false);
-        environmentSaveButton.setEnabled(false);
+        saveConfigurationButton.setEnabled(false);
 
 
-        ConfigureActionListener configureActionListener = new ConfigureActionListener(this);
-        configureButton.addActionListener(configureActionListener);
+        // ===========================================
+        // Action listeners for the buttons in the GUI
+        // ===========================================
 
-
-        openButton.addActionListener((ActionEvent e) -> {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Load a configuration");
-            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
-
-            int returnVal = fc.showOpenDialog(mainPanel);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-                JFrame frame = new JFrame("Loading configuration");
-                LoadingGUI loadingGUI = new LoadingGUI();
-                frame.setContentPane(loadingGUI.getMainPanel());
-                frame.setMinimumSize(new Dimension(300, 300));
-                frame.setVisible(true);
-
-                simulationRunner.loadConfigurationFromFile(fc.getSelectedFile());
-
-                frame.dispose();
-
-
-                updateEntries(simulationRunner.getEnvironment());
-                loadMap(simulationRunner.getEnvironment(), mapViewer, false);
-
-                MouseInputListener mia = new PanMouseInputListener(mapViewer);
-                mapViewer.addMouseListener(mia);
-                mapViewer.addMouseMotionListener(mia);
-                mapViewer.addMouseListener(new CenterMapListener(mapViewer));
-                mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
-
-                configureButton.setEnabled(true);
-                environmentSaveButton.setEnabled(true);
-            }
-        });
-
-        environmentSaveButton.addActionListener((ActionEvent e) -> {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Save a configuration");
-            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
-
-            int returnVal = fc.showSaveDialog(mainPanel);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                file = fc.getSelectedFile();
-                String name = file.getName();
-
-                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
-                    file = new File(file.getPath() + ".xml");
-                } else {
-                    file = new File(file.getPath());
-                }
-                simulationRunner.saveConfigurationToFile(file);
-            }
-        });
-
-
+        configureButton.addActionListener(new ConfigureActionListener(this));
         moteCharacteristicsButton.addActionListener(new MoteSelectActionListener(this));
         moteApplicationButton.addActionListener(new MoteApplicationSelectActionListener(this));
+        editRelComButton.addActionListener(new ComRelActionListener(this));
+        editColBoundButton.addActionListener(new ColBoundActionListener(this));
+        editEnConButton.addActionListener(new EnConActionListener(this));
+        openConfigurationButton.addActionListener(new OpenConfigurationListener());
+        saveConfigurationButton.addActionListener(new SaveConfigurationListener());
+        simulationSaveButton.addActionListener(new SaveSimulationResultListener());
 
-        regionButton.addActionListener(e -> setApplicationGraphs(0, 0, 0, 0, simulationRunner.getEnvironment()));
+        regionButton.addActionListener(e -> this.setApplicationGraphs(simulationRunner.getEnvironment()));
 
-        singleRunButton.addActionListener((ActionEvent e) -> {
-            var result = simulationRunner.singleRun();
-            animate(result.getLocationMap(), result.getLocationHistoryMap(), speedSlider.getValue());
+
+        singleRunButton.addActionListener(e -> {
+            this.setEnabledRunButtons(false);
+            simulationRunner.setupSingleRun();
+
+            simulationRunner.simulate(speedSlider.getValue() * 5, this);
         });
 
-        timedRunButton.addActionListener(e -> simulationRunner.timedRun());
+        timedRunButton.addActionListener(e -> {
+            this.setEnabledRunButtons(false);
+            simulationRunner.setupTimedRun();
+
+            simulationRunner.simulate(speedSlider.getValue() * 5, this);
+        });
 
         adaptationComboBox.addActionListener((ActionEvent e) -> {
             String chosenOption = (String) adaptationComboBox.getSelectedItem();
             simulationRunner.setApproach(chosenOption);
         });
 
-
         clearButton.addActionListener((ActionEvent e) -> {
             moteCharacteristicsLabel.setText("");
-            // update received power graph
-            receivedPowerGraph.removeAll();
-            receivedPowerGraph.repaint();
-            receivedPowerGraph.revalidate();
-            // update power setting graph
-            powerSettingGraph.removeAll();
-            powerSettingGraph.repaint();
-            powerSettingGraph.revalidate();
-            // update spreading factor graph
-            spreadingFactorGraph.removeAll();
-            spreadingFactorGraph.repaint();
-            spreadingFactorGraph.revalidate();
-            // update used energy graph
-            usedEnergyGraph.removeAll();
-            usedEnergyGraph.repaint();
-            usedEnergyGraph.revalidate();
-            // update distance to gateway graph
-            distanceToGatewayGraph.removeAll();
-            distanceToGatewayGraph.repaint();
-            distanceToGatewayGraph.revalidate();
-
             moteApplicationLabel.setText("");
-
-            ozonePanel.removeAll();
-            ozonePanel.repaint();
-            ozonePanel.revalidate();
-
-            sootPanel.removeAll();
-            sootPanel.repaint();
-            sootPanel.revalidate();
-
-            carbonDioxideField.removeAll();
-            carbonDioxideField.repaint();
-            carbonDioxideField.revalidate();
-
-            particulateMatterPanel.removeAll();
-            particulateMatterPanel.repaint();
-            particulateMatterPanel.revalidate();
-
             resultsButton.setEnabled(false);
-        });
 
+            List.of(receivedPowerGraph, powerSettingGraph, spreadingFactorGraph, usedEnergyGraph, distanceToGatewayGraph,
+                ozonePanel, sootPanel, carbonDioxideField, particulateMatterPanel)
+                .forEach((JPanel panel) -> {
+                    panel.removeAll();
+                    panel.repaint();
+                    panel.revalidate();
+                });
+        });
 
         totalRunButton.addActionListener(e -> simulationRunner.totalRun(p -> {
             this.setProgress(p);
             return null;
         }));
-        simulationSaveButton.addActionListener((ActionEvent e) -> {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Save output");
-            fc.setFileFilter(new FileNameExtensionFilter("xml output", "xml"));
-
-            // TODO probably adjust output path here to different directory
-            try {
-                File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                file = new File(file.getParent() + "/user/output");
-                fc.setCurrentDirectory(file);
-            } catch (URISyntaxException e1) {
-                System.out.println("URi");
-            }
-
-            int returnVal = fc.showSaveDialog(mainPanel);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                String name = file.getName();
-
-                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
-                    file = new File(file.getPath() + ".xml");
-                } else {
-                    file = new File(file.getPath());
-                }
-                simulationRunner.saveSimulationToFile(file);
-            }
-        });
-
 
         helpButton.addActionListener((ActionEvent e) -> {
             HelpGUI helpgui = new HelpGUI();
@@ -316,38 +209,35 @@ public class MainGUI extends JFrame {
             aboutSimDialog.setVisible(true);
         });
 
-
-        editRelComButton.addActionListener(new ComRelActionListener(this));
-        editColBoundButton.addActionListener(new ColBoundActionListener(this));
-        editEnConButton.addActionListener(new EnConActionListener(this));
-
         resultsButton.addActionListener((ActionEvent e) -> {
             MoteCharactesticsDialog moteCharactesticsDialog =
                 new MoteCharactesticsDialog(usedEnergy, packetsSent, packetsLost);
             moteCharactesticsDialog.pack();
             moteCharactesticsDialog.setVisible(true);
         });
-
     }
 
 
     public static void main(String[] args) {
+        SimulationRunner simulationRunner = SimulationRunner.getInstance();
 
-        mapViewer.setTileFactory(tileFactory);
 
-        tileFactory.setThreadPoolSize(8);
+        SwingUtilities.invokeLater(() -> {
+            mapViewer.setTileFactory(tileFactory);
+            tileFactory.setThreadPoolSize(8);
 
-        JFrame frame = new JFrame("Dynamic DingNet simulator");
-        MainGUI gui = new MainGUI();
-        frame.setContentPane(gui.mainPanel);
+            JFrame frame = new JFrame("Dynamic DingNet simulator");
+            MainGUI gui = new MainGUI(simulationRunner);
+            frame.setContentPane(gui.mainPanel);
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.pack();
 
-        gui.updateInputProfiles();
-        gui.loadAlgorithms();
-        frame.setVisible(true);
-        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+            gui.updateInputProfiles();
+            gui.loadAlgorithms();
+            frame.setVisible(true);
+            frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+        });
     }
 
 
@@ -425,11 +315,11 @@ public class MainGUI extends JFrame {
             Image selectedImage;
             Image editImage;
             try {
-                unselectedImage = ImageIO.read(getClass().getResource("/GUI/circle_unselected.png"));
+                unselectedImage = ImageIO.read(getClass().getResource("/images/Circle_unselected.png"));
                 unselectedImage = unselectedImage.getScaledInstance(23, 23, 0);
-                selectedImage = ImageIO.read(getClass().getResource("/GUI/circle_selected.png"));
+                selectedImage = ImageIO.read(getClass().getResource("/images/Circle_selected.png"));
                 selectedImage = selectedImage.getScaledInstance(23, 23, 0);
-                editImage = ImageIO.read(getClass().getResource("/GUI/edit_icon.png"));
+                editImage = ImageIO.read(getClass().getResource("/images/Edit_icon.png"));
                 editImage = editImage.getScaledInstance(23, 23, 0);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -480,12 +370,9 @@ public class MainGUI extends JFrame {
             gateWays.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPos()), environment.toLongitude(gateway.getXPos()))), i);
             i++;
         }
-        i = 1;
-        Map<Waypoint, Integer> motes = new HashMap<>();
-        for (Mote mote : environment.getMotes()) {
-            motes.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(mote.getYPos()), environment.toLongitude(mote.getXPos()))), i);
-            i++;
-        }
+
+        Map<Waypoint, Integer> motes = GUIUtil.getMoteMap(environment);
+
         NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
         gatewayNumberPainter.setWaypoints(gateWays);
 
@@ -524,7 +411,6 @@ public class MainGUI extends JFrame {
                 MapHelper.toDgreeMinuteSecondText(latitude) + ", " +
                 MapHelper.getDirectionSign(longitude, "long") +
                 MapHelper.toDgreeMinuteSecondText(longitude));
-
     }
 
 
@@ -543,7 +429,7 @@ public class MainGUI extends JFrame {
         public void mouseClicked(MouseEvent e) {
             JTextArea jTextArea = (JTextArea) e.getSource();
             String text = jTextArea.getText();
-            Integer index = Integer.parseInt(text.substring(8, text.indexOf(":")));
+            int index = Integer.parseInt(text.substring(8, text.indexOf(":")));
             if (e.getClickCount() == 2) {
                 JFrame frame = new JFrame("Gateway settings");
                 GatewayGUI gatewayGUI = new GatewayGUI(simulationRunner.getEnvironment().getGateways().get(index - 1), frame);
@@ -553,7 +439,6 @@ public class MainGUI extends JFrame {
                 frame.setVisible(true);
             }
         }
-
     };
 
     private MouseAdapter moteMouse = new MouseAdapter() {
@@ -607,14 +492,14 @@ public class MainGUI extends JFrame {
         toolBarEnvironment.add(label1);
         final JToolBar.Separator toolBar$Separator1 = new JToolBar.Separator();
         toolBarEnvironment.add(toolBar$Separator1);
-        openButton = new JButton();
-        openButton.setText("Open");
-        toolBarEnvironment.add(openButton);
+        openConfigurationButton = new JButton();
+        openConfigurationButton.setText("Open");
+        toolBarEnvironment.add(openConfigurationButton);
         final JToolBar.Separator toolBar$Separator2 = new JToolBar.Separator();
         toolBarEnvironment.add(toolBar$Separator2);
-        environmentSaveButton = new JButton();
-        environmentSaveButton.setText("Save");
-        toolBarEnvironment.add(environmentSaveButton);
+        saveConfigurationButton = new JButton();
+        saveConfigurationButton.setText("Save");
+        toolBarEnvironment.add(saveConfigurationButton);
         final JToolBar.Separator toolBar$Separator3 = new JToolBar.Separator();
         toolBarEnvironment.add(toolBar$Separator3);
         configureButton = new JButton();
@@ -965,10 +850,11 @@ public class MainGUI extends JFrame {
     }
 
 
+
     class MoteSelectActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public MoteSelectActionListener(MainGUI mainGui) {
+        MoteSelectActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -986,7 +872,7 @@ public class MainGUI extends JFrame {
     class ComRelActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public ComRelActionListener(MainGUI mainGui) {
+        ComRelActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1004,7 +890,7 @@ public class MainGUI extends JFrame {
     class EnConActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public EnConActionListener(MainGUI mainGui) {
+        EnConActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1022,7 +908,7 @@ public class MainGUI extends JFrame {
     class ColBoundActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public ColBoundActionListener(MainGUI mainGui) {
+        ColBoundActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1040,7 +926,7 @@ public class MainGUI extends JFrame {
     class MoteApplicationSelectActionListener implements ActionListener {
         private MainGUI mainGui;
 
-        public MoteApplicationSelectActionListener(MainGUI mainGui) {
+        MoteApplicationSelectActionListener(MainGUI mainGui) {
             this.mainGui = mainGui;
         }
 
@@ -1053,7 +939,6 @@ public class MainGUI extends JFrame {
             frame.setPreferredSize(new Dimension(600, 400));
             frame.setMinimumSize(new Dimension(600, 400));
             frame.setVisible(true);
-
         }
     }
 
@@ -1061,7 +946,7 @@ public class MainGUI extends JFrame {
 
         private InputProfile inputProfile;
 
-        public InputProfileEditMouse(InputProfile inputProfile) {
+        InputProfileEditMouse(InputProfile inputProfile) {
             this.inputProfile = inputProfile;
         }
 
@@ -1076,17 +961,16 @@ public class MainGUI extends JFrame {
                 frame.setMinimumSize(new Dimension(750, 400));
                 frame.setVisible(true);
             } else {
-                JOptionPane.showMessageDialog(null, "Load a configuration before editing an input profile", "InfoBox: " + "Edit InputProfile", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Load a configuration before editing an input profile", "InfoBox: Edit InputProfile", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
 
 
     private class InputProfileSelectMouse extends MouseAdapter {
-
         private InputProfile inputProfile;
 
-        public InputProfileSelectMouse(InputProfile inputProfile) {
+        InputProfileSelectMouse(InputProfile inputProfile) {
             this.inputProfile = inputProfile;
         }
 
@@ -1095,29 +979,14 @@ public class MainGUI extends JFrame {
             if (simulationRunner.getEnvironment() != null) {
                 Simulation simulation = simulationRunner.getSimulation();
                 if (inputProfile != simulation.getInputProfile()) {
-                    QualityOfService QoS = simulationRunner.getQoS();
+                    // Adjust the used inputprofile and QoS in the simulation
                     simulation.setInputProfile(inputProfile);
-                    if (inputProfile.getQualityOfServiceProfile().getNames().contains("reliableCommunication") &&
-                            inputProfile.getQualityOfServiceProfile().getAdaptationGoal("reliableCommunication").getClass() == IntervalAdaptationGoal.class) {
-                        QoS.putAdaptationGoal("reliableCommunication", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("reliableCommunication"));
-                        editRelComButton.setEnabled(true);
-                    } else {
-                        editRelComButton.setEnabled(false);
-                    }
-                    if (inputProfile.getQualityOfServiceProfile().getNames().contains("energyConsumption") &&
-                            inputProfile.getQualityOfServiceProfile().getAdaptationGoal("energyConsumption").getClass() == ThresholdAdaptationGoal.class) {
-                        QoS.putAdaptationGoal("energyConsumption", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("energyConsumption"));
-                        editEnConButton.setEnabled(true);
-                    } else {
-                        editEnConButton.setEnabled(false);
-                    }
-                    if (inputProfile.getQualityOfServiceProfile().getNames().contains("collisionBound") &&
-                            inputProfile.getQualityOfServiceProfile().getAdaptationGoal("collisionBound").getClass() == ThresholdAdaptationGoal.class) {
-                        QoS.putAdaptationGoal("collisionBound", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("collisionBound"));
-                        editColBoundButton.setEnabled(true);
-                    } else {
-                        editColBoundButton.setEnabled(false);
-                    }
+                    simulationRunner.updateQoS(inputProfile.getQualityOfServiceProfile());
+
+                    Set<String> qualityNames = inputProfile.getQualityOfServiceProfile().getNames();
+                    editRelComButton.setEnabled(qualityNames.contains("reliableCommunication"));
+                    editEnConButton.setEnabled(qualityNames.contains("energyConsumption"));
+                    editColBoundButton.setEnabled(qualityNames.contains("collisionBound"));
                 } else {
                     simulation.setInputProfile(null);
                     editRelComButton.setEnabled(false);
@@ -1126,114 +995,71 @@ public class MainGUI extends JFrame {
                 }
                 updateInputProfiles();
                 updateAdaptationGoals();
-
             } else {
                 JOptionPane.showMessageDialog(null, "Load a configuration before selecting an input profile",
-                        "InfoBox: " + "Select InputProfile", JOptionPane.INFORMATION_MESSAGE);
+                    "InfoBox: Select InputProfile", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
 
     /**
      * Sets the graphs of the corresponding characteristics of a given mote of a given run.
-     *
      * @param moteIndex The index of the mote.
      * @param run       The number of the run.
      */
     void setCharacteristics(int moteIndex, int run) {
-
         moteCharacteristicsLabel.setText("Mote " + (moteIndex + 1) + " | Run " + (run + 1));
-        // update received power graph
-        receivedPowerGraph.removeAll();
-        Pair<ChartPanel, Pair<Integer, Integer>> powerData = generateReceivedPowerGraphForMotes(simulationRunner.getEnvironment().getMotes().get(moteIndex), run);
-        receivedPowerGraph.add(powerData.getLeft());
-        receivedPowerGraph.repaint();
-        receivedPowerGraph.revalidate();
-        // update power setting graph
-        powerSettingGraph.removeAll();
-        powerSettingGraph.add(generatePowerSettingGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
-        powerSettingGraph.repaint();
-        powerSettingGraph.revalidate();
-        // update spreading factor graph
-        spreadingFactorGraph.removeAll();
-        spreadingFactorGraph.add(generateSpreadingFactorGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
-        spreadingFactorGraph.repaint();
-        spreadingFactorGraph.revalidate();
-        // update used energy graph
-        usedEnergyGraph.removeAll();
-        Pair<ChartPanel, Double> energyData = generateUsedEnergyGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run);
-        usedEnergyGraph.add(energyData.getLeft());
-        usedEnergyGraph.repaint();
-        usedEnergyGraph.revalidate();
-        // update distance to gateway graph
-        distanceToGatewayGraph.removeAll();
-        distanceToGatewayGraph.add(generateDistanceToGatewayGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
-        distanceToGatewayGraph.repaint();
-        distanceToGatewayGraph.revalidate();
-
         resultsButton.setEnabled(true);
-        usedEnergy = energyData.getRight();
-        packetsSent = powerData.getRight().getLeft();
-        packetsLost = powerData.getRight().getRight();
 
+        BiConsumer<JPanel, ChartPanel> updateGraph = (p, c) -> {
+            p.removeAll();
+            p.add(c);
+            p.repaint();
+            p.revalidate();
+        };
+
+        updateGraph.accept(receivedPowerGraph, generateReceivedPowerGraphForMotes(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(usedEnergyGraph, generateUsedEnergyGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(powerSettingGraph, generatePowerSettingGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(spreadingFactorGraph, generateSpreadingFactorGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(distanceToGatewayGraph, generateDistanceToGatewayGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
     }
 
     void setApplicationGraphs(int index) {
         moteApplicationLabel.setText("Mote " + (index + 1));
-        // update particulate matter field
-        particulateMatterPanel.removeAll();
-        particulateMatterPanel.add(generateParticulateMatterGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        particulateMatterPanel.repaint();
-        particulateMatterPanel.revalidate();
-        // update carbon dioxide graph
-        carbonDioxideField.removeAll();
-        carbonDioxideField.add(generateCarbonDioxideGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        carbonDioxideField.repaint();
-        carbonDioxideField.revalidate();
-        // update soot graph
-        sootPanel.removeAll();
-        sootPanel.add(generateSootGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        sootPanel.repaint();
-        sootPanel.revalidate();
-        // update ozone graph
-        ozonePanel.removeAll();
-        ozonePanel.add(generateOzoneGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        ozonePanel.repaint();
-        ozonePanel.revalidate();
+
+        BiConsumer<JPanel, Function<Mote, ChartPanel>> updateGraph = (p, f) -> {
+            p.removeAll();
+            p.add(f.apply(simulationRunner.getEnvironment().getMotes().get(index)));
+            p.repaint();
+            p.revalidate();
+        };
+
+        updateGraph.accept(particulateMatterCenterPanel, this::generateParticulateMatterGraph);
+        updateGraph.accept(carbonDioxideField, this::generateCarbonDioxideGraph);
+        updateGraph.accept(sootPanel, this::generateSootGraph);
+        updateGraph.accept(ozonePanel, this::generateOzoneGraph);
+    }
+
+    private void setApplicationGraphs(Environment environment) {
+        this.setApplicationGraphs(0, 0, 0, 0, environment);
     }
 
     private void setApplicationGraphs(int xBase, int yBase, int xSize, int ySize, Environment environment) {
         moteApplicationLabel.setText("Region 1");
-        // update particulate matter field
-        particulateMatterPanel.removeAll();
-        Pair<JPanel, JComponent> particulateMatterGraph = generateParticulateMatterGraph(xBase, yBase, xSize, ySize, environment);
 
-        particulateMatterPanel.add(particulateMatterGraph.getLeft());
-        particulateMatterPanel.add(particulateMatterGraph.getRight(), BorderLayout.EAST);
-        particulateMatterPanel.repaint();
-        particulateMatterPanel.revalidate();
-        // update carbon dioxide graph
+        BiConsumer<JPanel, Pair<JPanel, JComponent>> updateGraph = (p, r) -> {
+            p.removeAll();
+            p.add(r.getLeft());
+            p.add(r.getRight(), BorderLayout.EAST);
+            p.repaint();
+            p.revalidate();
+        };
 
-        carbonDioxideField.removeAll();
-        Pair<JPanel, JComponent> carbonDioxideGraph = generateCarbonDioxideGraph(xBase, yBase, xSize, ySize, environment);
-        carbonDioxideField.add(carbonDioxideGraph.getLeft());
-        carbonDioxideField.add(carbonDioxideGraph.getRight(), BorderLayout.EAST);
-        carbonDioxideField.repaint();
-        carbonDioxideField.revalidate();
-        // update soot graph
-        sootPanel.removeAll();
-        Pair<JPanel, JComponent> sootGraph = generateSootGraph(xBase, yBase, xSize, ySize, environment);
-        sootPanel.add(sootGraph.getLeft());
-        sootPanel.add(sootGraph.getRight(), BorderLayout.EAST);
-        sootPanel.repaint();
-        sootPanel.revalidate();
-        // update ozone graph
-        ozonePanel.removeAll();
-        Pair<JPanel, JComponent> ozoneGraph = generateOzoneGraph(xBase, yBase, xSize, ySize, environment);
-        ozonePanel.add(ozoneGraph.getLeft());
-        ozonePanel.add(ozoneGraph.getRight(), BorderLayout.EAST);
-        ozonePanel.repaint();
-        ozonePanel.revalidate();
+        updateGraph.accept(particulateMatterPanel, generateParticulateMatterGraph(xBase, yBase, xSize, ySize, environment));
+        updateGraph.accept(carbonDioxideField, generateCarbonDioxideGraph(xBase, yBase, xSize, ySize, environment));
+        updateGraph.accept(sootPanel, generateSootGraph(xBase, yBase, xSize, ySize, environment));
+        updateGraph.accept(ozonePanel, generateOzoneGraph(xBase, yBase, xSize, ySize, environment));
     }
 
     private Pair<JPanel, JComponent> createHeatChart(LinkedList<Pair<GeoPosition, Double>> dataSet, Environment environment) {
@@ -1288,15 +1114,15 @@ public class MainGUI extends JFrame {
         for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
             if (mote.getSensors().contains(moteSensor)) {
                 for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
-                    Integer xPos = transmission.getXPos();
-                    Integer yPos = transmission.getYPos();
+                    int xPos = transmission.getXPos();
+                    int yPos = transmission.getYPos();
                     for (Pair<Integer, Integer> key : seriesList.keySet()) {
                         if (Math.sqrt(Math.pow(key.getLeft() - xPos, 2) + Math.pow(key.getRight() - yPos, 2)) < 300) {
                             xPos = key.getLeft();
                             yPos = key.getRight();
                         }
                     }
-                    if (seriesList.keySet().contains(new Pair<>(xPos, yPos))) {
+                    if (seriesList.containsKey(new Pair<>(xPos, yPos))) {
                         seriesList.get(new Pair<>(xPos, yPos)).add(moteSensor.getValue(xPos, yPos));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
@@ -1307,13 +1133,11 @@ public class MainGUI extends JFrame {
             }
         }
         for (Pair<Integer, Integer> key : seriesList.keySet()) {
-            Double average = 0.0;
-            Integer amount = 0;
-            for (Double value : seriesList.get(key)) {
-                average = average + value;
-                amount++;
-            }
-            average = average / amount;
+            double average = seriesList.get(key).stream()
+                .mapToDouble(o -> o)
+                .average()
+                .orElse(0.0);
+
             seriesList.get(key).clear();
             seriesList.get(key).add(average);
             dataSet.add(new Pair<>(new GeoPosition(environment.toLatitude(key.getRight()), environment.toLongitude(key.getLeft())), average));
@@ -1410,10 +1234,87 @@ public class MainGUI extends JFrame {
             frame.setVisible(true);
 
         }
-
     }
 
-    public void setProgress(Pair<Integer, Integer> progress) {
+    private class OpenConfigurationListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Load a configuration");
+            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
+
+            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String basePath = file.getParentFile().getParent();
+            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+
+            int returnVal = fc.showOpenDialog(mainPanel);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                JFrame frame = new JFrame("Loading configuration");
+                LoadingGUI loadingGUI = new LoadingGUI();
+                frame.setContentPane(loadingGUI.getMainPanel());
+                frame.setMinimumSize(new Dimension(300, 300));
+                frame.setVisible(true);
+
+                simulationRunner.loadConfigurationFromFile(fc.getSelectedFile());
+
+                frame.dispose();
+
+                updateEntries(simulationRunner.getEnvironment());
+                loadMap(simulationRunner.getEnvironment(), mapViewer, false);
+
+                MouseInputListener mia = new PanMouseInputListener(mapViewer);
+                mapViewer.addMouseListener(mia);
+                mapViewer.addMouseMotionListener(mia);
+                mapViewer.addMouseListener(new CenterMapListener(mapViewer));
+                mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+
+                configureButton.setEnabled(true);
+                saveConfigurationButton.setEnabled(true);
+            }
+        }
+    }
+
+    private class SaveConfigurationListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Save a configuration");
+            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
+
+            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String basePath = file.getParentFile().getParent();
+            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+
+            int returnVal = fc.showSaveDialog(mainPanel);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
+                simulationRunner.saveConfigurationToFile(file);
+            }
+        }
+    }
+
+    private class SaveSimulationResultListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Save output");
+            fc.setFileFilter(new FileNameExtensionFilter("xml output", "xml"));
+
+            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            file = new File(file.getParent());
+            fc.setCurrentDirectory(file);
+
+            int returnVal = fc.showSaveDialog(mainPanel);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
+                simulationRunner.saveSimulationToFile(file);
+            }
+        }
+    }
+
+    private void setProgress(Pair<Integer, Integer> progress) {
         totalRunProgressBar.setMinimum(0);
         totalRunProgressBar.setMaximum(progress.getRight());
         totalRunProgressBar.setValue(progress.getLeft());
@@ -1422,27 +1323,27 @@ public class MainGUI extends JFrame {
 
     /**
      * Generates a received power graph for a specific mote for a specific run, the amount of packets sent and the amount lost.
-     *
+     * NOTE: this also updates the fields {@code packetsSent} and {@code packetsLost} to the corresponding values of that mote.
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A Pair containing ChartPanel containing a received power graph and another pair containing 2 integers: the amount of packets sent and the amount lost.
      */
-    private Pair<ChartPanel, Pair<Integer, Integer>> generateReceivedPowerGraphForMotes(Mote mote, int run) {
+    private ChartPanel generateReceivedPowerGraphForMotes(Mote mote, int run) {
         LinkedList<LinkedList<Pair<NetworkEntity, Pair<Integer, Double>>>> transmissionsMote = new LinkedList<>();
 
-        int amountSent = 0;
-        int amountLost = 0;
+        this.packetsSent = 0;
+        this.packetsLost = 0;
 
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
             for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run).keySet()) {
                 if (transmission.getSender() == mote) {
-                    amountSent += 1;
+                    this.packetsSent++;
                     if (!gateway.getAllReceivedTransmissions(run).get(transmission))
                         transmissionsMote.getLast().add(new Pair<>(transmission.getReceiver(), new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
                     else {
                         transmissionsMote.getLast().add(new Pair<>(transmission.getReceiver(), new Pair<>(transmission.getDepartureTime().toSecondOfDay(), (double) 20)));
-                        amountLost += 1;
+                        this.packetsLost++;
                     }
                 }
             }
@@ -1452,18 +1353,14 @@ public class MainGUI extends JFrame {
         }
         XYSeriesCollection dataReceivedPowerMote = new XYSeriesCollection();
 
-
         for (LinkedList<Pair<NetworkEntity, Pair<Integer, Double>>> list : transmissionsMote) {
             XYSeries series = new XYSeries("gateway " + (mote.getEnvironment().getGateways().indexOf(list.get(0).getLeft()) + 1));
 
             for (Pair<NetworkEntity, Pair<Integer, Double>> data : list) {
                 series.add(data.getRight().getLeft(), data.getRight().getRight());
-
             }
             dataReceivedPowerMote.addSeries(series);
         }
-
-
         JFreeChart receivedPowerChartMote = ChartFactory.createScatterPlot(
                 null, // chart title
                 "Seconds", // x axis label
@@ -1480,13 +1377,11 @@ public class MainGUI extends JFrame {
         for (int i = 0; i < dataReceivedPowerMote.getSeriesCount(); i++) {
             renderer.setSeriesShape(i, shape);
         }
-        return new Pair<>(new ChartPanel(receivedPowerChartMote), new Pair<>(amountSent, amountLost));
-
+        return new ChartPanel(receivedPowerChartMote);
     }
 
     /**
      * Generates a spreading factor graph for a specific mote for a specific run.
-     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a spreading factor graph.
@@ -1494,10 +1389,11 @@ public class MainGUI extends JFrame {
     private ChartPanel generateSpreadingFactorGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataSpreadingFactorMote = new XYSeriesCollection();
         XYSeries seriesSpreadingFactorMote = new XYSeries("Spreading factor");
+
         int i = 0;
-        for (Integer spreadingFactor : mote.getSpreadingFactorHistory(run)) {
+        for (int spreadingFactor : mote.getSpreadingFactorHistory(run)) {
             seriesSpreadingFactorMote.add(i, spreadingFactor);
-            i = i + 1;
+            i++;
         }
         dataSpreadingFactorMote.addSeries(seriesSpreadingFactorMote);
 
@@ -1532,18 +1428,18 @@ public class MainGUI extends JFrame {
 
     /**
      * Generates a used energy graph and the total used energy for a specific mote for a specific run.
-     *
+     * NOTE: this also updates the field {@code usedEnergy} to the corresponding value of that mote.
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A Pair withChartPanel containing a used energy graph and a double the total ued energy.
      */
-    private Pair<ChartPanel, Double> generateUsedEnergyGraph(NetworkEntity mote, int run) {
+    private ChartPanel generateUsedEnergyGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataUsedEnergyEntity = new XYSeriesCollection();
         int i = 0;
         XYSeries seriesUsedEnergyEntity = new XYSeries("Used energy");
-        Double totalEnergy = 0.0;
+        this.usedEnergy = 0;
         for (Double usedEnergy : mote.getUsedEnergy(run)) {
-            totalEnergy += usedEnergy;
+            this.usedEnergy += usedEnergy;
             seriesUsedEnergyEntity.add(i, usedEnergy);
             i = i + 1;
         }
@@ -1570,13 +1466,12 @@ public class MainGUI extends JFrame {
         }
         plot.setRenderer(LineRenderer);
 
-        return new Pair<>(new ChartPanel(usedEnergyChartEntity), totalEnergy);
+        return new ChartPanel(usedEnergyChartEntity);
 
     }
 
     /**
      * Generates a distance to gateway graph for a specific mote for a specific run.
-     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a distance to gateway graph.
@@ -1635,7 +1530,6 @@ public class MainGUI extends JFrame {
 
     /**
      * Generates a power setting graph for a specific mote for a specific run.
-     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a power setting graph.
@@ -1696,77 +1590,29 @@ public class MainGUI extends JFrame {
     }
 
 
-    private void animate(Map<Mote, Pair<Integer, Integer>> locationMap,
-                         Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap,
-                         int speed) {
-        simulationRunner.getSimulation().updateMotesLocation(locationMap);
-
-        Timer timer = new Timer();
-        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
-        timer.schedule(animationTimerTask, 0, 75 / speed);
+    private void setEnabledRunButtons(boolean state) {
+        this.singleRunButton.setEnabled(state);
+        this.timedRunButton.setEnabled(state);
+        this.totalRunButton.setEnabled(state);
     }
 
-    /**
-     * An animation task needed for the visualisation.
-     */
-    private class AnimationTimerTask extends TimerTask {
-
-        Map<Mote, Integer> timeMap = new HashMap<>();
-        // Used to store the index of the waypoint at which the motes are currently present in the animation
-        Map<Mote, Integer> waypointMap = new HashMap<>();
-
-        boolean arrived = false;
-        Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap;
-        int i = 0;
-
-
-        public AnimationTimerTask(Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap) {
-            for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-                timeMap.put(mote, 0);
-                waypointMap.put(mote, 0);
-            }
-            this.locationHistoryMap = locationHistoryMap;
+    @Override
+    public void update() {
+        try {
+            SwingUtilities.invokeAndWait(this::refreshMap);
+        } catch (InterruptedException | InvocationTargetException ex) {
+            ex.printStackTrace();
         }
+    }
 
-
-        @Override
-        public void run() {
-            boolean moved = false;
-            arrived = true;
-
-            for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-                // Is the mote not yet at the last location/waypoint?
-                if (waypointMap.get(mote) < locationHistoryMap.get(mote).size()) {
-                    arrived = false;
-
-                    if (i - timeMap.get(mote) > (1 / mote.getMovementSpeed() * 100)) {
-                        timeMap.put(mote, i);
-                        // Set the position of the mote to the current waypoint he is at.
-                        mote.setXPos(locationHistoryMap.get(mote).get(waypointMap.get(mote)).getLeft());
-                        mote.setYPos(locationHistoryMap.get(mote).get(waypointMap.get(mote)).getRight());
-                        moved = true;
-                        // TODO can this be animated in more steps instead of steps of 25?
-                        waypointMap.put(mote, waypointMap.get(mote) + 25);
-                    }
-                }
-            }
-
-            if (arrived) {
-                for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-                    Pair<Integer, Integer> location = locationHistoryMap.get(mote).get(0);
-                    mote.setXPos(location.getLeft());
-                    mote.setYPos(location.getRight());
-                }
-                MainGUI.this.refreshMap();
-                cancel();
-            }
-            if (moved) {
-                MainGUI.this.refreshMap();
-            }
-
-            i += 50;
-
+    @Override
+    public void onEnd() {
+        try {
+            SwingUtilities.invokeAndWait(this::refreshMap);
+        } catch (InterruptedException | InvocationTargetException ex) {
+            ex.printStackTrace();
         }
+        this.setEnabledRunButtons(true);
     }
 
 }

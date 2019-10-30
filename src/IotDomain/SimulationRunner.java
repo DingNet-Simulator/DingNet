@@ -13,10 +13,7 @@ import util.Pair;
 import util.xml.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 public class SimulationRunner {
@@ -109,17 +106,56 @@ public class SimulationRunner {
             .filter(o -> o.getName().equals(name))
             .findFirst();
 
-        if (!selectedAlgorithm.isPresent()) {
+        if (selectedAlgorithm.isEmpty()) {
             throw new RuntimeException(String.format("Could not load approach with name %s", name));
         }
         simulation.setApproach(selectedAlgorithm.get());
     }
 
+    public void updateQoS(QualityOfService QoS) {
+        this.QoS.updateAdaptationGoals(QoS);
+    }
 
 
 
-    public Simulation.SimulationResult singleRun() {
-        return simulation.singleRun();
+
+    public void setupSingleRun() {
+        simulation.setupSingleRun();
+    }
+
+    public void setupTimedRun() {
+        simulation.setupTimedRun();
+    }
+
+    private boolean isSimulationFinished() {
+        return simulation.isFinished();
+    }
+
+    public void simulate(int updateFrequency, SimulationUpdateListener listener) {
+        new Thread(() -> {
+            Map<Mote, Pair<Integer, Integer>> initialMotePositions = new HashMap<>();
+            simulation.getEnvironment().getMotes()
+                .forEach(m -> initialMotePositions.put(m, m.getPos()));
+
+            long simulationStep = 0;
+            while (!this.isSimulationFinished()) {
+                this.simulateStep();
+
+                // Visualize every x seconds
+                if (simulationStep++ % (updateFrequency * 1000) == 0) {
+                    listener.update();
+                }
+            }
+
+            // Restore the initial positions after the run
+            simulation.updateMotesLocation(initialMotePositions);
+            listener.update();
+            listener.onEnd();
+        }).start();
+    }
+
+    private void simulateStep() {
+        simulation.simulateStep();
     }
 
 
@@ -130,10 +166,6 @@ public class SimulationRunner {
 
     public void totalRun(Function<Pair<Integer, Integer>, Void> fn) {
         simulation.multipleRuns(fn);
-    }
-
-    public void timedRun() {
-        simulation.timedRun();
     }
 
 

@@ -60,12 +60,7 @@ public class ConfigureMotePanel {
         tileFactory.setThreadPoolSize(8);
         mapViewer.setZoom(0);
 
-        int i = 1;
-        Map<Waypoint, Integer> motes = new HashMap<>();
-        for (Mote mote : environment.getMotes()) {
-            motes.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(mote.getYPos()), environment.toLongitude(mote.getXPos()))), i);
-            i++;
-        }
+        Map<Waypoint, Integer> motes = GUIUtil.getMoteMap(environment);
 
         MotePainter<Waypoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());

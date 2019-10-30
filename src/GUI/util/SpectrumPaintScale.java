@@ -1,10 +1,10 @@
-package GUI;
+package GUI.util;
 
 import org.jfree.chart.renderer.PaintScale;
 
 import java.awt.*;
 
-class SpectrumPaintScale implements PaintScale {
+public class SpectrumPaintScale implements PaintScale {
 
     private static final float H1 = 0f;
     private static final float H2 = 1f;

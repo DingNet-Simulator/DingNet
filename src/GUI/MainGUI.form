@@ -33,7 +33,7 @@
             <constraints/>
             <properties/>
           </component>
-          <component id="55d0e" class="javax.swing.JButton" binding="openButton" default-binding="true">
+          <component id="55d0e" class="javax.swing.JButton" binding="openConfigurationButton">
             <constraints/>
             <properties>
               <text value="Open"/>
@@ -43,7 +43,7 @@
             <constraints/>
             <properties/>
           </component>
-          <component id="7a382" class="javax.swing.JButton" binding="environmentSaveButton">
+          <component id="7a382" class="javax.swing.JButton" binding="saveConfigurationButton">
             <constraints/>
             <properties>
               <text value="Save"/>
