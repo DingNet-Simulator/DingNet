@@ -4,11 +4,14 @@ import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
+import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ReplacePathWithMiddlePoints;
 import SensorDataGenerators.SensorDataGenerator;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
+import util.MapHelper;
 import util.Path;
+import util.PathWithMiddlePoints;
 
 import java.nio.ByteBuffer;
 import java.time.LocalTime;
@@ -24,12 +27,17 @@ public class UserMote extends Mote {
 
     public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
-        consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
+        init();
     }
 
     public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed);
+        init();
+    }
+
+    private void init() {
         consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
+        setPath(new PathWithMiddlePoints());
     }
 
     @Override
@@ -37,7 +45,7 @@ public class UserMote extends Mote {
         if (isActive && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
             alreadyRequested = true;
             byte[] payload= new byte[17];
-            payload[0] = 1;
+            payload[0] = MessageType.REQUEST_PATH.getCode();
             System.arraycopy(getGPSSensor().generateData(getPos(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
             ByteBuffer.wrap(payload, 9, 4).putFloat((float)destination.getLatitude());
             ByteBuffer.wrap(payload, 13, 4).putFloat((float)destination.getLongitude());
@@ -45,6 +53,37 @@ public class UserMote extends Mote {
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
         }
         return LoraWanPacket.createEmptyPacket(getEUI(), getApplicationEUI());
+    }
+
+    public void arrivedToWayPoint() {
+        if (!(getPath() instanceof PathWithMiddlePoints)) {
+            throw new IllegalStateException("the user mote don't have a PathWithMiddlePoints");
+        }
+        if (getPath().isEmpty()) {
+            throw new IllegalStateException("I don't have any path to follow...you can't call me:(");
+        }
+        var path = ((PathWithMiddlePoints)getPath()).getOriginalWayPoint();
+        //if I don't the path to the destination and I am at the penultimate position of the path
+        if (!path.get(path.size()-1).equals(destination) &&
+            MapHelper.getInstance().toMapCoordinate(path.get(path.size()-2)).equals(getPos())) {
+            //require new part of path
+            askNewPartOfPath();
+        }
+    }
+
+    private void askNewPartOfPath() {
+        loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(),
+            new Byte[]{MessageType.REQUEST_UPDATE_PATH.getCode()},
+            new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>()));
+
+        var clock = getEnvironment().getClock();
+        var oldPath = getPath();
+        clock.addTrigger(clock.getTime().plusSeconds(30), () -> {
+            if (oldPath.equals(getPath())) {
+                askNewPartOfPath();
+            }
+            return LocalTime.of(0, 0);
+        });
     }
 
     private SensorDataGenerator getGPSSensor() {
@@ -60,8 +99,12 @@ public class UserMote extends Mote {
             getEnvironment().getMotes().stream()
                 .filter(m -> m instanceof UserMote)
                 .map(m -> (UserMote)m)
-                .forEach(m -> m.setActive(false));
+                .forEach(m -> {
+                    m.setActive(false);
+                    m.enable(false);
+                });
         }
         isActive = active;
+        enable(active);
     }
 }
