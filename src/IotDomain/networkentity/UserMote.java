@@ -105,7 +105,11 @@ public class UserMote extends Mote {
                 });
         }
         isActive = active;
-        enable(active);
+    }
+
+    @Override
+    public Boolean isEnabled() {
+        return super.isEnabled() && isActive();
     }
 
     @Override
