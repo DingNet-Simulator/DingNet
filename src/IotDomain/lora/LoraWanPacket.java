@@ -43,6 +43,7 @@ public class LoraWanPacket implements Serializable{
 
     private final Optional<FrameHeader> header;
 
+    //region constructor
     /**
      * A constructor generating a packet with a given payload, header, lowDataRateOptimization, amountOfPreambleSymbols,
      * codingRate and macCommands.
@@ -91,6 +92,11 @@ public class LoraWanPacket implements Serializable{
         this(senderEUI, designatedReceiverEUI, payload, new BasicFrameHeader(), false, 8, 0.8, macCommands);
     }
 
+    public static LoraWanPacket createEmptyPacket(Long senderEUI, Long designatedReceiverEUI) {
+        return new LoraWanPacket(senderEUI, designatedReceiverEUI, new Byte[0], new LinkedList<>());
+    }
+
+    //endregion
 
     public Optional<FrameHeader> getHeader() {
         return header;
