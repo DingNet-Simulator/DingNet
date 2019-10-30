@@ -2,7 +2,6 @@ package GUI.util;
 
 import GUI.MapViewer.LinePainter;
 import IotDomain.Environment;
-import IotDomain.Mote;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.Waypoint;
