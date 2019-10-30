@@ -4,9 +4,9 @@ import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
+import SensorDataGenerators.SensorDataGenerator;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
-import util.MapHelper;
 import util.Path;
 
 import java.nio.ByteBuffer;
@@ -35,10 +35,7 @@ public class UserMote extends Mote {
             alreadyRequested = true;
             byte[] payload= new byte[17];
             payload[0] = 1;
-            var lat = MapHelper.getInstance().toLatitude(getYPos());
-            var lon = MapHelper.getInstance().toLongitude(getXPos());
-            ByteBuffer.wrap(payload, 1, 4).putFloat((float)lat);
-            ByteBuffer.wrap(payload, 5, 4).putFloat((float)lon);
+            System.arraycopy(getGPSSensor().generateData(getPos(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
             ByteBuffer.wrap(payload, 9, 4).putFloat((float)destination.getLatitude());
             ByteBuffer.wrap(payload, 13, 4).putFloat((float)destination.getLongitude());
             return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
@@ -46,6 +43,10 @@ public class UserMote extends Mote {
         } else {
             return super.composePacket(data, macCommands);
         }
+    }
+
+    private SensorDataGenerator getGPSSensor() {
+        return getSensors().stream().filter(s -> s.equals(MoteSensor.GPS)).findFirst().orElseThrow().getSensorDataGenerator();
     }
 
     public boolean isActive() {
