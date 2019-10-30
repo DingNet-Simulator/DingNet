@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Application {
-    private MqttClientBasicApi mqttClient;
+    protected MqttClientBasicApi mqttClient;
 
     Application(List<String> topics) {
         this.mqttClient = new MqttMock();
