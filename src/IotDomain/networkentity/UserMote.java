@@ -107,4 +107,10 @@ public class UserMote extends Mote {
         isActive = active;
         enable(active);
     }
+
+    @Override
+    public boolean isArrivedToDestination() {
+        var dest = getPath().getDestination();
+        return dest.isPresent() && dest.get().equals(destination);
+    }
 }

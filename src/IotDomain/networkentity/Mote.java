@@ -13,6 +13,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.MapHelper;
 import util.Path;
 
 import java.util.*;
@@ -356,4 +357,13 @@ public class Mote extends NetworkEntity {
     protected short incrementFrameCounter() {return frameCounter++;}
 
     public short getFrameCounter() {return frameCounter;}
+
+    public boolean isArrivedToDestination() {
+        if (path.isEmpty()) {
+            return true;
+        }
+        //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
+        return MapHelper.getInstance()
+            .toMapCoordinate(path.getDestination().get()).equals(getPos());
+    }
 }
