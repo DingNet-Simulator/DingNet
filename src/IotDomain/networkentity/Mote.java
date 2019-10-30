@@ -4,6 +4,7 @@ import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
+import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
 import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
@@ -231,7 +232,7 @@ public class Mote extends NetworkEntity {
         keepAliveTriggerId = getEnvironment().getClock().addTrigger(
             getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5), //TODO configure parameter
             () -> {
-                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{2},
+                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{MessageType.KEEPALIVE.getCode()},
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
                 loraSend(packet);
                 return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
@@ -257,7 +258,7 @@ public class Mote extends NetworkEntity {
 
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand,Byte[]> macCommands) {
         Byte[] payload = new Byte[data.length+macCommands.size()+1];
-        payload[0] = 0;
+        payload[0] = MessageType.SENSOR_VALUE.getCode();
         if (payload.length > 1) {
             int i = 1;
             for (MacCommand key : macCommands.keySet()) {
