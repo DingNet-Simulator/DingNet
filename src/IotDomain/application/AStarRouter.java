@@ -3,6 +3,7 @@ package IotDomain.application;
 import org.jetbrains.annotations.NotNull;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.*;
+import util.pollution.PollutionGrid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class AStarRouter implements PathFinder {
             GeoPosition end = graph.getWayPoint(connection.getTo());
 
             // The lower the pollution level, the better the heuristic
-            return grid.getPollutionLevel(MapHelper.meanPosition(begin, end)).getPollutionFactor()
+            return (grid.getPollutionLevel(MapHelper.meanPosition(begin, end)).getPollutionFactor() + 1)
                 * MapHelper.distance(begin, end);
         };
     }
@@ -87,7 +88,7 @@ public class AStarRouter implements PathFinder {
         return points;
     }
 
-    private class FringeEntry implements Comparable<FringeEntry> {
+    private static class FringeEntry implements Comparable<FringeEntry> {
         List<Long> connections;
         double heuristicValue;
 

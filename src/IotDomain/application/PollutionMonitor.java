@@ -4,8 +4,8 @@ import IotDomain.Environment;
 import IotDomain.networkentity.MoteSensor;
 import IotDomain.mqtt.MqttMessage;
 import util.MapHelper;
-import util.PollutionGrid;
-import util.PollutionLevel;
+import util.pollution.PollutionGrid;
+import util.pollution.PollutionLevel;
 
 import java.util.Arrays;
 import java.util.List;
