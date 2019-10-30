@@ -29,6 +29,18 @@ public class Simulation {
      * The GenericFeedbackLoop used in the simulation.
      */
     private GenericFeedbackLoop approach;
+
+    /**
+     * A condition which determines if the simulation should continue (should return {@code false} when the simulation is finished).
+     */
+    private Predicate<Environment> continueSimulation;
+
+
+    /**
+     * Intermediate parameters used during simulation
+     */
+    private Map<Mote, Integer> wayPointMap;
+    private Map<Mote, LocalTime> timeMap;
     // </Params>
 
     // <Constructors>
@@ -42,6 +54,9 @@ public class Simulation {
         this.environment = environment;
         this.inputProfile = inputProfile;
         this.approach = approach;
+        this.continueSimulation = null;
+        this.wayPointMap = new HashMap<>();
+        this.timeMap = new HashMap<>();
     }
 
     public Simulation(){
@@ -160,21 +175,39 @@ public class Simulation {
 
 
     /**
-     *
-     * @param predicate predicate to define the condition to terminate the simulation
-     * @return the simulation result
+     * Simulate a single step in the simulator.
      */
-    private SimulationResult simulate(Predicate<Environment> predicate){
-        LinkedList<Mote> motes = this.environment.getMotes();
-        Map<Mote, Integer> wayPointMap = new HashMap<>();
-        Map<Mote, LocalTime> timeMap = new HashMap<>();
-        Map<Mote, List<Pair<Integer,Integer>>> locationHistoryMap = new HashMap<>();
-        for(Mote mote : motes){
+    void simulateStep() {
+        this.environment.getMotes().stream()
+            .filter(Mote::isEnabled)
+            .peek(Mote::consumePackets)
+            .filter(mote -> mote.getPath().getWayPoints().size() > wayPointMap.get(mote))
+            .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
+                TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
+            .filter(mote -> TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
+            .peek(mote -> timeMap.put(mote, this.environment.getClock().getTime()))
+            .forEach(mote -> {
+                if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPos())) {
+                    this.environment.moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
+                } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
+            });
+        this.environment.getClock().tick(1);
+    }
+
+
+
+
+    boolean isFinished() {
+        return !this.continueSimulation.test(this.environment);
+    }
+
+
+    private void setupSimulation() {
+        this.wayPointMap = new HashMap<>();
+        this.timeMap = new HashMap<>();
+
+        for (Mote mote : this.environment.getMotes()) {
             timeMap.put(mote, this.environment.getClock().getTime());
-            locationHistoryMap.put(mote, new LinkedList<>());
-            List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
-            historyMap.add(new Pair<>(mote.getXPos(), mote.getYPos()));
-            locationHistoryMap.put(mote, historyMap);
             wayPointMap.put(mote,0);
             environment.getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
                 mote.sendToGateWay(
@@ -185,48 +218,24 @@ public class Simulation {
                 return environment.getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
             });
         }
-
-        while (predicate.test(environment)) {
-            motes.stream()
-                .filter(Mote::isEnabled)
-                .peek(Mote::consumePackets)
-                .filter(mote -> mote.getPath().getWayPoints().size() > wayPointMap.get(mote))
-                .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
-                    TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
-                .filter(mote -> TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
-                .peek(mote -> timeMap.put(mote, this.environment.getClock().getTime()))
-                .forEach(mote -> {
-                    if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPos())) {
-                        this.environment.moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
-                        List<Pair<Integer, Integer>> historyMap = locationHistoryMap.get(mote);
-                        historyMap.add(mote.getPos());
-                        locationHistoryMap.put(mote, historyMap);
-                    } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
-                });
-            this.environment.getClock().tick(1);
-        }
-        return new SimulationResult(locationHistoryMap);
     }
 
-    /**
-     * A method for running a run for a specified period of time (specified in the InputProfile) without visualisation.
-     */
-    public void timedRun() {
+    void setupSingleRun() {
         setupMotesActivationStatus();
         this.environment.reset();
+        this.setupSimulation();
+        this.continueSimulation = (env) -> !areAllMotesAtDestination();
+    }
+
+    void setupTimedRun() {
+        setupMotesActivationStatus();
+        this.environment.reset();
+        this.setupSimulation();
         var finalTime = environment.getClock().getTime()
             .plus(getInputProfile().getSimulationDuration(), getInputProfile().getTimeUnit());
-        this.simulate(env -> env.getClock().getTime().isBefore(finalTime));
+        this.continueSimulation = (env) -> env.getClock().getTime().isBefore(finalTime);
     }
 
-    /**
-     * A method for running a single run with visualisation.
-     */
-    SimulationResult singleRun() {
-        setupMotesActivationStatus();
-        this.environment.reset();
-        return this.simulate(env -> !areAllMotesAtDestination());
-    }
 
     /**
      * A method for running the simulation multiple times, specified in the InputProfile.
@@ -237,19 +246,27 @@ public class Simulation {
             getEnvironment().reset();
             int nrOfRuns = getInputProfile().getNumberOfRuns();
 
+            // Store the initial positions of the motes so that these can be reset after each simulation run
+            Map<Mote, Pair<Integer, Integer>> initialLocationMap = new HashMap<>();
+            getEnvironment().getMotes().forEach(m -> initialLocationMap.put(m, m.getPos()));
+
             for (int i = 0; i < getInputProfile().getNumberOfRuns(); i++) {
                 setupMotesActivationStatus();
                 getEnvironment().getClock().reset();    //why we add this
+                this.setupSimulation();
 
                 if (fn != null) {
                     fn.apply(new Pair<>(i, nrOfRuns));
                 }
-
-                if(i != 0) {
+                if (i != 0) {
                     getEnvironment().addRun();
                 }
-                SimulationResult result =  this.simulate(env -> !areAllMotesAtDestination());
-                updateMotesLocation(result.getLocationMap());
+
+                while (!isFinished()) {
+                    this.simulateStep();
+                }
+
+                updateMotesLocation(initialLocationMap);
             }
             if (fn != null) {
                 fn.apply(new Pair<>(nrOfRuns, nrOfRuns));

@@ -51,11 +51,13 @@ import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Timer;
 import java.util.*;
+import java.util.stream.DoubleStream;
 
 public class MainGUI extends JFrame {
     private JPanel map;
@@ -121,8 +123,8 @@ public class MainGUI extends JFrame {
     private int packetsLost;
 
 
-    public MainGUI() {
-        simulationRunner = SimulationRunner.getInstance();
+    public MainGUI(SimulationRunner simulationRunner) {
+        this.simulationRunner = simulationRunner;
 
         updateInputProfiles();
         updateAdaptationGoals();
@@ -151,12 +153,46 @@ public class MainGUI extends JFrame {
 
         regionButton.addActionListener(e -> this.setApplicationGraphs(simulationRunner.getEnvironment()));
 
-        singleRunButton.addActionListener((ActionEvent e) -> {
-            var result = simulationRunner.singleRun();
-            animate(result.getLocationMap(), result.getLocationHistoryMap(), speedSlider.getValue());
+
+        singleRunButton.addActionListener(e -> {
+            singleRunButton.setEnabled(false);
+            timedRunButton.setEnabled(false);
+            totalRunButton.setEnabled(false);
+            simulationRunner.setupSingleRun();
+
+            simulationRunner.simulate(speedSlider.getValue() * 5, () -> {
+                try {
+                    SwingUtilities.invokeAndWait(this::refreshMap);
+                } catch (InterruptedException | InvocationTargetException ex) {
+                    ex.printStackTrace();
+                }
+            }, () -> {
+                // re-enable the run buttons
+                singleRunButton.setEnabled(true);
+                timedRunButton.setEnabled(true);
+                totalRunButton.setEnabled(true);
+            });
         });
 
-        timedRunButton.addActionListener(e -> simulationRunner.timedRun());
+        timedRunButton.addActionListener(e -> {
+            singleRunButton.setEnabled(false);
+            timedRunButton.setEnabled(false);
+            totalRunButton.setEnabled(false);
+            simulationRunner.setupTimedRun();
+
+            simulationRunner.simulate(speedSlider.getValue() * 5, () -> {
+                try {
+                    SwingUtilities.invokeAndWait(this::refreshMap);
+                } catch (InterruptedException | InvocationTargetException ex) {
+                    ex.printStackTrace();
+                }
+            }, () -> {
+                // re-enable the run buttons
+                singleRunButton.setEnabled(true);
+                timedRunButton.setEnabled(true);
+                totalRunButton.setEnabled(true);
+            });
+        });
 
         adaptationComboBox.addActionListener((ActionEvent e) -> {
             String chosenOption = (String) adaptationComboBox.getSelectedItem();
@@ -204,22 +240,25 @@ public class MainGUI extends JFrame {
 
 
     public static void main(String[] args) {
+        SimulationRunner simulationRunner = SimulationRunner.getInstance();
 
-        mapViewer.setTileFactory(tileFactory);
 
-        tileFactory.setThreadPoolSize(8);
+        SwingUtilities.invokeLater(() -> {
+            mapViewer.setTileFactory(tileFactory);
+            tileFactory.setThreadPoolSize(8);
 
-        JFrame frame = new JFrame("Dynamic DingNet simulator");
-        MainGUI gui = new MainGUI();
-        frame.setContentPane(gui.mainPanel);
+            JFrame frame = new JFrame("Dynamic DingNet simulator");
+            MainGUI gui = new MainGUI(simulationRunner);
+            frame.setContentPane(gui.mainPanel);
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.pack();
 
-        gui.updateInputProfiles();
-        gui.loadAlgorithms();
-        frame.setVisible(true);
-        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+            gui.updateInputProfiles();
+            gui.loadAlgorithms();
+            frame.setVisible(true);
+            frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+        });
     }
 
 
