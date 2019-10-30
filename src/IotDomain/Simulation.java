@@ -9,7 +9,6 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * A class representing a simulation.
@@ -126,7 +125,7 @@ public class Simulation {
      * @param approach The GenericFeedbackLoop to set.
      */
     @Basic
-    public void setApproach(GenericFeedbackLoop approach) {
+    void setApproach(GenericFeedbackLoop approach) {
         if(getApproach()!= null) {
             getApproach().stop();
         }
@@ -135,7 +134,7 @@ public class Simulation {
     }
     // <GetterSetters>
 
-    public void updateMotesLocation(Map<Mote, Pair<Integer,Integer>> locations)
+    void updateMotesLocation(Map<Mote, Pair<Integer,Integer>> locations)
     {
         List<Mote> motes = this.environment.getMotes();
         for (Mote mote : motes) {
@@ -202,7 +201,7 @@ public class Simulation {
     }
 
 
-    private void setupSimulation() {
+    private void setupSimulation(Predicate<Environment> pred) {
         this.wayPointMap = new HashMap<>();
         this.timeMap = new HashMap<>();
 
@@ -218,22 +217,22 @@ public class Simulation {
                 return environment.getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
             });
         }
+
+        this.continueSimulation = pred;
     }
 
     void setupSingleRun() {
         setupMotesActivationStatus();
         this.environment.reset();
-        this.setupSimulation();
-        this.continueSimulation = (env) -> !areAllMotesAtDestination();
+        this.setupSimulation((env) -> !areAllMotesAtDestination());
     }
 
     void setupTimedRun() {
         setupMotesActivationStatus();
         this.environment.reset();
-        this.setupSimulation();
         var finalTime = environment.getClock().getTime()
             .plus(getInputProfile().getSimulationDuration(), getInputProfile().getTimeUnit());
-        this.continueSimulation = (env) -> env.getClock().getTime().isBefore(finalTime);
+        this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }
 
 
@@ -253,7 +252,7 @@ public class Simulation {
             for (int i = 0; i < getInputProfile().getNumberOfRuns(); i++) {
                 setupMotesActivationStatus();
                 getEnvironment().getClock().reset();    //why we add this
-                this.setupSimulation();
+                this.setupSimulation((env) -> !areAllMotesAtDestination());
 
                 if (fn != null) {
                     fn.apply(new Pair<>(i, nrOfRuns));
@@ -274,24 +273,4 @@ public class Simulation {
         });
         t.start();
     }
-
-
-    public class SimulationResult {
-        private Map<Mote, List<Pair<Integer,Integer>>> locationHistoryMap;
-
-        SimulationResult(Map<Mote, List<Pair<Integer,Integer>>> locationHistoryMap){
-            this.locationHistoryMap = locationHistoryMap;
-        }
-
-        public Map<Mote, Pair<Integer, Integer>> getLocationMap() {
-            return this.locationHistoryMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,e -> e.getValue().get(0)));
-        }
-
-        public Map<Mote, List<Pair<Integer, Integer>>> getLocationHistoryMap(){
-            return this.locationHistoryMap;
-        }
-    }
-
-
 }

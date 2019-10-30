@@ -129,7 +129,7 @@ public class SimulationRunner {
         return simulation.isFinished();
     }
 
-    public void simulate(int updateFrequency, Runnable updateFunction, Runnable onEnd) {
+    public void simulate(int updateFrequency, SimulationUpdateListener listener) {
         new Thread(() -> {
             Map<Mote, Pair<Integer, Integer>> initialMotePositions = new HashMap<>();
             simulation.getEnvironment().getMotes()
@@ -141,14 +141,14 @@ public class SimulationRunner {
 
                 // Visualize every x seconds
                 if (simulationStep++ % (updateFrequency * 1000) == 0) {
-                    updateFunction.run();
+                    listener.update();
                 }
             }
 
             // Restore the initial positions after the run
             simulation.updateMotesLocation(initialMotePositions);
-            updateFunction.run();
-            onEnd.run();
+            listener.update();
+            listener.onEnd();
         }).start();
     }
 

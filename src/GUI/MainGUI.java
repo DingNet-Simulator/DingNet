@@ -52,14 +52,14 @@ import java.awt.image.FilteredImageSource;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Timer;
 import java.util.*;
-import java.util.stream.DoubleStream;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class MainGUI extends JFrame {
+public class MainGUI extends JFrame implements SimulationUpdateListener {
     private JPanel map;
     private JPanel console;
     private JPanel mainPanel;
@@ -155,43 +155,17 @@ public class MainGUI extends JFrame {
 
 
         singleRunButton.addActionListener(e -> {
-            singleRunButton.setEnabled(false);
-            timedRunButton.setEnabled(false);
-            totalRunButton.setEnabled(false);
+            this.setEnabledRunButtons(false);
             simulationRunner.setupSingleRun();
 
-            simulationRunner.simulate(speedSlider.getValue() * 5, () -> {
-                try {
-                    SwingUtilities.invokeAndWait(this::refreshMap);
-                } catch (InterruptedException | InvocationTargetException ex) {
-                    ex.printStackTrace();
-                }
-            }, () -> {
-                // re-enable the run buttons
-                singleRunButton.setEnabled(true);
-                timedRunButton.setEnabled(true);
-                totalRunButton.setEnabled(true);
-            });
+            simulationRunner.simulate(speedSlider.getValue() * 5, this);
         });
 
         timedRunButton.addActionListener(e -> {
-            singleRunButton.setEnabled(false);
-            timedRunButton.setEnabled(false);
-            totalRunButton.setEnabled(false);
+            this.setEnabledRunButtons(false);
             simulationRunner.setupTimedRun();
 
-            simulationRunner.simulate(speedSlider.getValue() * 5, () -> {
-                try {
-                    SwingUtilities.invokeAndWait(this::refreshMap);
-                } catch (InterruptedException | InvocationTargetException ex) {
-                    ex.printStackTrace();
-                }
-            }, () -> {
-                // re-enable the run buttons
-                singleRunButton.setEnabled(true);
-                timedRunButton.setEnabled(true);
-                totalRunButton.setEnabled(true);
-            });
+            simulationRunner.simulate(speedSlider.getValue() * 5, this);
         });
 
         adaptationComboBox.addActionListener((ActionEvent e) -> {
@@ -871,6 +845,7 @@ public class MainGUI extends JFrame {
     }
 
 
+
     class MoteSelectActionListener implements ActionListener {
         private MainGUI mainGui;
 
@@ -1031,61 +1006,34 @@ public class MainGUI extends JFrame {
         moteCharacteristicsLabel.setText("Mote " + (moteIndex + 1) + " | Run " + (run + 1));
         resultsButton.setEnabled(true);
 
-        // update received power graph
-        receivedPowerGraph.removeAll();
-        Pair<ChartPanel, Pair<Integer, Integer>> powerData = generateReceivedPowerGraphForMotes(simulationRunner.getEnvironment().getMotes().get(moteIndex), run);
-        receivedPowerGraph.add(powerData.getLeft());
-        receivedPowerGraph.repaint();
-        receivedPowerGraph.revalidate();
-        // update power setting graph
-        powerSettingGraph.removeAll();
-        powerSettingGraph.add(generatePowerSettingGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
-        powerSettingGraph.repaint();
-        powerSettingGraph.revalidate();
-        // update spreading factor graph
-        spreadingFactorGraph.removeAll();
-        spreadingFactorGraph.add(generateSpreadingFactorGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
-        spreadingFactorGraph.repaint();
-        spreadingFactorGraph.revalidate();
-        // update used energy graph
-        usedEnergyGraph.removeAll();
-        Pair<ChartPanel, Double> energyData = generateUsedEnergyGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run);
-        usedEnergyGraph.add(energyData.getLeft());
-        usedEnergyGraph.repaint();
-        usedEnergyGraph.revalidate();
-        // update distance to gateway graph
-        distanceToGatewayGraph.removeAll();
-        distanceToGatewayGraph.add(generateDistanceToGatewayGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
-        distanceToGatewayGraph.repaint();
-        distanceToGatewayGraph.revalidate();
+        BiConsumer<JPanel, ChartPanel> updateGraph = (p, c) -> {
+            p.removeAll();
+            p.add(c);
+            p.repaint();
+            p.revalidate();
+        };
 
-        usedEnergy = energyData.getRight();
-        packetsSent = powerData.getRight().getLeft();
-        packetsLost = powerData.getRight().getRight();
+        updateGraph.accept(receivedPowerGraph, generateReceivedPowerGraphForMotes(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(usedEnergyGraph, generateUsedEnergyGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(powerSettingGraph, generatePowerSettingGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(spreadingFactorGraph, generateSpreadingFactorGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
+        updateGraph.accept(distanceToGatewayGraph, generateDistanceToGatewayGraph(simulationRunner.getEnvironment().getMotes().get(moteIndex), run));
     }
 
     void setApplicationGraphs(int index) {
         moteApplicationLabel.setText("Mote " + (index + 1));
-        // update particulate matter field
-        particulateMatterPanel.removeAll();
-        particulateMatterPanel.add(generateParticulateMatterGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        particulateMatterPanel.repaint();
-        particulateMatterPanel.revalidate();
-        // update carbon dioxide graph
-        carbonDioxideField.removeAll();
-        carbonDioxideField.add(generateCarbonDioxideGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        carbonDioxideField.repaint();
-        carbonDioxideField.revalidate();
-        // update soot graph
-        sootPanel.removeAll();
-        sootPanel.add(generateSootGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        sootPanel.repaint();
-        sootPanel.revalidate();
-        // update ozone graph
-        ozonePanel.removeAll();
-        ozonePanel.add(generateOzoneGraph(simulationRunner.getEnvironment().getMotes().get(index)));
-        ozonePanel.repaint();
-        ozonePanel.revalidate();
+
+        BiConsumer<JPanel, Function<Mote, ChartPanel>> updateGraph = (p, f) -> {
+            p.removeAll();
+            p.add(f.apply(simulationRunner.getEnvironment().getMotes().get(index)));
+            p.repaint();
+            p.revalidate();
+        };
+
+        updateGraph.accept(particulateMatterCenterPanel, this::generateParticulateMatterGraph);
+        updateGraph.accept(carbonDioxideField, this::generateCarbonDioxideGraph);
+        updateGraph.accept(sootPanel, this::generateSootGraph);
+        updateGraph.accept(ozonePanel, this::generateOzoneGraph);
     }
 
     private void setApplicationGraphs(Environment environment) {
@@ -1094,36 +1042,19 @@ public class MainGUI extends JFrame {
 
     private void setApplicationGraphs(int xBase, int yBase, int xSize, int ySize, Environment environment) {
         moteApplicationLabel.setText("Region 1");
-        // update particulate matter field
-        particulateMatterPanel.removeAll();
-        Pair<JPanel, JComponent> particulateMatterGraph = generateParticulateMatterGraph(xBase, yBase, xSize, ySize, environment);
 
-        particulateMatterPanel.add(particulateMatterGraph.getLeft());
-        particulateMatterPanel.add(particulateMatterGraph.getRight(), BorderLayout.EAST);
-        particulateMatterPanel.repaint();
-        particulateMatterPanel.revalidate();
-        // update carbon dioxide graph
+        BiConsumer<JPanel, Pair<JPanel, JComponent>> updateGraph = (p, r) -> {
+            p.removeAll();
+            p.add(r.getLeft());
+            p.add(r.getRight(), BorderLayout.EAST);
+            p.repaint();
+            p.revalidate();
+        };
 
-        carbonDioxideField.removeAll();
-        Pair<JPanel, JComponent> carbonDioxideGraph = generateCarbonDioxideGraph(xBase, yBase, xSize, ySize, environment);
-        carbonDioxideField.add(carbonDioxideGraph.getLeft());
-        carbonDioxideField.add(carbonDioxideGraph.getRight(), BorderLayout.EAST);
-        carbonDioxideField.repaint();
-        carbonDioxideField.revalidate();
-        // update soot graph
-        sootPanel.removeAll();
-        Pair<JPanel, JComponent> sootGraph = generateSootGraph(xBase, yBase, xSize, ySize, environment);
-        sootPanel.add(sootGraph.getLeft());
-        sootPanel.add(sootGraph.getRight(), BorderLayout.EAST);
-        sootPanel.repaint();
-        sootPanel.revalidate();
-        // update ozone graph
-        ozonePanel.removeAll();
-        Pair<JPanel, JComponent> ozoneGraph = generateOzoneGraph(xBase, yBase, xSize, ySize, environment);
-        ozonePanel.add(ozoneGraph.getLeft());
-        ozonePanel.add(ozoneGraph.getRight(), BorderLayout.EAST);
-        ozonePanel.repaint();
-        ozonePanel.revalidate();
+        updateGraph.accept(particulateMatterPanel, generateParticulateMatterGraph(xBase, yBase, xSize, ySize, environment));
+        updateGraph.accept(carbonDioxideField, generateCarbonDioxideGraph(xBase, yBase, xSize, ySize, environment));
+        updateGraph.accept(sootPanel, generateSootGraph(xBase, yBase, xSize, ySize, environment));
+        updateGraph.accept(ozonePanel, generateOzoneGraph(xBase, yBase, xSize, ySize, environment));
     }
 
     private Pair<JPanel, JComponent> createHeatChart(LinkedList<Pair<GeoPosition, Double>> dataSet, Environment environment) {
@@ -1353,14 +1284,7 @@ public class MainGUI extends JFrame {
             int returnVal = fc.showSaveDialog(mainPanel);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                file = fc.getSelectedFile();
-                String name = file.getName();
-
-                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
-                    file = new File(file.getPath() + ".xml");
-                } else {
-                    file = new File(file.getPath());
-                }
+                file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
                 simulationRunner.saveConfigurationToFile(file);
             }
         }
@@ -1379,14 +1303,7 @@ public class MainGUI extends JFrame {
 
             int returnVal = fc.showSaveDialog(mainPanel);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                file = fc.getSelectedFile();
-                String name = file.getName();
-
-                if (name.length() < 5 || !name.substring(name.length() - 4).equals(".xml")) {
-                    file = new File(file.getPath() + ".xml");
-                } else {
-                    file = new File(file.getPath());
-                }
+                file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
                 simulationRunner.saveSimulationToFile(file);
             }
         }
@@ -1401,27 +1318,27 @@ public class MainGUI extends JFrame {
 
     /**
      * Generates a received power graph for a specific mote for a specific run, the amount of packets sent and the amount lost.
-     *
+     * NOTE: this also updates the fields {@code packetsSent} and {@code packetsLost} to the corresponding values of that mote.
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A Pair containing ChartPanel containing a received power graph and another pair containing 2 integers: the amount of packets sent and the amount lost.
      */
-    private Pair<ChartPanel, Pair<Integer, Integer>> generateReceivedPowerGraphForMotes(Mote mote, int run) {
+    private ChartPanel generateReceivedPowerGraphForMotes(Mote mote, int run) {
         LinkedList<LinkedList<Pair<NetworkEntity, Pair<Integer, Double>>>> transmissionsMote = new LinkedList<>();
 
-        int amountSent = 0;
-        int amountLost = 0;
+        this.packetsSent = 0;
+        this.packetsLost = 0;
 
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
             for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run).keySet()) {
                 if (transmission.getSender() == mote) {
-                    amountSent += 1;
+                    this.packetsSent++;
                     if (!gateway.getAllReceivedTransmissions(run).get(transmission))
                         transmissionsMote.getLast().add(new Pair<>(transmission.getReceiver(), new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
                     else {
                         transmissionsMote.getLast().add(new Pair<>(transmission.getReceiver(), new Pair<>(transmission.getDepartureTime().toSecondOfDay(), (double) 20)));
-                        amountLost += 1;
+                        this.packetsLost++;
                     }
                 }
             }
@@ -1431,18 +1348,14 @@ public class MainGUI extends JFrame {
         }
         XYSeriesCollection dataReceivedPowerMote = new XYSeriesCollection();
 
-
         for (LinkedList<Pair<NetworkEntity, Pair<Integer, Double>>> list : transmissionsMote) {
             XYSeries series = new XYSeries("gateway " + (mote.getEnvironment().getGateways().indexOf(list.get(0).getLeft()) + 1));
 
             for (Pair<NetworkEntity, Pair<Integer, Double>> data : list) {
                 series.add(data.getRight().getLeft(), data.getRight().getRight());
-
             }
             dataReceivedPowerMote.addSeries(series);
         }
-
-
         JFreeChart receivedPowerChartMote = ChartFactory.createScatterPlot(
                 null, // chart title
                 "Seconds", // x axis label
@@ -1459,8 +1372,7 @@ public class MainGUI extends JFrame {
         for (int i = 0; i < dataReceivedPowerMote.getSeriesCount(); i++) {
             renderer.setSeriesShape(i, shape);
         }
-        return new Pair<>(new ChartPanel(receivedPowerChartMote), new Pair<>(amountSent, amountLost));
-
+        return new ChartPanel(receivedPowerChartMote);
     }
 
     /**
@@ -1511,18 +1423,18 @@ public class MainGUI extends JFrame {
 
     /**
      * Generates a used energy graph and the total used energy for a specific mote for a specific run.
-     *
+     * NOTE: this also updates the field {@code usedEnergy} to the corresponding value of that mote.
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A Pair withChartPanel containing a used energy graph and a double the total ued energy.
      */
-    private Pair<ChartPanel, Double> generateUsedEnergyGraph(NetworkEntity mote, int run) {
+    private ChartPanel generateUsedEnergyGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataUsedEnergyEntity = new XYSeriesCollection();
         int i = 0;
         XYSeries seriesUsedEnergyEntity = new XYSeries("Used energy");
-        Double totalEnergy = 0.0;
+        this.usedEnergy = 0;
         for (Double usedEnergy : mote.getUsedEnergy(run)) {
-            totalEnergy += usedEnergy;
+            this.usedEnergy += usedEnergy;
             seriesUsedEnergyEntity.add(i, usedEnergy);
             i = i + 1;
         }
@@ -1549,13 +1461,12 @@ public class MainGUI extends JFrame {
         }
         plot.setRenderer(LineRenderer);
 
-        return new Pair<>(new ChartPanel(usedEnergyChartEntity), totalEnergy);
+        return new ChartPanel(usedEnergyChartEntity);
 
     }
 
     /**
      * Generates a distance to gateway graph for a specific mote for a specific run.
-     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a distance to gateway graph.
@@ -1614,7 +1525,6 @@ public class MainGUI extends JFrame {
 
     /**
      * Generates a power setting graph for a specific mote for a specific run.
-     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a power setting graph.
@@ -1675,77 +1585,29 @@ public class MainGUI extends JFrame {
     }
 
 
-    private void animate(Map<Mote, Pair<Integer, Integer>> locationMap,
-                         Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap,
-                         int speed) {
-        simulationRunner.getSimulation().updateMotesLocation(locationMap);
-
-        Timer timer = new Timer();
-        AnimationTimerTask animationTimerTask = new AnimationTimerTask(locationHistoryMap);
-        timer.schedule(animationTimerTask, 0, 75 / speed);
+    private void setEnabledRunButtons(boolean state) {
+        this.singleRunButton.setEnabled(state);
+        this.timedRunButton.setEnabled(state);
+        this.totalRunButton.setEnabled(state);
     }
 
-    /**
-     * An animation task needed for the visualisation.
-     */
-    private class AnimationTimerTask extends TimerTask {
-
-        Map<Mote, Integer> timeMap = new HashMap<>();
-        // Used to store the index of the waypoint at which the motes are currently present in the animation
-        Map<Mote, Integer> waypointMap = new HashMap<>();
-
-        boolean arrived = false;
-        Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap;
-        int i = 0;
-
-
-        public AnimationTimerTask(Map<Mote, List<Pair<Integer, Integer>>> locationHistoryMap) {
-            for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-                timeMap.put(mote, 0);
-                waypointMap.put(mote, 0);
-            }
-            this.locationHistoryMap = locationHistoryMap;
+    @Override
+    public void update() {
+        try {
+            SwingUtilities.invokeAndWait(this::refreshMap);
+        } catch (InterruptedException | InvocationTargetException ex) {
+            ex.printStackTrace();
         }
+    }
 
-
-        @Override
-        public void run() {
-            boolean moved = false;
-            arrived = true;
-
-            for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-                // Is the mote not yet at the last location/waypoint?
-                if (waypointMap.get(mote) < locationHistoryMap.get(mote).size()) {
-                    arrived = false;
-
-                    if (i - timeMap.get(mote) > (1 / mote.getMovementSpeed() * 100)) {
-                        timeMap.put(mote, i);
-                        // Set the position of the mote to the current waypoint he is at.
-                        mote.setXPos(locationHistoryMap.get(mote).get(waypointMap.get(mote)).getLeft());
-                        mote.setYPos(locationHistoryMap.get(mote).get(waypointMap.get(mote)).getRight());
-                        moved = true;
-                        // TODO can this be animated in more steps instead of steps of 25?
-                        waypointMap.put(mote, waypointMap.get(mote) + 25);
-                    }
-                }
-            }
-
-            if (arrived) {
-                for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
-                    Pair<Integer, Integer> location = locationHistoryMap.get(mote).get(0);
-                    mote.setXPos(location.getLeft());
-                    mote.setYPos(location.getRight());
-                }
-                MainGUI.this.refreshMap();
-                cancel();
-            }
-            if (moved) {
-                MainGUI.this.refreshMap();
-            }
-
-            i += 50;
-
+    @Override
+    public void onEnd() {
+        try {
+            SwingUtilities.invokeAndWait(this::refreshMap);
+        } catch (InterruptedException | InvocationTargetException ex) {
+            ex.printStackTrace();
         }
+        this.setEnabledRunButtons(true);
     }
 
 }
