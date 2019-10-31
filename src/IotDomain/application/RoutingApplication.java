@@ -1,9 +1,9 @@
 package IotDomain.application;
 
-import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.MessageType;
 import IotDomain.mqtt.MqttMessage;
+import IotDomain.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
 
@@ -87,6 +87,13 @@ public class RoutingApplication extends Application {
         this.mqttClient.publish(String.format("application/%d/node/%d/tx", message.getApplicationEUI(), deviceEUI), routeMessage);
     }
 
+
+    public List<GeoPosition> getRoute(Mote mote) {
+        if (routes.containsKey(mote.getEUI())) {
+            return routes.get(mote.getEUI());
+        }
+        return new ArrayList<>();
+    }
 
     @Override
     public void consumePackets(String topicFilter, MqttMessage message) {

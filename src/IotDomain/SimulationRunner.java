@@ -28,7 +28,8 @@ public class SimulationRunner {
     private List<GenericFeedbackLoop> algorithms;
     private List<MoteProbe> moteProbe;
     private QualityOfService QoS;
-    private List<Application> applications;
+    private RoutingApplication routingApplication;
+    private PollutionMonitor pollutionMonitor;
 
 
     public static SimulationRunner getInstance() {
@@ -196,9 +197,8 @@ public class SimulationRunner {
         }
 
         // Setup of user applications
-        this.applications = new ArrayList<>();
-        this.applications.add(new PollutionMonitor(this.getEnvironment()));
-        this.applications.add(new RoutingApplication(new AStarRouter()));
+        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment());
+        this.routingApplication = new RoutingApplication(new AStarRouter());
     }
 
 
@@ -211,4 +211,7 @@ public class SimulationRunner {
         SimulationWriter.saveSimulationToFile(file, simulation);
     }
 
+    public RoutingApplication getRoutingApplication() {
+        return routingApplication;
+    }
 }
