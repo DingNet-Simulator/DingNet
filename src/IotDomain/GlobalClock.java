@@ -64,7 +64,7 @@ public class GlobalClock {
             triggers.get(time).add(trigger);
         }
         else {
-            Set<Trigger> newTriggers = Set.of(trigger);
+            Set<Trigger> newTriggers = new HashSet<>(Set.of(trigger));
             triggers.put(time,newTriggers);
         }
     }
@@ -79,12 +79,14 @@ public class GlobalClock {
     }
 
     private void fireTrigger() {
-        triggers.remove(getTime()).forEach(trigger -> {
-            LocalTime newTime = trigger.getCallback().get();
-            if (newTime.isAfter(getTime())) {
-                addTrigger(newTime, trigger);
-            }
-        });
+        Optional.ofNullable(triggers.remove(getTime())).ifPresent(
+            t -> t.forEach(trigger -> {
+                LocalTime newTime = trigger.getCallback().get();
+                if (newTime.isAfter(getTime())) {
+                    addTrigger(newTime, trigger);
+                }
+            })
+        );
     }
 
     private class Trigger {
