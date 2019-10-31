@@ -12,21 +12,19 @@ import util.Path;
 import java.nio.ByteBuffer;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class UserMote extends Mote {
 
     private boolean isActive = false;
-    private final GeoPosition destination = new GeoPosition(1,1);
+    private GeoPosition destination;
     private final LocalTime whenAskPath = LocalTime.of(0, 15);
     private boolean alreadyRequested = false;
 
-    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset) {
+    UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
-    }
-
-    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed) {
-        super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed);
+        this.destination = destination;
     }
 
     @Override
@@ -61,5 +59,9 @@ public class UserMote extends Mote {
                 .forEach(m -> m.setActive(false));
         }
         isActive = active;
+    }
+
+    public GeoPosition getDestination() {
+        return this.destination;
     }
 }

@@ -8,6 +8,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.MapHelper;
 import util.Path;
 
 import javax.swing.*;
@@ -146,12 +147,16 @@ public class NewMoteGUI {
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
             moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
         }
-        MoteFactory.createUserMote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
-            (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
+        // FIXME assigns the starting position of the mote as its destination
+        int posX = (Integer) xPosSpinner.getValue();
+        int posY = (Integer) yPosSpinner.getValue();
+
+        MoteFactory.createUserMote(Long.parseUnsignedLong(EUIDtextField.getText()), posX,
+            posY, environment, (Integer) powerSpinner.getValue(),
             (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(),
             (Double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
-            (int) offsetSendingSpinner.getValue())
+            (int) offsetSendingSpinner.getValue(), MapHelper.getInstance().toGeoPosition(posX, posY))
             .setActive(isActiveCheckBox.isSelected());
     }
 
