@@ -5,13 +5,10 @@ import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import IotDomain.lora.MessageType;
-import IotDomain.motepacketstrategy.consumeStrategy.ReplacePathWithMiddlePoints;
 import SensorDataGenerators.SensorDataGenerator;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
-import util.MapHelper;
 import util.Path;
-import util.PathWithMiddlePoints;
 
 import java.time.LocalTime;
 import java.util.LinkedList;
@@ -26,17 +23,10 @@ public class UserMote extends Mote {
 
     public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
-        init();
     }
 
     public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed);
-        init();
-    }
-
-    private void init() {
-        consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
-        setPath(new PathWithMiddlePoints());
     }
 
     @Override
@@ -53,26 +43,7 @@ public class UserMote extends Mote {
         return LoraWanPacket.createEmptyPacket(getEUI(), getApplicationEUI());
     }
 
-    @Override
-    public void setPos(Integer xPos, Integer yPos) {
-        super.setPos(xPos, yPos);
-        if (isActive() && getPath() instanceof PathWithMiddlePoints) {
-            if (getPath().isEmpty()) {
-                throw new IllegalStateException("I don't have any path to follow...I can't move:(");
-            }
-            var path = (PathWithMiddlePoints)getPath();
-            var wayPoints = path.getOriginalWayPoint();
-            //if I don't the path to the destination and I am at the penultimate position of the path
-            if (path.getDestination().isPresent() &&    //at least tha path has one point
-                !path.getDestination().get().equals(destination) &&
-                wayPoints.size() > 1 &&
-                MapHelper.getInstance().toMapCoordinate(wayPoints.get(wayPoints.size()-2)).equals(getPos())) {
-                //require new part of path
-                askNewPartOfPath();
-            }
-        }
-    }
-
+    //not used yet
     private void askNewPartOfPath() {
         if (getPath().getDestination().isEmpty()) {
             throw new IllegalStateException("You can't require new part of path without a previous one");
