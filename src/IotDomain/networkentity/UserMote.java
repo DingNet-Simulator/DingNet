@@ -41,7 +41,7 @@ public class UserMote extends Mote {
 
     @Override
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand, Byte[]> macCommands) {
-        if (isActive && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
+        if (isActive() && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
             alreadyRequested = true;
             byte[] payload= new byte[17];
             payload[0] = MessageType.REQUEST_PATH.getCode();
@@ -53,19 +53,23 @@ public class UserMote extends Mote {
         return LoraWanPacket.createEmptyPacket(getEUI(), getApplicationEUI());
     }
 
-    public void arrivedToWayPoint() {
-        if (!(getPath() instanceof PathWithMiddlePoints)) {
-            throw new IllegalStateException("the user mote don't have a PathWithMiddlePoints");
-        }
-        if (getPath().isEmpty()) {
-            throw new IllegalStateException("I don't have any path to follow...you can't call me:(");
-        }
-        var path = ((PathWithMiddlePoints)getPath()).getOriginalWayPoint();
-        //if I don't the path to the destination and I am at the penultimate position of the path
-        if (!path.get(path.size()-1).equals(destination) &&
-            MapHelper.getInstance().toMapCoordinate(path.get(path.size()-2)).equals(getPos())) {
-            //require new part of path
-            askNewPartOfPath();
+    @Override
+    public void setPos(Integer xPos, Integer yPos) {
+        super.setPos(xPos, yPos);
+        if (isActive() && getPath() instanceof PathWithMiddlePoints) {
+            if (getPath().isEmpty()) {
+                throw new IllegalStateException("I don't have any path to follow...I can't move:(");
+            }
+            var path = (PathWithMiddlePoints)getPath();
+            var wayPoints = path.getOriginalWayPoint();
+            //if I don't the path to the destination and I am at the penultimate position of the path
+            if (path.getDestination().isPresent() &&    //at least tha path has one point
+                !path.getDestination().get().equals(destination) &&
+                wayPoints.size() > 1 &&
+                MapHelper.getInstance().toMapCoordinate(wayPoints.get(wayPoints.size()-2)).equals(getPos())) {
+                //require new part of path
+                askNewPartOfPath();
+            }
         }
     }
 

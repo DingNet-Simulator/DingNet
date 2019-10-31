@@ -1,7 +1,6 @@
 package IotDomain;
 
 import IotDomain.networkentity.Mote;
-import IotDomain.networkentity.UserMote;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 import be.kuleuven.cs.som.annotate.Basic;
 import util.Pair;
@@ -202,9 +201,6 @@ public class Simulation {
                         locationHistoryMap.put(mote, historyMap);
                     } else {
                         wayPointMap.put(mote, wayPointMap.get(mote) + 1);
-                        if (mote instanceof UserMote) {
-                            ((UserMote)mote).arrivedToWayPoint();
-                        }
                     }
                 });
             this.environment.getClock().tick(1);
