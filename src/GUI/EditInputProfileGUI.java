@@ -2,7 +2,7 @@ package GUI;
 
 import IotDomain.Environment;
 import IotDomain.InputProfile;
-import IotDomain.Mote;
+import IotDomain.networkentity.Mote;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -19,7 +19,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.StringWriter;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 
 
 public class EditInputProfileGUI {

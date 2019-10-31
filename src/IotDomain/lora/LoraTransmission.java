@@ -1,5 +1,8 @@
-package IotDomain;
+package IotDomain.lora;
 
+import IotDomain.Characteristic;
+import IotDomain.Environment;
+import IotDomain.networkentity.NetworkEntity;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
@@ -8,7 +11,9 @@ import util.Pair;
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * A class representing a packet in the LoraWan simulation.
@@ -66,6 +71,8 @@ public class LoraTransmission implements Serializable{
      * A Random necessary for the gaussian in the model.
      */
     private final Random random = new Random();
+
+    private final List<RegionalParameters> regionalParameters = EU868ParameterByDataRate.valuesAsList();
 
     /**
      * The departure time of the message
@@ -231,12 +238,7 @@ public class LoraTransmission implements Serializable{
      */
     @Immutable
     private static boolean isValidBandwidth(Integer bandwidth) {
-        if(bandwidth > 0){
-            return true;
-
-        }
-        else
-            return false;
+        return bandwidth > 0;
     }
 
     /**
@@ -253,11 +255,7 @@ public class LoraTransmission implements Serializable{
      * @return  True if the given factor is smaller than 13 and bigger than 6. False otherwise.
      */
     private boolean isValidSpreadingFactor(Integer spreadingFactor) {
-        if(spreadingFactor <= 12 && spreadingFactor >= 7){
-            return true;
-        }
-        else
-            return false;
+        return spreadingFactor <= 12 && spreadingFactor >= 7;
     }
 
     /**
@@ -274,11 +272,21 @@ public class LoraTransmission implements Serializable{
      * @Effect  Tells the receiver to receiveTransmission this transmission.
      */
     public void depart(){
+        var par = regionalParameters.stream().filter(p -> p.getSpreadingFactor() == getSpreadingFactor() &&
+            p.getBandwidth() == getBandwidth()).collect(Collectors.toList());
+        if (par.isEmpty()) {
+            throw new IllegalArgumentException("No regional parameter found with spreading factor: "
+                + getSpreadingFactor() + " and bandwidth: " + getBandwidth());
+        }
+        var payloadSize = getContent().getPayload().length + getContent().getHeader().getFOpts().length;
+        if (par.stream().noneMatch(p -> p.getMaximumPayloadSize() >= payloadSize)) {
+            throw new IllegalArgumentException("No regional parameter found with spreading factor: "
+                + getSpreadingFactor() + " and bandwidth: " + getBandwidth() + " and payload size: " + payloadSize);
+        }
         if(getReceiver() != null){
             moveTo(getReceiver().getXPos(),getReceiver().getYPos());
             getReceiver().receiveTransmission(this);
         }
-
     }
 
     /**
@@ -336,44 +344,6 @@ public class LoraTransmission implements Serializable{
 
         }
         setTransmissionPower(getTransmissionPower() - random.nextGaussian() * characteristic.getShadowFading());
-
-        /*
-        xDist = Math.abs(xPos - getXPos());
-        yDist = Math.abs(yPos - getYPos());
-        xDir = Integer.signum(xPos - getXPos());
-        yDir = Integer.signum(yPos - getYPos());
-        characteristic = getEnvironment().getCharacteristic(xPos, yPos);
-        if(getTransmissionPower() > -300) {
-            if(xDist + yDist > 1){
-                if(xDist >  2*yDist || yDist >  2*xDist){
-                    setTransmissionPower(getTransmissionPower() - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1)));
-                    if(xDist >  2*yDist) {
-                        moveTo(xPos - xDir, yPos);
-                    }
-                    else{
-                        moveTo(xPos, yPos - yDir);
-                    }
-                }
-                else {
-                    setTransmissionPower(getTransmissionPower() - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - Math.sqrt(2))));
-                    moveTo(xPos - xDir, yPos - yDir);
-                }
-            }
-
-            else if (xDist + yDist == 1){
-                if(xDist >  yDist){
-                    moveTo(xPos - xDir, yPos);
-                }
-                else {
-                    moveTo(xPos, yPos - yDir);
-                }
-                }
-            else {
-                setTransmissionPower(getTransmissionPower() - random.nextGaussian() * characteristic.getShadowFading());
-            }
-
-        }
-        */
     }
 
 

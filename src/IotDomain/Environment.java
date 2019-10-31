@@ -1,5 +1,7 @@
 package IotDomain;
 
+import IotDomain.networkentity.Gateway;
+import IotDomain.networkentity.Mote;
 import be.kuleuven.cs.som.annotate.Basic;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Connection;
@@ -323,12 +325,13 @@ public class Environment implements Serializable {
         int yPos = toMapYCoordinate(position);
         if(Integer.signum(xPos - mote.getXPos()) != 0 || Integer.signum(yPos - mote.getYPos()) != 0){
             if(Math.abs(mote.getXPos() - xPos) >= Math.abs(mote.getYPos() - yPos)){
-                mote.setXPos(mote.getXPos()+ Integer.signum(xPos - mote.getXPos()));
+                xPos = mote.getXPos()+ Integer.signum(xPos - mote.getXPos());
 
             }
             else{
-                mote.setYPos(mote.getYPos()+ Integer.signum(yPos - mote.getYPos()));
+                yPos = mote.getYPos()+ Integer.signum(yPos - mote.getYPos());
             }
+            mote.setPos(xPos, yPos);
             return true;
         }
         return false;

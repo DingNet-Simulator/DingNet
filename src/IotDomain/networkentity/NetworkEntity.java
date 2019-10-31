@@ -1,5 +1,9 @@
-package IotDomain;
+package IotDomain.networkentity;
 
+import IotDomain.Environment;
+import IotDomain.lora.LoraTransmission;
+import IotDomain.lora.LoraWanPacket;
+import IotDomain.lora.MacCommand;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -343,8 +347,8 @@ public abstract class NetworkEntity implements Serializable{
     }
 
     public void setPos(Integer xPos, Integer yPos){
-        this.xPos = xPos;
-        this.yPos = yPos;
+        setYPos(xPos);
+        setYPos(yPos);
     }
     /**
      * The spreading factor setting of the node.

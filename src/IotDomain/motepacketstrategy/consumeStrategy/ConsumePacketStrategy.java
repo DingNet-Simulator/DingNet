@@ -1,12 +1,10 @@
 package IotDomain.motepacketstrategy.consumeStrategy;
 
-import IotDomain.LoraWanPacket;
-import IotDomain.Mote;
-
-import java.util.List;
+import IotDomain.lora.LoraWanPacket;
+import IotDomain.networkentity.Mote;
 
 @FunctionalInterface
 public interface ConsumePacketStrategy {
 
-    void consume(Mote mote, List<LoraWanPacket> packets);
+    void consume(Mote mote, LoraWanPacket packet);
 }

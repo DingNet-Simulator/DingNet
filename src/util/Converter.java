@@ -1,5 +1,9 @@
 package util;
 
+import org.jxmapviewer.viewer.GeoPosition;
+
+import java.nio.ByteBuffer;
+
 public class Converter {
 
     static public byte[] toRowType(Byte[] data) {
@@ -16,5 +20,21 @@ public class Converter {
             ret[i] = data[i];
         }
         return ret;
+    }
+
+    static public byte[] toByteArray(GeoPosition position) {
+        byte[] data = new byte[8];
+        ByteBuffer.wrap(data, 0, 4).putFloat((float)position.getLatitude());
+        ByteBuffer.wrap(data, 4, 4).putFloat((float)position.getLongitude());
+        return data;
+    }
+
+    static public GeoPosition toGeoPosition(byte[] data) {
+        return toGeoPosition(data, 0);
+    }
+
+    static public GeoPosition toGeoPosition(byte[] data, int offset) {
+        ByteBuffer buf = ByteBuffer.wrap(data);
+        return new GeoPosition(buf.getFloat(offset), buf.getFloat(offset+Float.BYTES));
     }
 }

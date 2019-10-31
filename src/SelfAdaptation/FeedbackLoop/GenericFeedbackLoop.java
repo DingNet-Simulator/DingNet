@@ -1,7 +1,7 @@
 package SelfAdaptation.FeedbackLoop;
 
-import IotDomain.Gateway;
-import IotDomain.Mote;
+import IotDomain.networkentity.Gateway;
+import IotDomain.networkentity.Mote;
 import SelfAdaptation.Instrumentation.MoteEffector;
 import SelfAdaptation.Instrumentation.MoteProbe;
 import be.kuleuven.cs.som.annotate.Basic;

@@ -1,4 +1,4 @@
-package IotDomain;
+package IotDomain.lora;
 
 import be.kuleuven.cs.som.annotate.Basic;
 

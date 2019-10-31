@@ -1,4 +1,4 @@
-package IotDomain;
+package IotDomain.networkentity;
 
 import SensorDataGenerators.*;
 import SensorDataGenerators.IAQSensor.IAQDataGeneratorSingleton;
@@ -29,9 +29,11 @@ public enum MoteSensor {
     public byte[] getValue(Integer xpos, Integer ypos, LocalTime time){
         return sensorDataGenerator.generateData(xpos,ypos,time);
     }
+
     public double getValue(double xpos, double ypos){
         return sensorDataGenerator.nonStaticDataGeneration(xpos,ypos);
     }
+
     public List<Byte> getValueAsList(Integer xpos, Integer ypos, LocalTime time){
         var tmp = sensorDataGenerator.generateData(xpos,ypos,time);
         var ret = new LinkedList<Byte>();
@@ -40,10 +42,16 @@ public enum MoteSensor {
         }
         return ret;
     }
+
     public byte[] getValue(Pair<Integer, Integer> pos, LocalTime time){
         return getValue(pos.getLeft(), pos.getRight(), time);
     }
+
     public List<Byte> getValueAsList(Pair<Integer, Integer> pos, LocalTime time){
         return getValueAsList(pos.getLeft(), pos.getRight(), time);
+    }
+
+    public SensorDataGenerator getSensorDataGenerator() {
+        return sensorDataGenerator;
     }
 }
