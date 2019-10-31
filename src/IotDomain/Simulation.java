@@ -1,7 +1,9 @@
 package IotDomain;
 
 import IotDomain.networkentity.Mote;
+import IotDomain.networkentity.MoteSensor;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
+import SensorDataGenerators.SensorDataGenerator;
 import be.kuleuven.cs.som.annotate.Basic;
 import util.Pair;
 import util.TimeHelper;
@@ -221,16 +223,24 @@ public class Simulation {
 
     void setupSingleRun() {
         setupMotesActivationStatus();
-        this.environment.reset();
+        reset();
         this.setupSimulation((env) -> !areAllMotesAtDestination());
     }
 
     void setupTimedRun() {
         setupMotesActivationStatus();
-        this.environment.reset();
+        reset();
         var finalTime = environment.getClock().getTime()
             .plus(getInputProfile().getSimulationDuration(), getInputProfile().getTimeUnit());
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
+    }
+
+    private void reset() {
+        this.environment.reset();
+        getEnvironment().getMotes().stream()
+            .flatMap(m -> m.getSensors().stream())
+            .map(MoteSensor::getSensorDataGenerator)
+            .forEach(SensorDataGenerator::reset);
     }
 
 

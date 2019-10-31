@@ -10,8 +10,10 @@ import java.util.Random;
  */
 public class SootDataGenerator implements SensorDataGenerator {
 
+    private static final int DEFAULT_SEED = 1;
+    private static Random random = new Random(DEFAULT_SEED);
+
     public static Double generateData(double x, double y) {
-        Random random = new Random();
         if (x < 210 && y < 230)
             return (double) 97 - 10 + (x + y) / 250 + 0.3 * random.nextGaussian();
         else if (x < 1100 && y < 1100)
@@ -24,6 +26,12 @@ public class SootDataGenerator implements SensorDataGenerator {
     public double nonStaticDataGeneration(double x, double y) {
         return ParticulateMatterDataGenerator.generateData(x,y);
     }
+
+    @Override
+    public void reset() {
+        random = new Random(DEFAULT_SEED);
+    }
+
     /**
      * A function generating senor data for soot.
      * @param x The x position of the measurement.

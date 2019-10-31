@@ -10,8 +10,15 @@ import java.util.Random;
  */
 public class OzoneDataGenerator implements SensorDataGenerator {
 
+    private static final int DEFAULT_SEED = 1;
+    private static Random random = new Random(DEFAULT_SEED);
+
+    @Override
+    public void reset() {
+        random = new Random(DEFAULT_SEED);
+    }
+
     public static Double generateData(double x, double y) {
-        Random random = new Random();
         if (x < 200 && y < 200)
             return (double) 97 - 30 + (x + y) / 250 + 0.3 * random.nextGaussian();
         else if (x < 1000 && y < 1000)

@@ -87,4 +87,9 @@ public class IAQDataGeneratorSingleton implements SensorDataGenerator {
     public double nonStaticDataGeneration(double x, double y){
         return 0.0;
     }
+
+    @Override
+    public void reset() {
+
+    }
 }
