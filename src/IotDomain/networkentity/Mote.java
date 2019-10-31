@@ -58,7 +58,7 @@ public class Mote extends NetworkEntity {
 
     private boolean canReceive = false;
 
-    private String keepAliveTriggerId;
+    private long keepAliveTriggerId = -1L;
 
     private LoraWanPacket lastPacketSent;
 
@@ -119,7 +119,7 @@ public class Mote extends NetworkEntity {
         this.startMovementOffset = startMovementOffset;
         this.periodSendingPacket = periodSendingPacket;
         this.startSendingOffset = startSendingOffset;
-        resetKeepAliveTrigger();
+        resetKeepAliveTrigger(this.startSendingOffset);
     }
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -226,12 +226,12 @@ public class Mote extends NetworkEntity {
         return applicationEUI;
     }
 
-    private void resetKeepAliveTrigger() {
-        if (keepAliveTriggerId != null) {
+    private void resetKeepAliveTrigger(int offset) {
+        if (keepAliveTriggerId != -1L) {
             getEnvironment().getClock().removeTrigger(keepAliveTriggerId);
         }
         keepAliveTriggerId = getEnvironment().getClock().addTrigger(
-            getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5), //TODO configure parameter
+            getEnvironment().getClock().getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
             () -> {
                 var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{MessageType.KEEPALIVE.getCode()},
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
@@ -253,7 +253,7 @@ public class Mote extends NetworkEntity {
             loraSend(packet);
             canReceive = true;
             lastPacketSent = packet;
-            resetKeepAliveTrigger();
+            resetKeepAliveTrigger(0);
         }
     }
 

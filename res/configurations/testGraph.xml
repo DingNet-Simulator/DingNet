@@ -31,8 +31,10 @@
             <transmissionPower>10</transmissionPower>
             <spreadingFactor>12</spreadingFactor>
             <energyLevel>20</energyLevel>
-            <samplingRate>20</samplingRate>
             <movementSpeed>1.0</movementSpeed>
+            <startMovementOffset>1</startMovementOffset>
+            <periodSendingPacket>20</periodSendingPacket>
+            <startSendingOffset>1</startSendingOffset>
             <sensors>
                 <sensor SensorType="CARBON_DIOXIDE"/>
             </sensors>
