@@ -347,8 +347,8 @@ public abstract class NetworkEntity implements Serializable{
     }
 
     public void setPos(Integer xPos, Integer yPos){
-        this.xPos = xPos;
-        this.yPos = yPos;
+        setYPos(xPos);
+        setYPos(yPos);
     }
     /**
      * The spreading factor setting of the node.
