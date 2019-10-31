@@ -167,7 +167,7 @@ public class Simulation {
      */
     private Boolean areAllMotesAtDestination() {
         return this.environment.getMotes().stream().allMatch(m ->
-                !m.isEnabled() && m.isArrivedToDestination());
+                !m.isEnabled() || m.isArrivedToDestination());
     }
 
 
