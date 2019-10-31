@@ -7,6 +7,8 @@ import java.util.function.Supplier;
 
 public class GlobalClock {
 
+    private static long nextTriggerUid = 0;
+
     /**
      * A representation of time.
      */
@@ -53,7 +55,7 @@ public class GlobalClock {
         return triggers.containsKey(time);
     }
 
-    public String addTrigger(LocalTime time,Supplier<LocalTime> trigger){
+    public long addTrigger(LocalTime time,Supplier<LocalTime> trigger){
         var trig = new Trigger(trigger);
         addTrigger(time, trig);
         return trig.getUid();
@@ -69,9 +71,9 @@ public class GlobalClock {
         }
     }
 
-    public boolean removeTrigger(String triggerId) {
+    public boolean removeTrigger(long triggerId) {
         for (Map.Entry<LocalTime, Set<Trigger>> e: triggers.entrySet()) {
-            if (e.getValue().removeIf(p -> p.getUid().equals(triggerId))) {
+            if (e.getValue().removeIf(p -> p.getUid() == triggerId)) {
                 return true;
             }
         }
@@ -91,15 +93,15 @@ public class GlobalClock {
 
     private class Trigger {
 
-        private final String uid;
+        private final long uid;
         private final Supplier<LocalTime> callback;
 
         public Trigger(Supplier<LocalTime> callback) {
-            uid = UUID.randomUUID().toString();
+            uid = nextTriggerUid++;
             this.callback = callback;
         }
 
-        public String getUid() {
+        public long getUid() {
             return uid;
         }
 
