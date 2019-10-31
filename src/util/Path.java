@@ -49,6 +49,10 @@ public class Path implements Iterable<GeoPosition> {
         this.points.add(point);
     }
 
+    public void addPositions(List<GeoPosition> points) {
+        this.points.addAll(points);
+    }
+
 
     /**
      * Retrieve the used connections in this path.
@@ -110,5 +114,17 @@ public class Path implements Iterable<GeoPosition> {
         }
 
         this.points = this.points.subList(0, index);
+    }
+
+    public boolean isEmpty() {
+        return points.isEmpty();
+    }
+
+    public Optional<GeoPosition> getSource() {
+        return isEmpty() ? Optional.empty() : Optional.of(points.get(0));
+    }
+
+    public Optional<GeoPosition> getDestination() {
+        return isEmpty() ? Optional.empty() : Optional.of(points.get(points.size()-1));
     }
 }

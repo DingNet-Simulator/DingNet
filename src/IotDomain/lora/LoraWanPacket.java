@@ -1,10 +1,7 @@
 package IotDomain.lora;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.io.Serializable;
 import java.util.LinkedList;
-import java.util.Optional;
 
 public class LoraWanPacket implements Serializable{
     private static final long serialVersionUID = 1L;
@@ -41,8 +38,9 @@ public class LoraWanPacket implements Serializable{
      */
     private final Long senderEUI;
 
-    private final Optional<FrameHeader> header;
+    private final FrameHeader header;
 
+    //region constructor
     /**
      * A constructor generating a packet with a given payload, header, lowDataRateOptimization, amountOfPreambleSymbols,
      * codingRate and macCommands.
@@ -55,13 +53,13 @@ public class LoraWanPacket implements Serializable{
      * @param codingRate
      * @param macCommands
      */
-    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, Byte[] payload, @Nullable FrameHeader header, Boolean lowDataRateOptimization,
+    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, Byte[] payload, FrameHeader header, Boolean lowDataRateOptimization,
                          Integer amountOfPreambleSymbols, double codingRate, LinkedList<MacCommand> macCommands){
         this.senderEUI = senderEUI;
         this.designatedReceiverEUI = designatedReceiverEUI;
         this.amountOfPreambleSymbols = amountOfPreambleSymbols;
         this.codingRate = codingRate;
-        this.header = Optional.ofNullable(header);
+        this.header = header;
         this.lowDataRateOptimization = lowDataRateOptimization;
         this.payload = payload;
         this.macCommands = macCommands;
@@ -76,7 +74,7 @@ public class LoraWanPacket implements Serializable{
      * @param header
      * @param macCommands
      */
-    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, Byte[] payload, @Nullable FrameHeader header, LinkedList<MacCommand> macCommands){
+    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, Byte[] payload, FrameHeader header, LinkedList<MacCommand> macCommands){
         this(senderEUI, designatedReceiverEUI, payload, header,false,8,0.8,macCommands);
     }
 
@@ -91,8 +89,13 @@ public class LoraWanPacket implements Serializable{
         this(senderEUI, designatedReceiverEUI, payload, new BasicFrameHeader(), false, 8, 0.8, macCommands);
     }
 
+    public static LoraWanPacket createEmptyPacket(Long senderEUI, Long designatedReceiverEUI) {
+        return new LoraWanPacket(senderEUI, designatedReceiverEUI, new Byte[0], new LinkedList<>());
+    }
 
-    public Optional<FrameHeader> getHeader() {
+    //endregion
+
+    public FrameHeader getHeader() {
         return header;
     }
 
@@ -133,7 +136,7 @@ public class LoraWanPacket implements Serializable{
      * @return if the packet has an explicit header.
      */
     public Boolean hasHeader() {
-        return header.isPresent();
+        return true;//TODO
     }
 
     /**

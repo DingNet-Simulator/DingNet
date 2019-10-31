@@ -278,7 +278,7 @@ public class LoraTransmission implements Serializable{
             throw new IllegalArgumentException("No regional parameter found with spreading factor: "
                 + getSpreadingFactor() + " and bandwidth: " + getBandwidth());
         }
-        var payloadSize = getContent().getPayload().length + getContent().getHeader().map(m -> m.getFOpts().length).orElse(0);
+        var payloadSize = getContent().getPayload().length + getContent().getHeader().getFOpts().length;
         if (par.stream().noneMatch(p -> p.getMaximumPayloadSize() >= payloadSize)) {
             throw new IllegalArgumentException("No regional parameter found with spreading factor: "
                 + getSpreadingFactor() + " and bandwidth: " + getBandwidth() + " and payload size: " + payloadSize);

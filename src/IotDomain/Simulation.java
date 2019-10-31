@@ -1,7 +1,9 @@
 package IotDomain;
 
 import IotDomain.networkentity.Mote;
+import IotDomain.networkentity.MoteSensor;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
+import SensorDataGenerators.SensorDataGenerator;
 import be.kuleuven.cs.som.annotate.Basic;
 import util.Pair;
 import util.TimeHelper;
@@ -166,11 +168,8 @@ public class Simulation {
      * check that do all motes arrive at their destination
      */
     private Boolean areAllMotesAtDestination() {
-        return this.environment.getMotes().stream().noneMatch(m ->
-                m.isEnabled() &&
-                !m.getPath().getWayPoints().isEmpty() &&
-                m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1) != null &&
-                !this.environment.toMapCoordinate(m.getPath().getWayPoints().get(m.getPath().getWayPoints().size()-1)).equals(m.getPos()));
+        return this.environment.getMotes().stream().allMatch(m ->
+                !m.isEnabled() || m.isArrivedToDestination());
     }
 
 
@@ -224,16 +223,24 @@ public class Simulation {
 
     void setupSingleRun() {
         setupMotesActivationStatus();
-        this.environment.reset();
+        reset();
         this.setupSimulation((env) -> !areAllMotesAtDestination());
     }
 
     void setupTimedRun() {
         setupMotesActivationStatus();
-        this.environment.reset();
+        reset();
         var finalTime = environment.getClock().getTime()
             .plus(getInputProfile().getSimulationDuration(), getInputProfile().getTimeUnit());
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
+    }
+
+    private void reset() {
+        this.environment.reset();
+        getEnvironment().getMotes().stream()
+            .flatMap(m -> m.getSensors().stream())
+            .map(MoteSensor::getSensorDataGenerator)
+            .forEach(SensorDataGenerator::reset);
     }
 
 

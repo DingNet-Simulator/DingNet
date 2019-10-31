@@ -4,6 +4,7 @@ import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
+import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
 import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
@@ -12,6 +13,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.MapHelper;
 import util.Path;
 
 import java.util.*;
@@ -56,7 +58,7 @@ public class Mote extends NetworkEntity {
 
     private boolean canReceive = false;
 
-    private String keepAliveTriggerId;
+    private long keepAliveTriggerId = -1L;
 
     private LoraWanPacket lastPacketSent;
 
@@ -81,7 +83,7 @@ public class Mote extends NetworkEntity {
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
     private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
 
-    private final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new DummyConsumer());
+    protected final List<ConsumePacketStrategy> consumePacketStrategies = new LinkedList<>(List.of(new DummyConsumer()));
 
     //endregion
 
@@ -117,7 +119,7 @@ public class Mote extends NetworkEntity {
         this.startMovementOffset = startMovementOffset;
         this.periodSendingPacket = periodSendingPacket;
         this.startSendingOffset = startSendingOffset;
-        resetKeepAliveTrigger();
+        resetKeepAliveTrigger(this.startSendingOffset);
     }
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -224,14 +226,14 @@ public class Mote extends NetworkEntity {
         return applicationEUI;
     }
 
-    private void resetKeepAliveTrigger() {
-        if (keepAliveTriggerId != null) {
+    private void resetKeepAliveTrigger(int offset) {
+        if (keepAliveTriggerId != -1L) {
             getEnvironment().getClock().removeTrigger(keepAliveTriggerId);
         }
         keepAliveTriggerId = getEnvironment().getClock().addTrigger(
-            getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5), //TODO configure parameter
+            getEnvironment().getClock().getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
             () -> {
-                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{2},
+                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{MessageType.KEEPALIVE.getCode()},
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
                 loraSend(packet);
                 return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
@@ -251,13 +253,13 @@ public class Mote extends NetworkEntity {
             loraSend(packet);
             canReceive = true;
             lastPacketSent = packet;
-            resetKeepAliveTrigger();
+            resetKeepAliveTrigger(0);
         }
     }
 
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand,Byte[]> macCommands) {
         Byte[] payload = new Byte[data.length+macCommands.size()+1];
-        payload[0] = 0;
+        payload[0] = MessageType.SENSOR_VALUE.getCode();
         if (payload.length > 1) {
             int i = 1;
             for (MacCommand key : macCommands.keySet()) {
@@ -355,4 +357,13 @@ public class Mote extends NetworkEntity {
     protected short incrementFrameCounter() {return frameCounter++;}
 
     public short getFrameCounter() {return frameCounter;}
+
+    public boolean isArrivedToDestination() {
+        if (path.isEmpty()) {
+            return true;
+        }
+        //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
+        return MapHelper.getInstance()
+            .toMapCoordinate(path.getDestination().get()).equals(getPos());
+    }
 }

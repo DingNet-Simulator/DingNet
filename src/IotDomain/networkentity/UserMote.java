@@ -4,12 +4,12 @@ import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
+import IotDomain.lora.MessageType;
 import SensorDataGenerators.SensorDataGenerator;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.Path;
 
-import java.nio.ByteBuffer;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,18 +29,37 @@ public class UserMote extends Mote {
 
     @Override
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand, Byte[]> macCommands) {
-        if (isActive && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
+        if (isActive() && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
             alreadyRequested = true;
             byte[] payload= new byte[17];
-            payload[0] = 1;
+            payload[0] = MessageType.REQUEST_PATH.getCode();
             System.arraycopy(getGPSSensor().generateData(getPos(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
-            ByteBuffer.wrap(payload, 9, 4).putFloat((float)destination.getLatitude());
-            ByteBuffer.wrap(payload, 13, 4).putFloat((float)destination.getLongitude());
+            System.arraycopy(Converter.toByteArray(destination), 0, payload, 9, 8);
             return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
-        } else {
-            return super.composePacket(data, macCommands);
         }
+        return LoraWanPacket.createEmptyPacket(getEUI(), getApplicationEUI());
+    }
+
+    //not used yet
+    private void askNewPartOfPath() {
+        if (getPath().getDestination().isEmpty()) {
+            throw new IllegalStateException("You can't require new part of path without a previous one");
+        }
+        byte[] payload= new byte[9];
+        payload[0] = MessageType.REQUEST_UPDATE_PATH.getCode();
+        System.arraycopy(Converter.toByteArray(getPath().getDestination().get()), 0, payload, 1, 8);
+        loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
+            new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>()));
+
+        var clock = getEnvironment().getClock();
+        var oldPath = getPath();
+        clock.addTrigger(clock.getTime().plusSeconds(30), () -> {
+            if (oldPath.equals(getPath())) {
+                askNewPartOfPath();
+            }
+            return LocalTime.of(0, 0);
+        });
     }
 
     private SensorDataGenerator getGPSSensor() {
@@ -56,12 +75,26 @@ public class UserMote extends Mote {
             getEnvironment().getMotes().stream()
                 .filter(m -> m instanceof UserMote)
                 .map(m -> (UserMote)m)
-                .forEach(m -> m.setActive(false));
+                .forEach(m -> {
+                    m.setActive(false);
+                    m.enable(false);
+                });
         }
         isActive = active;
     }
 
     public GeoPosition getDestination() {
         return this.destination;
+    }
+
+    @Override
+    public Boolean isEnabled() {
+        return super.isEnabled() && isActive();
+    }
+
+    @Override
+    public boolean isArrivedToDestination() {
+        var dest = getPath().getDestination();
+        return dest.isPresent() && dest.get().equals(destination);
     }
 }

@@ -321,16 +321,19 @@ public class Environment implements Serializable {
      * @return If the node has moved.
      */
     public boolean moveMote(Mote mote, GeoPosition position){
-        int xPos = toMapXCoordinate(position);
-        int yPos = toMapYCoordinate(position);
-        if(Integer.signum(xPos - mote.getXPos()) != 0 || Integer.signum(yPos - mote.getYPos()) != 0){
-            if(Math.abs(mote.getXPos() - xPos) >= Math.abs(mote.getYPos() - yPos)){
-                mote.setXPos(mote.getXPos()+ Integer.signum(xPos - mote.getXPos()));
+        int xPosDest = toMapXCoordinate(position);
+        int yPosDest = toMapYCoordinate(position);
+        int xPosMote = mote.getXPos();
+        int yPosMote = mote.getYPos();
+        if(Integer.signum(xPosDest - xPosMote) != 0 || Integer.signum(yPosDest - yPosMote) != 0){
+            if(Math.abs(xPosMote - xPosDest) >= Math.abs(yPosMote - yPosDest)){
+                xPosMote = xPosMote+ Integer.signum(xPosDest - xPosMote);
 
             }
             else{
-                mote.setYPos(mote.getYPos()+ Integer.signum(yPos - mote.getYPos()));
+                yPosMote = yPosMote+ Integer.signum(yPosDest - yPosMote);
             }
+            mote.setPos(xPosMote, yPosMote);
             return true;
         }
         return false;
