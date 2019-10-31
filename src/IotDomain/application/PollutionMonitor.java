@@ -1,6 +1,7 @@
 package IotDomain.application;
 
 import IotDomain.Environment;
+import IotDomain.lora.MessageType;
 import IotDomain.networkentity.MoteSensor;
 import IotDomain.mqtt.MqttMessage;
 import util.MapHelper;
@@ -68,7 +69,7 @@ public class PollutionMonitor extends Application {
     @Override
     public void consumePackets(String topicFilter, MqttMessage message) {
         // Only handle packets with sensor data
-        if ((message.getData().get(0) & 1) == 0) {
+        if (message.getData().get(0) == MessageType.SENSOR_VALUE.getCode()) {
             handleSensorData(message);
         }
     }
