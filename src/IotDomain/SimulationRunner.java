@@ -1,5 +1,9 @@
 package IotDomain;
 
+import IotDomain.application.AStarRouter;
+import IotDomain.application.Application;
+import IotDomain.application.PollutionMonitor;
+import IotDomain.application.RoutingApplication;
 import IotDomain.networkentity.Gateway;
 import IotDomain.networkentity.Mote;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
@@ -24,6 +28,7 @@ public class SimulationRunner {
     private List<GenericFeedbackLoop> algorithms;
     private List<MoteProbe> moteProbe;
     private QualityOfService QoS;
+    private List<Application> applications;
 
 
     public static SimulationRunner getInstance() {
@@ -189,6 +194,11 @@ public class SimulationRunner {
                 gateway.addSubscription(moteProbe.get(i));
             }
         }
+
+        // Setup of user applications
+        this.applications = new ArrayList<>();
+        this.applications.add(new PollutionMonitor(this.getEnvironment()));
+        this.applications.add(new RoutingApplication(new AStarRouter()));
     }
 
 

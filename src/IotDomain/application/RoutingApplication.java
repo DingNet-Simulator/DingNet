@@ -18,15 +18,13 @@ public class RoutingApplication extends Application {
     private Map<Long, List<GeoPosition>> routes;
     private Map<Long, GeoPosition> lastPositions;
     private GraphStructure graph;
-    private Environment environment;
     private PathFinder pathFinder;
 
-    public RoutingApplication(Environment environment, PathFinder pathFinder) {
+    public RoutingApplication(PathFinder pathFinder) {
         super(List.of("application/+/node/+/rx"));
         this.routes = new HashMap<>();
         this.lastPositions = new HashMap<>();
         this.graph = GraphStructure.getInstance();
-        this.environment = environment;
         this.pathFinder = pathFinder;
     }
 

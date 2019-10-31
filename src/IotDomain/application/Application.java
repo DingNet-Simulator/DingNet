@@ -15,6 +15,7 @@ public abstract class Application {
 
     Application(List<String> topics) {
         this.mqttClient = new MqttMock();
+        this.mqttClient.connect();
         topics.forEach(t -> this.mqttClient.subscribe(t, this::consumePackets));
     }
 
