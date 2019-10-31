@@ -9,6 +9,11 @@ public class MqttMock implements MqttClientBasicApi {
     private final Map<String, BiConsumer<String, MqttMessage>> subscribed = new HashMap<>();
     private final MqttBrokerMock broker = MqttBrokerMock.getInstance();
 
+
+    public MqttMock() {
+        this.connect();
+    }
+
     @Override
     public void connect() {
         broker.connect(this);

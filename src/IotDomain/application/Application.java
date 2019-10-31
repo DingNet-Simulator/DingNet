@@ -11,11 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Application {
-    protected MqttClientBasicApi mqttClient;
+    MqttClientBasicApi mqttClient;
 
     Application(List<String> topics) {
         this.mqttClient = new MqttMock();
-        this.mqttClient.connect();
         topics.forEach(t -> this.mqttClient.subscribe(t, this::consumePackets));
     }
 

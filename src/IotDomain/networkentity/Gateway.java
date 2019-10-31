@@ -4,6 +4,7 @@ package IotDomain.networkentity;
 import IotDomain.Environment;
 import IotDomain.gatewayresponsestrategy.NoResponse;
 import IotDomain.gatewayresponsestrategy.ResponseStrategy;
+import IotDomain.gatewayresponsestrategy.SendNewestPacket;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.mqtt.MqttClientBasicApi;
 import IotDomain.mqtt.MqttMessage;
@@ -32,7 +33,7 @@ public class Gateway extends NetworkEntity {
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
     public Gateway(Long gatewayEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF) {
-        this(new NoResponse(), gatewayEUI, xPos, yPos, environment, transmissionPower, SF);
+        this(new SendNewestPacket(), gatewayEUI, xPos, yPos, environment, transmissionPower, SF);
     }
 
     /**
@@ -75,7 +76,7 @@ public class Gateway extends NetworkEntity {
     protected void OnReceive(LoraWanPacket packet) {
         //manage the message only if it is of a mote
         if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
-            var message = new MqttMessage(packet.getHeader(), new LinkedList<>(Arrays.asList(packet.getPayload())), packet.getDesignatedReceiverEUI(), packet.getSenderEUI(), getEUI());
+            var message = new MqttMessage(packet.getHeader(), new LinkedList<>(Arrays.asList(packet.getPayload())), packet.getSenderEUI(), getEUI(), packet.getDesignatedReceiverEUI());
             mqttClient.publish(getTopic(packet.getDesignatedReceiverEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
                 moteProbe.trigger(this, packet.getSenderEUI());

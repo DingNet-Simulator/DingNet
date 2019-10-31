@@ -2,6 +2,7 @@ package IotDomain.application;
 
 import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
+import IotDomain.lora.MessageType;
 import IotDomain.mqtt.MqttMessage;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class RoutingApplication extends Application {
-    private static short seqNr = (short) 0;
+    private static short seqNr = (short) 1;
     private Map<Long, List<GeoPosition>> routes;
     private Map<Long, GeoPosition> lastPositions;
     private GraphStructure graph;
@@ -83,17 +84,16 @@ public class RoutingApplication extends Application {
         BasicFrameHeader header = new BasicFrameHeader().setFCnt(frameCounter);
 
         MqttMessage routeMessage = new MqttMessage(header, payload, deviceEUI, -1L, 1L);
-        this.mqttClient.publish(String.format("application/1/node/%d/tx", deviceEUI), routeMessage);
+        this.mqttClient.publish(String.format("application/%d/node/%d/tx", message.getApplicationEUI(), deviceEUI), routeMessage);
     }
 
 
     @Override
     public void consumePackets(String topicFilter, MqttMessage message) {
         // Only handle packets with a route request
-        if ((message.getData().get(0) & 1) == 1) {
+        var messageType = message.getData().get(0);
+        if (messageType == MessageType.REQUEST_PATH.getCode() || messageType == MessageType.REQUEST_UPDATE_PATH.getCode()) {
             handleRouteRequest(message);
         }
-
-        throw new UnsupportedOperationException();
     }
 }

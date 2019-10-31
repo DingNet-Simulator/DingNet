@@ -7,6 +7,7 @@ import IotDomain.lora.MacCommand;
 import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
+import IotDomain.motepacketstrategy.consumeStrategy.ReplacePath;
 import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
 import be.kuleuven.cs.som.annotate.Basic;
@@ -83,7 +84,7 @@ public class Mote extends NetworkEntity {
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
     private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
 
-    protected final List<ConsumePacketStrategy> consumePacketStrategies = new LinkedList<>(List.of(new DummyConsumer()));
+    protected final List<ConsumePacketStrategy> consumePacketStrategies = List.of(new ReplacePath());
 
     //endregion
 
