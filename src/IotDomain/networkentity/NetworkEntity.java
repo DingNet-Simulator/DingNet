@@ -343,11 +343,11 @@ public abstract class NetworkEntity implements Serializable{
     }
 
     public Pair<Integer, Integer> getPos(){
-        return new Pair<>(this.xPos, this.yPos);
+        return new Pair<>(getXPos(), getYPos());
     }
 
     public void setPos(Integer xPos, Integer yPos){
-        setYPos(xPos);
+        setXPos(xPos);
         setYPos(yPos);
     }
     /**
