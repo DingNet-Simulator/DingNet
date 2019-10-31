@@ -5,6 +5,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Supplier;
 
+/**
+ * N.B. This clock store the triggers in a stack stack (list LIFO based on trigger uid)
+ */
 public class GlobalClock {
 
     private static long nextTriggerUid = 0;
@@ -14,7 +17,7 @@ public class GlobalClock {
      */
     private LocalTime time;
 
-    private HashMap<LocalTime, Set<Trigger>> triggers;
+    private HashMap<LocalTime, List<Trigger>> triggers;
 
     public GlobalClock(){
         time = LocalTime.of(0,0);
@@ -63,16 +66,16 @@ public class GlobalClock {
 
     private void addTrigger(LocalTime time,Trigger trigger) {
         if(containsTriggers(time)){
-            triggers.get(time).add(trigger);
+            triggers.get(time).add(0,trigger);
         }
         else {
-            Set<Trigger> newTriggers = new HashSet<>(Set.of(trigger));
+            List<Trigger> newTriggers = new ArrayList<>(List.of(trigger));
             triggers.put(time,newTriggers);
         }
     }
 
     public boolean removeTrigger(long triggerId) {
-        for (Map.Entry<LocalTime, Set<Trigger>> e: triggers.entrySet()) {
+        for (Map.Entry<LocalTime, List<Trigger>> e: triggers.entrySet()) {
             if (e.getValue().removeIf(p -> p.getUid() == triggerId)) {
                 return true;
             }
@@ -81,14 +84,18 @@ public class GlobalClock {
     }
 
     private void fireTrigger() {
-        Optional.ofNullable(triggers.remove(getTime())).ifPresent(
-            t -> t.forEach(trigger -> {
+        var triggersToFire = triggers.get(getTime());
+        if (triggersToFire != null) {
+            //Here you have to leave the normal 'for' because you can remove element from the list during the iteration
+            for (int i = 0; i < triggersToFire.size(); i++) {
+                var trigger = triggersToFire.get(i);
                 LocalTime newTime = trigger.getCallback().get();
                 if (newTime.isAfter(getTime())) {
                     addTrigger(newTime, trigger);
                 }
-            })
-        );
+            }
+            triggers.remove(getTime());
+        }
     }
 
     private class Trigger {
