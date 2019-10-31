@@ -3,7 +3,6 @@ package GUI.MapViewer;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.Waypoint;
-import org.jxmapviewer.viewer.WaypointRenderer;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -18,15 +17,15 @@ import java.util.Set;
  * @param <W> the waypoint type
  * @author rbair
  */
-public class PathPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
+public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Set<W> waypoints;
     private BufferedImage img;
 
-    public PathPainter() {
+    public WayPointPainter() {
         this(new Color(102,0,153));
     }
 
-    public PathPainter(Color color) {
+    public WayPointPainter(Color color) {
         setAntialiasing(true);
         setCacheable(false);
 
