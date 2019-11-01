@@ -49,10 +49,14 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
         for (int i = 0; i < DIVISION; i++) {
             for (int j = 0; j < DIVISION; j++) {
                 // The starting position of the square is specified by the point in the upper left corner
-                Point2D topLeft = factory.geoToPixel(mapHelper
-                    .toGeoPosition(Math.round(i * ((float) maxX / DIVISION)), Math.round((j+1) * ((float) maxY / DIVISION))), map.getZoom());
-                Point2D bottomRight = factory.geoToPixel(mapHelper
-                    .toGeoPosition(Math.round((i+1) * ((float) maxX / DIVISION)), Math.round(j * ((float) maxY / DIVISION))), map.getZoom());
+                Point2D topLeft = factory.geoToPixel(mapHelper.toGeoPosition(
+                    Math.round(i * ((float) maxX / DIVISION)),
+                    Math.round((j+1) * ((float) maxY / DIVISION))
+                ), map.getZoom());
+                Point2D bottomRight = factory.geoToPixel(mapHelper.toGeoPosition(
+                    Math.round((i+1) * ((float) maxX / DIVISION)),
+                    Math.round(j * ((float) maxY / DIVISION))
+                ), map.getZoom());
                 GeoPosition middle = mapHelper.toGeoPosition((int) ((i+.5) * maxX / DIVISION), (int) ((j+.5) * maxY / DIVISION));
 
                 float airQuality = (float) pollutionGrid.getPollutionLevel(middle).getPollutionFactor();
