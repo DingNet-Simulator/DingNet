@@ -22,25 +22,27 @@ import java.util.Set;
  */
 public class GatewayPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Set<W> waypoints = new HashSet<W>();
-    private BufferedImage img;
+    private static BufferedImage img;
 
 
     public GatewayPainter() {
         setAntialiasing(true);
         setCacheable(false);
 
-        try {
-            img = ImageIO.read(this.getClass().getResource("/images/Gateway.png"));
-            int w = img.getWidth();
-            int h = img.getHeight();
-            BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-            AffineTransform at = new AffineTransform();
-            at.scale(0.2, 0.2);
-            AffineTransformOp scaleOp =
-                new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-            img = scaleOp.filter(img, after);
-        } catch (Exception ex) {
-            throw new RuntimeException("Unable to load Gateway image.");
+        if (img == null) {
+            try {
+                img = ImageIO.read(this.getClass().getResource("/images/Gateway.png"));
+                int w = img.getWidth();
+                int h = img.getHeight();
+                BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+                AffineTransform at = new AffineTransform();
+                at.scale(0.2, 0.2);
+                AffineTransformOp scaleOp =
+                    new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+                img = scaleOp.filter(img, after);
+            } catch (Exception ex) {
+                throw new RuntimeException("Unable to load Gateway image.");
+            }
         }
     }
 

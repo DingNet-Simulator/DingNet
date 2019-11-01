@@ -9,13 +9,8 @@ import util.MapHelper;
 import util.pollution.PollutionGrid;
 
 import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
-import java.util.List;
-
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Set;
 
 public class PollutionGridPainter implements Painter<JXMapViewer> {
     private PollutionGrid pollutionGrid;
