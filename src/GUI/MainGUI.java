@@ -394,6 +394,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             mapViewer.setZoom(5);
         }
 
+        // Painter of the pollution grid
+        painters.add(new PollutionGridPainter(this.simulationRunner.getEnvironment()));
 
         painters.add(gateWayPainter);
         painters.add(motePainter);
