@@ -50,6 +50,9 @@ public class Path implements Iterable<GeoPosition> {
     }
 
     public void addPositions(List<GeoPosition> points) {
+        if (points == null) {
+            return;
+        }
         this.points.addAll(points);
     }
 
