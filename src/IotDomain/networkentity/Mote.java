@@ -7,6 +7,7 @@ import IotDomain.lora.MacCommand;
 import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
+import IotDomain.motepacketstrategy.consumeStrategy.ReplacePath;
 import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
 import be.kuleuven.cs.som.annotate.Basic;
@@ -83,7 +84,7 @@ public class Mote extends NetworkEntity {
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
     private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
 
-    protected final List<ConsumePacketStrategy> consumePacketStrategies = new LinkedList<>(List.of(new DummyConsumer()));
+    final List<ConsumePacketStrategy> consumePacketStrategies = new ArrayList<>();
 
     //endregion
 
@@ -107,7 +108,7 @@ public class Mote extends NetworkEntity {
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path,
+                Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path,
                 Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset){
         super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
         environment.addMote(this);
@@ -137,7 +138,7 @@ public class Mote extends NetworkEntity {
      */
     @Raw
     public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed){
+                Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed){
         this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }

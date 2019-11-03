@@ -23,10 +23,9 @@ public class InputProfilesReader {
         List<InputProfile> inputProfiles = new LinkedList<>();
 
         try {
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-            file = new File(file.getParent() + "/inputProfiles/inputProfile.xml");
+            var fileStream = MainGUI.class.getResourceAsStream("/inputProfiles/inputProfile.xml");
 
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fileStream);
             Element inputProfilesElement = doc.getDocumentElement();
 
             var inputProfilesList = inputProfilesElement.getElementsByTagName("inputProfile");
@@ -101,7 +100,7 @@ public class InputProfilesReader {
                         inputProfileElement));
                 inputProfiles.add(ip);
             }
-        } catch (ParserConfigurationException | SAXException | IOException | URISyntaxException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
 

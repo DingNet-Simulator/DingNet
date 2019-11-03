@@ -15,28 +15,25 @@ import util.PathWithMiddlePoints;
 
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class UserMote extends Mote {
 
     private boolean isActive = false;
-    private final GeoPosition destination = new GeoPosition(1,1);
+    private GeoPosition destination;
     private final LocalTime whenAskPath = LocalTime.of(0, 15);
     private boolean alreadyRequested = false;
 
-    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset) {
+    UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
-        init();
+        init(destination);
     }
 
-    public UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed) {
-        super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed);
-        init();
-    }
-
-    private void init() {
+    private void init(GeoPosition destination) {
         consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
         setPath(new PathWithMiddlePoints());
+        this.destination = destination;
     }
 
     @Override
@@ -112,6 +109,10 @@ public class UserMote extends Mote {
                 });
         }
         isActive = active;
+    }
+
+    public GeoPosition getDestination() {
+        return this.destination;
     }
 
     @Override

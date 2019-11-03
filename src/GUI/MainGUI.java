@@ -6,10 +6,7 @@ import GUI.util.GUIUtil;
 import GUI.util.SpectrumPaintScale;
 import IotDomain.*;
 import IotDomain.lora.LoraTransmission;
-import IotDomain.networkentity.Gateway;
-import IotDomain.networkentity.Mote;
-import IotDomain.networkentity.MoteSensor;
-import IotDomain.networkentity.NetworkEntity;
+import IotDomain.networkentity.*;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
@@ -61,7 +58,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class MainGUI extends JFrame implements SimulationUpdateListener {
@@ -364,6 +360,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
 
     private void loadMap(Environment environment, JXMapViewer mapViewer, Boolean isRefresh) {
+        List<Painter<JXMapViewer>> painters = new ArrayList<>();
+
         Map<Waypoint, Integer> gateWays = new HashMap<>();
         int i = 1;
         for (Gateway gateway : environment.getGateways()) {
@@ -385,12 +383,19 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
         moteNumberPainter.setWaypoints(motes);
 
+        // Optional painter of the complete path
+        environment.getMotes().stream()
+            .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
+            .findFirst()
+            .ifPresent(m -> painters.add(new LinePainter(simulationRunner.getRoutingApplication().getRoute(m), Color.CYAN, 2)));
+
         if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }
 
-        List<Painter<JXMapViewer>> painters = new ArrayList<>();
+        // Painter of the pollution grid
+        painters.add(new PollutionGridPainter(this.simulationRunner.getEnvironment()));
 
         painters.add(gateWayPainter);
         painters.add(motePainter);

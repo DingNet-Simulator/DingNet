@@ -16,13 +16,22 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigurationReader {
 
+    private static Map<Long, Long> IDMappingWayPoints = new HashMap<>();
+    private static Map<Long, Long> IDMappingConnections = new HashMap<>();
+
+    private static Map<Long, GeoPosition> wayPoints = new HashMap<>();
+    private static Map<Long, Connection> connections = new HashMap<>();
+
     public static void loadConfiguration(File file, Simulation simulation) {
+        IDMappingWayPoints.clear();
+        IDMappingConnections.clear();
+        wayPoints.clear();
+        connections.clear();
+
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
             Element configuration = doc.getDocumentElement();
@@ -39,8 +48,8 @@ public class ConfigurationReader {
 
             Element origin = (Element) region.getElementsByTagName("origin").item(0);
             GeoPosition mapOrigin = new GeoPosition(
-                Double.valueOf(XMLHelper.readChild(origin, "latitude")),
-                Double.valueOf(XMLHelper.readChild(origin, "longitude"))
+                Double.parseDouble(XMLHelper.readChild(origin, "latitude")),
+                Double.parseDouble(XMLHelper.readChild(origin, "longitude"))
             );
 
 
@@ -78,10 +87,8 @@ public class ConfigurationReader {
             Element wayPointsElement = (Element) configuration.getElementsByTagName("wayPoints").item(0);
 
             // Remapping of the waypoint IDs to start from 1
-            Map<Long, Long> IDMappingWayPoints = new HashMap<>();
             long currentIDWayPoint = 1;
 
-            Map<Long, GeoPosition> wayPoints = new HashMap<>();
             for (int i = 0; i < wayPointsElement.getElementsByTagName("wayPoint").getLength(); i++) {
                 Element waypoint = (Element) wayPointsElement.getElementsByTagName("wayPoint").item(i);
 
@@ -101,10 +108,7 @@ public class ConfigurationReader {
             //   Connections
             // ---------------
 
-            Map<Long, Connection> connections = new HashMap<>();
-
             // Remapping of the connection IDs to start from 1
-            Map<Long, Long> IDMappingConnections = new HashMap<>();
             long currentIDConnection = 1;
 
             if (configuration.getElementsByTagName("connections").getLength() != 0) {
@@ -138,66 +142,15 @@ public class ConfigurationReader {
             // ---------------
 
             Element motes = (Element) configuration.getElementsByTagName("motes").item(0);
-            Element moteNode;
 
             for (int i = 0; i < motes.getElementsByTagName("mote").getLength(); i++) {
-                moteNode = (Element) motes.getElementsByTagName("mote").item(i);
-                long devEUI = Long.parseUnsignedLong(XMLHelper.readChild(moteNode, "devEUI"));
-
-                Element location = (Element) moteNode.getElementsByTagName("location").item(0);
-                Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
-                GeoPosition position = wayPoints.get(IDMappingWayPoints.get(Long.parseLong(waypoint.getAttribute("id"))));
-                Pair<Integer, Integer> coords = MapHelper.getInstance().toMapCoordinate(position);
-
-                int transmissionPower = Integer.parseInt(XMLHelper.readChild(moteNode, "transmissionPower"));
-                int spreadingFactor = Integer.parseInt(XMLHelper.readChild(moteNode, "spreadingFactor"));
-                int energyLevel = Integer.parseInt(XMLHelper.readChild(moteNode, "energyLevel"));
-                double movementSpeed = Double.parseDouble(XMLHelper.readChild(moteNode, "movementSpeed"));
-
-                Element sensors = (Element) moteNode.getElementsByTagName("sensors").item(0);
-                LinkedList<MoteSensor> moteSensors = new LinkedList<>();
-                for (int j = 0; j < sensors.getElementsByTagName("sensor").getLength(); j++) {
-                    Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(j);
-                    moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
-                }
-
-
-                Path path = new Path();
-                Element pathElement = (Element) moteNode.getElementsByTagName("path").item(0);
-                for (int j = 0; j < pathElement.getElementsByTagName("connection").getLength(); j++) {
-                    Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(j);
-                    long connectionId = IDMappingConnections.get(Long.parseLong(connectionElement.getAttribute("id")));
-
-                    path.addPosition(wayPoints.get(connections.get(connectionId).getFrom()));
-
-                    if (j == pathElement.getElementsByTagName("connection").getLength() - 1) {
-                        // Add the last destination
-                        path.addPosition(wayPoints.get(connections.get(connectionId).getTo()));
-                    }
-                }
-                if (hasChild(moteNode, "startMovementOffset") &&
-                    hasChild(moteNode, "periodSendingPacket") &&
-                    hasChild(moteNode, "startSendingOffset")) {
-
-                    int startMovementOffset = Integer.parseInt(XMLHelper.readChild(moteNode, "startMovementOffset"));
-                    int periodSendingPacket = Integer.parseInt(XMLHelper.readChild(moteNode, "periodSendingPacket"));
-                    int startSendingOffset = Integer.parseInt(XMLHelper.readChild(moteNode, "startSendingOffset"));
-                    if (hasChild(moteNode, "userMoteState")) {
-                        boolean isActive = Boolean.parseBoolean(XMLHelper.readChild(moteNode, "userMoteState"));
-                        MoteFactory.createUserMote(devEUI, coords.getLeft(), coords.getRight(), simulation.getEnvironment(), transmissionPower,
-                            spreadingFactor, moteSensors, energyLevel, path, movementSpeed, startMovementOffset,
-                            periodSendingPacket, startSendingOffset).setActive(isActive);
-                    } else {
-                        MoteFactory.createMote(devEUI, coords.getLeft(), coords.getRight(), simulation.getEnvironment(), transmissionPower,
-                            spreadingFactor, moteSensors, energyLevel, path, movementSpeed, startMovementOffset,
-                            periodSendingPacket, startSendingOffset);
-                    }
-                } else {
-                    //old configuration file version
-                    MoteFactory.createMote(devEUI, coords.getLeft(), coords.getRight(), simulation.getEnvironment(), transmissionPower, spreadingFactor, moteSensors, energyLevel, path, movementSpeed);
-                }
+                Element moteNode = (Element) motes.getElementsByTagName("mote").item(i);
+                new MoteReader(moteNode, simulation.getEnvironment()).buildMote();
             }
-
+            for (int i = 0; i < motes.getElementsByTagName("userMote").getLength(); i++) {
+                Element userMoteNode = (Element) motes.getElementsByTagName("userMote").item(i);
+                new UserMoteReader(userMoteNode, simulation.getEnvironment()).buildMote();
+            }
 
 
             // ---------------
@@ -225,5 +178,165 @@ public class ConfigurationReader {
 
     private static boolean hasChild(Element root, String childName) {
         return root.getElementsByTagName(childName).getLength() != 0;
+    }
+
+
+    private static class MoteReader {
+        protected Element node;
+        protected Environment environment;
+
+        MoteReader(Element moteNode, Environment environment) {
+            this.node = moteNode;
+            this.environment = environment;
+        }
+
+        long getDevEUI() {
+            return Long.parseUnsignedLong(XMLHelper.readChild(node, "devEUI"));
+        }
+
+        Pair<Integer, Integer> getMapCoordinates() {
+            Element location = (Element) node.getElementsByTagName("location").item(0);
+            Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
+            GeoPosition position = wayPoints.get(IDMappingWayPoints.get(Long.parseLong(waypoint.getAttribute("id"))));
+            return MapHelper.getInstance().toMapCoordinate(position);
+        }
+
+        int getTransmissionPower() {
+            return Integer.parseInt(XMLHelper.readChild(node, "transmissionPower"));
+        }
+
+        int getSpreadingFactor() {
+            return Integer.parseInt(XMLHelper.readChild(node, "spreadingFactor"));
+        }
+
+        int getEnergyLevel() {
+            return Integer.parseInt(XMLHelper.readChild(node, "energyLevel"));
+        }
+
+        double getMovementSpeed() {
+            return Double.parseDouble(XMLHelper.readChild(node, "movementSpeed"));
+        }
+
+        List<MoteSensor> getMoteSensors() {
+            Element sensors = (Element) node.getElementsByTagName("sensors").item(0);
+            List<MoteSensor> moteSensors = new LinkedList<>();
+            for (int i = 0; i < sensors.getElementsByTagName("sensor").getLength(); i++) {
+                Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(i);
+                moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
+            }
+            return moteSensors;
+        }
+
+        Path getPath() {
+            Path path = new Path();
+            Element pathElement = (Element) node.getElementsByTagName("path").item(0);
+            for (int i = 0; i < pathElement.getElementsByTagName("connection").getLength(); i++) {
+                Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(i);
+                long connectionId = IDMappingConnections.get(Long.parseLong(connectionElement.getAttribute("id")));
+
+                path.addPosition(wayPoints.get(connections.get(connectionId).getFrom()));
+
+                if (i == pathElement.getElementsByTagName("connection").getLength() - 1) {
+                    // Add the last destination
+                    path.addPosition(wayPoints.get(connections.get(connectionId).getTo()));
+                }
+            }
+            return path;
+        }
+
+        Optional<Integer> getStartMovementOffset() {
+            if (hasChild(node, "startMovementOffset")) {
+                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startMovementOffset")));
+            }
+            return Optional.empty();
+        }
+
+        Optional<Integer> getPeriodSendingPacket() {
+            if (hasChild(node, "periodSendingPacket")) {
+                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "periodSendingPacket")));
+            }
+            return Optional.empty();
+        }
+
+        Optional<Integer> getStartSendingOffset() {
+            if (hasChild(node, "startSendingOffset")) {
+                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startSendingOffset")));
+            }
+            return Optional.empty();
+        }
+
+        public void buildMote() {
+            var startMovementOffset = getStartMovementOffset();
+            var periodSendingPacket = getPeriodSendingPacket();
+            var startSendingOffset = getStartSendingOffset();
+
+            if (startMovementOffset.isPresent() && periodSendingPacket.isPresent() && startSendingOffset.isPresent()) {
+                MoteFactory.createMote(
+                    getDevEUI(),
+                    getMapCoordinates().getLeft(),
+                    getMapCoordinates().getRight(),
+                    environment,
+                    getTransmissionPower(),
+                    getSpreadingFactor(),
+                    getMoteSensors(),
+                    getEnergyLevel(),
+                    getPath(),
+                    getMovementSpeed(),
+                    startMovementOffset.get(),
+                    periodSendingPacket.get(),
+                    startSendingOffset.get()
+                );
+            } else {
+                MoteFactory.createMote(
+                    getDevEUI(),
+                    getMapCoordinates().getLeft(),
+                    getMapCoordinates().getRight(),
+                    environment,
+                    getTransmissionPower(),
+                    getSpreadingFactor(),
+                    getMoteSensors(),
+                    getEnergyLevel(),
+                    getPath(),
+                    getMovementSpeed()
+                );
+            }
+        }
+    }
+
+    private static class UserMoteReader extends MoteReader {
+        protected UserMoteReader(Element moteNode, Environment environment) {
+            super(moteNode, environment);
+        }
+
+
+        boolean isActive() {
+            return Boolean.parseBoolean(XMLHelper.readChild(node, "userMoteState"));
+        }
+
+        GeoPosition getDestination() {
+            Element destinationElement = (Element) node.getElementsByTagName("destination").item(0);
+            long wayPointId =  Long.parseLong(destinationElement.getAttribute("id"));
+            return wayPoints.get(IDMappingWayPoints.get(wayPointId));
+        }
+
+        @Override
+        public void buildMote() {
+            MoteFactory.createUserMote(
+                getDevEUI(),
+                getMapCoordinates().getLeft(),
+                getMapCoordinates().getRight(),
+                environment,
+                getTransmissionPower(),
+                getSpreadingFactor(),
+                getMoteSensors(),
+                getEnergyLevel(),
+                getPath(),
+                getMovementSpeed(),
+                getStartMovementOffset().get(), // Intentional
+                getPeriodSendingPacket().get(), // Intentional
+                getStartSendingOffset().get(),  // Intentional
+                getDestination()
+            ).setActive(isActive());
+        }
     }
 }

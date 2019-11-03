@@ -1,7 +1,7 @@
 package SensorDataGenerators.IAQSensor;
 
 public enum AirQualityLevel {
-
+    // TODO maybe add 0 as well for perfect air quality
     GOOD("Good", 1),
     FAIR("Fair", 2),
     MODERATE("Moderate", 3),

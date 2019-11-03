@@ -21,6 +21,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.LinkedList;
+import java.util.List;
 
 public class ConfigurationWriter {
 
@@ -99,74 +100,11 @@ public class ConfigurationWriter {
             Element motes = doc.createElement("motes");
 
             for (Mote mote : environment.getMotes()) {
-                Element moteElement = doc.createElement("mote");
-
-                Element devEUI = doc.createElement("devEUI");
-                devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(mote.getEUI())));
-
                 if (mote instanceof UserMote) {
-                    Element isActive = doc.createElement("userMoteState");
-                    isActive.appendChild(doc.createTextNode(""+((UserMote)mote).isActive()));
-                    moteElement.appendChild(isActive);
+                    motes.appendChild(new UserMoteWriter(doc, (UserMote) mote).buildMoteElement());
+                } else {
+                    motes.appendChild(new MoteWriter(doc, mote).buildMoteElement());
                 }
-
-                Element location = doc.createElement("location");
-                Element waypoint = doc.createElement("waypoint");
-
-                GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPos());
-                waypoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
-                location.appendChild(waypoint);
-
-                Element transmissionPower = doc.createElement("transmissionPower");
-                transmissionPower.appendChild(doc.createTextNode(mote.getTransmissionPower().toString()));
-
-                Element spreadingFactor = doc.createElement("spreadingFactor");
-                spreadingFactor.appendChild(doc.createTextNode(mote.getSF().toString()));
-
-                Element energyLevel = doc.createElement("energyLevel");
-                energyLevel.appendChild(doc.createTextNode(mote.getEnergyLevel().toString()));
-
-                Element movementSpeed = doc.createElement("movementSpeed");
-                movementSpeed.appendChild(doc.createTextNode(mote.getMovementSpeed().toString()));
-
-                Element startMovementOffset = doc.createElement("startMovementOffset");
-                startMovementOffset.appendChild(doc.createTextNode(mote.getStartMovementOffset().toString()));
-
-                Element periodSendingPacket = doc.createElement("periodSendingPacket");
-                periodSendingPacket.appendChild(doc.createTextNode(""+mote.getPeriodSendingPacket()));
-
-                Element startSendingOffset = doc.createElement("startSendingOffset");
-                startSendingOffset.appendChild(doc.createTextNode(""+mote.getStartSendingOffset()));
-
-                moteElement.appendChild(devEUI);
-                moteElement.appendChild(location);
-                moteElement.appendChild(transmissionPower);
-                moteElement.appendChild(spreadingFactor);
-                moteElement.appendChild(energyLevel);
-                moteElement.appendChild(movementSpeed);
-                moteElement.appendChild(startMovementOffset);
-                moteElement.appendChild(periodSendingPacket);
-                moteElement.appendChild(startSendingOffset);
-
-                Element sensors = doc.createElement("sensors");
-                for (MoteSensor sensor : mote.getSensors()) {
-                    Element sensorElement = doc.createElement("sensor");
-                    sensorElement.setAttribute("SensorType", sensor.name());
-                    sensors.appendChild(sensorElement);
-                }
-                moteElement.appendChild(sensors);
-
-
-                Element pathElement = doc.createElement("path");
-                Path path = mote.getPath();
-                for (Long id : path.getConnectionsByID()) {
-                    Element connectionElement = doc.createElement("connection");
-                    connectionElement.setAttribute("id", Long.toString(id));
-                    pathElement.appendChild(connectionElement);
-                }
-
-                moteElement.appendChild(pathElement);
-                motes.appendChild(moteElement);
             }
 
             rootElement.appendChild(motes);
@@ -265,6 +203,143 @@ public class ConfigurationWriter {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    private static class MoteWriter {
+        Document doc;
+        Mote mote;
+        GraphStructure graph;
+
+        MoteWriter(Document doc, Mote mote) {
+            this.doc = doc;
+            this.mote = mote;
+            this.graph = GraphStructure.getInstance();
+        }
+
+        Element generateDevEUIElement() {
+            Element devEUI =  doc.createElement("devEUI");
+            devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(mote.getEUI())));
+            return devEUI;
+        }
+
+        Element generateLocationElement() {
+            Element location = doc.createElement("location");
+            Element wayPoint = doc.createElement("waypoint");
+
+            GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPos());
+            wayPoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
+            location.appendChild(wayPoint);
+
+            return location;
+        }
+
+        Element generateTransmissionPowerElement() {
+            Element transmissionPower = doc.createElement("transmissionPower");
+            transmissionPower.appendChild(doc.createTextNode(mote.getTransmissionPower().toString()));
+            return transmissionPower;
+        }
+
+        Element generateSpreadingFactorElement() {
+            Element spreadingFactor = doc.createElement("spreadingFactor");
+            spreadingFactor.appendChild(doc.createTextNode(mote.getSF().toString()));
+            return spreadingFactor;
+        }
+
+        Element generateEnergyLevelElement() {
+            Element energyLevel = doc.createElement("energyLevel");
+            energyLevel.appendChild(doc.createTextNode(mote.getEnergyLevel().toString()));
+            return energyLevel;
+        }
+
+        Element generateMovementSpeedElement() {
+            Element movementSpeed = doc.createElement("movementSpeed");
+            movementSpeed.appendChild(doc.createTextNode(mote.getMovementSpeed().toString()));
+            return movementSpeed;
+        }
+
+        Element generateStartMovementSpeedElement() {
+            Element startMovementOffset = doc.createElement("startMovementOffset");
+            startMovementOffset.appendChild(doc.createTextNode(mote.getStartMovementOffset().toString()));
+            return startMovementOffset;
+        }
+
+        Element generatePeriodSendingPacketElement() {
+            Element periodSendingPacket = doc.createElement("periodSendingPacket");
+            periodSendingPacket.appendChild(doc.createTextNode(""+mote.getPeriodSendingPacket()));
+            return periodSendingPacket;
+        }
+
+        Element generateStartSendingOffsetElement() {
+            Element startSendingOffset = doc.createElement("startSendingOffset");
+            startSendingOffset.appendChild(doc.createTextNode(""+mote.getStartSendingOffset()));
+            return startSendingOffset;
+        }
+
+        Element generateMoteSensorsElement() {
+            Element sensors = doc.createElement("sensors");
+            for (MoteSensor sensor : mote.getSensors()) {
+                Element sensorElement = doc.createElement("sensor");
+                sensorElement.setAttribute("SensorType", sensor.name());
+                sensors.appendChild(sensorElement);
+            }
+            return sensors;
+        }
+
+        Element generatePathElement() {
+            Element pathElement = doc.createElement("path");
+            Path path = mote.getPath();
+            for (Long id : path.getConnectionsByID()) {
+                Element connectionElement = doc.createElement("connection");
+                connectionElement.setAttribute("id", Long.toString(id));
+                pathElement.appendChild(connectionElement);
+            }
+            return pathElement;
+        }
+
+
+        void addMoteDetails(Element element) {
+            List.of(generateDevEUIElement(), generateLocationElement(), generateTransmissionPowerElement(), generateSpreadingFactorElement(),
+                generateEnergyLevelElement(), generateMovementSpeedElement(), generateStartMovementSpeedElement(), generatePeriodSendingPacketElement(),
+                generateStartSendingOffsetElement(), generateMoteSensorsElement(), generatePathElement())
+                .forEach(element::appendChild);
+        }
+
+        public Element buildMoteElement() {
+            Element moteElement = doc.createElement("mote");
+            addMoteDetails(moteElement);
+            return moteElement;
+        }
+    }
+
+    private static class UserMoteWriter extends MoteWriter {
+        public UserMoteWriter(Document doc, UserMote mote) {
+            super(doc, mote);
+        }
+
+        Element generateIsActiveElement() {
+            Element isActive = doc.createElement("userMoteState");
+            isActive.appendChild(doc.createTextNode(Boolean.toString(((UserMote) mote).isActive())));
+            return isActive;
+        }
+
+        Element generateDestinationElement() {
+            GeoPosition destinationPos = ((UserMote) mote).getDestination();
+            Element destination = doc.createElement("destination");
+            destination.setAttribute("id", Long.toString(graph.getClosestWayPoint(destinationPos)));
+            return destination;
+        }
+
+        void addUserMoteDetails(Element element) {
+            List.of(generateIsActiveElement(), generateDestinationElement()).forEach(element::appendChild);
+        }
+
+        @Override
+        public Element buildMoteElement() {
+            Element moteElement = doc.createElement("userMote");
+            addMoteDetails(moteElement);
+            addUserMoteDetails(moteElement);
+            return moteElement;
         }
     }
 }
