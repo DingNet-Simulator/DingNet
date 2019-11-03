@@ -54,30 +54,6 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>res/GUI/</directory>
-                <includes>
-                    <include>*.png</include>
-                </includes>
-                <targetPath>images</targetPath>
-			</resource>
-            <resource>
-                <directory>res/sensorsConfigurations/</directory>
-                <includes>
-                    <include>*.toml</include>
-                </includes>
-                <targetPath>sensorsConfigurations</targetPath>
-            </resource>
-            <resource>
-                <directory>res/inputProfiles</directory>
-                <includes>
-                    <include>*.xml</include>
-                </includes>
-                <targetPath>inputProfiles</targetPath>
-            </resource>
-		</resources>
 		<plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
