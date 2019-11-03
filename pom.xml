@@ -70,27 +70,22 @@
                 </includes>
                 <targetPath>sensorsConfigurations</targetPath>
             </resource>
+            <resource>
+                <directory>res/inputProfiles</directory>
+                <includes>
+                    <include>*.xml</include>
+                </includes>
+                <targetPath>inputProfiles</targetPath>
+            </resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.2</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>GUI.MainGUI</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
                     <release>11</release>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
                 </configuration>
             </plugin>
             <plugin>
@@ -109,38 +104,28 @@
                 <executions>
                     <execution>
                         <id>make-assembly</id>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-
-
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
-                        <id>copy-profiles</id>
-                        <phase>compile</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>java</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/inputProfiles/</outputDirectory>
-                            <encoding>UTF-8</encoding>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/res/inputProfiles</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <mainClass>GUI.MainGUI</mainClass>
+                </configuration>
             </plugin>
-
 		</plugins>
 	</build>
 </project>
