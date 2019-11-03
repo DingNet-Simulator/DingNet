@@ -1250,7 +1250,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
             File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
             String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+            fc.setCurrentDirectory(new File(Paths.get(basePath, "settings", "configurations").toUri()));
 
             int returnVal = fc.showOpenDialog(mainPanel);
 
@@ -1289,7 +1289,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
             File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
             String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "res", "configurations").toUri()));
+            fc.setCurrentDirectory(new File(Paths.get(basePath, "settings", "configurations").toUri()));
 
             int returnVal = fc.showSaveDialog(mainPanel);
 
