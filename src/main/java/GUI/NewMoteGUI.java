@@ -2,8 +2,10 @@ package GUI;
 
 
 import IotDomain.Environment;
+import IotDomain.networkentity.Mote;
 import IotDomain.networkentity.MoteFactory;
 import IotDomain.networkentity.MoteSensor;
+import IotDomain.networkentity.UserMote;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -134,12 +136,12 @@ public class NewMoteGUI {
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
             moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
         }
-        MoteFactory.createMote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
+        environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
             (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
             (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(),
             (Double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
-            (int) offsetSendingSpinner.getValue());
+            (int) offsetSendingSpinner.getValue()));
     }
 
     private void addUserMote() {
@@ -151,13 +153,14 @@ public class NewMoteGUI {
         int posX = (Integer) xPosSpinner.getValue();
         int posY = (Integer) yPosSpinner.getValue();
 
-        MoteFactory.createUserMote(Long.parseUnsignedLong(EUIDtextField.getText()), posX,
+        UserMote userMote = MoteFactory.createUserMote(Long.parseUnsignedLong(EUIDtextField.getText()), posX,
             posY, environment, (Integer) powerSpinner.getValue(),
             (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(),
             (Double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
-            (int) offsetSendingSpinner.getValue(), MapHelper.getInstance().toGeoPosition(posX, posY))
-            .setActive(isActiveCheckBox.isSelected());
+            (int) offsetSendingSpinner.getValue(), MapHelper.getInstance().toGeoPosition(posX, posY));
+        userMote.setActive(isActiveCheckBox.isSelected());
+        environment.addMote(userMote);
     }
 
     ActionListener generateActionListener = new ActionListener() {

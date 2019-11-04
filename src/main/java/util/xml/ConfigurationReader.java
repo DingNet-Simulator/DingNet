@@ -3,9 +3,7 @@ package util.xml;
 import IotDomain.Characteristic;
 import IotDomain.Environment;
 import IotDomain.Simulation;
-import IotDomain.networkentity.Gateway;
-import IotDomain.networkentity.MoteFactory;
-import IotDomain.networkentity.MoteSensor;
+import IotDomain.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -135,7 +133,7 @@ public class ConfigurationReader {
 
             simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones, wayPoints, connections));
 
-
+            Environment environment = simulation.getEnvironment();
 
             // ---------------
             //      Motes
@@ -145,11 +143,11 @@ public class ConfigurationReader {
 
             for (int i = 0; i < motes.getElementsByTagName("mote").getLength(); i++) {
                 Element moteNode = (Element) motes.getElementsByTagName("mote").item(i);
-                new MoteReader(moteNode, simulation.getEnvironment()).buildMote();
+                environment.addMote(new MoteReader(moteNode, environment).buildMote());
             }
             for (int i = 0; i < motes.getElementsByTagName("userMote").getLength(); i++) {
                 Element userMoteNode = (Element) motes.getElementsByTagName("userMote").item(i);
-                new UserMoteReader(userMoteNode, simulation.getEnvironment()).buildMote();
+                environment.addMote(new UserMoteReader(userMoteNode, environment).buildMote());
             }
 
 
@@ -169,7 +167,7 @@ public class ConfigurationReader {
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(gatewayNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(gatewayNode, "spreadingFactor"));
-                new Gateway(devEUI, xPos, yPos, simulation.getEnvironment(), transmissionPower, spreadingFactor);
+                new Gateway(devEUI, xPos, yPos, environment, transmissionPower, spreadingFactor);
             }
         } catch (ParserConfigurationException | SAXException | IOException e1) {
             e1.printStackTrace();
@@ -265,13 +263,14 @@ public class ConfigurationReader {
             return Optional.empty();
         }
 
-        public void buildMote() {
+        public Mote buildMote() {
             var startMovementOffset = getStartMovementOffset();
             var periodSendingPacket = getPeriodSendingPacket();
             var startSendingOffset = getStartSendingOffset();
+            Mote mote;
 
             if (startMovementOffset.isPresent() && periodSendingPacket.isPresent() && startSendingOffset.isPresent()) {
-                MoteFactory.createMote(
+                mote = MoteFactory.createMote(
                     getDevEUI(),
                     getMapCoordinates().getLeft(),
                     getMapCoordinates().getRight(),
@@ -287,7 +286,7 @@ public class ConfigurationReader {
                     startSendingOffset.get()
                 );
             } else {
-                MoteFactory.createMote(
+                mote = MoteFactory.createMote(
                     getDevEUI(),
                     getMapCoordinates().getLeft(),
                     getMapCoordinates().getRight(),
@@ -300,6 +299,7 @@ public class ConfigurationReader {
                     getMovementSpeed()
                 );
             }
+            return mote;
         }
     }
 
@@ -320,8 +320,8 @@ public class ConfigurationReader {
         }
 
         @Override
-        public void buildMote() {
-            MoteFactory.createUserMote(
+        public Mote buildMote() {
+            UserMote userMote = MoteFactory.createUserMote(
                 getDevEUI(),
                 getMapCoordinates().getLeft(),
                 getMapCoordinates().getRight(),
@@ -336,7 +336,9 @@ public class ConfigurationReader {
                 getPeriodSendingPacket().get(), // Intentional
                 getStartSendingOffset().get(),  // Intentional
                 getDestination()
-            ).setActive(isActive());
+            );
+            userMote.setActive(isActive());
+            return userMote;
         }
     }
 }
