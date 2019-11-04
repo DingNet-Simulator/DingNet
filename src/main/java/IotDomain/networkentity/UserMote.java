@@ -8,6 +8,7 @@ import IotDomain.lora.MessageType;
 import SensorDataGenerators.SensorDataGenerator;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
+import util.MapHelper;
 import util.Path;
 
 import java.time.LocalTime;
@@ -19,7 +20,7 @@ public class UserMote extends Mote {
 
     private boolean isActive = false;
     private GeoPosition destination;
-    private final LocalTime whenAskPath = LocalTime.of(0, 15);
+    private final LocalTime whenAskPath = LocalTime.of(0, 10);
     private boolean alreadyRequested = false;
 
     UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
@@ -95,7 +96,6 @@ public class UserMote extends Mote {
 
     @Override
     public boolean isArrivedToDestination() {
-        var dest = getPath().getDestination();
-        return dest.isPresent() && dest.get().equals(destination);
+        return this.getPos().equals(MapHelper.getInstance().toMapCoordinate(destination));
     }
 }
