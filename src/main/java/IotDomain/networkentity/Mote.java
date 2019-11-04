@@ -57,7 +57,7 @@ public class Mote extends NetworkEntity {
     private Integer startMovementOffset;
     private short frameCounter = 0;
 
-    private boolean canReceive = false;
+    protected boolean canReceive = false;
 
     private long keepAliveTriggerId = -1L;
 
