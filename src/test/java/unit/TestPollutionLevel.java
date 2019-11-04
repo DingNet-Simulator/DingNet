@@ -1,3 +1,5 @@
+package unit;
+
 import org.junit.jupiter.api.Test;
 import util.Pair;
 import util.pollution.PollutionLevel;
@@ -7,7 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestPollutionLevel {
+class TestPollutionLevel {
     @Test
     void happyDay() {
         PollutionLevel level = new PollutionLevel(0.5);

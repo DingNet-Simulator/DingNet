@@ -1,7 +1,8 @@
+package unit;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Pair;
 import util.pollution.PollutionGrid;
 import util.pollution.PollutionLevel;
 

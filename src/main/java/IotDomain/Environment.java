@@ -11,6 +11,7 @@ import util.Pair;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,11 +28,11 @@ public class Environment implements Serializable {
     /**
      * The max x-coordinate allowed on the map
      */
-    private static int maxXpos = 0;
+    private static int maxXpos = -1;
     /**
      * The max y-coordinate allowed on the map
      */
-    private static int maxYpos = 0;
+    private static int maxYpos = -1;
     /**
      * A list containing all motes currently active on the map.
      */
@@ -50,12 +51,7 @@ public class Environment implements Serializable {
     /**
      * The number of zones in the configuration.
      */
-
     private int numberOfZones;
-    /**
-     * The graph used for routing.
-     */
-    private GraphStructure graph;
 
     /**
      * The number of runs with this configuration.
@@ -84,13 +80,11 @@ public class Environment implements Serializable {
     public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, int numberOfZones,
                        Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         if (areValidCharacteristics(characteristics)) {
-            maxXpos = characteristics.length-1;
-            maxYpos = characteristics[0].length-1;
+            maxXpos = characteristics.length - 1;
+            maxYpos = characteristics[0].length - 1;
             this.characteristics = characteristics;
         } else {
-            maxXpos = 0;
-            maxYpos = 0;
-            this.characteristics = new Characteristic[0][0];
+            throw new IllegalArgumentException("Invalid characteristics given in constructor of Environment.");
         }
 
         this.numberOfZones = numberOfZones;
@@ -100,23 +94,23 @@ public class Environment implements Serializable {
 
         if (GraphStructure.isInitialized()) {
             // Reinitialize the graph structure if a configuration has already been loaded in previously
-            this.graph = GraphStructure.getInstance().reInitialize(wayPoints, connections);
+            GraphStructure.getInstance().reInitialize(wayPoints, connections);
         } else {
-            this.graph = GraphStructure.initialize(wayPoints, connections);
+            GraphStructure.initialize(wayPoints, connections);
         }
 
         numberOfRuns = 1;
     }
 
     public static int getMapWidth() {
-        if (maxXpos == 0) {
+        if (maxXpos == -1) {
             throw new IllegalStateException("map not already initialized");
         }
         return maxXpos;
     }
 
     public static int getMapHeight() {
-        if (maxYpos == 0) {
+        if (maxYpos == -1) {
             throw new IllegalStateException("map not already initialized");
         }
         return maxYpos;
@@ -189,7 +183,7 @@ public class Environment implements Serializable {
      * @return A list with all the gateways on the map.
      */
     @Basic
-    public LinkedList<Gateway> getGateways() {
+    public List<Gateway> getGateways() {
         return gateways;
     }
 
@@ -231,7 +225,7 @@ public class Environment implements Serializable {
      * @param characteristics The map to check.
      * @return  True if the Map is square.
      */
-    public boolean areValidCharacteristics(Characteristic[][] characteristics){
+    private boolean areValidCharacteristics(Characteristic[][] characteristics){
         if (characteristics.length == 0) {
             return false;
         } else if (characteristics[0].length == 0) {
@@ -260,8 +254,9 @@ public class Environment implements Serializable {
         if (isValidXpos(xPos) && isValidYpos(yPos)) {
             return characteristics[xPos][yPos];
         }
-        else
+        else {
             return null;
+        }
     }
 
     /**
