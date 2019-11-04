@@ -20,7 +20,7 @@ public class UserMote extends Mote {
 
     private boolean isActive = false;
     private GeoPosition destination;
-    private final LocalTime whenAskPath = LocalTime.of(0, 10);
+    private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
     private boolean alreadyRequested = false;
 
     UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
