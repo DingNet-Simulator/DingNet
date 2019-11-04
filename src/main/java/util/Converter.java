@@ -37,4 +37,8 @@ public class Converter {
         ByteBuffer buf = ByteBuffer.wrap(data);
         return new GeoPosition(buf.getFloat(offset), buf.getFloat(offset+Float.BYTES));
     }
+
+    static public GeoPosition toFloatingGeoPosition(GeoPosition pos) {
+        return new GeoPosition((float) pos.getLatitude(), (float) pos.getLongitude());
+    }
 }

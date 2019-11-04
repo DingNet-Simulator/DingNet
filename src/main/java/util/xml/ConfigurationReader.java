@@ -316,7 +316,7 @@ public class ConfigurationReader {
         GeoPosition getDestination() {
             Element destinationElement = (Element) node.getElementsByTagName("destination").item(0);
             long wayPointId =  Long.parseLong(destinationElement.getAttribute("id"));
-            return wayPoints.get(IDMappingWayPoints.get(wayPointId));
+            return Converter.toFloatingGeoPosition(wayPoints.get(IDMappingWayPoints.get(wayPointId)));
         }
 
         @Override
