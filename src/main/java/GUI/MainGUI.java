@@ -61,7 +61,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class MainGUI extends JFrame implements SimulationUpdateListener {
@@ -371,7 +370,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             i++;
         }
 
-        Map<Waypoint, Integer> motes = GUIUtil.getMoteMap(environment);
+        Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
 
         NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
         gatewayNumberPainter.setWaypoints(gateWays);
@@ -379,7 +378,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         GatewayPainter<Waypoint> gateWayPainter = new GatewayPainter<>();
         gateWayPainter.setWaypoints(gateWays.keySet());
 
-        MotePainter<Waypoint> motePainter = new MotePainter<>();
+        MotePainter<MoteWayPoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
