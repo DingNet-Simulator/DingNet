@@ -167,7 +167,7 @@ public class ConfigurationReader {
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(gatewayNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(gatewayNode, "spreadingFactor"));
-                new Gateway(devEUI, xPos, yPos, environment, transmissionPower, spreadingFactor);
+                environment.addGateway(new Gateway(devEUI, xPos, yPos, environment, transmissionPower, spreadingFactor));
             }
         } catch (ParserConfigurationException | SAXException | IOException e1) {
             e1.printStackTrace();

@@ -87,9 +87,9 @@ public class NewGatewayGUI {
     ActionListener saveActionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
+            environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
                     (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
-                    (Integer) SFSpinner.getValue());
+                    (Integer) SFSpinner.getValue()));
             parent.refresh();
             frame.dispose();
 
