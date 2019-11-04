@@ -30,8 +30,8 @@ public class PollutionLevel {
         }
 
         measurements.sort(Comparator.comparing(Pair::getLeft));
-        if (measurements.size() > 3) {
-            measurements = measurements.subList(0, 3);
+        if (measurements.size() > 1) {
+            measurements = measurements.subList(0, 1);
         }
 
         /*

@@ -24,9 +24,14 @@ public class AStarRouter implements PathFinder {
             GeoPosition begin = graph.getWayPoint(connection.getFrom());
             GeoPosition end = graph.getWayPoint(connection.getTo());
 
+
+            double pollutionValue = grid.getPollutionLevel(MapHelper.meanPosition(begin, end)).getPollutionFactor();
+            double factor = (0.0 <= pollutionValue && pollutionValue < 0.2) ? 1 :
+                            (0.2 <= pollutionValue && pollutionValue < 0.4) ? 2 :
+                            (0.4 <= pollutionValue && pollutionValue < 0.6) ? 3 : 10;
+
             // The lower the pollution level, the better the heuristic
-            return (grid.getPollutionLevel(MapHelper.meanPosition(begin, end)).getPollutionFactor() + 1)
-                * MapHelper.distance(begin, end);
+            return factor * MapHelper.distance(begin, end);
         };
     }
 

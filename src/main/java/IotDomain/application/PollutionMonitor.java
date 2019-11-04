@@ -33,7 +33,7 @@ public class PollutionMonitor extends Application {
             .filter(me -> me.getKey().equals(MoteSensor.IAQ))
             .map(Map.Entry::getValue)
             .flatMap(Arrays::stream) // Can do this here since we filter the IAQ sensor (we know it generates a single byte)
-            .mapToDouble(b -> b.intValue() / 5.0)
+            .mapToDouble(b -> (b.intValue() - 1) / 4.0)
             .average()
             .orElse(0.0);
     }
@@ -55,7 +55,7 @@ public class PollutionMonitor extends Application {
         var position = MapHelper.getInstance().toGeoPosition(mote.getPos());
 
         // Retrieve the individual sensor readings
-        Map<MoteSensor, Byte[]> sensorData = this.retrieveSensorData(mote, message.getData());
+        Map<MoteSensor, Byte[]> sensorData = this.retrieveSensorData(mote, body);
 
 
         // Make sure the IAQ sensor is present in the currently processed mote
