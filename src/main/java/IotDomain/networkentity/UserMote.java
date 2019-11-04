@@ -12,6 +12,7 @@ import util.MapHelper;
 import util.Path;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class UserMote extends Mote {
     private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
     private boolean alreadyRequested = false;
 
-    UserMote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
+    UserMote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
         this.destination = destination;
     }
@@ -90,12 +91,20 @@ public class UserMote extends Mote {
     }
 
     @Override
-    public Boolean isEnabled() {
+    public boolean isEnabled() {
         return super.isEnabled() && isActive();
     }
 
     @Override
     public boolean isArrivedToDestination() {
         return this.getPos().equals(MapHelper.getInstance().toMapCoordinate(destination));
+    }
+
+
+    @Override
+    public void initialize() {
+        super.initialize();
+        this.setPath(new ArrayList<>());
+        this.alreadyRequested = false;
     }
 }

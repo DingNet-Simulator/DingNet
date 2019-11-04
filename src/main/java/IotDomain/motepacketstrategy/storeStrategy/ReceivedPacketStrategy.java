@@ -11,4 +11,6 @@ public interface ReceivedPacketStrategy {
     boolean hasPackets();
 
     Optional<LoraWanPacket> getReceivedPacket();
+
+    void clear();
 }

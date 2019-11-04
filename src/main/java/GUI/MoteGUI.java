@@ -38,23 +38,23 @@ public class MoteGUI extends JFrame {
         this.mote = mote;
         moteNumberLabel.setText(Integer.toString(mote.getEnvironment().getMotes().indexOf(mote) + 1));
         EUIDText.setText(Long.toUnsignedString(mote.getEUI()));
-        Double latitude = mote.getEnvironment().toLatitude(mote.getYPos());
-        Integer latitudeDegrees = (int) Math.round(Math.floor(latitude));
-        Integer latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
-        Double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-        Double longitude = mote.getEnvironment().toLongitude(mote.getXPos());
-        Integer longitudeDegrees = (int) Math.round(Math.floor(longitude));
-        Integer longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
-        Double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
+        double latitude = mote.getEnvironment().toLatitude(mote.getYPos());
+        int latitudeDegrees = (int) Math.round(Math.floor(latitude));
+        int latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
+        double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
+        double longitude = mote.getEnvironment().toLongitude(mote.getXPos());
+        int longitudeDegrees = (int) Math.round(Math.floor(longitude));
+        int longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
+        double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
         latitudeLabel.setText(((Math.signum(mote.getEnvironment().toLatitude(mote.getYPos())) == 1) ? "N " : "S ") +
                 latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
         longitudeLabel.setText(((Math.signum(mote.getEnvironment().toLongitude(mote.getXPos())) == 1) ? "E " : "W ") +
                 longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
-        xPosSpinner.setModel(new SpinnerNumberModel(mote.getXPos().intValue(), 0, mote.getEnvironment().getMaxXpos(), 1));
-        yPosSpinner.setModel(new SpinnerNumberModel(mote.getYPos().intValue(), 0, mote.getEnvironment().getMaxYpos(), 1));
-        powerSpinner.setModel(new SpinnerNumberModel(mote.getTransmissionPower(), Integer.valueOf(-3), Integer.valueOf(14), Integer.valueOf(1)));
-        SFSpinner.setModel(new SpinnerNumberModel(mote.getSF(), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
-        movementSpinner.setModel(new SpinnerNumberModel(mote.getMovementSpeed(), Double.valueOf(0.01), Double.valueOf(1000.0), Double.valueOf(0.01)));
+        xPosSpinner.setModel(new SpinnerNumberModel(mote.getXPos(), 0, mote.getEnvironment().getMaxXpos(), 1));
+        yPosSpinner.setModel(new SpinnerNumberModel(mote.getYPos(), 0, mote.getEnvironment().getMaxYpos(), 1));
+        powerSpinner.setModel(new SpinnerNumberModel(mote.getTransmissionPower(), -3, 14, 1));
+        SFSpinner.setModel(new SpinnerNumberModel(mote.getSF(), 1, 12, 1));
+        movementSpinner.setModel(new SpinnerNumberModel(mote.getMovementSpeed(), 0.01, 1000.0, 0.01));
         TPThresholdText.setText(mote.getTransmissionPowerThreshold().toString());
         saveButton.addActionListener(saveActionListener);
         if (mote instanceof UserMote) {

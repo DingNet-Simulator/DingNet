@@ -20,7 +20,7 @@ public class ReplacePath implements ConsumePacketStrategy {
 
     protected List<GeoPosition> extractPath(LoraWanPacket packet) {
         if ((packet.getPayload().length % BYTES_FOR_GEO_COORDINATE) != 0) {
-            throw  new IllegalStateException("the packet doesn't contain the correct amount of byte");
+            throw new IllegalStateException("the packet doesn't contain the correct amount of byte");
         }
         var payload = Converter.toRowType(packet.getPayload());
         final List<GeoPosition> path = new LinkedList<>();

@@ -1,12 +1,15 @@
 package IotDomain;
 
+import IotDomain.application.RoutingApplication;
 import IotDomain.networkentity.Mote;
 import IotDomain.networkentity.MoteSensor;
+import IotDomain.networkentity.UserMote;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 import SensorDataGenerators.SensorDataGenerator;
 import be.kuleuven.cs.som.annotate.Basic;
 import util.Pair;
 import util.TimeHelper;
+import util.pollution.PollutionGrid;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -206,6 +209,8 @@ public class Simulation {
         this.timeMap = new HashMap<>();
 
         for (Mote mote : this.environment.getMotes()) {
+            mote.initialize();
+
             timeMap.put(mote, this.environment.getClock().getTime());
             wayPointMap.put(mote,0);
             environment.getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {

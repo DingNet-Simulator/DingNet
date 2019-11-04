@@ -27,34 +27,27 @@ public class Mote extends NetworkEntity {
 
     //region field
 
-    /**
-     * A LinkedList MoteSensors representing all sensors on the mote.
-     */
+    // A LinkedList MoteSensors representing all sensors on the mote.
     @Model
     private List<MoteSensor> moteSensors;
 
-    /**
-     * A path representing the connections the mote will follow.
-     */
+    // A path representing the connections the mote will follow.
     @Model
     private Path path;
-    /**
-     * An integer representing the energy level of the mote.
-     */
-    @Model
-    private Integer energyLevel;
 
-    /**
-     * A Double representing the movement speed of the mote.
-     */
+    // An integer representing the energy level of the mote.
     @Model
-    private Double movementSpeed;
+    private int energyLevel;
 
-    /**
-     * An integer representing the start offset of the mote in seconds.
-     */
+    // A double representing the movement speed of the mote.
     @Model
-    private Integer startMovementOffset;
+    private double movementSpeed;
+
+    // An integer representing the start offset of the mote in seconds.
+    @Model
+    private int startMovementOffset;
+
+    // The last used frameCounter used when transmitting lora messages
     private short frameCounter = 0;
 
     protected boolean canReceive = false;
@@ -68,19 +61,13 @@ public class Mote extends NetworkEntity {
 
     private static final int DEFAULT_START_SENDING_OFFSET = 1;
     private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
-    /**
-     * time to await before send the first packet (in seconds)
-     */
+    // time to await before send the first packet (in seconds)
     private final int startSendingOffset;
-    /**
-     * period to define how many seconds the mote has to send a packet (in seconds)
-     */
+    // period to define how many seconds the mote has to send a packet (in seconds)
     private int periodSendingPacket;
     private static final long DEFAULT_APPLICATION_EUI = 1;
 
-    /**
-     * application identifier
-     */
+    // application identifier
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
     private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
 
@@ -107,10 +94,10 @@ public class Mote extends NetworkEntity {
      * @param startSendingOffset time to await before send the first packet (in seconds)
      */
     @Raw
-    public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path,
-                Double movementSpeed, Integer startMovementOffset, int periodSendingPacket, int startSendingOffset){
-        super(DevEUI, xPos,yPos, environment,transmissionPower,SF,1.0);
+    public Mote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower,
+                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
+                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset){
+        super(DevEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
         environment.addMote(this);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
@@ -152,8 +139,8 @@ public class Mote extends NetworkEntity {
     @Override
     protected void OnReceive(LoraWanPacket packet) {
         //if is a message sent to from a gateway to this mote
-        if (canReceive && getEUI().equals(packet.getDesignatedReceiverEUI()) &&
-            getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+        if (canReceive && getEUI() == packet.getDesignatedReceiverEUI() &&
+            getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
             canReceive = false;
             receivedPacketStrategy.addReceivedMessage(packet);
         }
@@ -162,6 +149,16 @@ public class Mote extends NetworkEntity {
     @Override
     boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
         return !networkEntity.equals(this);
+    }
+
+    @Override
+    public void initialize() {
+        this.setXPos(this.initialPosition.getLeft());
+        this.setYPos(this.initialPosition.getRight());
+        this.receivedPacketStrategy.clear();
+        lastPacketSent = null;
+        keepAliveTriggerId = -1;
+        canReceive = false;
     }
 
     /**
@@ -290,7 +287,7 @@ public class Mote extends NetworkEntity {
      * @return The energy level of the mote.
      */
     @Basic
-    public Integer getEnergyLevel(){
+    public int getEnergyLevel(){
         return this.energyLevel;
     }
 
@@ -299,7 +296,7 @@ public class Mote extends NetworkEntity {
      * @param energyLevel The energy level to set.
      */
     @Basic
-    public void setEnergyLevel(Integer energyLevel) {
+    public void setEnergyLevel(int energyLevel) {
         this.energyLevel = energyLevel;
     }
 
@@ -317,7 +314,7 @@ public class Mote extends NetworkEntity {
      * @return The movementSpeed of the mote.
      */
     @Basic
-    public Double getMovementSpeed() {
+    public double getMovementSpeed() {
         return movementSpeed;
     }
 
@@ -326,7 +323,7 @@ public class Mote extends NetworkEntity {
      * @param movementSpeed The movement speed of the mote.
      */
     @Basic
-    public void setMovementSpeed(Double movementSpeed) {
+    public void setMovementSpeed(double movementSpeed) {
         this.movementSpeed = movementSpeed;
     }
 
@@ -335,7 +332,7 @@ public class Mote extends NetworkEntity {
      * @return the start offset of the mote in seconds.
      */
     @Basic
-    public Integer getStartMovementOffset(){
+    public int getStartMovementOffset(){
         return this.startMovementOffset;
     }
 

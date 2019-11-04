@@ -14,6 +14,7 @@ import SelfAdaptation.FeedbackLoop.SignalBasedAdaptation;
 import SelfAdaptation.Instrumentation.MoteEffector;
 import SelfAdaptation.Instrumentation.MoteProbe;
 import util.Pair;
+import util.pollution.PollutionGrid;
 import util.xml.*;
 
 import java.io.File;
@@ -127,6 +128,9 @@ public class SimulationRunner {
 
     public void setupSingleRun() {
         simulation.setupSingleRun();
+
+        PollutionGrid.getInstance().clean();
+        routingApplication.clean();
     }
 
     public void setupTimedRun() {
@@ -139,10 +143,6 @@ public class SimulationRunner {
 
     public void simulate(int updateFrequency, SimulationUpdateListener listener) {
         new Thread(() -> {
-            Map<Mote, Pair<Integer, Integer>> initialMotePositions = new HashMap<>();
-            simulation.getEnvironment().getMotes()
-                .forEach(m -> initialMotePositions.put(m, m.getPos()));
-
             long simulationStep = 0;
             while (!this.isSimulationFinished()) {
                 this.simulateStep();
@@ -154,7 +154,6 @@ public class SimulationRunner {
             }
 
             // Restore the initial positions after the run
-            simulation.updateMotesLocation(initialMotePositions);
             listener.update();
             listener.onEnd();
         }).start();

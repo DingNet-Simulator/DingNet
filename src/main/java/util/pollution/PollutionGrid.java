@@ -61,4 +61,8 @@ public class PollutionGrid {
             return PollutionLevel.getMediumPollution(distances);
         }
     }
+
+    public void clean() {
+        pollutionMeasurements = new HashMap<>();
+    }
 }

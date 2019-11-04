@@ -125,17 +125,17 @@ public class ConfigurationWriter {
 
                 Element location = doc.createElement("location");
                 Element xPos = doc.createElement("xPos");
-                xPos.appendChild(doc.createTextNode(gateway.getXPos().toString()));
+                xPos.appendChild(doc.createTextNode(Integer.toString(gateway.getXPos())));
                 Element yPos = doc.createElement("yPos");
-                yPos.appendChild(doc.createTextNode(gateway.getYPos().toString()));
+                yPos.appendChild(doc.createTextNode(Integer.toString(gateway.getYPos())));
                 location.appendChild(xPos);
                 location.appendChild(yPos);
 
                 Element transmissionPower = doc.createElement("transmissionPower");
-                transmissionPower.appendChild(doc.createTextNode(gateway.getTransmissionPower().toString()));
+                transmissionPower.appendChild(doc.createTextNode(Integer.toString(gateway.getTransmissionPower())));
 
                 Element spreadingFactor = doc.createElement("spreadingFactor");
-                spreadingFactor.appendChild(doc.createTextNode(gateway.getSF().toString()));
+                spreadingFactor.appendChild(doc.createTextNode(Integer.toString(gateway.getSF())));
 
                 gatewayElement.appendChild(devEUI);
                 gatewayElement.appendChild(location);
@@ -236,31 +236,31 @@ public class ConfigurationWriter {
 
         Element generateTransmissionPowerElement() {
             Element transmissionPower = doc.createElement("transmissionPower");
-            transmissionPower.appendChild(doc.createTextNode(mote.getTransmissionPower().toString()));
+            transmissionPower.appendChild(doc.createTextNode(Integer.toString(mote.getTransmissionPower())));
             return transmissionPower;
         }
 
         Element generateSpreadingFactorElement() {
             Element spreadingFactor = doc.createElement("spreadingFactor");
-            spreadingFactor.appendChild(doc.createTextNode(mote.getSF().toString()));
+            spreadingFactor.appendChild(doc.createTextNode(Integer.toString(mote.getSF())));
             return spreadingFactor;
         }
 
         Element generateEnergyLevelElement() {
             Element energyLevel = doc.createElement("energyLevel");
-            energyLevel.appendChild(doc.createTextNode(mote.getEnergyLevel().toString()));
+            energyLevel.appendChild(doc.createTextNode(Integer.toString(mote.getEnergyLevel())));
             return energyLevel;
         }
 
         Element generateMovementSpeedElement() {
             Element movementSpeed = doc.createElement("movementSpeed");
-            movementSpeed.appendChild(doc.createTextNode(mote.getMovementSpeed().toString()));
+            movementSpeed.appendChild(doc.createTextNode(Double.toString(mote.getMovementSpeed())));
             return movementSpeed;
         }
 
         Element generateStartMovementSpeedElement() {
             Element startMovementOffset = doc.createElement("startMovementOffset");
-            startMovementOffset.appendChild(doc.createTextNode(mote.getStartMovementOffset().toString()));
+            startMovementOffset.appendChild(doc.createTextNode(Integer.toString(mote.getStartMovementOffset())));
             return startMovementOffset;
         }
 
