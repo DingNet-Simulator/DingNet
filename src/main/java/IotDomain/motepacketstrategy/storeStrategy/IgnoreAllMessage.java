@@ -18,4 +18,7 @@ public class IgnoreAllMessage implements ReceivedPacketStrategy {
     public Optional<LoraWanPacket> getReceivedPacket() {
         return Optional.empty();
     }
+
+    @Override
+    public void clear() {}
 }

@@ -32,7 +32,7 @@ public class Gateway extends NetworkEntity {
      * @param transmissionPower The transmission power of the gateway.
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
-    public Gateway(Long gatewayEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF) {
+    public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
         this(new SendNewestPacket(), gatewayEUI, xPos, yPos, environment, transmissionPower, SF);
     }
 
@@ -46,7 +46,7 @@ public class Gateway extends NetworkEntity {
      * @param transmissionPower The transmission power of the gateway.
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
-    public Gateway(ResponseStrategy responseStrategy, Long gatewayEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF) {
+    public Gateway(ResponseStrategy responseStrategy, long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
         super(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
         environment.addGateway(this);
         subscribedMoteProbes = new LinkedList<>();
@@ -75,7 +75,7 @@ public class Gateway extends NetworkEntity {
     @Override
     protected void OnReceive(LoraWanPacket packet) {
         //manage the message only if it is of a mote
-        if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI().equals(packet.getSenderEUI()))) {
+        if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
             var message = new MqttMessage(packet.getHeader(), new LinkedList<>(Arrays.asList(packet.getPayload())), packet.getSenderEUI(), getEUI(), packet.getDesignatedReceiverEUI());
             mqttClient.publish(getTopic(packet.getDesignatedReceiverEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
@@ -87,8 +87,11 @@ public class Gateway extends NetworkEntity {
 
     @Override
     boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
-        return networkEntity.getEUI().equals(packet.getDesignatedReceiverEUI());
+        return networkEntity.getEUI() == packet.getDesignatedReceiverEUI();
     }
+
+    @Override
+    public void initialize() {}
 
     private String getTopic(Long applicationEUI, Long deviceEUI) {
         return new StringBuilder()

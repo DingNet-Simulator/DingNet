@@ -25,61 +25,48 @@ import java.util.stream.Stream;
  * An  abstract class representing an entity active in the LoraWan network
  */
 public abstract class NetworkEntity implements Serializable{
-    /**
-     *
-     */
+    // EUI of the network entity
     private static final long serialVersionUID = 1L;
 
-    /**
-     * A boolean to know when the entity is transmitting
-     */
+    // A boolean to know when the entity is transmitting
+    private boolean isTransmitting;
 
-    private Boolean isTransmitting;
-
-    /**
-     * A list representing the power setting of every transmission.
-     */
+    // A list representing the power setting of every transmission.
     private LinkedList<List<Pair<Integer,Integer>>> powerSettingHistory;
-    /**
-     * A list representing the spreading factor of every transmission.
-     */
+
+    // A list representing the spreading factor of every transmission.
     private LinkedList<List<Integer>> spreadingFactorHistory;
-    /**
-     * An unsinged long representing the 64 bit unique identifier.
-     */
+
+    // An unsinged long representing the 64 bit unique identifier.
     private final Long EUI;
-    /**
-     * The x-coordinate of the entity
-     */
-    private Integer xPos = 0;
-    /**
-     * The y-coordinate of the entity.
-     */
-    private Integer yPos = 0;
-    /**
-     * A map of the environment the entity is placed in.
-     */
+
+    // The x-coordinate of the entity
+    private int xPos = 0;
+
+    // The y-coordinate of the entity.
+    private int yPos = 0;
+
+    final Pair<Integer, Integer> initialPosition;
+
+    // A map of the environment the entity is placed in.
     private Environment environment;
-    /**
-     * The transmission power of the entity.
-     */
-    private Integer transmissionPower;
-    /**
-     * The levels of power in between which it can discriminate.
-     */
-    private final Double transmissionPowerThreshold;
-    /**
-     *  A map with the transmissions received by the entity and if they collided with an other packet.
-     */
+
+    // The transmission power of the entity.
+    private int transmissionPower;
+
+    // The spreading factor setting of the node.
+    private int SF = 12;
+
+    // The levels of power in between which it can discriminate.
+    private final double transmissionPowerThreshold;
+
+    // A map with the transmissions received by the entity and if they collided with an other packet.
     private LinkedList<LinkedHashMap<LoraTransmission,Boolean>> receivedTransmissions = new LinkedList<>();
-    /**
-     *  A list with the transmissions transmitted by the entity
-     */
+
+    // A list with the transmissions transmitted by the entity
     private LinkedList<LinkedList<LoraTransmission>> sentTransmissions = new LinkedList<>();
 
-    /**
-     * If the mote is enabled in the current simulation.
-     */
+    // If the mote is enabled in the current simulation.
     private Boolean enabled;
 
     /**
@@ -99,24 +86,23 @@ public abstract class NetworkEntity implements Serializable{
      *
      */
     @Raw
-    public NetworkEntity(Long EUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower, Integer SF,
-                         Double transmissionPowerThreshold){
+    NetworkEntity(Long EUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF,
+                  double transmissionPowerThreshold){
         this.environment = environment;
-        if(environment.isValidXpos(xPos)){
+        if (environment.isValidXpos(xPos)) {
             this.xPos = xPos;
         }
-        if(environment.isValidYpos(yPos)){
+        if (environment.isValidYpos(yPos)) {
             this.yPos = yPos;
         }
+        this.initialPosition = new Pair<>(xPos, yPos);
 
-        if(isValidTransmissionPower(transmissionPower)){
-            this.transmissionPower = transmissionPower;
-        }
-        else
-            this.transmissionPower = 0;
-        if(isValidSF(SF)){
+        this.transmissionPower = isValidTransmissionPower(transmissionPower) ? transmissionPower : 0;
+
+        if (isValidSF(SF)) {
             this.SF = SF;
         }
+
         this.transmissionPowerThreshold = transmissionPowerThreshold;
         this.EUI = EUI;
         powerSettingHistory = new LinkedList<>();
@@ -125,7 +111,7 @@ public abstract class NetworkEntity implements Serializable{
         spreadingFactorHistory.add(new LinkedList<>());
         receivedTransmissions.add(new LinkedHashMap<>());
         sentTransmissions.add(new LinkedList<>());
-        isTransmitting =false;
+        isTransmitting = false;
         enabled = true;
     }
 
@@ -200,7 +186,7 @@ public abstract class NetworkEntity implements Serializable{
      * @return true if the transmission power is valid. False otherwise.
      */
     @Immutable
-    public static boolean isValidTransmissionPower(Integer transmissionPower) {
+    private static boolean isValidTransmissionPower(Integer transmissionPower) {
         return true;
     }
 
@@ -214,7 +200,7 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Basic
     @Raw
-    public Integer getTransmissionPower() {
+    public int getTransmissionPower() {
         return transmissionPower;
     }
 
@@ -305,7 +291,7 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Basic
     @Raw
-    public Integer getXPos() {
+    public int getXPos() {
         return xPos;
     }
 
@@ -314,8 +300,8 @@ public abstract class NetworkEntity implements Serializable{
      * @param xPos The new x-coordinate.
      */
     @Basic
-    public void setXPos(Integer xPos) {
-        if(environment.isValidXpos(xPos)){
+    public void setXPos(int xPos) {
+        if (environment.isValidXpos(xPos)) {
             this.xPos = xPos;
         }
     }
@@ -326,9 +312,9 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Basic
     @Raw
-        public Integer getYPos() {
-            return yPos;
-        }
+    public int getYPos() {
+        return yPos;
+    }
 
     /**
      * Checks if a new y-coordinate is valid and then sets that coordinate.
@@ -336,24 +322,21 @@ public abstract class NetworkEntity implements Serializable{
      * @Post    If the new y-coordinate is valid, the new coordinate is set.
      */
     @Basic
-    public void setYPos(Integer yPos) {
-        if(environment.isValidYpos(yPos)){
+    public void setYPos(int yPos) {
+        if (environment.isValidYpos(yPos)) {
             this.yPos = yPos;
         }
     }
 
-    public Pair<Integer, Integer> getPos(){
+    public Pair<Integer, Integer> getPos() {
         return new Pair<>(getXPos(), getYPos());
     }
 
-    public void setPos(Integer xPos, Integer yPos){
+    public void setPos(int xPos, int yPos){
         setXPos(xPos);
         setYPos(yPos);
     }
-    /**
-     * The spreading factor setting of the node.
-     */
-    private Integer SF = 12;
+
 
     /**
      * Checks if a given Spreading factor is valid
@@ -361,7 +344,7 @@ public abstract class NetworkEntity implements Serializable{
      * @return  If the spreading factor is valid
      */
     @Immutable
-    public static Boolean isValidSF(Integer SF){
+    private static boolean isValidSF(Integer SF){
         return SF <= 12 && SF >= 7;
     }
 
@@ -371,7 +354,7 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Basic
     @Raw
-    public Integer getSF() {
+    public int getSF() {
         return SF;
     }
 
@@ -379,8 +362,8 @@ public abstract class NetworkEntity implements Serializable{
      * Checks if a spreading factor is valid and then sets it to the spreading factor.
      * @param SF the spreading factor to set.
      */
-    public void setSF(Integer SF) {
-        if(isValidSF(SF)) {
+    public void setSF(int SF) {
+        if (isValidSF(SF)) {
             this.SF = SF;
         }
     }
@@ -389,8 +372,8 @@ public abstract class NetworkEntity implements Serializable{
      * A method which sends a message to all gateways in the environment
      * @param message The message to send.
      */
-    protected void loraSend(LoraWanPacket message){
-        if(!isTransmitting) {
+    void loraSend(LoraWanPacket message){
+        if (!isTransmitting) {
             powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
             spreadingFactorHistory.getLast().add(getSF());
             List<LoraTransmission> packetsToSend = Stream.concat(
@@ -407,20 +390,12 @@ public abstract class NetworkEntity implements Serializable{
     }
 
     /**
-     *
-     * @param networkEntity the receiver
-     * @param packet the packet to send
-     * @return true if the packet has to be sent
-     */
-    abstract boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet);
-
-    /**
      * Checks if two packets collide according to the model
      * @param a The first packet.
      * @param b The second packet.
      * @return true if the packets collide, false otherwise.
      */
-    public Boolean collision(LoraTransmission a, LoraTransmission b){
+    private boolean collision(LoraTransmission a, LoraTransmission b){
         return a.getSpreadingFactor().equals(b.getSpreadingFactor()) &&     //check spreading factor
             a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold() && //check transmission power
             Math.abs(Duration.between(a.getDepartureTime().plusNanos(a.getTimeOnAir().longValue() * 1000000 / 2), //check time on air
@@ -433,7 +408,7 @@ public abstract class NetworkEntity implements Serializable{
      * @param packet
      * @return
      */
-    public Boolean packetStrengthHighEnough(LoraTransmission packet){
+    private boolean packetStrengthHighEnough(LoraTransmission packet){
         return packet.getTransmissionPower() > -174 - 10 * Math.log10(packet.getBandwidth()) - (2.5 * packet.getSpreadingFactor() - 10);
     }
 
@@ -441,7 +416,7 @@ public abstract class NetworkEntity implements Serializable{
      * Returns the unique identifier.
      * @return the unique identifier.
      */
-    public Long getEUI() {
+    public long getEUI() {
         return EUI;
     }
 
@@ -458,7 +433,7 @@ public abstract class NetworkEntity implements Serializable{
     /**
      * Resets the received and sent transmissions and the power setting and the spreading factor history of the entity.
      */
-    public void reset(){
+    public void reset() {
         powerSettingHistory.clear();
         powerSettingHistory.add(new LinkedList<>());
         spreadingFactorHistory.clear();
@@ -483,7 +458,7 @@ public abstract class NetworkEntity implements Serializable{
      * Returns if the entity is enabled in this run.
      * @return If the entity is enabled in this run.
      */
-    public Boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
@@ -491,7 +466,23 @@ public abstract class NetworkEntity implements Serializable{
      * Enables or disables the entity.
      * @param enabled If the entity is enabled.
      */
-    public void enable(Boolean enabled) {
+    public void enable(boolean enabled) {
         this.enabled = enabled;
     }
+
+
+
+    /**
+     *
+     * @param networkEntity the receiver
+     * @param packet the packet to send
+     * @return true if the packet has to be sent
+     */
+    abstract boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet);
+
+
+    /**
+     * Method which is called at the start of every simulation run.
+     */
+    public abstract void initialize();
 }

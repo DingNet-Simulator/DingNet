@@ -28,4 +28,10 @@ public class MaintainLastPacket implements ReceivedPacketStrategy {
         packet = null;
         return tmp;
     }
+
+    @Override
+    public void clear() {
+        this.lastPacketReceived = 0;
+        this.packet = null;
+    }
 }

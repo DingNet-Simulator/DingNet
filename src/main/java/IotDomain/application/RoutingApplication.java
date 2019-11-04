@@ -104,4 +104,10 @@ public class RoutingApplication extends Application {
             handleRouteRequest(message);
         }
     }
+
+    public void clean() {
+        this.routes = new HashMap<>();
+        this.lastPositions = new HashMap<>();
+        seqNr = 1;
+    }
 }

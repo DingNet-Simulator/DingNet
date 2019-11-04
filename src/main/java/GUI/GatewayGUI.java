@@ -47,10 +47,10 @@ public class GatewayGUI extends JFrame {
         longitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLongitude(gateway.getXPos())) == 1) ? "E " : "W ") +
                 longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
 
-        xCoordinateLabel.setText(gateway.getXPos().toString());
-        yCoordinateLabel.setText(gateway.getYPos().toString());
-        powerSettingLabel.setText(gateway.getTransmissionPower().toString());
-        SFLabel.setText(gateway.getSF().toString());
+        xCoordinateLabel.setText(Integer.toString(gateway.getXPos()));
+        yCoordinateLabel.setText(Integer.toString(gateway.getYPos()));
+        powerSettingLabel.setText(Integer.toString(gateway.getTransmissionPower()));
+        SFLabel.setText(Integer.toString(gateway.getSF()));
 
         TPthresholdText.setText(gateway.getTransmissionPowerThreshold().toString());
 
