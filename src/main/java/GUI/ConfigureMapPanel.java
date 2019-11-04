@@ -1,9 +1,7 @@
 package GUI;
 
-import GUI.MapViewer.LinePainter;
-import GUI.MapViewer.MotePainter;
-import GUI.MapViewer.NumberPainter;
-import GUI.MapViewer.WayPointPainter;
+
+import GUI.MapViewer.*;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import IotDomain.networkentity.Mote;
@@ -96,9 +94,9 @@ public class ConfigureMapPanel {
 
 
         // Draw the motes
-        Map<Waypoint, Integer> motes = GUIUtil.getMoteMap(environment);
+        Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
 
-        MotePainter<Waypoint> motePainter = new MotePainter<>();
+        MotePainter<MoteWayPoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);

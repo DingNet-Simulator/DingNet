@@ -369,7 +369,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             i++;
         }
 
-        Map<Waypoint, Integer> motes = GUIUtil.getMoteMap(environment);
+        Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
 
         NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
         gatewayNumberPainter.setWaypoints(gateWays);
@@ -377,7 +377,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         GatewayPainter<Waypoint> gateWayPainter = new GatewayPainter<>();
         gateWayPainter.setWaypoints(gateWays.keySet());
 
-        MotePainter<Waypoint> motePainter = new MotePainter<>();
+        MotePainter<MoteWayPoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
@@ -455,7 +455,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             int index = Integer.parseInt(text.substring(5, text.indexOf(":")));
             if (e.getClickCount() == 2) {
                 JFrame frame = new JFrame("Mote settings");
-                MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame);
+                MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame, null);//TODO
                 frame.setContentPane(moteGUI.getMainPanel());
                 frame.setPreferredSize(new Dimension(600, 400));
                 frame.setMinimumSize(new Dimension(600, 400));

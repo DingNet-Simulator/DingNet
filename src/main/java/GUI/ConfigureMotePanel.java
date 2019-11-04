@@ -2,6 +2,7 @@ package GUI;
 
 
 import GUI.MapViewer.MotePainter;
+import GUI.MapViewer.MoteWayPoint;
 import GUI.MapViewer.NumberPainter;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
@@ -15,7 +16,10 @@ import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
-import org.jxmapviewer.viewer.*;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.Waypoint;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -23,7 +27,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,9 +63,9 @@ public class ConfigureMotePanel {
         tileFactory.setThreadPoolSize(8);
         mapViewer.setZoom(0);
 
-        Map<Waypoint, Integer> motes = GUIUtil.getMoteMap(environment);
+        Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
 
-        MotePainter<Waypoint> motePainter = new MotePainter<>();
+        MotePainter<MoteWayPoint> motePainter = new MotePainter<>();
         motePainter.setWaypoints(motes.keySet());
 
         NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
@@ -151,13 +154,13 @@ public class ConfigureMotePanel {
 
                 // TODO make sure the mote is put on a waypoint
 
-                Boolean exists = false;
+                boolean exists = false;
                 for (Mote mote : environment.getMotes()) {
-                    Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());
-                    Integer yDistance = environment.toMapYCoordinate(geo) - mote.getYPos();
+                    int xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());
+                    int yDistance = environment.toMapYCoordinate(geo) - mote.getYPos();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Mote settings");
-                        MoteGUI moteGUI = new MoteGUI(mote, frame);
+                        MoteGUI moteGUI = new MoteGUI(mote, frame, panel);
                         frame.setContentPane(moteGUI.getMainPanel());
                         frame.setPreferredSize(new Dimension(600, 400));
                         frame.setMinimumSize(new Dimension(600, 400));
@@ -170,8 +173,8 @@ public class ConfigureMotePanel {
                     JFrame frame = new JFrame("New mote");
                     NewMoteGUI newMoteGUI = new NewMoteGUI(environment, geo, frame, panel);
                     frame.setContentPane(newMoteGUI.getMainPanel());
-                    frame.setPreferredSize(new Dimension(600, 400));
-                    frame.setMinimumSize(new Dimension(600, 400));
+                    frame.setPreferredSize(new Dimension(600, 500));
+                    frame.setMinimumSize(new Dimension(600, 500));
                     frame.setVisible(true);
                 }
 
