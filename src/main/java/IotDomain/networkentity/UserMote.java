@@ -32,7 +32,7 @@ public class UserMote extends Mote {
 
     private void init(GeoPosition destination) {
         consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
-        setPath(new PathWithMiddlePoints());
+        setPath(new PathWithMiddlePoints(List.of(MapHelper.getInstance().toGeoPosition(this.getPos()))));
         this.destination = destination;
     }
 
