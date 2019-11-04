@@ -51,11 +51,12 @@ public class UserMote extends Mote {
         System.arraycopy(Converter.toByteArray(getPath().getDestination().get()), 0, payload, 1, 8);
         loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
             new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>()));
+        canReceive = true;
 
         var clock = getEnvironment().getClock();
-        var oldPath = getPath();
+        var oldDestination = getPath().getDestination();
         clock.addTrigger(clock.getTime().plusSeconds(30), () -> {
-            if (oldPath.equals(getPath())) {
+            if (oldDestination.equals(getPath().getDestination())) {
                 askNewPartOfPath();
             }
             return LocalTime.of(0, 0);

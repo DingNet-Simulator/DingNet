@@ -59,10 +59,11 @@ public class RoutingApplication extends Application {
         List<GeoPosition> routeMote = this.pathFinder.retrievePath(graph, motePosition, destinationPosition);
         this.routes.put(deviceEUI, routeMote);
 
-        // Compose packet: 24 bytes for now, which can store 3 geopositions (in float)
-        ByteBuffer payloadRaw = ByteBuffer.allocate(24);
+        // Compose packet: up to 24 bytes for now, which can store 3 geopositions (in float)
+        int amtPositions = Math.min(routeMote.size() - 1, 3);
+        ByteBuffer payloadRaw = ByteBuffer.allocate(8 * amtPositions);
 
-        for (GeoPosition pos : routeMote.subList(1, Math.min(routeMote.size(), 4))) {
+        for (GeoPosition pos : routeMote.subList(1, amtPositions + 1)) {
             payloadRaw.putFloat((float) pos.getLatitude());
             payloadRaw.putFloat((float) pos.getLongitude());
         }
