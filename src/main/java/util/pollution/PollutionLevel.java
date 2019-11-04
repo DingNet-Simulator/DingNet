@@ -10,6 +10,9 @@ public class PollutionLevel {
     private double level;
 
     public PollutionLevel(double level) {
+        if (level < 0 || level > 1) {
+            throw new IllegalArgumentException("The pollution level should be in the range [0,1]");
+        }
         this.level = level;
     }
 
@@ -23,7 +26,7 @@ public class PollutionLevel {
      * @param measurements A list of air quality measurements and their distances to the desired position.
      * @return A pollution level for the position.
      */
-    static PollutionLevel getMediumPollution(List<Pair<Double, PollutionLevel>> measurements) {
+    public static PollutionLevel getMediumPollution(List<Pair<Double, PollutionLevel>> measurements) {
         if (measurements.isEmpty()) {
             // In case no measurements are present yet, choose a default value of 0
             return new PollutionLevel(0);
