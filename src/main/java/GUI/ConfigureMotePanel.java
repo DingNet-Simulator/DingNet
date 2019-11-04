@@ -154,10 +154,10 @@ public class ConfigureMotePanel {
 
                 // TODO make sure the mote is put on a waypoint
 
-                Boolean exists = false;
+                boolean exists = false;
                 for (Mote mote : environment.getMotes()) {
-                    Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());
-                    Integer yDistance = environment.toMapYCoordinate(geo) - mote.getYPos();
+                    int xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());
+                    int yDistance = environment.toMapYCoordinate(geo) - mote.getYPos();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Mote settings");
                         MoteGUI moteGUI = new MoteGUI(mote, frame, panel);
@@ -173,8 +173,8 @@ public class ConfigureMotePanel {
                     JFrame frame = new JFrame("New mote");
                     NewMoteGUI newMoteGUI = new NewMoteGUI(environment, geo, frame, panel);
                     frame.setContentPane(newMoteGUI.getMainPanel());
-                    frame.setPreferredSize(new Dimension(600, 400));
-                    frame.setMinimumSize(new Dimension(600, 400));
+                    frame.setPreferredSize(new Dimension(600, 500));
+                    frame.setMinimumSize(new Dimension(600, 500));
                     frame.setVisible(true);
                 }
 
