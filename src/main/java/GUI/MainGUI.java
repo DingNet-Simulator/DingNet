@@ -47,10 +47,7 @@ import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
@@ -449,11 +446,17 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             int index = Integer.parseInt(text.substring(5, text.indexOf(":")));
             if (e.getClickCount() == 2) {
                 JFrame frame = new JFrame("Mote settings");
-                MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame, null);//TODO
+                MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame);
                 frame.setContentPane(moteGUI.getMainPanel());
                 frame.setPreferredSize(new Dimension(600, 400));
                 frame.setMinimumSize(new Dimension(600, 400));
                 frame.setVisible(true);
+                frame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        refresh();
+                    }
+                });
             }
             if (e.getClickCount() == 1) {
                 setCharacteristics(index - 1, 0);
