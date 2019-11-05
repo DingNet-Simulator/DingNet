@@ -26,6 +26,8 @@ import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -160,12 +162,19 @@ public class ConfigureMotePanel {
                     int yDistance = environment.toMapYCoordinate(geo) - mote.getYPos();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Mote settings");
-                        MoteGUI moteGUI = new MoteGUI(mote, frame, panel);
+                        MoteGUI moteGUI = new MoteGUI(mote, frame);
                         frame.setContentPane(moteGUI.getMainPanel());
                         frame.setPreferredSize(new Dimension(600, 400));
                         frame.setMinimumSize(new Dimension(600, 400));
                         frame.setVisible(true);
                         exists = true;
+                        frame.addWindowListener(new WindowAdapter() {
+                            @Override
+                            public void windowClosed(WindowEvent e) {
+                                refresh();
+                            }
+                        });
+
                     }
                 }
 

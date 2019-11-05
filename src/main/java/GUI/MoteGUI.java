@@ -32,10 +32,8 @@ public class MoteGUI extends JFrame {
     private JCheckBox isActiveCheckBox;
     private Mote mote;
     private JFrame frame;
-    private final ConfigureMotePanel parent;
 
-    public MoteGUI(Mote mote, JFrame frame, ConfigureMotePanel parent) {
-        this.parent = parent;
+    public MoteGUI(Mote mote, JFrame frame) {
         this.frame = frame;
         this.mote = mote;
         moteNumberLabel.setText(Integer.toString(mote.getEnvironment().getMotes().indexOf(mote) + 1));
@@ -117,7 +115,6 @@ public class MoteGUI extends JFrame {
         } else {
             isActiveCheckBox.setVisible(false);
         }
-        parent.refresh();
     }
 
     ActionListener saveActionListener = new ActionListener() {
