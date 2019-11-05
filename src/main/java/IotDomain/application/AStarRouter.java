@@ -37,10 +37,12 @@ public class AStarRouter implements PathFinder {
 
     @Override
     public List<GeoPosition> retrievePath(GraphStructure graph, GeoPosition begin, GeoPosition end) {
-        // NOTE: assumption -> the positions given are located at waypoints in the graph
-        long beginWaypointId = graph.getClosestWayPointWithinRange(begin, 0.05)
+        // The maximum amount of distance the closest waypoint should be to a given GeoPosition (for now: 50m)
+        final double DISTANCE_THRESHOLD = 0.05;
+
+        long beginWaypointId = graph.getClosestWayPointWithinRange(begin, DISTANCE_THRESHOLD)
             .orElseThrow(() -> new IllegalStateException("The mote position retrieved from the message is not located at a waypoint."));
-        long endWaypointId = graph.getClosestWayPointWithinRange(end, 0.05)
+        long endWaypointId = graph.getClosestWayPointWithinRange(end, DISTANCE_THRESHOLD)
             .orElseThrow(() -> new IllegalStateException("The destination position retrieved from the message is not located at a waypoint."));
 
         PriorityQueue<FringeEntry> fringe = new PriorityQueue<>();
