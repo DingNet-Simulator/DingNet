@@ -8,9 +8,9 @@ import org.jxmapviewer.viewer.TileFactory;
 import util.MapHelper;
 import util.pollution.PollutionGrid;
 
-import java.awt.geom.Rectangle2D;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 public class PollutionGridPainter implements Painter<JXMapViewer> {
     private PollutionGrid pollutionGrid;
@@ -37,7 +37,7 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
         int maxY = environment.getMaxYpos() + 1;
 
         // Can decide to be more fine grained later on
-        final int DIVISION = 10;
+        final int DIVISION = 100;
         TileFactory factory = map.getTileFactory();
         MapHelper mapHelper = MapHelper.getInstance();
 
