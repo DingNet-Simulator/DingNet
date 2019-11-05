@@ -33,7 +33,7 @@ public class GUIUtil {
         var mapHelper = MapHelper.getInstance();
 
         IntStream.range(0, motes.size())
-            .forEach(i -> map.put(new DefaultWaypoint(new GeoPosition(mapHelper.toLatitude(motes.get(i).getYPos()), mapHelper.toLongitude(motes.get(i).getXPos()))), i+1));
+            .forEach(i -> map.put(new DefaultWaypoint(new GeoPosition(mapHelper.toLatitude(motes.get(i).getYPosInt()), mapHelper.toLongitude(motes.get(i).getXPosInt()))), i+1));
         return map;
     }
 

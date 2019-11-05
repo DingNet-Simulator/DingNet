@@ -35,7 +35,7 @@ public class UserMote extends Mote {
             alreadyRequested = true;
             byte[] payload= new byte[17];
             payload[0] = MessageType.REQUEST_PATH.getCode();
-            System.arraycopy(getGPSSensor().generateData(getPos(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
+            System.arraycopy(getGPSSensor().generateData(getPosInt(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
             System.arraycopy(Converter.toByteArray(destination), 0, payload, 9, 8);
             return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
@@ -97,7 +97,7 @@ public class UserMote extends Mote {
 
     @Override
     public boolean isArrivedToDestination() {
-        return this.getPos().equals(MapHelper.getInstance().toMapCoordinate(destination));
+        return this.getPosInt().equals(MapHelper.getInstance().toMapCoordinate(destination));
     }
 
 

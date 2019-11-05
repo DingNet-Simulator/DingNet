@@ -120,7 +120,7 @@ public class Environment implements Serializable {
      * Returns the clock used by this environment.
      * @return The clock used by this environment.
      */
-    public GlobalClock getClock(){
+    public GlobalClock getClock() {
         return clock;
     }
 
@@ -147,7 +147,7 @@ public class Environment implements Serializable {
      * @param x The x-coordinate to check
      * @return true if the coordinate is not bigger than the max coordinate
      */
-    public boolean isValidXpos(int x) {
+    public boolean isValidXpos(double x) {
         return x >= 0 && x <= getMaxXpos();
     }
 
@@ -165,7 +165,7 @@ public class Environment implements Serializable {
      * @param y The y-coordinate to check
      * @return true if the coordinate is not bigger than the max coordinate
      */
-    public boolean isValidYpos(int y){
+    public boolean isValidYpos(double y) {
         return y >= 0 && y <= getMaxYpos();
     }
 
@@ -194,7 +194,7 @@ public class Environment implements Serializable {
      */
     @Basic
     public void addGateway(Gateway gateway) {
-        if(gateway.getEnvironment() == this){
+        if (gateway.getEnvironment() == this) {
             gateways.add(gateway);
         }
     }
@@ -215,7 +215,7 @@ public class Environment implements Serializable {
      */
     @Basic
     public void addMote(Mote mote) {
-        if(mote.getEnvironment() == this){
+        if (mote.getEnvironment() == this) {
             motes.add(mote);
         }
     }
@@ -225,7 +225,7 @@ public class Environment implements Serializable {
      * @param characteristics The map to check.
      * @return  True if the Map is square.
      */
-    private boolean areValidCharacteristics(Characteristic[][] characteristics){
+    private boolean areValidCharacteristics(Characteristic[][] characteristics) {
         if (characteristics.length == 0) {
             return false;
         } else if (characteristics[0].length == 0) {
@@ -289,7 +289,7 @@ public class Environment implements Serializable {
      * @param xPos  The x-coordinate of the entity.
      * @return The longitude of the given x-coordinate
      */
-    public double toLongitude(int xPos){
+    public double toLongitude(int xPos) {
         return mapHelper.toLongitude(xPos);
     }
 
@@ -298,7 +298,7 @@ public class Environment implements Serializable {
      * @param yPos  The y-coordinate of the entity.
      * @return The latitude of the given y-coordinate.
      */
-    public double toLatitude(int yPos){
+    public double toLatitude(int yPos) {
         return mapHelper.toLatitude(yPos);
     }
 
@@ -310,28 +310,27 @@ public class Environment implements Serializable {
     }
 
     /**
-     * A function that moves a mote to a geoposition 1 step and returns if the note has moved.
-     * @param position The position to move towards.
+     * A function that moves a mote to a geoposition 1 step and returns true if the mote has moved.
      * @param mote The mote to move.
-     * @return If the node has moved.
+     * @param destination The position to move towards.
      */
-    public boolean moveMote(Mote mote, GeoPosition position){
-        int xPosDest = toMapXCoordinate(position);
-        int yPosDest = toMapYCoordinate(position);
-        int xPosMote = mote.getXPos();
-        int yPosMote = mote.getYPos();
-        if(Integer.signum(xPosDest - xPosMote) != 0 || Integer.signum(yPosDest - yPosMote) != 0){
-            if(Math.abs(xPosMote - xPosDest) >= Math.abs(yPosMote - yPosDest)){
-                xPosMote = xPosMote+ Integer.signum(xPosDest - xPosMote);
+    void moveMote(Mote mote, GeoPosition destination) {
+        double xPosDest = toMapXCoordinate(destination);
+        double yPosDest = toMapYCoordinate(destination);
+        double xPosMote = mote.getXPosDouble();
+        double yPosMote = mote.getYPosDouble();
 
-            }
-            else{
-                yPosMote = yPosMote+ Integer.signum(yPosDest - yPosMote);
-            }
+        if (xPosMote != xPosDest || yPosMote != yPosDest) {
+            double deltaX = (xPosDest - xPosMote);
+            double deltaY = (yPosDest - yPosMote);
+            double distance = Math.min(1, Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)));
+            var angle = Math.atan(deltaY / deltaX);
+
+            xPosMote += distance * Math.cos(angle);
+            yPosMote += distance * Math.sin(angle);
+
             mote.setPos(xPosMote, yPosMote);
-            return true;
         }
-        return false;
     }
 
     /**
@@ -339,7 +338,7 @@ public class Environment implements Serializable {
      * @param geoPosition the GeoPosition to convert.
      * @return The x-coordinate on the map of the GeoPosition.
      */
-    public int toMapXCoordinate(GeoPosition geoPosition){
+    public int toMapXCoordinate(GeoPosition geoPosition) {
         //? in computing distance just using the longitude of the geoposition. Why?
         return mapHelper.toMapXCoordinate(geoPosition);
     }
@@ -348,23 +347,23 @@ public class Environment implements Serializable {
      * @param geoPosition the GeoPosition to convert.
      * @return The y-coordinate on the map of the GeoPosition.
      */
-    public int toMapYCoordinate(GeoPosition geoPosition){
+    public int toMapYCoordinate(GeoPosition geoPosition) {
         //? in computing distance just using the longitude of the geoposition. Why?
         return mapHelper.toMapYCoordinate(geoPosition);
     }
 
-    public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition){
+    public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition) {
         return mapHelper.toMapCoordinate(geoPosition);
     }
     /**
      * reset all entities in the configuration.
      */
-    public void reset(){
+    public void reset() {
         getClock().reset();
-        for(Mote mote: getMotes()){
+        for(Mote mote: getMotes()) {
             mote.reset();
         }
-        for(Gateway gateway: getGateways()){
+        for(Gateway gateway: getGateways()) {
             gateway.reset();
         }
         numberOfRuns = 1;
@@ -373,7 +372,7 @@ public class Environment implements Serializable {
     /**
      * Adds a run to all entities in the configuration.
      */
-    public void addRun(){
+    public void addRun() {
         getClock().reset();
         for (Mote mote : getMotes()) {
             mote.addRun();
@@ -389,7 +388,7 @@ public class Environment implements Serializable {
      * @return The number of runs of this configuration.
      */
     @Basic
-    public int getNumberOfRuns(){
+    public int getNumberOfRuns() {
         return numberOfRuns;
     }
 

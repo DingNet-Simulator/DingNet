@@ -67,7 +67,7 @@ public class ConfigureGatewayPanel {
         int i = 1;
         Map<Waypoint, Integer> gateways = new HashMap<>();
         for (Gateway gateway : environment.getGateways()) {
-            gateways.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPos()), environment.toLongitude(gateway.getXPos()))), i);
+            gateways.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPosInt()), environment.toLongitude(gateway.getXPosInt()))), i);
             i++;
         }
 
@@ -154,8 +154,8 @@ public class ConfigureGatewayPanel {
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
                 Boolean exists = false;
                 for (Gateway gateway : environment.getGateways()) {
-                    Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - gateway.getXPos());
-                    Integer yDistance = environment.toMapYCoordinate(geo) - gateway.getYPos();
+                    Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - gateway.getXPosInt());
+                    Integer yDistance = environment.toMapYCoordinate(geo) - gateway.getYPosInt();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Gateway settings");
                         GatewayGUI gatewayGUI = new GatewayGUI(gateway, frame);

@@ -34,21 +34,21 @@ public class GatewayGUI extends JFrame {
         this.gateway = gateway;
         gatewayNumberLabel.setText(Integer.toString(gateway.getEnvironment().getGateways().indexOf(gateway) + 1));
         EUIDText.setText(Long.toUnsignedString(gateway.getEUI()));
-        Double latitude = gateway.getEnvironment().toLatitude(gateway.getYPos());
+        Double latitude = gateway.getEnvironment().toLatitude(gateway.getYPosInt());
         Integer latitudeDegrees = (int) Math.round(Math.floor(latitude));
         Integer latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
         Double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-        Double longitude = gateway.getEnvironment().toLongitude(gateway.getXPos());
+        Double longitude = gateway.getEnvironment().toLongitude(gateway.getXPosInt());
         Integer longitudeDegrees = (int) Math.round(Math.floor(longitude));
         Integer longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
         Double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
-        latitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLatitude(gateway.getYPos())) == 1) ? "N " : "S ") +
+        latitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLatitude(gateway.getYPosInt())) == 1) ? "N " : "S ") +
                 latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
-        longitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLongitude(gateway.getXPos())) == 1) ? "E " : "W ") +
+        longitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLongitude(gateway.getXPosInt())) == 1) ? "E " : "W ") +
                 longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
 
-        xCoordinateLabel.setText(Integer.toString(gateway.getXPos()));
-        yCoordinateLabel.setText(Integer.toString(gateway.getYPos()));
+        xCoordinateLabel.setText(Integer.toString(gateway.getXPosInt()));
+        yCoordinateLabel.setText(Integer.toString(gateway.getYPosInt()));
         powerSettingLabel.setText(Integer.toString(gateway.getTransmissionPower()));
         SFLabel.setText(Integer.toString(gateway.getSF()));
 
@@ -63,20 +63,20 @@ public class GatewayGUI extends JFrame {
 
     private void refresh() {
         EUIDText.setText(Long.toUnsignedString(gateway.getEUI()));
-        Double latitude = gateway.getEnvironment().toLatitude(gateway.getYPos());
+        Double latitude = gateway.getEnvironment().toLatitude(gateway.getYPosInt());
         Integer latitudeDegrees = (int) Math.round(Math.floor(latitude));
         Integer latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
         Double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-        Double longitude = gateway.getEnvironment().toLongitude(gateway.getXPos());
+        Double longitude = gateway.getEnvironment().toLongitude(gateway.getXPosInt());
         Integer longitudeDegrees = (int) Math.round(Math.floor(longitude));
         Integer longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
         Double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
-        latitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLatitude(gateway.getYPos())) == 1) ? "N " : "S ") +
+        latitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLatitude(gateway.getYPosInt())) == 1) ? "N " : "S ") +
                 latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
-        longitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLongitude(gateway.getXPos())) == 1) ? "E " : "W ") +
+        longitudeLabel.setText(((Math.signum(gateway.getEnvironment().toLongitude(gateway.getXPosInt())) == 1) ? "E " : "W ") +
                 longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
-        xPosSpinner.setValue(gateway.getXPos());
-        yPosSpinner.setValue(gateway.getYPos());
+        xPosSpinner.setValue(gateway.getXPosInt());
+        yPosSpinner.setValue(gateway.getYPosInt());
         powerSpinner.setValue(gateway.getTransmissionPower());
         SFSpinner.setValue(gateway.getSF());
         TPthresholdText.setText(gateway.getTransmissionPowerThreshold().toString());

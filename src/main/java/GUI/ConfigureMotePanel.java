@@ -23,7 +23,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -153,8 +152,8 @@ public class ConfigureMotePanel {
 
                 Boolean exists = false;
                 for (Mote mote : environment.getMotes()) {
-                    Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());
-                    Integer yDistance = environment.toMapYCoordinate(geo) - mote.getYPos();
+                    Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPosInt());
+                    Integer yDistance = environment.toMapYCoordinate(geo) - mote.getYPosInt();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Mote settings");
                         MoteGUI moteGUI = new MoteGUI(mote, frame);

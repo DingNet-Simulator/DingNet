@@ -91,14 +91,14 @@ public class MoteProbe {
         }
         LoraTransmission bestTransmission = lastTransmissions.getFirst();
         for (LoraTransmission transmission : lastTransmissions){
-            if(Math.sqrt(Math.pow(transmission.getReceiver().getYPos()-transmission.getYPos(),2)+
-                    Math.pow(transmission.getReceiver().getXPos()-transmission.getXPos(),2))
-                    < Math.sqrt(Math.pow(bestTransmission.getReceiver().getYPos()-bestTransmission.getYPos(),2)+
-                    Math.pow(bestTransmission.getReceiver().getXPos()-bestTransmission.getXPos(),2)))
+            if(Math.sqrt(Math.pow(transmission.getReceiver().getYPosInt()-transmission.getYPos(),2)+
+                    Math.pow(transmission.getReceiver().getXPosInt()-transmission.getXPos(),2))
+                    < Math.sqrt(Math.pow(bestTransmission.getReceiver().getYPosInt()-bestTransmission.getYPos(),2)+
+                    Math.pow(bestTransmission.getReceiver().getXPosInt()-bestTransmission.getXPos(),2)))
                 bestTransmission = transmission;
         }
-        return Math.sqrt(Math.pow(bestTransmission.getReceiver().getYPos()-bestTransmission.getYPos(),2)+
-                Math.pow(bestTransmission.getReceiver().getXPos()-bestTransmission.getXPos(),2));
+        return Math.sqrt(Math.pow(bestTransmission.getReceiver().getYPosInt()-bestTransmission.getYPos(),2)+
+                Math.pow(bestTransmission.getReceiver().getXPosInt()-bestTransmission.getXPos(),2));
 
     }
 
