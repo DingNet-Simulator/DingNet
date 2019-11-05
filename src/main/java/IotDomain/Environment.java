@@ -324,10 +324,10 @@ public class Environment implements Serializable {
             double deltaX = (xPosDest - xPosMote);
             double deltaY = (yPosDest - yPosMote);
             double distance = Math.min(1, Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)));
-            var angle = Math.atan(deltaY / deltaX);
+            var angle = Math.atan(Math.abs(deltaY) / Math.abs(deltaX));
 
-            xPosMote += distance * Math.cos(angle);
-            yPosMote += distance * Math.sin(angle);
+            xPosMote += distance * Math.cos(angle) * (xPosDest > xPosMote ? 1 : -1);
+            yPosMote += distance * Math.sin(angle) * (yPosDest > yPosMote ? 1 : -1);
 
             mote.setPos(xPosMote, yPosMote);
         }
