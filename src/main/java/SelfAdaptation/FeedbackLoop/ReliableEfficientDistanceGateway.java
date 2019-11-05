@@ -72,14 +72,14 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
              */
             LinkedList<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
 
-            Double shortestDistance = Math.sqrt(Math.pow(receivedSignals.getFirst().getReceiver().getYPos()-receivedSignals.getFirst().getYPos(),2)+
-                    Math.pow(receivedSignals.getFirst().getReceiver().getXPos()-receivedSignals.getFirst().getXPos(),2));
+            Double shortestDistance = Math.sqrt(Math.pow(receivedSignals.getFirst().getReceiver().getYPosInt()-receivedSignals.getFirst().getYPos(),2)+
+                    Math.pow(receivedSignals.getFirst().getReceiver().getXPosInt()-receivedSignals.getFirst().getXPos(),2));
 
             for (LoraTransmission transmission: receivedSignals){
-                if(shortestDistance>Math.sqrt(Math.pow(transmission.getReceiver().getYPos()-transmission.getYPos(),2)+
-                        Math.pow(transmission.getReceiver().getXPos()-transmission.getXPos(),2))){
-                    shortestDistance = Math.sqrt(Math.pow(transmission.getReceiver().getYPos()-transmission.getYPos(),2)+
-                            Math.pow(transmission.getReceiver().getXPos()-transmission.getXPos(),2));
+                if(shortestDistance>Math.sqrt(Math.pow(transmission.getReceiver().getYPosInt()-transmission.getYPos(),2)+
+                        Math.pow(transmission.getReceiver().getXPosInt()-transmission.getXPos(),2))){
+                    shortestDistance = Math.sqrt(Math.pow(transmission.getReceiver().getYPosInt()-transmission.getYPos(),2)+
+                            Math.pow(transmission.getReceiver().getXPosInt()-transmission.getXPos(),2));
                 }
             }
 

@@ -40,11 +40,13 @@ public abstract class NetworkEntity implements Serializable{
     // An unsinged long representing the 64 bit unique identifier.
     private final Long EUI;
 
-    // The x-coordinate of the entity
-    private int xPos = 0;
 
-    // The y-coordinate of the entity.
-    private int yPos = 0;
+    // NOTE: The x and y coordinates below (in double format) are NOT geo coordinates
+    //       Rather, they represent the (x,y) coordinates of the grid of the environment (specified in configuration files)
+    // FIXME: adjust the simulator to completely use geographical coordinates
+    private double xPos = 0.0;
+    private double yPos = 0.0;
+
 
     final Pair<Integer, Integer> initialPosition;
 
@@ -86,8 +88,8 @@ public abstract class NetworkEntity implements Serializable{
      *
      */
     @Raw
-    NetworkEntity(Long EUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF,
-                  double transmissionPowerThreshold){
+    NetworkEntity(long EUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF,
+                  double transmissionPowerThreshold) {
         this.environment = environment;
         if (environment.isValidXpos(xPos)) {
             this.xPos = xPos;
@@ -163,7 +165,7 @@ public abstract class NetworkEntity implements Serializable{
      * Returns all transmissions with collisions included
      * @return all transmissions with collisions included
      */
-    public LinkedHashMap<LoraTransmission,Boolean> getAllReceivedTransmissions(Integer run){
+    public LinkedHashMap<LoraTransmission,Boolean> getAllReceivedTransmissions(Integer run) {
         return receivedTransmissions.get(run);
     }
 
@@ -171,9 +173,9 @@ public abstract class NetworkEntity implements Serializable{
      * Returns only the transmission actually received by the gateway.
      * @return only the transmission actually received by the gateway.
      */
-    public LinkedList<LoraTransmission> getReceivedTransmissions(Integer run){
+    public LinkedList<LoraTransmission> getReceivedTransmissions(Integer run) {
         LinkedList<LoraTransmission> transmissions = new LinkedList<>();
-        for(LoraTransmission transmission : getAllReceivedTransmissions(run).keySet()){
+        for(LoraTransmission transmission : getAllReceivedTransmissions(run).keySet()) {
             if(!getAllReceivedTransmissions(run).get(transmission))
                 transmissions.add(transmission);
         }
@@ -209,18 +211,18 @@ public abstract class NetworkEntity implements Serializable{
      * @param transmission The transmission to receiveTransmission.
      * @Effect if the package has a high enough transmission power, it is added using packetStrengthHighEnough().
      */
-    public void receiveTransmission(LoraTransmission transmission){
-        if(packetStrengthHighEnough(transmission)){
+    public void receiveTransmission(LoraTransmission transmission) {
+        if(packetStrengthHighEnough(transmission)) {
             Boolean collision = false;
             for (LoraTransmission receivedTransmission: getAllReceivedTransmissions(getEnvironment().getNumberOfRuns()-1).keySet()) {
-                if(collision(transmission,receivedTransmission)){
+                if(collision(transmission,receivedTransmission)) {
                     this.receivedTransmissions.getLast().put(receivedTransmission,true);
                     collision = true;
                 }
             }
             receivedTransmissions.getLast().put(transmission,collision);
             getEnvironment().getClock().addTrigger(transmission.getDepartureTime().plus(transmission.getTimeOnAir().longValue(), ChronoUnit.MILLIS),()->{
-                if(!this.receivedTransmissions.getLast().get(transmission)){
+                if(!this.receivedTransmissions.getLast().get(transmission)) {
                     handleMacCommands(transmission.getContent());
                     OnReceive(transmission.getContent());
                 }
@@ -234,11 +236,11 @@ public abstract class NetworkEntity implements Serializable{
      * A function for handling MAC commands.
      * @param packet the packets with MAC commands
      */
-    public void handleMacCommands(LoraWanPacket packet){
+    public void handleMacCommands(LoraWanPacket packet) {
         LinkedList<Byte> payload = new LinkedList<>(Arrays.asList(packet.getPayload()));
         LinkedList<Byte> variables = new LinkedList<>();
-        for(MacCommand command : packet.getMacCommands()){
-            for(Integer i = 0; i<command.getLength(); i++){
+        for(MacCommand command : packet.getMacCommands()) {
+            for(Integer i = 0; i<command.getLength(); i++) {
                 variables.add(payload.get(i));
             }
             payload.removeAll(variables);
@@ -291,7 +293,11 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Basic
     @Raw
-    public int getXPos() {
+    public int getXPosInt() {
+        return (int) xPos;
+    }
+
+    public double getXPosDouble() {
         return xPos;
     }
 
@@ -300,11 +306,13 @@ public abstract class NetworkEntity implements Serializable{
      * @param xPos The new x-coordinate.
      */
     @Basic
-    public void setXPos(int xPos) {
+    public void setXPos(double xPos) {
         if (environment.isValidXpos(xPos)) {
             this.xPos = xPos;
         }
     }
+
+
 
     /**
      *  Returns The y-coordinate of the entity.
@@ -312,7 +320,11 @@ public abstract class NetworkEntity implements Serializable{
      */
     @Basic
     @Raw
-    public int getYPos() {
+    public int getYPosInt() {
+        return (int) yPos;
+    }
+
+    public double getYPosDouble() {
         return yPos;
     }
 
@@ -322,17 +334,17 @@ public abstract class NetworkEntity implements Serializable{
      * @Post    If the new y-coordinate is valid, the new coordinate is set.
      */
     @Basic
-    public void setYPos(int yPos) {
+    public void setYPos(double yPos) {
         if (environment.isValidYpos(yPos)) {
             this.yPos = yPos;
         }
     }
 
-    public Pair<Integer, Integer> getPos() {
-        return new Pair<>(getXPos(), getYPos());
+    public Pair<Integer, Integer> getPosInt() {
+        return new Pair<>(getXPosInt(), getYPosInt());
     }
 
-    public void setPos(int xPos, int yPos){
+    public void setPos(double xPos, double yPos) {
         setXPos(xPos);
         setYPos(yPos);
     }
@@ -344,8 +356,8 @@ public abstract class NetworkEntity implements Serializable{
      * @return  If the spreading factor is valid
      */
     @Immutable
-    private static boolean isValidSF(Integer SF){
-        return SF <= 12 && SF >= 7;
+    private static boolean isValidSF(int SF) {
+        return SF >= 7 && SF <= 12;
     }
 
     /**
@@ -372,7 +384,7 @@ public abstract class NetworkEntity implements Serializable{
      * A method which sends a message to all gateways in the environment
      * @param message The message to send.
      */
-    void loraSend(LoraWanPacket message){
+    void loraSend(LoraWanPacket message) {
         if (!isTransmitting) {
             powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
             spreadingFactorHistory.getLast().add(getSF());
@@ -395,7 +407,7 @@ public abstract class NetworkEntity implements Serializable{
      * @param b The second packet.
      * @return true if the packets collide, false otherwise.
      */
-    private boolean collision(LoraTransmission a, LoraTransmission b){
+    private boolean collision(LoraTransmission a, LoraTransmission b) {
         return a.getSpreadingFactor().equals(b.getSpreadingFactor()) &&     //check spreading factor
             a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold() && //check transmission power
             Math.abs(Duration.between(a.getDepartureTime().plusNanos(a.getTimeOnAir().longValue() * 1000000 / 2), //check time on air
@@ -408,7 +420,7 @@ public abstract class NetworkEntity implements Serializable{
      * @param packet
      * @return
      */
-    private boolean packetStrengthHighEnough(LoraTransmission packet){
+    private boolean packetStrengthHighEnough(LoraTransmission packet) {
         return packet.getTransmissionPower() > -174 - 10 * Math.log10(packet.getBandwidth()) - (2.5 * packet.getSpreadingFactor() - 10);
     }
 
@@ -420,10 +432,10 @@ public abstract class NetworkEntity implements Serializable{
         return EUI;
     }
 
-    public LinkedList<Double> getUsedEnergy(Integer run){
-        LinkedList<Double> usedEnergy = new LinkedList<>();
+    public List<Double> getUsedEnergy(Integer run) {
+        List<Double> usedEnergy = new LinkedList<>();
         int i= 0;
-        for(LoraTransmission transmission: getSentTransmissions(run)){
+        for(LoraTransmission transmission: getSentTransmissions(run)) {
             usedEnergy.add(Math.pow(10,((double)getPowerSettingHistory(run).get(i).getRight())/10)*transmission.getTimeOnAir()/1000);
             i++;
         }
@@ -447,7 +459,7 @@ public abstract class NetworkEntity implements Serializable{
     /**
      * Adds a new list to the received and sent transmissions and the power setting and the spreading factor history of the entity.
      */
-    public void addRun(){
+    public void addRun() {
         powerSettingHistory.add(new LinkedList<>());
         spreadingFactorHistory.add(new LinkedList<>());
         receivedTransmissions.add(new LinkedHashMap<>());

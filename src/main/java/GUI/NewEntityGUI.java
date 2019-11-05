@@ -48,9 +48,9 @@ public class NewEntityGUI extends JFrame {
     ActionListener saveActionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            new Gateway(Long.parseLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
+            environment.addGateway(new Gateway(Long.parseLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
                     (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
-                    (Integer) SFSpinner.getValue());
+                    (Integer) SFSpinner.getValue()));
 
         }
     };

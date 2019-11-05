@@ -257,8 +257,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             textArea = new JTextArea();
             textArea.append("Gateway " + (environment.getGateways().indexOf(gateway) + 1) + ":\n");
             textArea.append("EUID: " + Long.toUnsignedString(gateway.getEUI()) + "\n");
-            double latitude = environment.toLatitude(gateway.getYPos());
-            double longitude = environment.toLongitude(gateway.getXPos());
+            double latitude = environment.toLatitude(gateway.getYPosInt());
+            double longitude = environment.toLongitude(gateway.getXPosInt());
             textArea.append(MapHelper.getDirectionSign(latitude, "lat") +
                 MapHelper.toDgreeMinuteSecondText(latitude) + ", " +
                 MapHelper.getDirectionSign(longitude, "long") +
@@ -273,8 +273,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             textArea = new JTextArea();
             textArea.append("Mote " + (environment.getMotes().indexOf(mote) + 1) + ":\n");
             textArea.append("EUID: " + Long.toUnsignedString(mote.getEUI()) + "\n");
-            double latitude = environment.toLatitude(mote.getYPos());
-            double longitude = environment.toLongitude(mote.getXPos());
+            double latitude = environment.toLatitude(mote.getYPosInt());
+            double longitude = environment.toLongitude(mote.getXPosInt());
             textArea.append(MapHelper.getDirectionSign(latitude, "lat") +
                     MapHelper.toDgreeMinuteSecondText(latitude) + ", " +
                     MapHelper.getDirectionSign(longitude, "long") +
@@ -362,7 +362,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         Map<Waypoint, Integer> gateWays = new HashMap<>();
         int i = 1;
         for (Gateway gateway : environment.getGateways()) {
-            gateWays.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPos()), environment.toLongitude(gateway.getXPos()))), i);
+            gateWays.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPosInt()), environment.toLongitude(gateway.getXPosInt()))), i);
             i++;
         }
 
@@ -467,8 +467,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             if (e.getClickCount() == 1) {
                 setCharacteristics(index - 1, 0);
             }
-
-
         }
 
     };
@@ -1504,8 +1502,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             XYSeries series = new XYSeries("gateway " + (mote.getEnvironment().getGateways().indexOf(list.get(0).getReceiver()) + 1));
             int i = 0;
             for (LoraTransmission transmission : list) {
-                series.add(i, (Number) Math.sqrt(Math.pow(transmission.getReceiver().getYPos() - transmission.getYPos(), 2) +
-                        Math.pow(transmission.getReceiver().getXPos() - transmission.getXPos(), 2)));
+                series.add(i, (Number) Math.sqrt(Math.pow(transmission.getReceiver().getYPosInt() - transmission.getYPos(), 2) +
+                        Math.pow(transmission.getReceiver().getXPosInt() - transmission.getXPos(), 2)));
                 i = i + 1;
             }
             dataDistanceToGateway.addSeries(series);

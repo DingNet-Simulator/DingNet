@@ -158,8 +158,8 @@ public class ConfigureMotePanel {
 
                 boolean exists = false;
                 for (Mote mote : environment.getMotes()) {
-                    int xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPos());
-                    int yDistance = environment.toMapYCoordinate(geo) - mote.getYPos();
+                    int xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPosInt());
+                    int yDistance = environment.toMapYCoordinate(geo) - mote.getYPosInt();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Mote settings");
                         MoteGUI moteGUI = new MoteGUI(mote, frame);

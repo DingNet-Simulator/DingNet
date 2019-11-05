@@ -6,7 +6,6 @@ import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
-import IotDomain.motepacketstrategy.consumeStrategy.DummyConsumer;
 import IotDomain.motepacketstrategy.consumeStrategy.ReplacePath;
 import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
@@ -27,7 +26,7 @@ public class Mote extends NetworkEntity {
 
     //region field
 
-    // A LinkedList MoteSensors representing all sensors on the mote.
+    // A List of MoteSensors representing all sensors on the mote.
     @Model
     private List<MoteSensor> moteSensors;
 
@@ -98,7 +97,6 @@ public class Mote extends NetworkEntity {
                 int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
                 double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset){
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
-        environment.addMote(this);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
         this.path = path;
@@ -124,8 +122,8 @@ public class Mote extends NetworkEntity {
      * @param movementSpeed The movement speed of this mote.
      */
     @Raw
-    public Mote(Long DevEUI, Integer xPos, Integer yPos, Environment environment, Integer transmissionPower,
-                Integer SF, List<MoteSensor> moteSensors, Integer energyLevel, Path path, Double movementSpeed){
+    public Mote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower,
+                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed){
         this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
@@ -305,7 +303,7 @@ public class Mote extends NetworkEntity {
      * @param moteSensors the mote sensors to set.
      */
     @Basic
-    public void setSensors(LinkedList<MoteSensor> moteSensors) {
+    public void setSensors(List<MoteSensor> moteSensors) {
         this.moteSensors = moteSensors;
     }
 
@@ -362,6 +360,6 @@ public class Mote extends NetworkEntity {
         }
         //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
         return MapHelper.getInstance()
-            .toMapCoordinate(path.getDestination().get()).equals(getPos());
+            .toMapCoordinate(path.getDestination().get()).equals(getPosInt());
     }
 }

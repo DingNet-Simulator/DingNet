@@ -138,8 +138,8 @@ public class LoraTransmission implements Serializable{
             this.sender = sender;
             this.receiver = receiver;
             this.environment = sender.getEnvironment();
-            this.xPos = sender.getXPos();
-            this.yPos = sender.getYPos();
+            this.xPos = sender.getXPosInt();
+            this.yPos = sender.getYPosInt();
         }
         else{
             this.sender = null;
@@ -284,7 +284,7 @@ public class LoraTransmission implements Serializable{
                 + getSpreadingFactor() + " and bandwidth: " + getBandwidth() + " and payload size: " + payloadSize);
         }
         if(getReceiver() != null){
-            moveTo(getReceiver().getXPos(),getReceiver().getYPos());
+            moveTo(getReceiver().getXPosInt(),getReceiver().getYPosInt());
             getReceiver().receiveTransmission(this);
         }
     }

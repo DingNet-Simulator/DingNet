@@ -33,7 +33,7 @@ public class UserMote extends Mote {
 
     private void init(GeoPosition destination) {
         consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
-        setPath(new PathWithMiddlePoints(List.of(MapHelper.getInstance().toGeoPosition(this.getPos()))));
+        setPath(new PathWithMiddlePoints(List.of(MapHelper.getInstance().toGeoPosition(this.getPosInt()))));
         this.destination = destination;
     }
 
@@ -43,7 +43,7 @@ public class UserMote extends Mote {
             alreadyRequested = true;
             byte[] payload= new byte[17];
             payload[0] = MessageType.REQUEST_PATH.getCode();
-            System.arraycopy(getGPSSensor().generateData(getPos(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
+            System.arraycopy(getGPSSensor().generateData(getPosInt(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
             System.arraycopy(Converter.toByteArray(destination), 0, payload, 9, 8);
             return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
@@ -52,7 +52,7 @@ public class UserMote extends Mote {
     }
 
     @Override
-    public void setPos(int xPos, int yPos) {
+    public void setPos(double xPos, double yPos) {
         super.setPos(xPos, yPos);
         if (isActive() && getPath() instanceof PathWithMiddlePoints) {
             if (getPath().isEmpty()) {
@@ -64,7 +64,7 @@ public class UserMote extends Mote {
             if (path.getDestination().isPresent() &&    //at least tha path has one point
                 !path.getDestination().get().equals(destination) &&
                 wayPoints.size() > 1 &&
-                MapHelper.getInstance().toMapCoordinate(wayPoints.get(wayPoints.size()-2)).equals(getPos())) {
+                MapHelper.getInstance().toMapCoordinate(wayPoints.get(wayPoints.size()-2)).equals(getPosInt())) {
                 //require new part of path
                 askNewPartOfPath();
             }
@@ -124,7 +124,7 @@ public class UserMote extends Mote {
 
     @Override
     public boolean isArrivedToDestination() {
-        return this.getPos().equals(MapHelper.getInstance().toMapCoordinate(destination));
+        return this.getPosInt().equals(MapHelper.getInstance().toMapCoordinate(destination));
     }
 
 

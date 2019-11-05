@@ -125,9 +125,9 @@ public class ConfigurationWriter {
 
                 Element location = doc.createElement("location");
                 Element xPos = doc.createElement("xPos");
-                xPos.appendChild(doc.createTextNode(Integer.toString(gateway.getXPos())));
+                xPos.appendChild(doc.createTextNode(Integer.toString(gateway.getXPosInt())));
                 Element yPos = doc.createElement("yPos");
-                yPos.appendChild(doc.createTextNode(Integer.toString(gateway.getYPos())));
+                yPos.appendChild(doc.createTextNode(Integer.toString(gateway.getYPosInt())));
                 location.appendChild(xPos);
                 location.appendChild(yPos);
 
@@ -227,7 +227,7 @@ public class ConfigurationWriter {
             Element location = doc.createElement("location");
             Element wayPoint = doc.createElement("waypoint");
 
-            GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPos());
+            GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPosInt());
             wayPoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
             location.appendChild(wayPoint);
 

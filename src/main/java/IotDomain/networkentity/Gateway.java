@@ -48,7 +48,6 @@ public class Gateway extends NetworkEntity {
      */
     public Gateway(ResponseStrategy responseStrategy, long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
         super(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
-        environment.addGateway(this);
         subscribedMoteProbes = new LinkedList<>();
         mqttClient = new MqttMock();
         this.responseStrategy = responseStrategy.init(this);

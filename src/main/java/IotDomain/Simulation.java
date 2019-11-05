@@ -1,15 +1,12 @@
 package IotDomain;
 
-import IotDomain.application.RoutingApplication;
 import IotDomain.networkentity.Mote;
 import IotDomain.networkentity.MoteSensor;
-import IotDomain.networkentity.UserMote;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
 import SensorDataGenerators.SensorDataGenerator;
 import be.kuleuven.cs.som.annotate.Basic;
 import util.Pair;
 import util.TimeHelper;
-import util.pollution.PollutionGrid;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -189,7 +186,7 @@ public class Simulation {
             .filter(mote -> TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
             .peek(mote -> timeMap.put(mote, this.environment.getClock().getTime()))
             .forEach(mote -> {
-                if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPos())) {
+                if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPosInt())) {
                     this.environment.moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
                 } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
             });
@@ -216,7 +213,7 @@ public class Simulation {
             environment.getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
                 mote.sendToGateWay(
                     mote.getSensors().stream()
-                        .flatMap(s -> s.getValueAsList(mote.getPos(), this.environment.getClock().getTime()).stream())
+                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), this.environment.getClock().getTime()).stream())
                         .toArray(Byte[]::new),
                     new HashMap<>());
                 return environment.getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
@@ -260,7 +257,7 @@ public class Simulation {
 
             // Store the initial positions of the motes so that these can be reset after each simulation run
             Map<Mote, Pair<Integer, Integer>> initialLocationMap = new HashMap<>();
-            getEnvironment().getMotes().forEach(m -> initialLocationMap.put(m, m.getPos()));
+            getEnvironment().getMotes().forEach(m -> initialLocationMap.put(m, m.getPosInt()));
 
             for (int i = 0; i < getInputProfile().getNumberOfRuns(); i++) {
                 setupMotesActivationStatus();

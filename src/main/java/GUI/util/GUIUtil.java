@@ -34,7 +34,7 @@ public class GUIUtil {
 
         var wraps = motes.stream()
             .map(m -> {
-                var pos = mapHelper.toGeoPosition(m.getPos());
+                var pos = mapHelper.toGeoPosition(m.getPosInt());
                 if (m instanceof UserMote) {
                     return new MoteWayPoint(pos, true, ((UserMote)m).isActive());
                 }

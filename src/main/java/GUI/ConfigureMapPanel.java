@@ -1,6 +1,5 @@
 package GUI;
 
-
 import GUI.MapViewer.*;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
@@ -213,7 +212,7 @@ public class ConfigureMapPanel {
                     Map<Mote, Double> moteDistances = new HashMap<>();
 
                     for (Mote mote : environment.getMotes()) {
-                        double distance = MapHelper.distance(geo, MapHelper.getInstance().toGeoPosition(mote.getPos()));
+                        double distance = MapHelper.distance(geo, MapHelper.getInstance().toGeoPosition(mote.getPosInt()));
                         moteDistances.put(mote, distance);
                     }
 
@@ -224,7 +223,7 @@ public class ConfigureMapPanel {
                     if (nearest != null) {
                         currentMote = nearest.getKey();
                         loadMap(true);
-                        GeoPosition motePosition = MapHelper.getInstance().toGeoPosition(currentMote.getPos());
+                        GeoPosition motePosition = MapHelper.getInstance().toGeoPosition(currentMote.getPosInt());
                         long wayPointID = graph.getClosestWayPoint(motePosition);
                         currentWayPoints.add(wayPointID);
                     }
