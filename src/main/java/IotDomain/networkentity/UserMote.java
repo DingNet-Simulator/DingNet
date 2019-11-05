@@ -14,7 +14,6 @@ import util.Path;
 import util.PathWithMiddlePoints;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,17 +23,13 @@ public class UserMote extends Mote {
     private boolean isActive = false;
     private GeoPosition destination;
     private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
-    private boolean alreadyRequested = false;
+    private boolean alreadyRequested;
 
     UserMote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
-        init(destination);
-    }
-
-    private void init(GeoPosition destination) {
         consumePacketStrategies.add(new ReplacePathWithMiddlePoints());
-        setPath(new PathWithMiddlePoints(List.of(MapHelper.getInstance().toGeoPosition(this.getPosInt()))));
         this.destination = destination;
+        // the method initialized() is called at the beginning of each simulation so we don't need to call also here
     }
 
     @Override
@@ -131,7 +126,7 @@ public class UserMote extends Mote {
     @Override
     public void initialize() {
         super.initialize();
-        this.setPath(new ArrayList<>());
+        setPath(new PathWithMiddlePoints(List.of(MapHelper.getInstance().toGeoPosition(this.getPosInt()))));
         this.alreadyRequested = false;
     }
 }
