@@ -15,7 +15,7 @@ public class ReplacePath implements ConsumePacketStrategy {
 
     @Override
     public void consume(Mote mote, LoraWanPacket packet) {
-        mote.setPath(extractPath(packet));
+        mote.getPath().addPositions(extractPath(packet));
     }
 
     protected List<GeoPosition> extractPath(LoraWanPacket packet) {

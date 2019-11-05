@@ -15,7 +15,7 @@ public class Path implements Iterable<GeoPosition> {
     public Path() { this(new ArrayList<>()); }
 
     public Path(List<GeoPosition> points) {
-        this.points = points;
+        this.points = new LinkedList<>(points);
         this.graphStructure = GraphStructure.getInstance();
     }
 
@@ -49,10 +49,8 @@ public class Path implements Iterable<GeoPosition> {
         this.points.add(point);
     }
 
-    public void addPositions(List<GeoPosition> points) {
-        if (points == null) {
-            return;
-        }
+
+    public void addPositions(@NotNull List<GeoPosition> points) {
         this.points.addAll(points);
     }
 
