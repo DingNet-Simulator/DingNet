@@ -48,7 +48,7 @@ public abstract class NetworkEntity implements Serializable{
     private double yPos = 0.0;
 
 
-    final Pair<Integer, Integer> initialPosition;
+    final Pair<Double, Double> initialPosition;
 
     // A map of the environment the entity is placed in.
     private Environment environment;
@@ -88,7 +88,7 @@ public abstract class NetworkEntity implements Serializable{
      *
      */
     @Raw
-    NetworkEntity(long EUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF,
+    NetworkEntity(long EUI, double xPos, double yPos, Environment environment, int transmissionPower, int SF,
                   double transmissionPowerThreshold) {
         this.environment = environment;
         if (environment.isValidXpos(xPos)) {
@@ -342,6 +342,10 @@ public abstract class NetworkEntity implements Serializable{
 
     public Pair<Integer, Integer> getPosInt() {
         return new Pair<>(getXPosInt(), getYPosInt());
+    }
+
+    public Pair<Integer, Integer> getOriginalPosInt() {
+        return new Pair<>(this.initialPosition.getLeft().intValue(), this.initialPosition.getRight().intValue());
     }
 
     public void setPos(double xPos, double yPos) {

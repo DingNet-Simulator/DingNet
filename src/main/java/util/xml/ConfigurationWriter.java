@@ -227,7 +227,7 @@ public class ConfigurationWriter {
             Element location = doc.createElement("location");
             Element wayPoint = doc.createElement("waypoint");
 
-            GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getPosInt());
+            GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getOriginalPosInt());
             wayPoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
             location.appendChild(wayPoint);
 
@@ -313,7 +313,7 @@ public class ConfigurationWriter {
     }
 
     private static class UserMoteWriter extends MoteWriter {
-        public UserMoteWriter(Document doc, UserMote mote) {
+        UserMoteWriter(Document doc, UserMote mote) {
             super(doc, mote);
         }
 
@@ -332,6 +332,13 @@ public class ConfigurationWriter {
 
         void addUserMoteDetails(Element element) {
             List.of(generateIsActiveElement(), generateDestinationElement()).forEach(element::appendChild);
+        }
+
+        @Override
+        public Element generatePathElement() {
+            // Empty element since user motes get their path from the routing application
+            // (Currently, a starting path for user motes is not supported)
+            return doc.createElement("path");
         }
 
         @Override
