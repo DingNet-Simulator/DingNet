@@ -19,6 +19,7 @@ import util.xml.*;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class SimulationRunner {
@@ -169,7 +170,7 @@ public class SimulationRunner {
         totalRun(null);
     }
 
-    public void totalRun(Function<Pair<Integer, Integer>, Void> fn) {
+    public void totalRun(Consumer<Pair<Integer, Integer>> fn) {
         simulation.multipleRuns(fn);
     }
 

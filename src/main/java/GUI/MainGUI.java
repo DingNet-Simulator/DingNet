@@ -176,6 +176,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
 
         singleRunButton.addActionListener(e -> {
+            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
+                showNoInputProfileSelectedError();
+                return;
+            }
+
             this.setEnabledRunButtons(false);
             simulationRunner.setupSingleRun();
 
@@ -183,11 +188,28 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         });
 
         timedRunButton.addActionListener(e -> {
+            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
+                showNoInputProfileSelectedError();
+                return;
+            }
+
             this.setEnabledRunButtons(false);
             simulationRunner.setupTimedRun();
 
             simulationRunner.simulate(speedSlider.getValue() * 5, this);
         });
+
+        totalRunButton.addActionListener(e -> {
+            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
+                showNoInputProfileSelectedError();
+                return;
+            }
+
+            this.setEnabledRunButtons(false);
+
+            simulationRunner.totalRun(this::setProgress);
+        });
+
 
         adaptationComboBox.addActionListener((ActionEvent e) -> {
             String chosenOption = (String) adaptationComboBox.getSelectedItem();
@@ -207,11 +229,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
                     panel.revalidate();
                 });
         });
-
-        totalRunButton.addActionListener(e -> simulationRunner.totalRun(p -> {
-            this.setProgress(p);
-            return null;
-        }));
 
         helpButton.addActionListener((ActionEvent e) -> {
             HelpGUI helpgui = new HelpGUI();
@@ -431,6 +448,12 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
     private void refreshMap() {
         loadMap(simulationRunner.getEnvironment(), mapViewer, true);
+    }
+
+
+    private void showNoInputProfileSelectedError() {
+        JOptionPane.showMessageDialog(null, "Make sure to have an input profile selected before running the simulator.",
+            "Warning: no input profile selected", JOptionPane.ERROR_MESSAGE);
     }
 
     private MouseAdapter gateWayMouse = new MouseAdapter() {
@@ -947,6 +970,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         totalRunProgressBar.setMaximum(progress.getRight());
         totalRunProgressBar.setValue(progress.getLeft());
         progressLabel.setText(progress.getLeft() + "/" + progress.getRight());
+
+        // If the runs have finished, re enable the run buttons
+        if (progress.getRight().equals(progress.getLeft())) {
+            this.setEnabledRunButtons(true);
+        }
     }
 
     /**

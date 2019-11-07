@@ -10,6 +10,7 @@ import util.TimeHelper;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -250,7 +251,7 @@ public class Simulation {
      * A method for running the simulation multiple times, specified in the InputProfile.
      * @param fn A callback function used to track the progress of the runs : fn(Pair<>(currentIndex, totalRuns)).
      */
-    void multipleRuns(Function<Pair<Integer, Integer>, Void> fn) {
+    void multipleRuns(Consumer<Pair<Integer, Integer>> fn) {
         Thread t = new Thread(() -> {
             getEnvironment().reset();
             int nrOfRuns = inputProfile.getNumberOfRuns();
@@ -265,7 +266,7 @@ public class Simulation {
                 this.setupSimulation((env) -> !areAllMotesAtDestination());
 
                 if (fn != null) {
-                    fn.apply(new Pair<>(i, nrOfRuns));
+                    fn.accept(new Pair<>(i, nrOfRuns));
                 }
                 if (i != 0) {
                     getEnvironment().addRun();
@@ -277,8 +278,9 @@ public class Simulation {
 
                 updateMotesLocation(initialLocationMap);
             }
+
             if (fn != null) {
-                fn.apply(new Pair<>(nrOfRuns, nrOfRuns));
+                fn.accept(new Pair<>(nrOfRuns, nrOfRuns));
             }
         });
         t.start();
