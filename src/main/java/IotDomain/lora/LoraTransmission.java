@@ -80,29 +80,18 @@ public class LoraTransmission implements Serializable{
     private final LocalTime departureTime;
 
     /**
-     * Returns the departure time of the transmission.
-     * @return  The departure time of the transmission.
-     */
-    public LocalTime getDepartureTime() {
-        return departureTime;
-    }
-
-    /**
-     * Returns the time on air.
-     * @return  The time on air.
-     */
-    public Double getTimeOnAir() {
-        return timeOnAir;
-    }
-
-    /**
      * The time on air of a transmission.
      */
     private final Double timeOnAir;
+
     /**
      * The path travelled by the transmission.
      */
     private LinkedList<Pair<Integer,Integer>> usedPath;
+
+    private boolean arrived;
+
+    private boolean collided;
 
     /**
      * A constructor generating a transmission with a given sender, receiver, transmission power, bandwidth, spreading factor,
@@ -149,6 +138,8 @@ public class LoraTransmission implements Serializable{
             this.yPos = 0;
         }
         this.content = content;
+        this.arrived = false;
+        this.collided = false;
 
         if(isValidTransmissionPower(transmissionPower)) {
             this.transmissionPower = Double.valueOf(transmissionPower);
@@ -195,6 +186,22 @@ public class LoraTransmission implements Serializable{
     @Basic
     public NetworkEntity getReceiver() {
         return receiver;
+    }
+
+    /**
+     * Returns the departure time of the transmission.
+     * @return  The departure time of the transmission.
+     */
+    public LocalTime getDepartureTime() {
+        return departureTime;
+    }
+
+    /**
+     * Returns the time on air.
+     * @return  The time on air.
+     */
+    public Double getTimeOnAir() {
+        return timeOnAir;
     }
 
     /**
@@ -264,6 +271,30 @@ public class LoraTransmission implements Serializable{
      */
     public Integer getSpreadingFactor() {
         return spreadingFactor;
+    }
+
+    public boolean isArrived() {
+        return arrived;
+    }
+
+    public LoraTransmission setArrived() {
+        if (isArrived()) {
+            throw new IllegalStateException("the transmission is already arrived, you can't modify again this property");
+        }
+        this.arrived = true;
+        return this;
+    }
+
+    public boolean isCollided() {
+        return collided;
+    }
+
+    public LoraTransmission setCollided() {
+        if (isArrived()) {
+            throw new IllegalStateException("the transmission is already arrived, you can't modify this property");
+        }
+        this.collided = true;
+        return this;
     }
 
     /**
