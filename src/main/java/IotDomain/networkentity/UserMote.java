@@ -72,9 +72,8 @@ public class UserMote extends Mote {
         byte[] payload= new byte[9];
         payload[0] = MessageType.REQUEST_UPDATE_PATH.getCode();
         System.arraycopy(Converter.toByteArray(getPath().getDestination().get()), 0, payload, 1, 8);
-        loraSend(new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
+        sendToGateWay(new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
             new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>()));
-        canReceive = true;
 
         var clock = getEnvironment().getClock();
         var oldDestination = getPath().getDestination();

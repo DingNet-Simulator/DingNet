@@ -6,7 +6,6 @@ import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
-import IotDomain.motepacketstrategy.consumeStrategy.ReplacePath;
 import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
 import be.kuleuven.cs.som.annotate.Basic;
@@ -229,9 +228,16 @@ public class Mote extends NetworkEntity {
         keepAliveTriggerId = getEnvironment().getClock().addTrigger(
             getEnvironment().getClock().getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
             () -> {
-                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), new Byte[]{MessageType.KEEPALIVE.getCode()},
+                Byte[] payload;
+                if (lastPacketSent == null) {
+                    payload = new Byte[]{MessageType.KEEPALIVE.getCode()};
+                } else {
+                    payload = lastPacketSent.getPayload();
+                    payload[0] = MessageType.KEEPALIVE.getCode();
+                }
+                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
-                loraSend(packet);
+                sendToGateWay(packet);
                 return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
             }
         );
@@ -243,9 +249,18 @@ public class Mote extends NetworkEntity {
      * @param macCommands the MAC commands to include in the message.
      */
     public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands){
-        var packet = composePacket(data, macCommands);
-        if (packet.getPayload().length > 1 &&
-            (lastPacketSent == null || !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload()))) {
+        sendToGateWay(composePacket(data, macCommands));
+    }
+
+    /**
+     * A function for sending a packet to the gateways.
+     * @param packet the packet to send
+     */
+    public void sendToGateWay(LoraWanPacket packet){
+        if (lastPacketSent == null ||   //is the first packet
+            (packet.getPayload().length > 1 &&
+                (packet.getPayload()[0].equals(MessageType.KEEPALIVE.getCode()) ||
+                !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload())))) {
             loraSend(packet);
             canReceive = true;
             lastPacketSent = packet;
