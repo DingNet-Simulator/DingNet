@@ -213,16 +213,19 @@ public abstract class NetworkEntity implements Serializable{
      */
     public void receiveTransmission(LoraTransmission transmission) {
         if(packetStrengthHighEnough(transmission)) {
-            Boolean collision = false;
+            boolean collision = false;
             for (LoraTransmission receivedTransmission: getAllReceivedTransmissions(getEnvironment().getNumberOfRuns()-1).keySet()) {
                 if(collision(transmission,receivedTransmission)) {
                     this.receivedTransmissions.getLast().put(receivedTransmission,true);
                     collision = true;
+                    transmission.setCollided();
+                    receivedTransmission.setCollided();
                 }
             }
             receivedTransmissions.getLast().put(transmission,collision);
             getEnvironment().getClock().addTrigger(transmission.getDepartureTime().plus(transmission.getTimeOnAir().longValue(), ChronoUnit.MILLIS),()->{
-                if(!this.receivedTransmissions.getLast().get(transmission)) {
+                transmission.setArrived();
+                if(!transmission.isCollided()) {
                     handleMacCommands(transmission.getContent());
                     OnReceive(transmission.getContent());
                 }
