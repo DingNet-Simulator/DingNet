@@ -8,8 +8,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ConfigureGUI {
     private JPanel mainPanel;
@@ -21,14 +19,8 @@ public class ConfigureGUI {
     private JButton mapButton;
     private JButton waypointsButton;
     private JButton connectionsButton;
-    private Environment environment;
-    private MainGUI parent;
-    private JFrame frame;
 
     public ConfigureGUI(Environment environment, MainGUI parent, JFrame frame) {
-        this.frame = frame;
-        this.parent = parent;
-
         mapButton.setFocusPainted(false);
         mapButton.setMargin(new Insets(0, 0, 0, 0));
         mapButton.setContentAreaFilled(false);
@@ -86,8 +78,6 @@ public class ConfigureGUI {
         connectionsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
 
-        this.environment = environment;
-
         regionButton.addActionListener(e -> {
             ConfigureRegionPanel configureRegionPanel = new ConfigureRegionPanel(environment);
             configurePanel.removeAll();
@@ -115,9 +105,9 @@ public class ConfigureGUI {
         closeButton.addActionListener(e -> frame.dispose());
 
         mapButton.addActionListener(e -> {
-            ConfigureMapPanel configureMapPanel = new ConfigureMapPanel(environment, parent);
+            ConfigurePathPanel configurePathPanel = new ConfigurePathPanel(environment, parent);
             configurePanel.removeAll();
-            configurePanel.add(configureMapPanel.getMainPanel());
+            configurePanel.add(configurePathPanel.getMainPanel());
             configurePanel.repaint();
             configurePanel.revalidate();
         });

@@ -41,7 +41,7 @@ public class InputProfile {
     /**
      * The number of runs in this inputProfile
      */
-    private Integer numberOfRuns;
+    private int numberOfRuns;
 
     /**
      * The duration of the simulation
@@ -83,10 +83,10 @@ public class InputProfile {
      * @param xmlSource The source of the InputProfile.
      */
     public InputProfile(String name, QualityOfService qualityOfServiceProfile,
-                        Integer numberOfRuns,
+                        int numberOfRuns,
                         Map<Integer, Double> probabilitiesForMotes,
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
-                        Element xmlSource){
+                        Element xmlSource) {
         this(name, qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
             regionProbabilities, xmlSource, DEFAULT_SIMULATION_DURATION, DEFAULT_TIME_UNIT);
     }
@@ -105,10 +105,10 @@ public class InputProfile {
      * @param timeUnit The unit of measure of the duration.
      */
     public InputProfile(String name, QualityOfService qualityOfServiceProfile,
-                        Integer numberOfRuns,
+                        int numberOfRuns,
                         Map<Integer, Double> probabilitiesForMotes,
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
-                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit){
+                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit) {
         this.name = name;
         this.qualityOfServiceProfile = qualityOfServiceProfile;
         this.numberOfRuns =numberOfRuns;
@@ -153,7 +153,7 @@ public class InputProfile {
      * Returns the number of runs.
      * @return The number of runs.
      */
-    public Integer getNumberOfRuns() {
+    public int getNumberOfRuns() {
         return numberOfRuns;
     }
 
@@ -161,7 +161,7 @@ public class InputProfile {
      * Sets the number of runs.
      * @param numberOfRuns The number of runs to set.
      */
-    public void setNumberOfRuns(Integer numberOfRuns) {
+    public void setNumberOfRuns(int numberOfRuns) {
         this.numberOfRuns = numberOfRuns;
         updateFile();
     }
@@ -171,7 +171,7 @@ public class InputProfile {
      * @param moteNumber The number of the mote.
      * @return The probability for the mote.
      */
-    public Double getProbabilityForMote(Integer moteNumber) {
+    public double getProbabilityForMote(int moteNumber) {
         if(probabilitiesForMotes.get(moteNumber) != null)
             return probabilitiesForMotes.get(moteNumber);
         else{
@@ -183,7 +183,7 @@ public class InputProfile {
      * Returns he numbers of the motes where there are probabilities for.
      * @return The numbers of the motes where there are probabilities for.
      */
-    public Set<Integer> getProbabilitiesForMotesKeys(){
+    public Set<Integer> getProbabilitiesForMotesKeys() {
         return probabilitiesForMotes.keySet();
     }
 
@@ -192,7 +192,7 @@ public class InputProfile {
      * @param moteNumber The number of the mote.
      * @param probability The probability of the mote.
      */
-    public void putProbabilitiyForMote(Integer moteNumber, Double probability) {
+    public void putProbabilityForMote(int moteNumber, double probability) {
         this.probabilitiesForMotes.put(moteNumber,probability);
         updateFile();
     }
@@ -202,7 +202,7 @@ public class InputProfile {
      * @param gatewayNumber The number of the gateway.
      * @return The probability for the gateway.
      */
-    public Double getProbabilityForGateway(Integer gatewayNumber) {
+    public double getProbabilityForGateway(int gatewayNumber) {
         if(probabilitiesForGateways.get(gatewayNumber) != null)
             return probabilitiesForGateways.get(gatewayNumber);
         else{
@@ -214,7 +214,7 @@ public class InputProfile {
      * Returns he numbers of the gateways where there are probabilities for.
      * @return The numbers of the gateways where there are probabilities for.
      */
-    public Set<Integer> getProbabilitiesForGatewayKeys(){
+    public Set<Integer> getProbabilitiesForGatewayKeys() {
         return probabilitiesForGateways.keySet();
     }
 
@@ -223,7 +223,7 @@ public class InputProfile {
      * @param gatewayNumber The number of the gateway.
      * @param probability The probability of the gateway.
      */
-    public void putProbabilitiyForGateway(Integer gatewayNumber, Double probability) {
+    public void putProbabilitiyForGateway(int gatewayNumber, double probability) {
         this.probabilitiesForGateways.put(gatewayNumber,probability);
         updateFile();
     }
@@ -233,7 +233,7 @@ public class InputProfile {
      * @param regionNumber The number of the region.
      * @return The probability for the region.
      */
-    public Double getRegionProbability(Integer regionNumber) {
+    public double getRegionProbability(int regionNumber) {
 
         if(regionProbabilities.get(regionNumber) != null)
             return regionProbabilities.get(regionNumber);
@@ -246,7 +246,7 @@ public class InputProfile {
      * Returns he numbers of the regions where there are probabilities for.
      * @return The numbers of the regions where there are probabilities for.
      */
-    public Set<Integer> getRegionProbabilitiesKeys(){
+    public Set<Integer> getRegionProbabilitiesKeys() {
         return regionProbabilities.keySet();
     }
 
@@ -255,7 +255,7 @@ public class InputProfile {
      * @param regionNumber The number of the region.
      * @param probability The probability of the region.
      */
-    public void putProbabilitiyForRegion(Integer regionNumber, Double probability) {
+    public void putProbabilitiyForRegion(int regionNumber, double probability) {
         this.regionProbabilities.put(regionNumber,probability);
         updateFile();
     }
@@ -307,9 +307,9 @@ public class InputProfile {
     /**
      * A function which updates the source file.
      */
-    private void updateFile(){
+    private void updateFile() {
         Document doc = getXmlSource();
-        for(int i =0 ; i<doc.getChildNodes().getLength();){
+        for(int i =0 ; i<doc.getChildNodes().getLength();) {
             doc.removeChild(doc.getChildNodes().item(0));
         }
         Element inputProfileElement = doc.createElement("inputProfile");
@@ -320,7 +320,7 @@ public class InputProfile {
         inputProfileElement.appendChild(name);
 
         Element numberOfRuns = doc.createElement("numberOfRuns");
-        numberOfRuns.appendChild(doc.createTextNode(getNumberOfRuns().toString()));
+        numberOfRuns.appendChild(doc.createTextNode(Double.toString(getNumberOfRuns())));
         inputProfileElement.appendChild(numberOfRuns);
 
         Element simulationDuration = doc.createElement("simulationDuration");
@@ -331,9 +331,10 @@ public class InputProfile {
         timeUnit.appendChild(doc.createTextNode(getTimeUnit().toString()));
         inputProfileElement.appendChild(timeUnit);
 
-        Element Qos = doc.createElement("QoS");
+        Element QoSElement = doc.createElement("QoS");
+        QualityOfService QoS = getQualityOfServiceProfile();
 
-        for(String goalName : getQualityOfServiceProfile().getNames()) {
+        for (String goalName : getQualityOfServiceProfile().getNames()) {
             Element adaptationGoalElement = doc.createElement("adaptationGoal");
 
             Element goalNameElement = doc.createElement("name");
@@ -342,38 +343,46 @@ public class InputProfile {
 
             if (getQualityOfServiceProfile().getAdaptationGoal(goalName).getClass() == IntervalAdaptationGoal.class) {
                 adaptationGoalElement.setAttribute("type", "interval");
+
                 Element upperValue = doc.createElement("upperValue");
-                upperValue.appendChild(doc.createTextNode(((IntervalAdaptationGoal) getQualityOfServiceProfile().getAdaptationGoal(goalName)).getUpperBoundary().toString()));
+                double upperBoundary = ((IntervalAdaptationGoal) QoS.getAdaptationGoal(goalName)).getUpperBoundary();
+                upperValue.appendChild(doc.createTextNode(Double.toString(upperBoundary)));
                 adaptationGoalElement.appendChild(upperValue);
+
                 Element lowerValue = doc.createElement("lowerValue");
-                lowerValue.appendChild(doc.createTextNode(((IntervalAdaptationGoal) getQualityOfServiceProfile().getAdaptationGoal(goalName)).getLowerBoundary().toString()));
+                double lowerBoundary = ((IntervalAdaptationGoal) QoS.getAdaptationGoal(goalName)).getLowerBoundary();
+                lowerValue.appendChild(doc.createTextNode(Double.toString(lowerBoundary)));
                 adaptationGoalElement.appendChild(lowerValue);
             }
+
             if (getQualityOfServiceProfile().getAdaptationGoal(goalName).getClass() == ThresholdAdaptationGoal.class) {
                 adaptationGoalElement.setAttribute("type", "threshold");
-                Element threshold = doc.createElement("threshold");
-                threshold.appendChild(doc.createTextNode(((ThresholdAdaptationGoal) getQualityOfServiceProfile().getAdaptationGoal(goalName)).getThreshold().toString()));
-                adaptationGoalElement.appendChild(threshold);
+                Element thresholdElement = doc.createElement("threshold");
+                double threshold = ((ThresholdAdaptationGoal) getQualityOfServiceProfile().getAdaptationGoal(goalName)).getThreshold();
+                thresholdElement.appendChild(doc.createTextNode(Double.toString(threshold)));
+                adaptationGoalElement.appendChild(thresholdElement);
             }
-            Qos.appendChild(adaptationGoalElement);
+            QoSElement.appendChild(adaptationGoalElement);
         }
 
 
-        inputProfileElement.appendChild(Qos);
+        inputProfileElement.appendChild(QoSElement);
 
-        Element moteProbabilaties = doc.createElement("moteProbabilaties");
-        for(Integer moteNumber : getProbabilitiesForMotesKeys()){
+        Element moteProbabilities = doc.createElement("moteProbabilaties");
+        for (int moteNumber : getProbabilitiesForMotesKeys()) {
             Element moteElement = doc.createElement("mote");
+
             Element moteNumberElement = doc.createElement("moteNumber");
             moteNumberElement.appendChild(doc.createTextNode(Integer.toString(moteNumber+1)));
             moteElement.appendChild(moteNumberElement);
-            Element activityProbability = doc.createElement("activityProbability");
-            activityProbability.appendChild(doc.createTextNode(getProbabilityForMote(moteNumber).toString()));
-            moteElement.appendChild(activityProbability);
-            moteProbabilaties.appendChild(moteElement);
 
+            Element activityProbability = doc.createElement("activityProbability");
+            activityProbability.appendChild(doc.createTextNode(Double.toString(getProbabilityForMote(moteNumber))));
+            moteElement.appendChild(activityProbability);
+
+            moteProbabilities.appendChild(moteElement);
         }
-        inputProfileElement.appendChild(moteProbabilaties);
+        inputProfileElement.appendChild(moteProbabilities);
 
         SimulationRunner.getInstance().updateInputProfilesFile();
     }

@@ -8,37 +8,25 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class SelectMoteApplicationGUI extends JFrame {
     private JPanel mainPanel;
-    private JComboBox moteSelectorComboBox;
+    private JComboBox<String> moteSelectorComboBox;
     private JButton okButton;
-    private JComboBox runSelectorComboBox;
-
-    private Environment environment;
-    private MainGUI parent;
-    private JFrame frame;
+    private JComboBox<String> runSelectorComboBox;
 
 
     public SelectMoteApplicationGUI(Environment environment, MainGUI parent, JFrame frame) {
-        this.parent = parent;
-        this.environment = environment;
-        this.frame = frame;
         for (Mote mote : environment.getMotes()) {
-            moteSelectorComboBox.addItem("Mote " + (environment.getMotes().indexOf(mote) + 1) + " EUI " + Long.toUnsignedString(mote.getEUI()));
+            moteSelectorComboBox.addItem(String.format("Mote %d EUI %d", environment.getMotes().indexOf(mote) + 1, mote.getEUI()));
         }
         for (int i = 0; i < environment.getNumberOfRuns(); i++) {
-            runSelectorComboBox.addItem("Run " + (i + 1));
+            runSelectorComboBox.addItem(String.format("Run %d", i + 1));
         }
 
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                parent.setApplicationGraphs(moteSelectorComboBox.getSelectedIndex());
-                frame.dispose();
-            }
+        okButton.addActionListener(e -> {
+            parent.setApplicationGraphs(moteSelectorComboBox.getSelectedIndex());
+            frame.dispose();
         });
     }
 

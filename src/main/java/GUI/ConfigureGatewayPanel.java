@@ -35,7 +35,6 @@ public class ConfigureGatewayPanel {
     // Create a TileFactoryInfo for OpenStreetMap
     private static TileFactoryInfo info = new OSMTileFactoryInfo();
     private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    private MapMouseAdapter mouseAdapter = new MapMouseAdapter(this);
     private MainGUI parent;
 
     public ConfigureGatewayPanel(Environment environment, MainGUI parent) {
@@ -45,7 +44,7 @@ public class ConfigureGatewayPanel {
         for (MouseListener ml : mapViewer.getMouseListeners()) {
             mapViewer.removeMouseListener(ml);
         }
-        mapViewer.addMouseListener(mouseAdapter);
+        mapViewer.addMouseListener(new MapMouseAdapter(this));
         mapViewer.setZoom(6);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         MouseInputListener mia = new PanMouseInputListener(mapViewer);
@@ -152,13 +151,13 @@ public class ConfigureGatewayPanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
-                Boolean exists = false;
+                boolean exists = false;
                 for (Gateway gateway : environment.getGateways()) {
-                    Integer xDistance = Math.abs(environment.toMapXCoordinate(geo) - gateway.getXPosInt());
-                    Integer yDistance = environment.toMapYCoordinate(geo) - gateway.getYPosInt();
+                    int xDistance = Math.abs(environment.toMapXCoordinate(geo) - gateway.getXPosInt());
+                    int yDistance = environment.toMapYCoordinate(geo) - gateway.getYPosInt();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Gateway settings");
-                        GatewayGUI gatewayGUI = new GatewayGUI(gateway, frame);
+                        GatewayGUI gatewayGUI = new GatewayGUI(gateway);
                         frame.setContentPane(gatewayGUI.getMainPanel());
                         frame.setPreferredSize(new Dimension(600, 400));
                         frame.setMinimumSize(new Dimension(600, 400));

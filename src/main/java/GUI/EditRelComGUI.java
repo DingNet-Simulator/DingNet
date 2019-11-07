@@ -7,8 +7,6 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class EditRelComGUI extends JFrame {
     private JButton saveButton;
@@ -17,14 +15,11 @@ public class EditRelComGUI extends JFrame {
     private JPanel mainPanel;
 
     public EditRelComGUI(IntervalAdaptationGoal relCom, MainGUI gui, JFrame frame) {
-        upperValueSpinner.setModel(new SpinnerNumberModel(relCom.getUpperBoundary(), Double.valueOf(-200), Double.valueOf(200), Double.valueOf(1)));
-        lowerValueSpinner.setModel(new SpinnerNumberModel(relCom.getLowerBoundary(), Double.valueOf(-200), Double.valueOf(200), Double.valueOf(1)));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gui.setRelCom(new IntervalAdaptationGoal((Double) lowerValueSpinner.getValue(), (Double) upperValueSpinner.getValue()));
-                frame.dispose();
-            }
+        upperValueSpinner.setModel(new SpinnerNumberModel(relCom.getUpperBoundary(), -200, 200, 1));
+        lowerValueSpinner.setModel(new SpinnerNumberModel(relCom.getLowerBoundary(), -200, 200, 1));
+        saveButton.addActionListener(e -> {
+            gui.setRelCom(new IntervalAdaptationGoal((double) lowerValueSpinner.getValue(), (double) upperValueSpinner.getValue()));
+            frame.dispose();
         });
     }
 

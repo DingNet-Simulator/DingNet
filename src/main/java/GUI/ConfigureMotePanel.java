@@ -40,7 +40,6 @@ public class ConfigureMotePanel {
     // Create a TileFactoryInfo for OpenStreetMap
     private static TileFactoryInfo info = new OSMTileFactoryInfo();
     private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    private MapMouseAdapter mouseAdapter = new MapMouseAdapter(this);
     private MainGUI parent;
 
     public ConfigureMotePanel(Environment environment, MainGUI parent) {
@@ -50,7 +49,7 @@ public class ConfigureMotePanel {
         for (MouseListener ml : mapViewer.getMouseListeners()) {
             mapViewer.removeMouseListener(ml);
         }
-        mapViewer.addMouseListener(mouseAdapter);
+        mapViewer.addMouseListener(new MapMouseAdapter(this));
         mapViewer.setZoom(6);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         MouseInputListener mia = new PanMouseInputListener(mapViewer);
@@ -154,9 +153,8 @@ public class ConfigureMotePanel {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
 
-                // TODO make sure the mote is put on a waypoint
-
                 boolean exists = false;
+
                 for (Mote mote : environment.getMotes()) {
                     int xDistance = Math.abs(environment.toMapXCoordinate(geo) - mote.getXPosInt());
                     int yDistance = environment.toMapYCoordinate(geo) - mote.getYPosInt();

@@ -90,8 +90,8 @@ public class Simulation {
      * @return The InputProfile used in the simulation.
      */
     @Basic
-    public InputProfile getInputProfile() {
-        return inputProfile;
+    public Optional<InputProfile> getInputProfile() {
+        return Optional.ofNullable(inputProfile);
     }
     /**
      * Sets the InputProfile used in th simulation.
@@ -233,7 +233,7 @@ public class Simulation {
         setupMotesActivationStatus();
         reset();
         var finalTime = environment.getClock().getTime()
-            .plus(getInputProfile().getSimulationDuration(), getInputProfile().getTimeUnit());
+            .plus(inputProfile.getSimulationDuration(), inputProfile.getTimeUnit());
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }
 
@@ -253,13 +253,13 @@ public class Simulation {
     void multipleRuns(Function<Pair<Integer, Integer>, Void> fn) {
         Thread t = new Thread(() -> {
             getEnvironment().reset();
-            int nrOfRuns = getInputProfile().getNumberOfRuns();
+            int nrOfRuns = inputProfile.getNumberOfRuns();
 
             // Store the initial positions of the motes so that these can be reset after each simulation run
             Map<Mote, Pair<Integer, Integer>> initialLocationMap = new HashMap<>();
             getEnvironment().getMotes().forEach(m -> initialLocationMap.put(m, m.getPosInt()));
 
-            for (int i = 0; i < getInputProfile().getNumberOfRuns(); i++) {
+            for (int i = 0; i < inputProfile.getNumberOfRuns(); i++) {
                 setupMotesActivationStatus();
                 getEnvironment().getClock().reset();    //why we add this
                 this.setupSimulation((env) -> !areAllMotesAtDestination());

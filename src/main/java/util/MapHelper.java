@@ -189,15 +189,15 @@ public class MapHelper {
             (pos1.getLongitude() + pos2.getLongitude()) / 2);
     }
 
-    public static Pair<Integer, Pair<Integer, Double>> toDgreeMinuteSecond(double latOrLong){
+    public static Pair<Integer, Pair<Integer, Double>> toDegreeMinuteSecond(double latOrLong){
         int degrees = (int) Math.round(Math.floor(latOrLong));
         int minutes = (int) Math.round(Math.floor((latOrLong - degrees) * 60));
         double seconds = (double) Math.round(((latOrLong - degrees) * 60 - minutes) * 60 * 1000d) / 1000d;
         return new Pair<>(degrees, new Pair<>(minutes, seconds));
     }
 
-    public static String toDgreeMinuteSecondText(double latOrLong){
-        var result = MapHelper.toDgreeMinuteSecond(latOrLong);
+    public static String toDegreeMinuteSecondText(double latOrLong){
+        var result = MapHelper.toDegreeMinuteSecond(latOrLong);
         return result.getLeft() + "° " + result.getRight().getLeft() + "' " + result.getRight().getRight() + "\" ";
     }
 

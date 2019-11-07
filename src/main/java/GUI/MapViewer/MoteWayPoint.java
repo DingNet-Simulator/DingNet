@@ -15,22 +15,18 @@ public class MoteWayPoint implements Waypoint {
     private final static String USERMOTE_ACTIVE_ICON_PATH = "/images/Mote-green.png";
     private final static String USERMOTE_DEACTIVE_ICON_PATH = "/images/Mote-blue.png";
     private final GeoPosition position;
-    private final boolean isUserMote;
-    private final boolean isActive;
     private BufferedImage icon;
 
     public MoteWayPoint(GeoPosition position) {
         this(position, false);
     }
 
-    public MoteWayPoint(GeoPosition position, boolean isUserMote) {
+    private MoteWayPoint(GeoPosition position, boolean isUserMote) {
         this(position, isUserMote, false);
     }
 
     public MoteWayPoint(GeoPosition position, boolean isUserMote, boolean isActive) {
         this.position = position;
-        this.isUserMote = isUserMote;
-        this.isActive = isActive;
 
         var path = !isUserMote ? MOTE_ICON_PATH :
                     isActive ? USERMOTE_ACTIVE_ICON_PATH : USERMOTE_DEACTIVE_ICON_PATH;
@@ -50,7 +46,7 @@ public class MoteWayPoint implements Waypoint {
         }
     }
 
-    public BufferedImage getIcon() {
+    BufferedImage getIcon() {
         return icon;
     }
 

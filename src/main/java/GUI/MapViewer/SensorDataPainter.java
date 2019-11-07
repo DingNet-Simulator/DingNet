@@ -25,8 +25,7 @@ public class SensorDataPainter implements Painter<JXMapViewer> {
         Rectangle rect = jxMapViewer.getViewportBounds();
         g.translate(-rect.x, -rect.y);
 
-        if (true)
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 
         Point2D pt = jxMapViewer.getTileFactory().geoToPixel(position, jxMapViewer.getZoom());

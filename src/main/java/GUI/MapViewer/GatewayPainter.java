@@ -21,7 +21,7 @@ import java.util.Set;
  * @author rbair
  */
 public class GatewayPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
-    private Set<W> waypoints = new HashSet<W>();
+    private Set<W> waypoints = new HashSet<>();
     private static BufferedImage img;
 
 

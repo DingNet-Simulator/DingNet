@@ -12,20 +12,20 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
      * A double representing the lower value of the goal
      */
     @Model
-    private final Double lowerBoundary;
+    private final double lowerBoundary;
 
     /**
      * A double representing the upper value of the goal
      */
     @Model
-    private final Double upperBoundary;
+    private final double upperBoundary;
 
     /**
      * Constructs a IntervalAdaptationGoal with a given lower and upper value.
      * @param lowerBoundary The lower boundary of the goal.
      * @param upperBoundary The upper boundary of the goal.
      */
-    public IntervalAdaptationGoal( Double lowerBoundary, Double upperBoundary){
+    public IntervalAdaptationGoal(double lowerBoundary, double upperBoundary){
         this.lowerBoundary = lowerBoundary;
         this.upperBoundary = upperBoundary;
     }
@@ -35,7 +35,7 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
      * @return The lower value of the goal.
      */
     @Basic
-    public Double getLowerBoundary() {
+    public double getLowerBoundary() {
         return lowerBoundary;
     }
 
@@ -44,7 +44,7 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
      * @return The upper value of the goal.
      */
     @Basic
-    public Double getUpperBoundary() {
+    public double getUpperBoundary() {
         return upperBoundary;
     }
 }

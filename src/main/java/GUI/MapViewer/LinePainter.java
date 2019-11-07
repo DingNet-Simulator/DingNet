@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class LinePainter implements Painter<JXMapViewer> {
     private Color color;
-    private boolean antiAlias = true;
 
     private List<GeoPosition> track;
     private int lineSize;
@@ -41,8 +40,7 @@ public class LinePainter implements Painter<JXMapViewer> {
         Rectangle rect = map.getViewportBounds();
         g.translate(-rect.x, -rect.y);
 
-        if (antiAlias)
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // do the drawing
         g.setColor(Color.BLACK);

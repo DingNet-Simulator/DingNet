@@ -6,8 +6,6 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class AboutSimDialog extends JDialog {
     private JPanel contentPane;
@@ -18,18 +16,7 @@ public class AboutSimDialog extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
-
-
-    }
-
-    private void onOK() {
-        // add your code here
-        dispose();
+        buttonOK.addActionListener(e -> dispose());
     }
 
     {

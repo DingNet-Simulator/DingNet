@@ -9,14 +9,11 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.StringWriter;
 import java.time.temporal.ChronoUnit;
 
@@ -24,18 +21,14 @@ import java.time.temporal.ChronoUnit;
 public class EditInputProfileGUI {
     private JTabbedPane tabbedPane1;
     private JPanel mainPanel;
-    private JEditorPane xmlEditorPane;
     private JComboBox numberOfRoundsComboBox;
     private JSpinner moteProbSpinner;
     private JButton classSaveButton;
-    private JSpinner regionProbSpinner;
     private JButton updateMoteButton;
-    private JButton updateRegionButton;
-    private JComboBox moteNumberComboBox;
+    private JComboBox<String> moteNumberComboBox;
     private JLabel QOSLabel;
     private JSpinner durationSpinner;
     private JComboBox timeUnitComboBox;
-    private JSpinner regionNumberSpinner;
     private InputProfile inputProfile;
     private Environment environment;
 
@@ -44,33 +37,28 @@ public class EditInputProfileGUI {
         this.environment = environment;
         refresh();
 
-        classSaveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        classSaveButton.addActionListener(e -> {
+            if (numberOfRoundsComboBox.getSelectedItem() != null) {
                 inputProfile.setNumberOfRuns(Integer.valueOf((String) numberOfRoundsComboBox.getSelectedItem()));
-                inputProfile
-                    .setSimulationDuration(((Double) durationSpinner.getValue()).longValue())
-                    .setTimeUnit((ChronoUnit) timeUnitComboBox.getSelectedItem());
-                refresh();
             }
+            inputProfile
+                .setSimulationDuration(((Double) durationSpinner.getValue()).longValue())
+                .setTimeUnit((ChronoUnit) timeUnitComboBox.getSelectedItem());
+            refresh();
         });
-        updateMoteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                inputProfile.putProbabilitiyForMote(moteNumberComboBox.getSelectedIndex(), (Double) moteProbSpinner.getValue());
+
+        updateMoteButton.addActionListener(e -> {
+            inputProfile.putProbabilityForMote(moteNumberComboBox.getSelectedIndex(), (Double) moteProbSpinner.getValue());
+            refresh();
+        });
+
+        moteNumberComboBox.addActionListener(e -> {
+            if (inputProfile.getProbabilitiesForMotesKeys().contains((moteNumberComboBox.getSelectedIndex()))) {
+                moteProbSpinner.setValue(inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()));
+            } else {
+                moteProbSpinner.setValue(1.00);
+                inputProfile.putProbabilityForMote(moteNumberComboBox.getSelectedIndex(), (Double) moteProbSpinner.getValue());
                 refresh();
-            }
-        });
-        moteNumberComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (inputProfile.getProbabilitiesForMotesKeys().contains((moteNumberComboBox.getSelectedIndex()))) {
-                    moteProbSpinner.setValue(inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()));
-                } else {
-                    moteProbSpinner.setValue(1.00);
-                    inputProfile.putProbabilitiyForMote(moteNumberComboBox.getSelectedIndex(), (Double) moteProbSpinner.getValue());
-                    refresh();
-                }
             }
         });
     }
@@ -84,17 +72,15 @@ public class EditInputProfileGUI {
         try {
             transformer = tf.newTransformer();
             transformer.transform(DOMSource, result);
-        } catch (TransformerConfigurationException e) {
-
         } catch (TransformerException e) {
-
+            e.printStackTrace();
         }
 
         QOSLabel.setText(inputProfile.getName());
         if (environment != null) {
-            numberOfRoundsComboBox.setSelectedItem(inputProfile.getNumberOfRuns().toString());
+            numberOfRoundsComboBox.setSelectedItem(Integer.toString(inputProfile.getNumberOfRuns()));
         }
-        Integer moteNumValue = 0;
+        int moteNumValue = 0;
 
         if (environment != null) {
             moteNumberComboBox.removeAllItems();
@@ -105,8 +91,8 @@ public class EditInputProfileGUI {
         } else {
             moteNumberComboBox.removeAllItems();
         }
-        moteProbSpinner.setModel(new SpinnerNumberModel(inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()), Double.valueOf(0), Double.valueOf(1), Double.valueOf(0.01)));
-        durationSpinner.setModel(new SpinnerNumberModel(inputProfile.getSimulationDuration(), 0L, Long.MAX_VALUE, 1L));
+        moteProbSpinner.setModel(new SpinnerNumberModel(inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()), 0, 1, 0.01));
+        durationSpinner.setModel(new SpinnerNumberModel(inputProfile.getSimulationDuration(), 0, Long.MAX_VALUE, 1));
         timeUnitComboBox.setSelectedItem(inputProfile.getTimeUnit());
     }
 

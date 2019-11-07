@@ -16,6 +16,7 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
     private PollutionGrid pollutionGrid;
     private Environment environment;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final float TRANSPARENCY = .3f;
 
     public PollutionGridPainter(Environment environment) {

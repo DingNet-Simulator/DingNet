@@ -85,6 +85,7 @@ public class ConfigureConnectionsPanel {
             deleteRadioBtn.setSelected(true);
             this.mode = Mode.DELETE;
         });
+
         cancelButton.addActionListener(e -> {
             this.resetSelectedWayPoints();
             refresh();

@@ -32,8 +32,8 @@ public class NewMoteGUI {
     private JTextField LatitudeTextField;
     private JTextField LongitudeTextField;
     private JButton addButton;
-    private JList sensorList;
-    private JComboBox sensorComboBox;
+    private JList<MoteSensor> sensorList;
+    private JComboBox<MoteSensor> sensorComboBox;
     private JSpinner movementSpinner;
     private JSpinner movementStartOffsetSpinner;
     private JSpinner periodSpinner;
@@ -44,7 +44,9 @@ public class NewMoteGUI {
 
     private Random random = new Random();
 
+
     // Determines if a new waypoint should be added at the mote location, if no waypoint is found within 50m.
+    @SuppressWarnings("FieldCanBeLocal")
     private final double DISTANCE_THRESHOLD_NEW_WAYPOINT = 0.05;
 
 
@@ -74,8 +76,8 @@ public class NewMoteGUI {
         });
 
 
-        sensorComboBox.setModel(new DefaultComboBoxModel(MoteSensor.values()));
-        sensorList.setModel(new DefaultListModel());
+        sensorComboBox.setModel(new DefaultComboBoxModel<>(MoteSensor.values()));
+        sensorList.setModel(new DefaultListModel<>());
 
         xPosSpinner.addChangeListener(evt -> updateLonField());
         yPosSpinner.addChangeListener(evt -> updateLatField());
@@ -85,7 +87,7 @@ public class NewMoteGUI {
             DefaultListModel<MoteSensor> sensorListModel = new DefaultListModel<>();
 
             for (int i = 0; i < sensorList.getModel().getSize(); i++) {
-                sensorListModel.addElement((MoteSensor) sensorList.getModel().getElementAt(i));
+                sensorListModel.addElement(sensorList.getModel().getElementAt(i));
             }
             sensorListModel.addElement((MoteSensor) sensorComboBox.getSelectedItem());
             sensorList.setModel(sensorListModel);
@@ -123,7 +125,7 @@ public class NewMoteGUI {
     private void addMote() {
         List<MoteSensor> moteSensors = new LinkedList<>();
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
-            moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
+            moteSensors.add(sensorList.getModel().getElementAt(i));
         }
 
         int posX = (int) xPosSpinner.getValue();
@@ -141,7 +143,7 @@ public class NewMoteGUI {
     private void addUserMote() {
         List<MoteSensor> moteSensors = new LinkedList<>();
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
-            moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
+            moteSensors.add(sensorList.getModel().getElementAt(i));
         }
 
         int posX = (int) xPosSpinner.getValue();
@@ -164,11 +166,11 @@ public class NewMoteGUI {
     }
 
     private void updateLatField() {
-        GUIUtil.updateTextFieldCoordinates(LongitudeTextField, environment.toLongitude((int) xPosSpinner.getValue()), "E", "W");
+        GUIUtil.updateTextFieldCoordinate(LongitudeTextField, environment.toLongitude((int) xPosSpinner.getValue()), "E", "W");
     }
 
     private void updateLonField() {
-        GUIUtil.updateTextFieldCoordinates(LatitudeTextField, environment.toLatitude((int) yPosSpinner.getValue()), "N", "S");
+        GUIUtil.updateTextFieldCoordinate(LatitudeTextField, environment.toLatitude((int) yPosSpinner.getValue()), "N", "S");
     }
 
     {

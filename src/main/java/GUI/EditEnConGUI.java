@@ -7,8 +7,6 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class EditEnConGUI {
     private JSpinner valueSpinner;
@@ -16,13 +14,10 @@ public class EditEnConGUI {
     private JPanel mainPanel;
 
     public EditEnConGUI(ThresholdAdaptationGoal enCon, MainGUI gui, Frame frame) {
-        valueSpinner.setModel(new SpinnerNumberModel(enCon.getThreshold(), Double.valueOf(0), Double.valueOf(1000), Double.valueOf(1)));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gui.setEnCon(new ThresholdAdaptationGoal((Double) valueSpinner.getValue()));
-                frame.dispose();
-            }
+        valueSpinner.setModel(new SpinnerNumberModel(enCon.getThreshold(), 0, 1000, 1));
+        saveButton.addActionListener(e -> {
+            gui.setEnCon(new ThresholdAdaptationGoal((double) valueSpinner.getValue()));
+            frame.dispose();
         });
     }
 

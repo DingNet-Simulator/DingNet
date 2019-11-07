@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.util.GUIUtil;
 import IotDomain.networkentity.Mote;
 import IotDomain.networkentity.MoteSensor;
 import IotDomain.networkentity.UserMote;
@@ -9,8 +10,6 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
 public class MoteGUI extends JFrame {
@@ -25,45 +24,35 @@ public class MoteGUI extends JFrame {
     private JLabel TPThresholdText;
     private JPanel mainPanel;
     private JLabel moteNumberLabel;
-    private JComboBox sensorSpinner;
+    private JComboBox<MoteSensor> sensorSpinner;
     private JButton addButton;
-    private JList sensorList;
+    private JList<MoteSensor> sensorList;
     private JSpinner movementSpinner;
     private JCheckBox isActiveCheckBox;
     private Mote mote;
-    private JFrame frame;
 
     public MoteGUI(Mote mote, JFrame frame) {
-        this.frame = frame;
         this.mote = mote;
+
         moteNumberLabel.setText(Integer.toString(mote.getEnvironment().getMotes().indexOf(mote) + 1));
         EUIDText.setText(Long.toUnsignedString(mote.getEUI()));
-        double latitude = mote.getEnvironment().toLatitude(mote.getYPosInt());
-        int latitudeDegrees = (int) Math.round(Math.floor(latitude));
-        int latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
-        double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-        double longitude = mote.getEnvironment().toLongitude(mote.getXPosInt());
-        int longitudeDegrees = (int) Math.round(Math.floor(longitude));
-        int longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
-        double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
-        latitudeLabel.setText(((Math.signum(mote.getEnvironment().toLatitude(mote.getYPosInt())) == 1) ? "N " : "S ") +
-                latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
-        longitudeLabel.setText(((Math.signum(mote.getEnvironment().toLongitude(mote.getXPosInt())) == 1) ? "E " : "W ") +
-                longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
         xPosSpinner.setModel(new SpinnerNumberModel(mote.getXPosInt(), 0, mote.getEnvironment().getMaxXpos(), 1));
         yPosSpinner.setModel(new SpinnerNumberModel(mote.getYPosInt(), 0, mote.getEnvironment().getMaxYpos(), 1));
         powerSpinner.setModel(new SpinnerNumberModel(mote.getTransmissionPower(), -3, 14, 1));
         SFSpinner.setModel(new SpinnerNumberModel(mote.getSF(), 1, 12, 1));
-        movementSpinner.setModel(new SpinnerNumberModel(mote.getMovementSpeed(), 0.01, 1000.0, 0.01));
+        movementSpinner.setModel(new SpinnerNumberModel(mote.getMovementSpeed(), 0.01, 1000, 0.01));
         TPThresholdText.setText(mote.getTransmissionPowerThreshold().toString());
-        saveButton.addActionListener(saveActionListener);
+
+        updateLatLonFields();
+
         if (mote instanceof UserMote) {
             isActiveCheckBox.setVisible(true);
             isActiveCheckBox.setSelected(((UserMote) mote).isActive());
         } else {
             isActiveCheckBox.setVisible(false);
         }
-        sensorSpinner.setModel(new DefaultComboBoxModel(MoteSensor.values()));
+        sensorSpinner.setModel(new DefaultComboBoxModel<>(MoteSensor.values()));
+
         DefaultListModel<MoteSensor> sensorListModel = new DefaultListModel<>();
 
         for (int i = 0; i < mote.getSensors().size(); i++) {
@@ -71,17 +60,35 @@ public class MoteGUI extends JFrame {
         }
         sensorList.setModel(sensorListModel);
 
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DefaultListModel<MoteSensor> sensorListModel = new DefaultListModel<>();
 
-                for (int i = 0; i < sensorList.getModel().getSize(); i++) {
-                    sensorListModel.addElement((MoteSensor) sensorList.getModel().getElementAt(i));
-                }
-                sensorListModel.addElement((MoteSensor) sensorSpinner.getSelectedItem());
-                sensorList.setModel(sensorListModel);
+        addButton.addActionListener(e -> {
+            DefaultListModel<MoteSensor> listModel = new DefaultListModel<>();
+
+            for (int i = 0; i < sensorList.getModel().getSize(); i++) {
+                listModel.addElement(sensorList.getModel().getElementAt(i));
             }
+            listModel.addElement((MoteSensor) sensorSpinner.getSelectedItem());
+            sensorList.setModel(listModel);
+        });
+
+
+        saveButton.addActionListener(e -> {
+            mote.setSF((Integer) SFSpinner.getValue());
+            mote.setXPos((Integer) xPosSpinner.getValue());
+            mote.setYPos((Integer) yPosSpinner.getValue());
+            mote.setTransmissionPower((Integer) powerSpinner.getValue());
+            LinkedList<MoteSensor> moteSensors = new LinkedList<>();
+            for (Object moteSensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
+                moteSensors.add((MoteSensor) moteSensor);
+            }
+            mote.setSensors(moteSensors);
+            mote.setMovementSpeed((Double) movementSpinner.getValue());
+            if (isActiveCheckBox.isVisible()) {
+                //noinspection ConstantConditions
+                ((UserMote) mote).setActive(isActiveCheckBox.isSelected());
+            }
+            refresh();
+            frame.dispose();
         });
 
     }
@@ -92,18 +99,7 @@ public class MoteGUI extends JFrame {
 
     private void refresh() {
         EUIDText.setText(Long.toUnsignedString(mote.getEUI()));
-        Double latitude = mote.getEnvironment().toLatitude(mote.getYPosInt());
-        Integer latitudeDegrees = (int) Math.round(Math.floor(latitude));
-        Integer latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
-        Double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-        Double longitude = mote.getEnvironment().toLongitude(mote.getXPosInt());
-        Integer longitudeDegrees = (int) Math.round(Math.floor(longitude));
-        Integer longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
-        Double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
-        latitudeLabel.setText(((Math.signum(mote.getEnvironment().toLatitude(mote.getYPosInt())) == 1) ? "N " : "S ") +
-                latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
-        longitudeLabel.setText(((Math.signum(mote.getEnvironment().toLongitude(mote.getXPosInt())) == 1) ? "E " : "W ") +
-                longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
+        updateLatLonFields();
         xPosSpinner.setValue(mote.getXPosInt());
         yPosSpinner.setValue(mote.getYPosInt());
         powerSpinner.setValue(mote.getTransmissionPower());
@@ -117,26 +113,19 @@ public class MoteGUI extends JFrame {
         }
     }
 
-    ActionListener saveActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            mote.setSF((Integer) SFSpinner.getValue());
-            mote.setXPos((Integer) xPosSpinner.getValue());
-            mote.setYPos((Integer) yPosSpinner.getValue());
-            mote.setTransmissionPower((Integer) powerSpinner.getValue());
-            LinkedList<MoteSensor> moteSensors = new LinkedList<>();
-            for (Object moteSensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
-                moteSensors.add((MoteSensor) moteSensor);
-            }
-            mote.setSensors(moteSensors);
-            mote.setMovementSpeed((Double) movementSpinner.getValue());
-            if (isActiveCheckBox.isVisible()) {
-                ((UserMote) mote).setActive(isActiveCheckBox.isSelected());
-            }
-            refresh();
-            frame.dispose();
-        }
-    };
+
+    private void updateLatLonFields() {
+        updateLonField();
+        updateLatField();
+    }
+
+    private void updateLatField() {
+        GUIUtil.updateLabelCoordinate(longitudeLabel, mote.getEnvironment().toLongitude(mote.getXPosInt()), "E", "W");
+    }
+
+    private void updateLonField() {
+        GUIUtil.updateLabelCoordinate(latitudeLabel, mote.getEnvironment().toLatitude(mote.getYPosInt()), "N", "S");
+    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer

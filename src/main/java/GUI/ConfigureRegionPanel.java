@@ -16,12 +16,10 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
-import util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
@@ -38,7 +36,7 @@ public class ConfigureRegionPanel {
     // Create a TileFactoryInfo for OpenStreetMap
     private static TileFactoryInfo info = new OSMTileFactoryInfo();
     private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    private Integer amountOfSquares;
+    private int amountOfSquares;
 
     public ConfigureRegionPanel(Environment environment) {
         this.environment = environment;
@@ -226,8 +224,8 @@ public class ConfigureRegionPanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
-                Integer xPos = environment.toMapXCoordinate(geo);
-                Integer yPos = environment.toMapYCoordinate(geo);
+                int xPos = environment.toMapXCoordinate(geo);
+                int yPos = environment.toMapYCoordinate(geo);
                 int i = 0;
                 while (xPos > 1) {
                     xPos -= environment.getMaxXpos() / amountOfSquares;
@@ -268,11 +266,6 @@ public class ConfigureRegionPanel {
 
         @Override
         public void mouseExited(MouseEvent e) {
-
-        }
-
-
-        public void actionPerformed(ActionEvent e) {
 
         }
     }

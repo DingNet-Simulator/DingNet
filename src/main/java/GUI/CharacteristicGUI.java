@@ -8,59 +8,38 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.EnumSet;
 
 /**
  * A GUI to edit the characteristics of a given zone
  */
 public class CharacteristicGUI {
     private JPanel mainPanel;
-    private JComboBox characteristicComboBox;
+    private JComboBox<Characteristic> characteristicComboBox;
     private JButton okButton;
-    private Environment environment;
     private Integer beginX;
     private Integer beginY;
     private Integer endX;
     private Integer endY;
-    private JFrame frame;
 
 
-    /**
-     * Constructs a CharacteristicGUI with a given
-     *
-     * @param environment
-     * @param x
-     * @param y
-     * @param amountOfSquares
-     * @param parent
-     * @param frame
-     */
-    public CharacteristicGUI(Environment environment, Integer x, Integer y, Integer amountOfSquares, ConfigureRegionPanel parent, JFrame frame) {
-        this.frame = frame;
-        this.environment = environment;
-
+    public CharacteristicGUI(Environment environment, int x, int y, int amountOfSquares, ConfigureRegionPanel parent, JFrame frame) {
         beginX = (int) Math.round(x * ((double) environment.getMaxXpos()) / amountOfSquares);
         endX = (int) Math.round((x + 1) * ((double) environment.getMaxXpos()) / amountOfSquares);
 
         beginY = (int) Math.round(y * ((double) environment.getMaxYpos()) / amountOfSquares);
         endY = (int) Math.round((y + 1) * ((double) environment.getMaxYpos()) / amountOfSquares);
 
-        characteristicComboBox.setModel(new DefaultComboBoxModel(EnumSet.allOf(Characteristic.class).toArray()));
-        characteristicComboBox.setSelectedItem(this.environment.getCharacteristic(beginX + 1, beginY + 1));
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (int x = beginX; x < endX; x++) {
-                    for (int y = beginY; y < endY; y++) {
-                        environment.setCharacteristics((Characteristic) characteristicComboBox.getSelectedItem(), x, y);
-                    }
-                }
-                parent.update();
-                frame.dispose();
+        characteristicComboBox.setModel(new DefaultComboBoxModel<>(Characteristic.values()));
+        characteristicComboBox.setSelectedItem(environment.getCharacteristic(beginX + 1, beginY + 1));
 
+        okButton.addActionListener(e -> {
+            for (int i = beginX; i < endX; i++) {
+                for (int j = beginY; j < endY; j++) {
+                    environment.setCharacteristics((Characteristic) characteristicComboBox.getSelectedItem(), i, j);
+                }
             }
+            parent.update();
+            frame.dispose();
         });
 
     }

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ConfigureMapPanel {
+public class ConfigurePathPanel {
     private JPanel mainPanel;
 
     private JPanel drawPanel;
@@ -52,7 +52,7 @@ public class ConfigureMapPanel {
     private MainGUI parent;
     private CompoundPainter<JXMapViewer> painter;
 
-    public ConfigureMapPanel(Environment environment, MainGUI parent) {
+    ConfigurePathPanel(Environment environment, MainGUI parent) {
         this.parent = parent;
         this.environment = environment;
         graph = GraphStructure.getInstance();
@@ -89,25 +89,9 @@ public class ConfigureMapPanel {
         // Use 8 threads in parallel to load the tiles
         tileFactory.setThreadPoolSize(8);
 
-        List<Painter<JXMapViewer>> painters = new ArrayList<>();
-
-
-        // Draw the motes
-        Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
-
-        MotePainter<MoteWayPoint> motePainter = new MotePainter<>();
-        motePainter.setWaypoints(motes.keySet());
-
-        NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
-        moteNumberPainter.setWaypoints(motes);
-
-
-        painters.add(motePainter);
-        painters.add(moteNumberPainter);
-
 
         // Draw the borders
-        painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
+        List<Painter<JXMapViewer>> painters = new ArrayList<>(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
 
         // Draw the path of the currently selected mote in red
         if (currentMote == null) {
@@ -124,6 +108,19 @@ public class ConfigureMapPanel {
         }
         waypointPainter.setWaypoints(set);
         painters.add(waypointPainter);
+
+        // Draw the motes
+        Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
+
+        MotePainter<MoteWayPoint> motePainter = new MotePainter<>();
+        motePainter.setWaypoints(motes.keySet());
+
+        NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
+        moteNumberPainter.setWaypoints(motes);
+
+
+        painters.add(motePainter);
+        painters.add(moteNumberPainter);
 
         painter.setPainters(painters);
         mapViewer.setOverlayPainter(painter);

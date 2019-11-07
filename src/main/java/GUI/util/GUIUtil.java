@@ -59,12 +59,20 @@ public class GUIUtil {
         }
     }
 
-    public static void updateTextFieldCoordinates(JTextField textField, double value, String alt1, String alt2) {
+    public static void updateTextFieldCoordinate(JTextField field, double value, String alt1, String alt2) {
+        field.setText(coordinateToString(value, alt1, alt2));
+    }
+
+    public static void updateLabelCoordinate(JLabel label, double value, String alt1, String alt2) {
+        label.setText(coordinateToString(value, alt1, alt2));
+    }
+
+    private static String coordinateToString(double value, String alt1, String alt2) {
         // TODO clean up magic numbers
         int degrees = (int) Math.floor(value);
         int minutes = (int) Math.floor((value - degrees) * 60);
         double seconds = (double) Math.round(((value - degrees) * 60 - minutes) * 60 * 1000d) / 1000d;
 
-        textField.setText(String.format("%s %d° %d' %f\"", value > 0 ? alt1 : alt2, degrees, minutes, seconds));
+        return String.format("%s %d° %d' %f\"", value > 0 ? alt1 : alt2, degrees, minutes, seconds);
     }
 }

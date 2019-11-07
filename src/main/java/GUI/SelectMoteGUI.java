@@ -8,24 +8,15 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class SelectMoteGUI extends JFrame {
     private JPanel mainPanel;
-    private JComboBox moteSelectorComboBox;
+    private JComboBox<String> moteSelectorComboBox;
     private JButton okButton;
-    private JComboBox runSelectorComboBox;
-
-    private Environment environment;
-    private MainGUI parent;
-    private JFrame frame;
+    private JComboBox<String> runSelectorComboBox;
 
 
     public SelectMoteGUI(Environment environment, MainGUI parent, JFrame frame) {
-        this.parent = parent;
-        this.environment = environment;
-        this.frame = frame;
         for (Mote mote : environment.getMotes()) {
             moteSelectorComboBox.addItem("Mote " + (environment.getMotes().indexOf(mote) + 1) + " EUI " + Long.toUnsignedString(mote.getEUI()));
         }
@@ -33,12 +24,9 @@ public class SelectMoteGUI extends JFrame {
             runSelectorComboBox.addItem("Run " + (i + 1));
         }
 
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                parent.setCharacteristics(moteSelectorComboBox.getSelectedIndex(), runSelectorComboBox.getSelectedIndex());
-                frame.dispose();
-            }
+        okButton.addActionListener(e -> {
+            parent.setCharacteristics(moteSelectorComboBox.getSelectedIndex(), runSelectorComboBox.getSelectedIndex());
+            frame.dispose();
         });
     }
 

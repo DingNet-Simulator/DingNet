@@ -7,8 +7,6 @@ import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class EditColBoundGUI {
     private JPanel mainPanel;
@@ -16,13 +14,10 @@ public class EditColBoundGUI {
     private JButton saveButton;
 
     public EditColBoundGUI(ThresholdAdaptationGoal colBound, MainGUI gui, Frame frame) {
-        valueSpinner.setModel(new SpinnerNumberModel(colBound.getThreshold(), Double.valueOf(0), Double.valueOf(1000), Double.valueOf(1)));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gui.setColBound(new ThresholdAdaptationGoal((Double) valueSpinner.getValue()));
-                frame.dispose();
-            }
+        valueSpinner.setModel(new SpinnerNumberModel(colBound.getThreshold(), 0, 1000, 1));
+        saveButton.addActionListener(e -> {
+            gui.setColBound(new ThresholdAdaptationGoal((double) valueSpinner.getValue()));
+            frame.dispose();
         });
     }
 
