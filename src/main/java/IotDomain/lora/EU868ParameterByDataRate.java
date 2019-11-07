@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-public enum EU868ParameterByDataRate implements RegionalParameters {
+public enum EU868ParameterByDataRate implements RegionalParameter {
 
     DATA_RATE_0(0, 12, 125, 250, 59),
     DATA_RATE_1(1, 11, 125, 440, 59),
@@ -52,11 +52,11 @@ public enum EU868ParameterByDataRate implements RegionalParameters {
         return maxPayloadSize;
     }
 
-    public static Stream<RegionalParameters> valuesAsStream() {
+    public static Stream<RegionalParameter> valuesAsStream() {
         return Arrays.stream(EU868ParameterByDataRate.values());
     }
 
-    public static List<RegionalParameters> valuesAsList() {
+    public static List<RegionalParameter> valuesAsList() {
         return List.of(EU868ParameterByDataRate.values());
     }
 }

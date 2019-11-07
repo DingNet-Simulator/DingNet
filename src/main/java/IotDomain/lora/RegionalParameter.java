@@ -1,6 +1,6 @@
 package IotDomain.lora;
 
-public interface RegionalParameters {
+public interface RegionalParameter {
 
     int getDataRate();
 
