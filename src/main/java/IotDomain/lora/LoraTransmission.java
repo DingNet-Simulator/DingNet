@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  */
 public class LoraTransmission implements Serializable{
 
+    //region field
     private static final long serialVersionUID = 1L;
 
     /**
@@ -49,12 +50,12 @@ public class LoraTransmission implements Serializable{
     /**
      * An integer representing the x-coordinate of the packet.
      */
-    private Integer xPos = 0;
+    private Integer xPos;
 
     /**
      * An integer representing the y-coordinate of the packet.
      */
-    private Integer yPos = 0;
+    private Integer yPos;
 
 
     /**
@@ -92,7 +93,9 @@ public class LoraTransmission implements Serializable{
     private boolean arrived;
 
     private boolean collided;
+    //endregion
 
+    //region constructor
     /**
      * A constructor generating a transmission with a given sender, receiver, transmission power, bandwidth, spreading factor,
      * environment and content.
@@ -168,8 +171,9 @@ public class LoraTransmission implements Serializable{
                         +getContent().getAmountOfPreambleSymbols()*4.25))/10;
         usedPath = new LinkedList<>();
     }
+    //endregion
 
-
+    //region setter and getter
     /**
      *  Returns the sender of this transmission.
      * @return The sender of this transmission.
@@ -298,6 +302,67 @@ public class LoraTransmission implements Serializable{
     }
 
     /**
+     * Returns the x-coordinate of the transmission.
+     * @return The x-coordinate of the transmission.
+     */
+    public Integer getXPos() {
+        return xPos;
+    }
+
+    /**
+     * Returns the y-coordinate of the transmission.
+     * @return The y-coordinate of the transmission.
+     */
+    public Integer getYPos() {
+        return yPos;
+    }
+
+    /**
+     * Returns the environment of this packet.
+     * @return The environment of this packet.
+     */
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    /**
+     * Returns the content of the transmission.
+     * @return  the content of the transmission.
+     */
+    @Basic
+    public LoraWanPacket getContent() {
+        return content;
+    }
+
+    /**
+     * Checks if a content is valid.
+     * @param content The content to check.
+     * @return  true if the content is valid.
+     */
+    @Immutable
+    public static Boolean isValidContent(LoraWanPacket content){
+        return true;
+    }
+
+    /**
+     * Adds a Pair to the used path.
+     * @param pair The Pair to add.
+     */
+    private void addToUsedPath(Pair<Integer,Integer> pair){
+        usedPath.add(pair);
+    }
+
+    /**
+     * Returns the used path.
+     * @return The used path.
+     */
+    public LinkedList<Pair<Integer,Integer>> getUsedPath(){
+        return usedPath;
+    }
+
+    //endregion
+
+    /**
      * A function to make this transmission depart to its destination.
      * @Effect  Moves the transmission to the receiver.
      * @Effect  Tells the receiver to receiveTransmission this transmission.
@@ -376,66 +441,4 @@ public class LoraTransmission implements Serializable{
         }
         setTransmissionPower(getTransmissionPower() - random.nextGaussian() * characteristic.getShadowFading());
     }
-
-
-
-    /**
-     * Returns the x-coordinate of the transmission.
-     * @return The x-coordinate of the transmission.
-     */
-    public Integer getXPos() {
-        return xPos;
-    }
-
-    /**
-     * Returns the y-coordinate of the transmission.
-     * @return The y-coordinate of the transmission.
-     */
-    public Integer getYPos() {
-        return yPos;
-    }
-
-    /**
-     * Returns the environment of this packet.
-     * @return The environment of this packet.
-     */
-    public Environment getEnvironment() {
-        return environment;
-    }
-
-    /**
-     * Returns the content of the transmission.
-     * @return  the content of the transmission.
-     */
-    @Basic
-    public LoraWanPacket getContent() {
-        return content;
-    }
-
-    /**
-     * Checks if a content is valid.
-     * @param content The content to check.
-     * @return  true if the content is valid.
-     */
-    @Immutable
-    public static Boolean isValidContent(LoraWanPacket content){
-        return true;
-    }
-
-    /**
-     * Adds a Pair to the used path.
-     * @param pair The Pair to add.
-     */
-    private void addToUsedPath(Pair<Integer,Integer> pair){
-        usedPath.add(pair);
-    }
-
-    /**
-     * Returns the used path.
-     * @return The used path.
-     */
-    public LinkedList<Pair<Integer,Integer>> getUsedPath(){
-        return usedPath;
-    }
-
 }
