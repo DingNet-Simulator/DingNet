@@ -39,15 +39,6 @@ public class LoraTransmission implements Serializable{
     private Double transmissionPower = 0.0;
 
     /**
-     * An integer representing the bandwidth.
-     */
-    private final Integer bandwidth;
-
-    /**
-     * An integer representing the spreading factor.
-     */
-    private final Integer spreadingFactor;
-    /**
      * An integer representing the x-coordinate of the packet.
      */
     private Integer xPos;
@@ -73,7 +64,9 @@ public class LoraTransmission implements Serializable{
      */
     private final Random random = new Random();
 
-    private final List<RegionalParameters> regionalParameters = EU868ParameterByDataRate.valuesAsList();
+    private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
+
+    private final RegionalParameter regionalParameter;
 
     /**
      * The departure time of the message
@@ -126,20 +119,16 @@ public class LoraTransmission implements Serializable{
      */
     public LoraTransmission(NetworkEntity sender, NetworkEntity receiver, Integer transmissionPower, Integer bandwidth,
                             Integer spreadingFactor, LoraWanPacket content) {
-        if(sender.getEnvironment() == receiver.getEnvironment()){
-            this.sender = sender;
-            this.receiver = receiver;
-            this.environment = sender.getEnvironment();
-            this.xPos = sender.getXPosInt();
-            this.yPos = sender.getYPosInt();
+
+        if(sender.getEnvironment() != receiver.getEnvironment()){
+            throw new IllegalArgumentException("sender and receiver have different environment");
         }
-        else{
-            this.sender = null;
-            this.receiver = null;
-            this.environment = null;
-            this.xPos = 0;
-            this.yPos = 0;
-        }
+
+        this.sender = sender;
+        this.receiver = receiver;
+        this.environment = sender.getEnvironment();
+        this.xPos = sender.getXPosInt();
+        this.yPos = sender.getYPosInt();
         this.content = content;
         this.arrived = false;
         this.collided = false;
@@ -148,16 +137,10 @@ public class LoraTransmission implements Serializable{
             this.transmissionPower = Double.valueOf(transmissionPower);
 
         }
-        if(isValidBandwidth(bandwidth)){
-            this.bandwidth = bandwidth;
-        }
-        else
-            this.bandwidth = 0;
-        if(isValidSpreadingFactor(spreadingFactor)) {
-            this.spreadingFactor = spreadingFactor;
-        }
-        else
-            this.spreadingFactor = 0;
+
+        regionalParameter = regionalParameters.stream().filter(p -> p.getSpreadingFactor() == spreadingFactor &&
+            p.getBandwidth() == bandwidth).findFirst().orElseThrow(() -> new IllegalArgumentException("No regional parameter found with spreading factor: "
+            + spreadingFactor + " and bandwidth: " + bandwidth));
 
         departureTime = getEnvironment().getClock().getTime();
         /**
@@ -243,30 +226,11 @@ public class LoraTransmission implements Serializable{
     }
 
     /**
-     * Checks if a given bandwidth is valid.
-     * @param bandwidth The bandwidth to check.
-     * @return  True if the bandwidth is valid.
-     */
-    @Immutable
-    private static boolean isValidBandwidth(Integer bandwidth) {
-        return bandwidth > 0;
-    }
-
-    /**
      * Returns the bandwidth of the transmission.
      * @return  The bandwidth of the transmission.
      */
     public Integer getBandwidth() {
-        return bandwidth;
-    }
-
-    /**
-     * Checks if a given spreading factor is valid.
-     * @param spreadingFactor   The spreading factor to check.
-     * @return  True if the given factor is smaller than 13 and bigger than 6. False otherwise.
-     */
-    private boolean isValidSpreadingFactor(Integer spreadingFactor) {
-        return spreadingFactor <= 12 && spreadingFactor >= 7;
+        return regionalParameter.getBandwidth();
     }
 
     /**
@@ -274,7 +238,7 @@ public class LoraTransmission implements Serializable{
      * @return The spreading factor.
      */
     public Integer getSpreadingFactor() {
-        return spreadingFactor;
+        return regionalParameter.getSpreadingFactor();
     }
 
     public boolean isArrived() {
