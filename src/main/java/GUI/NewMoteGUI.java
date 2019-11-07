@@ -1,8 +1,8 @@
 package GUI;
 
 
+import GUI.util.GUIUtil;
 import IotDomain.Environment;
-import IotDomain.networkentity.Mote;
 import IotDomain.networkentity.MoteFactory;
 import IotDomain.networkentity.MoteSensor;
 import IotDomain.networkentity.UserMote;
@@ -10,13 +10,13 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.GraphStructure;
 import util.MapHelper;
 import util.Path;
+import java.util.List;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -41,58 +41,46 @@ public class NewMoteGUI {
     private JCheckBox isUserMoteCheckBox;
     private JCheckBox isActiveCheckBox;
     private Environment environment;
-    private JFrame frame;
-    private ConfigureMotePanel parent;
+
+    private Random random = new Random();
+
+    // Determines if a new waypoint should be added at the mote location, if no waypoint is found within 50m.
+    private final double DISTANCE_THRESHOLD_NEW_WAYPOINT = 0.05;
+
 
     public NewMoteGUI(Environment environment, GeoPosition geoPosition, JFrame frame, ConfigureMotePanel parent) {
-        this.parent = parent;
-        this.frame = frame;
         this.environment = environment;
-        Random random = new Random();
-        EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+
         xPosSpinner.setModel(new SpinnerNumberModel(environment.toMapXCoordinate(geoPosition), 0, environment.getMaxXpos(), 1));
         yPosSpinner.setModel(new SpinnerNumberModel(environment.toMapYCoordinate(geoPosition), 0, environment.getMaxYpos(), 1));
-        powerSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(14), Integer.valueOf(-3), Integer.valueOf(14), Integer.valueOf(1)));
-        SFSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(12), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
+        powerSpinner.setModel(new SpinnerNumberModel(14, -3, 14, 1));
+        SFSpinner.setModel(new SpinnerNumberModel(12, 1, 12, 1));
         periodSpinner.setModel(new SpinnerNumberModel(30, 1, Integer.MAX_VALUE, 1));
         offsetSendingSpinner.setModel(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        movementSpinner.setModel(new SpinnerNumberModel(Double.valueOf(1), Double.valueOf(0.000001), Double.valueOf(1000.0), Double.valueOf(0.000001)));
+        movementSpinner.setModel(new SpinnerNumberModel(1, 0.000001, 1000.0, 0.000001));
         movementStartOffsetSpinner.setModel(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-        saveButton.addActionListener(saveActionListener);
-        generateButton.addActionListener(generateActionListener);
-        Double latitude = environment.toLatitude((Integer) yPosSpinner.getValue());
-        Integer latitudeDegrees = (int) Math.round(Math.floor(latitude));
-        Integer latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
-        Double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-        Double longitude = environment.toLongitude((Integer) xPosSpinner.getValue());
-        Integer longitudeDegrees = (int) Math.round(Math.floor(longitude));
-        Integer longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
-        Double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
-        LatitudeTextField.setText(((Math.signum(environment.toLatitude((Integer) yPosSpinner.getValue())) == 1) ? "N " : "S ") +
-                latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
-        LongitudeTextField.setText(((Math.signum(environment.toLongitude((Integer) xPosSpinner.getValue())) == 1) ? "E " : "W ") +
-                longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
+
+        generateNewEUID();
+        updateLatLonFields();
+
+        saveButton.addActionListener((e) -> {
+            if (isUserMoteCheckBox.isSelected()) {
+                addUserMote();
+            } else {
+                addMote();
+            }
+            parent.refresh();
+            frame.dispose();
+        });
+
 
         sensorComboBox.setModel(new DefaultComboBoxModel(MoteSensor.values()));
         sensorList.setModel(new DefaultListModel());
 
-        xPosSpinner.addChangeListener(evt -> {
-            Double longitude1 = environment.toLongitude((Integer) xPosSpinner.getValue());
-            Integer longitudeDegrees1 = (int) Math.round(Math.floor(longitude1));
-            Integer longitudeMinutes1 = (int) Math.round(Math.floor((longitude1 - longitudeDegrees1) * 60));
-            Double longitudeSeconds1 = (double) Math.round(((longitude1 - longitudeDegrees1) * 60 - longitudeMinutes1) * 60 * 1000d) / 1000d;
-            LongitudeTextField.setText(((Math.signum(environment.toLongitude((Integer) xPosSpinner.getValue())) == 1) ? "E " : "W ") +
-                longitudeDegrees1 + "° " + longitudeMinutes1 + "' " + longitudeSeconds1 + "\" ");
-        });
+        xPosSpinner.addChangeListener(evt -> updateLonField());
+        yPosSpinner.addChangeListener(evt -> updateLatField());
+        generateButton.addActionListener(e -> generateNewEUID());
 
-        yPosSpinner.addChangeListener(evt -> {
-            Double latitude1 = environment.toLatitude((Integer) yPosSpinner.getValue());
-            Integer latitudeDegrees1 = (int) Math.round(Math.floor(latitude1));
-            Integer latitudeMinutes1 = (int) Math.round(Math.floor((latitude1 - latitudeDegrees1) * 60));
-            Double latitudeSeconds1 = (double) Math.round(((latitude1 - latitudeDegrees1) * 60 - latitudeMinutes1) * 60 * 1000d) / 1000d;
-            LatitudeTextField.setText(((Math.signum(environment.toLatitude((Integer) yPosSpinner.getValue())) == 1) ? "N " : "S ") +
-                latitudeDegrees1 + "° " + latitudeMinutes1 + "' " + latitudeSeconds1 + "\" ");
-        });
         addButton.addActionListener(e -> {
             DefaultListModel<MoteSensor> sensorListModel = new DefaultListModel<>();
 
@@ -113,65 +101,75 @@ public class NewMoteGUI {
         });
     }
 
+    private void generateNewEUID() {
+        EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+    }
+
+
     public JPanel getMainPanel() {
         return mainPanel;
     }
 
-    ActionListener saveActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (isUserMoteCheckBox.isSelected()) {
-                addUserMote();
-            } else {
-                addMote();
-            }
-            parent.refresh();
-            frame.dispose();
+    private void addWayPointIfNotPresent(int x, int y) {
+        GraphStructure graph = GraphStructure.getInstance();
 
+        GeoPosition pos = MapHelper.getInstance().toGeoPosition(x, y);
+
+        if (graph.getClosestWayPointWithinRange(pos, DISTANCE_THRESHOLD_NEW_WAYPOINT).isEmpty()) {
+            graph.addWayPoint(pos);
         }
-    };
+    }
 
     private void addMote() {
-        LinkedList<MoteSensor> moteSensors = new LinkedList<>();
+        List<MoteSensor> moteSensors = new LinkedList<>();
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
             moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
         }
-        environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
-            (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
-            (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(),
-            (Double) movementSpinner.getValue(),
+
+        int posX = (int) xPosSpinner.getValue();
+        int posY = (int) yPosSpinner.getValue();
+        addWayPointIfNotPresent(posX, posY);
+
+        environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUIDtextField.getText()), posX, posY,
+            environment, (int) powerSpinner.getValue(),
+            (int) SFSpinner.getValue(), moteSensors, 20, new Path(),
+            (double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
             (int) offsetSendingSpinner.getValue()));
     }
 
     private void addUserMote() {
-        LinkedList<MoteSensor> moteSensors = new LinkedList<>();
+        List<MoteSensor> moteSensors = new LinkedList<>();
         for (int i = 0; i < sensorList.getModel().getSize(); i++) {
             moteSensors.add((MoteSensor) sensorList.getModel().getElementAt(i));
         }
-        // FIXME assigns the starting position of the mote as its destination
-        int posX = (Integer) xPosSpinner.getValue();
-        int posY = (Integer) yPosSpinner.getValue();
+
+        int posX = (int) xPosSpinner.getValue();
+        int posY = (int) yPosSpinner.getValue();
+        addWayPointIfNotPresent(posX, posY);
 
         UserMote userMote = MoteFactory.createUserMote(Long.parseUnsignedLong(EUIDtextField.getText()), posX,
-            posY, environment, (Integer) powerSpinner.getValue(),
-            (Integer) SFSpinner.getValue(), moteSensors, 20, new Path(),
-            (Double) movementSpinner.getValue(),
+            posY, environment, (int) powerSpinner.getValue(),
+            (int) SFSpinner.getValue(), moteSensors, 20, new Path(),
+            (double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
             (int) offsetSendingSpinner.getValue(), MapHelper.getInstance().toGeoPosition(posX, posY));
         userMote.setActive(isActiveCheckBox.isSelected());
         environment.addMote(userMote);
     }
 
-    ActionListener generateActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Random random = new Random();
-            EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+    private void updateLatLonFields() {
+        updateLonField();
+        updateLatField();
+    }
 
-        }
-    };
+    private void updateLatField() {
+        GUIUtil.updateTextFieldCoordinates(LongitudeTextField, environment.toLongitude((int) xPosSpinner.getValue()), "E", "W");
+    }
 
+    private void updateLonField() {
+        GUIUtil.updateTextFieldCoordinates(LatitudeTextField, environment.toLatitude((int) yPosSpinner.getValue()), "N", "S");
+    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer

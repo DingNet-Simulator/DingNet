@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import IotDomain.networkentity.Gateway;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -8,11 +9,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Random;
 
 public class NewGatewayGUI {
@@ -27,83 +24,54 @@ public class NewGatewayGUI {
     private JTextField LatitudeTextField;
     private JTextField LongitudeTextField;
     private Environment environment;
-    private JFrame frame;
-    private ConfigureGatewayPanel parent;
+
+    private Random random = new Random();
+
 
     public NewGatewayGUI(Environment environment, GeoPosition geoPosition, JFrame frame, ConfigureGatewayPanel parent) {
-        this.parent = parent;
-        this.frame = frame;
         this.environment = environment;
-        Random random = new Random();
-        EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+
         xPosSpinner.setModel(new SpinnerNumberModel(environment.toMapXCoordinate(geoPosition), 0, environment.getMaxXpos(), 1));
         yPosSpinner.setModel(new SpinnerNumberModel(environment.toMapYCoordinate(geoPosition), 0, environment.getMaxYpos(), 1));
-        powerSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(14), Integer.valueOf(-3), Integer.valueOf(14), Integer.valueOf(1)));
-        SFSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(12), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
-        saveButton.addActionListener(saveActionListener);
-        generateButton.addActionListener(generateActionListener);
-        Double latitude = environment.toLatitude((Integer) yPosSpinner.getValue());
-        Integer latitudeDegrees = (int) Math.round(Math.floor(latitude));
-        Integer latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
-        Double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-        Double longitude = environment.toLongitude((Integer) xPosSpinner.getValue());
-        Integer longitudeDegrees = (int) Math.round(Math.floor(longitude));
-        Integer longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
-        Double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
-        LatitudeTextField.setText(((Math.signum(environment.toLatitude((Integer) yPosSpinner.getValue())) == 1) ? "N " : "S ") +
-                latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
-        LongitudeTextField.setText(((Math.signum(environment.toLongitude((Integer) xPosSpinner.getValue())) == 1) ? "E " : "W ") +
-                longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
+        powerSpinner.setModel(new SpinnerNumberModel(14, -3, 14, 1));
+        SFSpinner.setModel(new SpinnerNumberModel(12, 1, 12, 1));
+        generateNewEUID();
+        updateLatLonFields();
 
-        xPosSpinner.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent evt) {
-                Double longitude = environment.toLongitude((Integer) xPosSpinner.getValue());
-                Integer longitudeDegrees = (int) Math.round(Math.floor(longitude));
-                Integer longitudeMinutes = (int) Math.round(Math.floor((longitude - longitudeDegrees) * 60));
-                Double longitudeSeconds = (double) Math.round(((longitude - longitudeDegrees) * 60 - longitudeMinutes) * 60 * 1000d) / 1000d;
-                LongitudeTextField.setText(((Math.signum(environment.toLongitude((Integer) xPosSpinner.getValue())) == 1) ? "E " : "W ") +
-                        longitudeDegrees + "° " + longitudeMinutes + "' " + longitudeSeconds + "\" ");
-            }
+        saveButton.addActionListener(e -> {
+            environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()),
+                (int) xPosSpinner.getValue(), (int) yPosSpinner.getValue(),
+                environment, (int) powerSpinner.getValue(), (int) SFSpinner.getValue()));
+            parent.refresh();
+            frame.dispose();
         });
 
-        yPosSpinner.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent evt) {
-                Double latitude = environment.toLatitude((Integer) yPosSpinner.getValue());
-                Integer latitudeDegrees = (int) Math.round(Math.floor(latitude));
-                Integer latitudeMinutes = (int) Math.round(Math.floor((latitude - latitudeDegrees) * 60));
-                Double latitudeSeconds = (double) Math.round(((latitude - latitudeDegrees) * 60 - latitudeMinutes) * 60 * 1000d) / 1000d;
-                LatitudeTextField.setText(((Math.signum(environment.toLatitude((Integer) yPosSpinner.getValue())) == 1) ? "N " : "S ") +
-                        latitudeDegrees + "° " + latitudeMinutes + "' " + latitudeSeconds + "\" ");
-            }
-        });
+        generateButton.addActionListener(e -> generateNewEUID());
+        xPosSpinner.addChangeListener(e -> updateLonField());
+        yPosSpinner.addChangeListener(e -> updateLatField());
+    }
+
+    private void generateNewEUID() {
+        EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+    }
+
+
+    private void updateLatLonFields() {
+        updateLatField();
+        updateLonField();
+    }
+
+    private void updateLatField() {
+        GUIUtil.updateTextFieldCoordinates(LongitudeTextField, environment.toLongitude((int) xPosSpinner.getValue()), "E", "W");
+    }
+
+    private void updateLonField() {
+        GUIUtil.updateTextFieldCoordinates(LatitudeTextField, environment.toLatitude((int) yPosSpinner.getValue()), "N", "S");
     }
 
     public JPanel getMainPanel() {
         return mainPanel;
     }
-
-    ActionListener saveActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()), (Integer) xPosSpinner.getValue(),
-                    (Integer) yPosSpinner.getValue(), environment, (Integer) powerSpinner.getValue(),
-                    (Integer) SFSpinner.getValue()));
-            parent.refresh();
-            frame.dispose();
-
-        }
-    };
-
-    ActionListener generateActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Random random = new Random();
-            EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
-
-        }
-    };
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
