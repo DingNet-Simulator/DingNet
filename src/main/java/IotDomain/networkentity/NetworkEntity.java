@@ -1,6 +1,8 @@
 package IotDomain.networkentity;
 
 import IotDomain.Environment;
+import IotDomain.collisionstrategy.CollisionStrategy;
+import IotDomain.lora.CollisionObserver;
 import IotDomain.lora.LoraTransmission;
 import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
@@ -8,6 +10,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
 import util.Pair;
+import util.TimeHelper;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -17,14 +20,13 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 /**
  * An  abstract class representing an entity active in the LoraWan network
  */
-public abstract class NetworkEntity implements Serializable{
+public abstract class NetworkEntity implements Serializable, CollisionObserver {
     // EUI of the network entity
     private static final long serialVersionUID = 1L;
 
@@ -70,6 +72,8 @@ public abstract class NetworkEntity implements Serializable{
 
     // If the mote is enabled in the current simulation.
     private Boolean enabled;
+
+    private CollisionStrategy collisionStrategy;
 
     /**
      *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
@@ -391,20 +395,17 @@ public abstract class NetworkEntity implements Serializable{
      * A method which sends a message to all gateways in the environment
      * @param message The message to send.
      */
-    void loraSend(LoraWanPacket message) {
+    protected void loraSend(LoraWanPacket message) {
         if (!isTransmitting) {
             powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
             spreadingFactorHistory.getLast().add(getSF());
-            List<LoraTransmission> packetsToSend = Stream.concat(
-                getEnvironment().getGateways().stream(),
-                getEnvironment().getMotes().stream())
-                    .filter(ne -> filterLoraSend(ne, message))
-                    .map(ne -> new LoraTransmission(this, ne, getTransmissionPower(), 125, getSF(), message))
-                    .collect(Collectors.toList());
-            if (!packetsToSend.isEmpty()) {
-                sentTransmissions.getLast().add(packetsToSend.get(0));
-            }
-            packetsToSend.forEach(LoraTransmission::depart);
+            Stream.concat(getEnvironment().getGateways().stream(), getEnvironment().getMotes().stream())
+                .filter(ne -> filterLoraSend(ne, message))
+                .map(ne -> new LoraTransmission(this, ne, getTransmissionPower(), 125, getSF(), message))
+                .peek(lt -> lt.setCollisionObserver(this))
+                .peek(LoraTransmission::depart)
+                .findAny()
+                .ifPresent(lt -> sentTransmissions.getLast().add(lt));
         }
     }
 
@@ -417,9 +418,9 @@ public abstract class NetworkEntity implements Serializable{
     private boolean collision(LoraTransmission a, LoraTransmission b) {
         return a.getSpreadingFactor().equals(b.getSpreadingFactor()) &&     //check spreading factor
             a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold() && //check transmission power
-            Math.abs(Duration.between(a.getDepartureTime().plusNanos(a.getTimeOnAir().longValue() * 1000000 / 2), //check time on air
-                    b.getDepartureTime().plusNanos(b.getTimeOnAir().longValue() * 1000000 / 2)).toNanos())
-                    < a.getTimeOnAir().longValue() * 1000000 / 2 + b.getTimeOnAir().longValue() * 1000000 / 2;
+            Math.abs(Duration.between(a.getDepartureTime().plusNanos(TimeHelper.miliTiNano(a.getTimeOnAir().longValue()) / 2), //check time on air
+                    b.getDepartureTime().plusNanos(TimeHelper.miliTiNano(b.getTimeOnAir().longValue()) / 2)).toNanos())
+                    < TimeHelper.miliTiNano(a.getTimeOnAir().longValue()) / 2 + TimeHelper.miliTiNano(b.getTimeOnAir().longValue()) / 2;
     }
 
     /**
@@ -489,7 +490,14 @@ public abstract class NetworkEntity implements Serializable{
         this.enabled = enabled;
     }
 
+    //region aloha
+    @Override
+    public void notifyCollision(LoraTransmission loraTransmission) {
+        //collisionStrategy.manageCollision(loraTransmission);
 
+    }
+
+    //endregion
 
     /**
      *
