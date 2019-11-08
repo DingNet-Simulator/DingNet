@@ -418,9 +418,9 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
     private boolean collision(LoraTransmission a, LoraTransmission b) {
         return a.getSpreadingFactor().equals(b.getSpreadingFactor()) &&     //check spreading factor
             a.getTransmissionPower() - b.getTransmissionPower() < getTransmissionPowerThreshold() && //check transmission power
-            Math.abs(Duration.between(a.getDepartureTime().plusNanos(TimeHelper.miliTiNano(a.getTimeOnAir().longValue()) / 2), //check time on air
-                    b.getDepartureTime().plusNanos(TimeHelper.miliTiNano(b.getTimeOnAir().longValue()) / 2)).toNanos())
-                    < TimeHelper.miliTiNano(a.getTimeOnAir().longValue()) / 2 + TimeHelper.miliTiNano(b.getTimeOnAir().longValue()) / 2;
+            Math.abs(Duration.between(a.getDepartureTime().plusNanos(TimeHelper.miliToNano(a.getTimeOnAir().longValue()) / 2), //check time on air
+                    b.getDepartureTime().plusNanos(TimeHelper.miliToNano(b.getTimeOnAir().longValue()) / 2)).toNanos())
+                    < TimeHelper.miliToNano(a.getTimeOnAir().longValue()) / 2 + TimeHelper.miliToNano(b.getTimeOnAir().longValue()) / 2;
     }
 
     /**
