@@ -86,6 +86,8 @@ public class LoraTransmission implements Serializable{
     private boolean arrived;
 
     private boolean collided;
+
+    private CollisionObserver collisionObserver;
     //endregion
 
     //region constructor
@@ -259,9 +261,17 @@ public class LoraTransmission implements Serializable{
 
     public LoraTransmission setCollided() {
         if (isArrived()) {
-            throw new IllegalStateException("the transmission is already arrived, you can't modify this property");
+            new IllegalStateException("the transmission is already arrived, you can't modify this property").printStackTrace();
         }
-        this.collided = true;
+        if (!isCollided()) {
+            this.collided = true;
+            collisionObserver.notifyCollision(this);
+        }
+        return this;
+    }
+
+    public LoraTransmission setCollisionObserver(CollisionObserver collisionObserver) {
+        this.collisionObserver = collisionObserver;
         return this;
     }
 
