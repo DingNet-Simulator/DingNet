@@ -1,5 +1,7 @@
 package IotDomain;
 
+import util.TimeHelper;
+
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -60,7 +62,7 @@ public class GlobalClock {
 
     public long addTrigger(LocalTime time,Supplier<LocalTime> trigger){
         var trig = new Trigger(trigger);
-        addTrigger(time, trig);
+        addTrigger(TimeHelper.roundToMilli(time), trig);
         return trig.getUid();
     }
 
