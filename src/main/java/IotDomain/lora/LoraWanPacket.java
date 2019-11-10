@@ -3,7 +3,7 @@ package IotDomain.lora;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-public class LoraWanPacket implements Serializable{
+public class LoraWanPacket implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * The payload of a packet.

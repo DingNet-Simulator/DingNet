@@ -42,6 +42,7 @@ public class UserMote extends Mote {
             return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
         }
+        // FIXME should an empty packet ever be sent either way?
         return LoraWanPacket.createEmptyPacket(getEUI(), getApplicationEUI());
     }
 

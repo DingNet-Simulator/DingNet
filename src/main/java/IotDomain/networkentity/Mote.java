@@ -256,11 +256,18 @@ public class Mote extends NetworkEntity {
      * A function for sending a packet to the gateways.
      * @param packet the packet to send
      */
-    public void sendToGateWay(LoraWanPacket packet){
-        if (lastPacketSent == null ||   //is the first packet
-            (packet.getPayload().length > 1 &&
-                (packet.getPayload()[0].equals(MessageType.KEEPALIVE.getCode()) ||
-                !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload())))) {
+    public void sendToGateWay(LoraWanPacket packet) {
+        if (packet.getPayload().length < 1) {
+            return;
+        }
+
+        // Send the packet if either:
+        //  - It is the first packet ever sent
+        //  - It is a heartbeat message
+        //  - It does not equal the last transmission (to filter out duplicates)
+        if (lastPacketSent == null ||
+            packet.getPayload()[0].equals(MessageType.KEEPALIVE.getCode()) ||
+            !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload())) {
             loraSend(packet);
             canReceive = true;
             lastPacketSent = packet;
