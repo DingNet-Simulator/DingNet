@@ -337,8 +337,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
             if (selectedInputProfile.isPresent() && inputProfile == selectedInputProfile.get()) {
                 subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_SELECTED)));
-            } else
+            } else {
                 subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_UNSELECTED)));
+            }
             subPanel1.add(new JLabel(inputProfile.getName()));
             panel.add(subPanel1, BorderLayout.WEST);
             subPanel2.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_EDIT_ICON)));
@@ -359,12 +360,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private void updateAdaptationGoals() {
         QualityOfService QoS = simulationRunner.getQoS();
 
-        relComLabel.setText("Interval: [" +
-            ((IntervalAdaptationGoal) QoS.getAdaptationGoal("reliableCommunication")).getLowerBoundary() + "," +
-            ((IntervalAdaptationGoal) QoS.getAdaptationGoal("reliableCommunication")).getUpperBoundary() + "]");
-        enConLabel.setText("Threshold: " + ((ThresholdAdaptationGoal) QoS.getAdaptationGoal("energyConsumption")).getThreshold());
-        colBoundLabel.setText("Threshold: " + ((ThresholdAdaptationGoal) QoS.getAdaptationGoal("collisionBound")).getThreshold() * 100);
-
+        relComLabel.setText(String.format("Interval: %s", QoS.getAdaptationGoal("reliableCommunication").toString()));
+        enConLabel.setText(String.format("Threshold: %s", QoS.getAdaptationGoal("energyConsumption").toString()));
+        colBoundLabel.setText(String.format("Threshold: %.2f", Double.parseDouble(QoS.getAdaptationGoal("collisionBound").toString()) * 100));
     }
 
 

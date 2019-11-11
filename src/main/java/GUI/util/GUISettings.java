@@ -15,7 +15,8 @@ public class GUISettings {
     public static final String PATH_MOTE_IMAGE = "/images/Mote.png";
     public static final String PATH_USERMOTE_ACTIVE_IMAGE = "/images/Mote-green.png";
     public static final String PATH_USERMOTE_INACTIVE_IMAGE = "/images/Mote-blue.png";
-    public static final String PATH_GATEWAY_IMAGE = "images/Gateway.png";
+    public static final String PATH_GATEWAY_IMAGE = "/images/Gateway.png";
+
     public static final String PATH_CIRCLE_SELECTED = "/images/Circle_selected.png";
     public static final String PATH_CIRCLE_UNSELECTED = "/images/Circle_unselected.png";
     public static final String PATH_EDIT_ICON = "/images/Edit_icon.png";

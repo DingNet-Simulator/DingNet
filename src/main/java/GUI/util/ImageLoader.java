@@ -30,7 +30,7 @@ public class ImageLoader {
 
     private static BufferedImage loadNetworkEntityImage(String path) {
         try {
-            BufferedImage icon = ImageIO.read(ImageLoader.class.getResource(path));
+            BufferedImage icon = ImageIO.read(GUIUtil.class.getResource(path));
             int w = icon.getWidth();
             int h = icon.getHeight();
             BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -45,7 +45,7 @@ public class ImageLoader {
 
     private static Image loadInputProfileImage(String path) {
         try {
-            return ImageIO.read(ImageLoader.class.getResource(path))
+            return ImageIO.read(GUIUtil.class.getResource(path))
                 .getScaledInstance(23, 23, 0);
         } catch (IOException e) {
             throw new IllegalArgumentException(String.format("Could not image at '%s'", path));

@@ -24,4 +24,9 @@ public class ThresholdAdaptationGoal extends AdaptationGoal {
     public double getThreshold() {
         return threshold;
     }
+
+
+    public String toString() {
+        return Double.toString(this.threshold);
+    }
 }

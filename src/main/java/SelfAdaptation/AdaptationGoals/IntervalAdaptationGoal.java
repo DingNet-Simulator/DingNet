@@ -47,4 +47,9 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
     public double getUpperBoundary() {
         return upperBoundary;
     }
+
+
+    public String toString() {
+        return String.format("[%.2f,%.2f]", this.lowerBoundary, this.upperBoundary);
+    }
 }
