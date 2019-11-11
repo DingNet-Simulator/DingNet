@@ -4,6 +4,7 @@ package GUI;
 import GUI.MapViewer.*;
 import GUI.util.GUISettings;
 import GUI.util.GUIUtil;
+import GUI.util.ImageLoader;
 import GUI.util.SpectrumPaintScale;
 import IotDomain.*;
 import IotDomain.lora.LoraTransmission;
@@ -328,32 +329,19 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             panel.setPreferredSize(new Dimension(InputProfilePanel.getWidth() - 10, 50));
             panel.setBackground(Color.white);
             panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-            Image unselectedImage;
-            Image selectedImage;
-            Image editImage;
-            try {
-                unselectedImage = ImageIO.read(getClass().getResource("/images/Circle_unselected.png"));
-                unselectedImage = unselectedImage.getScaledInstance(23, 23, 0);
-                selectedImage = ImageIO.read(getClass().getResource("/images/Circle_selected.png"));
-                selectedImage = selectedImage.getScaledInstance(23, 23, 0);
-                editImage = ImageIO.read(getClass().getResource("/images/Edit_icon.png"));
-                editImage = editImage.getScaledInstance(23, 23, 0);
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Unable to load resources.");
-            }
+
             JPanel subPanel1 = new JPanel();
             subPanel1.setOpaque(false);
             JPanel subPanel2 = new JPanel();
             subPanel2.setOpaque(false);
 
             if (selectedInputProfile.isPresent() && inputProfile == selectedInputProfile.get()) {
-                subPanel1.add(new JLabel(new ImageIcon(selectedImage)));
+                subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_SELECTED)));
             } else
-                subPanel1.add(new JLabel(new ImageIcon(unselectedImage)));
+                subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_UNSELECTED)));
             subPanel1.add(new JLabel(inputProfile.getName()));
             panel.add(subPanel1, BorderLayout.WEST);
-            subPanel2.add(new JLabel(new ImageIcon(editImage)));
+            subPanel2.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_EDIT_ICON)));
             panel.add(subPanel2, BorderLayout.EAST);
 
             subPanel2.addMouseListener(new InputProfileEditMouse(inputProfile));
