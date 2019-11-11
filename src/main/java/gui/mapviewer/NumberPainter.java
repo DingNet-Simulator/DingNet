@@ -80,7 +80,7 @@ public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapView
         BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g2d = img.createGraphics();
-        Font font = new Font("Arial", Font.PLAIN, 48);
+        Font font = new Font("Arial", this.type.fontType, this.type.fontSize);
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
         int width = fm.stringWidth(numberString);
@@ -119,15 +119,20 @@ public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapView
 
 
     public enum Type {
-        MOTE(20, -20),
-        GATEWAY(15, -30);
+        MOTE(20, -20, 48, Font.PLAIN),
+        GATEWAY(15, -30, 48, Font.PLAIN),
+        WAYPOINT(10, -10, 44, Font.PLAIN);
 
         public int xOffset;
         public int yOffset;
+        public int fontSize;
+        public int fontType;
 
-        Type(int xOffset, int yOffset) {
+        Type(int xOffset, int yOffset, int fontSize, int fontType) {
             this.xOffset = xOffset;
             this.yOffset = yOffset;
+            this.fontSize = fontSize;
+            this.fontType = fontType;
         }
     }
 }

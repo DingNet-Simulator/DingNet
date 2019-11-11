@@ -4,12 +4,14 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import gui.mapviewer.NumberPainter;
 import gui.mapviewer.WayPointPainter;
 import gui.util.GUISettings;
 import gui.util.GUIUtil;
 import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.input.CenterMapListener;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
@@ -28,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ConfigureWayPointsPanel {
     private JPanel mainPanel;
@@ -57,12 +60,13 @@ public class ConfigureWayPointsPanel {
             mapViewer.removeMouseListener(ml);
         }
 
-        mapViewer.addMouseListener(new MapMouseAdapter());
         mapViewer.setZoom(6);
-        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         MouseInputListener mia = new PanMouseInputListener(mapViewer);
         mapViewer.addMouseListener(mia);
         mapViewer.addMouseMotionListener(mia);
+        mapViewer.addMouseListener(new CenterMapListener(mapViewer));
+        mapViewer.addMouseListener(new MapMouseAdapter());
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
 
         addRadioBtn.addActionListener(e -> {
             if (deleteRadioBtn.isSelected()) {
@@ -95,17 +99,23 @@ public class ConfigureWayPointsPanel {
         List<Painter<JXMapViewer>> painters = new ArrayList<>();
 
         // Draw the waypoints
-        Set<DefaultWaypoint> set = new HashSet<>();
         WayPointPainter<DefaultWaypoint> waypointPainter = new WayPointPainter<>();
-        for (GeoPosition waypoint : GraphStructure.getInstance().getWayPoints().values()) {
-            set.add(new DefaultWaypoint(waypoint));
-        }
-        waypointPainter.setWaypoints(set);
+        NumberPainter<DefaultWaypoint> numberPainter = new NumberPainter<>(NumberPainter.Type.WAYPOINT);
+
+        waypointPainter.setWaypoints(GraphStructure.getInstance().getWayPoints().values().stream()
+            .map(DefaultWaypoint::new)
+            .collect(Collectors.toSet()));
+
+        var numberMap = GraphStructure.getInstance().getWayPoints().entrySet().stream()
+            .collect(Collectors.toMap(e -> new DefaultWaypoint(e.getValue()), e -> e.getKey().intValue()));
+
+        numberPainter.setWaypoints(numberMap);
+
+        painters.add(numberPainter);
         painters.add(waypointPainter);
 
         // Draw the borders
         painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
-
 
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
