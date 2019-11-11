@@ -3,7 +3,11 @@ package gui.util;
 import gui.mapviewer.LinePainter;
 import gui.mapviewer.MoteWayPoint;
 import iot.Environment;
+import iot.networkentity.Gateway;
 import iot.networkentity.UserMote;
+import org.jxmapviewer.viewer.DefaultWaypoint;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.Waypoint;
 import util.MapHelper;
 
 import javax.swing.*;
@@ -45,6 +49,17 @@ public class GUIUtil {
 
         IntStream.range(0, wraps.size())
             .forEach(i -> map.put(wraps.get(i), i+1));
+        return map;
+    }
+
+    public static Map<Waypoint, Integer> getGatewayMap(Environment environment) {
+        Map<Waypoint, Integer> map = new HashMap<>();
+        var gateways = environment.getGateways();
+        var mapHelper = MapHelper.getInstance();
+
+        IntStream.range(0, gateways.size())
+            .forEach(i -> map.put(new DefaultWaypoint(mapHelper.toGeoPosition(gateways.get(i).getPosInt())), i+1));
+
         return map;
     }
 

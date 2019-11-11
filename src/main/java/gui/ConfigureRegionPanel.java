@@ -72,8 +72,6 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
 
     protected void loadMap(boolean isRefresh) {
         mapViewer.removeAll();
-        mapViewer.setTileFactory(tileFactory);
-        tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
 
         List<List<GeoPosition>> points = new LinkedList<>();
         List<List<GeoPosition>> verticalLines = new LinkedList<>();

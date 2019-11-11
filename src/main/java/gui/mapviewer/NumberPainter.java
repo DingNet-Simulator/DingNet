@@ -3,6 +3,7 @@ package gui.mapviewer;
 import gui.util.GUISettings;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
+import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.Waypoint;
 
 import java.awt.*;
@@ -46,11 +47,12 @@ public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapView
      * Sets the current set of waypoints to paint
      * @param waypoints the new Set of Waypoints to use
      */
-    public void setWaypoints(Map<? extends W, Integer> waypoints) {
+    public NumberPainter<W> setWaypoints(Map<? extends W, Integer> waypoints) {
         this.waypoints.clear();
         this.waypoints.putAll(waypoints);
-    }
 
+        return this;
+    }
 
     @Override
     protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {

@@ -36,9 +36,11 @@ public class MotePainter<W extends MoteWayPoint> extends AbstractPainter<JXMapVi
      * Sets the current set of waypoints to paint
      * @param waypoints the new Set of Waypoints to use
      */
-    public void setWaypoints(Set<? extends W> waypoints) {
+    public MotePainter<W> setWaypoints(Set<? extends W> waypoints) {
         this.waypoints.clear();
         this.waypoints.addAll(waypoints);
+
+        return this;
     }
 
     @Override

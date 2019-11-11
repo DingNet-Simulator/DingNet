@@ -5,10 +5,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import gui.mapviewer.*;
-import gui.util.GUISettings;
-import gui.util.GUIUtil;
-import gui.util.ImageLoader;
-import gui.util.SpectrumPaintScale;
+import gui.util.*;
 import iot.*;
 import iot.lora.LoraTransmission;
 import iot.networkentity.*;
@@ -375,55 +372,23 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     }
 
 
-    private void loadMap(Environment environment, JXMapViewer mapViewer, Boolean isRefresh) {
-        List<Painter<JXMapViewer>> painters = new ArrayList<>();
+    private void loadMap(boolean refresh) {
+        Environment environment = simulationRunner.getEnvironment();
 
-        Map<Waypoint, Integer> gateWays = new HashMap<>();
-        int i = 1;
-        for (Gateway gateway : environment.getGateways()) {
-            gateWays.put(new DefaultWaypoint(new GeoPosition(environment.toLatitude(gateway.getYPosInt()), environment.toLongitude(gateway.getXPosInt()))), i);
-            i++;
-        }
-
-        Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
-
-        NumberPainter<Waypoint> gatewayNumberPainter = new NumberPainter<>(NumberPainter.Type.GATEWAY);
-        gatewayNumberPainter.setWaypoints(gateWays);
-
-        GatewayPainter<Waypoint> gateWayPainter = new GatewayPainter<>();
-        gateWayPainter.setWaypoints(gateWays.keySet());
-
-        MotePainter<MoteWayPoint> motePainter = new MotePainter<>();
-        motePainter.setWaypoints(motes.keySet());
-
-        NumberPainter<Waypoint> moteNumberPainter = new NumberPainter<>(NumberPainter.Type.MOTE);
-        moteNumberPainter.setWaypoints(motes);
-
-        // Optional painter of the complete path
-        environment.getMotes().stream()
-            .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
-            .findFirst()
-            .ifPresent(m -> painters.add(new LinePainter(simulationRunner.getRoutingApplication().getRoute(m), Color.CYAN, 2)));
-
-        if (!isRefresh) {
+        if (!refresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }
 
-        // Painter of the pollution grid
-        painters.add(new PollutionGridPainter(this.simulationRunner.getEnvironment()));
+        mapViewer.setOverlayPainter(new CompoundPainterBuilder()
+            .withPollutionGrid(environment)
+            .withRoutingPath(environment, simulationRunner.getRoutingApplication())
+            .withMotePaths(environment)
+            .withMotes(environment)
+            .withGateways(environment)
+            .build()
+        );
 
-        painters.add(gateWayPainter);
-        painters.add(motePainter);
-        painters.add(moteNumberPainter);
-        painters.add(gatewayNumberPainter);
-
-        for (Mote mote : environment.getMotes()) {
-            painters.add(new LinePainter(mote.getPath().getWayPoints(), Color.RED, 1));
-        }
-
-        CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
-        mapViewer.setOverlayPainter(painter);
         map.add(mapViewer);
 
         double latitude = environment.getMapCenter().getLatitude();
@@ -442,7 +407,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     }
 
     private void refreshMap() {
-        loadMap(simulationRunner.getEnvironment(), mapViewer, true);
+        loadMap(true);
     }
 
 
@@ -907,7 +872,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
                 frame.dispose();
 
                 updateEntries(simulationRunner.getEnvironment());
-                loadMap(simulationRunner.getEnvironment(), mapViewer, false);
+                loadMap(false);
 
                 MouseInputListener mia = new PanMouseInputListener(mapViewer);
                 mapViewer.addMouseListener(mia);

@@ -54,8 +54,10 @@ public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapVi
      *
      * @param waypoints the new Set of Waypoints to use
      */
-    public void setWaypoints(Set<W> waypoints) {
+    public WayPointPainter<W> setWaypoints(Set<W> waypoints) {
         this.waypoints = waypoints;
+
+        return this;
     }
 
     @Override

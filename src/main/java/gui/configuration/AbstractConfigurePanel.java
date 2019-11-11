@@ -49,6 +49,9 @@ public abstract class AbstractConfigurePanel {
         mapViewer.addMouseMotionListener(mia);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         mapViewer.addMouseListener(new CenterMapListener(mapViewer));
+
+        mapViewer.setTileFactory(tileFactory);
+        tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
     }
 
     public void refresh() {
