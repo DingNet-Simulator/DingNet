@@ -1,14 +1,12 @@
 package GUI.MapViewer;
 
+import GUI.util.ImageLoader;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.Waypoint;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,28 +20,13 @@ import java.util.Set;
  */
 public class GatewayPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Set<W> waypoints = new HashSet<>();
-    private static BufferedImage img;
+    private BufferedImage img;
 
 
     public GatewayPainter() {
         setAntialiasing(true);
         setCacheable(false);
-
-        if (img == null) {
-            try {
-                img = ImageIO.read(this.getClass().getResource("/images/Gateway.png"));
-                int w = img.getWidth();
-                int h = img.getHeight();
-                BufferedImage after = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-                AffineTransform at = new AffineTransform();
-                at.scale(0.2, 0.2);
-                AffineTransformOp scaleOp =
-                    new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-                img = scaleOp.filter(img, after);
-            } catch (Exception ex) {
-                throw new RuntimeException("Unable to load Gateway image.");
-            }
-        }
+        img = ImageLoader.IMAGE_GATEWAY;
     }
 
     /**
