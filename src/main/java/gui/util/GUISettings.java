@@ -6,6 +6,7 @@ public class GUISettings {
     // TODO: provide a configuration file specifically for the GUI in the future
 
     public static final int THREADPOOLSIZE = 8;
+    public static final int POLLUTION_GRID_SQUARES = 100;
 
     public static final boolean USE_ANTIALIASING = true;
 

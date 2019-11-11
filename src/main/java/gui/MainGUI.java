@@ -904,6 +904,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
                 mapViewer.addMouseListener(new CenterMapListener(mapViewer));
                 mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
 
+                mapViewer.addPropertyChangeListener("zoom", (e) -> refresh());
+                mapViewer.addPropertyChangeListener("center", (e) -> refresh());
+
                 configureButton.setEnabled(true);
                 saveConfigurationButton.setEnabled(true);
             }

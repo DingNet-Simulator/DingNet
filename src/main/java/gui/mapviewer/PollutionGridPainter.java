@@ -3,7 +3,7 @@ package gui.mapviewer;
 import gui.util.GUISettings;
 import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.painter.Painter;
+import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactory;
 import util.MapHelper;
@@ -13,18 +13,21 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-public class PollutionGridPainter implements Painter<JXMapViewer> {
+public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
     private PollutionGrid pollutionGrid;
     private Environment environment;
 
 
     public PollutionGridPainter(Environment environment) {
+        this.setAntialiasing(GUISettings.USE_ANTIALIASING);
+        this.setCacheable(true);
+
         this.pollutionGrid = PollutionGrid.getInstance();
         this.environment = environment;
     }
 
     @Override
-    public void paint(Graphics2D g, JXMapViewer map, int width, int height) {
+    protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {
         g = (Graphics2D) g.create();
 
         // convert from viewport to world bitmap
@@ -39,7 +42,7 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
         int maxY = environment.getMaxYpos() + 1;
 
         // Can decide to be more fine grained later on
-        final int DIVISION = 100;
+        final int DIVISION = GUISettings.POLLUTION_GRID_SQUARES;
         TileFactory factory = map.getTileFactory();
         MapHelper mapHelper = MapHelper.getInstance();
 
@@ -65,6 +68,7 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
 
         g.dispose();
     }
+
 
     private Color getColor(float airQuality) {
         if (airQuality <= 0.2) {
