@@ -221,7 +221,7 @@ public class ConfigureConnectionsPanel extends AbstractConfigurePanel {
                 } else {
                     secondWayPoint = closestWayPoint;
 
-                    if (ConfigureConnectionsPanel.this.mode == Mode.ADD) {
+                    if (ConfigureConnectionsPanel.this.mode == Mode.ADD && firstWayPoint != secondWayPoint) {
                         graph.addConnection(new Connection(firstWayPoint, secondWayPoint));
                     } else if (ConfigureConnectionsPanel.this.mode == Mode.DELETE) {
                         graph.deleteConnection(firstWayPoint, secondWayPoint, environment);

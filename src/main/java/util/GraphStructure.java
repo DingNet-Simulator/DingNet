@@ -68,6 +68,10 @@ public class GraphStructure {
     }
 
     public void addConnection(Connection connection) {
+        if (connection.getTo() == connection.getFrom()) {
+            throw new IllegalArgumentException(String.format("Cannot have circular connections (Waypoint %d -> Waypoint %d).",
+                connection.getFrom(), connection.getTo()));
+        }
         this.addConnection(this.newConnectionID, connection);
     }
 
@@ -99,6 +103,10 @@ public class GraphStructure {
     private void addConnection(long id, Connection connection) {
         if (connections.containsKey(id)) {
             throw new IllegalStateException(String.format("Connection with id=%d exists already.", id));
+        } else if (!wayPoints.containsKey(connection.getFrom())) {
+            throw new IllegalStateException(String.format("Could not add connection: waypoint with id=%d does not exist yet.", connection.getFrom()));
+        } else if (!wayPoints.containsKey(connection.getTo())) {
+            throw new IllegalStateException(String.format("Could not add connection: waypoint with id=%d does not exist yet.", connection.getTo()));
         }
 
         connections.put(id, connection);

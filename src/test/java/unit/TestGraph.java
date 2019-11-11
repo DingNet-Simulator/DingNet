@@ -53,6 +53,31 @@ class TestGraph {
     }
 
     @Test
+    void addConnectionFail1() {
+        GraphStructure graph = GraphStructure.initialize(new HashMap<>(), new HashMap<>());
+
+        graph.addWayPoint(new GeoPosition(1, 1));
+        graph.addWayPoint(new GeoPosition(2, 2));
+
+        assertThrows(IllegalArgumentException.class, () -> graph.addConnection(new Connection(1, 1)));
+        assertThrows(IllegalArgumentException.class, () -> graph.addConnection(new Connection(2, 2)));
+    }
+
+    @Test
+    void addConnectionFail2() {
+        GraphStructure graph = GraphStructure.initialize(new HashMap<>(), new HashMap<>());
+
+        graph.addWayPoint(new GeoPosition(1, 1));
+        graph.addWayPoint(new GeoPosition(2, 2));
+        graph.addWayPoint(new GeoPosition(5, 5));
+
+        graph.addConnection(new Connection(2,3));
+        assertThrows(IllegalStateException.class, () -> graph.addConnection(new Connection(1, 4)));
+        assertThrows(IllegalStateException.class, () -> graph.addConnection(new Connection(3, 0)));
+        graph.addConnection(new Connection(1,2));
+    }
+
+    @Test
     void initialization() {
         Map<Long, GeoPosition> wayPoints = new HashMap<>();
         wayPoints.put(1L, new GeoPosition(50,50));
