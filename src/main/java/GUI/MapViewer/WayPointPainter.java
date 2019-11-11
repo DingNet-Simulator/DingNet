@@ -1,5 +1,6 @@
 package GUI.MapViewer;
 
+import GUI.util.GUISettings;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.Waypoint;
@@ -22,7 +23,7 @@ public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapVi
     private BufferedImage img;
 
     public WayPointPainter() {
-        this(new Color(102,0,153));
+        this(GUISettings.DEFAULT_WAYPOINT_COLOR);
     }
 
     public WayPointPainter(Color color) {

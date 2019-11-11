@@ -1,5 +1,6 @@
 package GUI.MapViewer;
 
+import GUI.util.GUISettings;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -40,7 +41,9 @@ public class LinePainter implements Painter<JXMapViewer> {
         Rectangle rect = map.getViewportBounds();
         g.translate(-rect.x, -rect.y);
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (GUISettings.USE_ANTIALIASING) {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        }
 
         // do the drawing
         g.setColor(Color.BLACK);

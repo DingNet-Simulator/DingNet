@@ -3,6 +3,7 @@ package GUI;
 
 import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.WayPointPainter;
+import GUI.util.GUISettings;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -100,7 +101,7 @@ public class ConfigureConnectionsPanel {
     private void loadMap(Boolean isRefresh) {
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(8);
+        tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
 
 
         List<Painter<JXMapViewer>> painters = new ArrayList<>();

@@ -1,6 +1,7 @@
 package GUI;
 
 import GUI.MapViewer.*;
+import GUI.util.GUISettings;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import IotDomain.networkentity.Mote;
@@ -86,8 +87,7 @@ public class ConfigurePathPanel {
     private void loadMap(Boolean isRefresh) {
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
-        // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(8);
+        tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
 
 
         // Draw the borders

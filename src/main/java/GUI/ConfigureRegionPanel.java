@@ -2,6 +2,7 @@ package GUI;
 
 import GUI.MapViewer.LinePainter;
 import GUI.MapViewer.CharacteristicPainter;
+import GUI.util.GUISettings;
 import IotDomain.Characteristic;
 import IotDomain.Environment;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -83,8 +84,7 @@ public class ConfigureRegionPanel {
     private void loadMap(Boolean isRefresh) {
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
-        // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(8);
+        tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
 
         List<List<GeoPosition>> points = new LinkedList<>();
         List<List<GeoPosition>> verticalLines = new LinkedList<>();

@@ -4,6 +4,7 @@ package GUI;
 import GUI.MapViewer.MotePainter;
 import GUI.MapViewer.MoteWayPoint;
 import GUI.MapViewer.NumberPainter;
+import GUI.util.GUISettings;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import IotDomain.networkentity.Mote;
@@ -60,8 +61,7 @@ public class ConfigureMotePanel {
 
     private void loadMap(Boolean isRefresh) {
         mapViewer.setTileFactory(tileFactory);
-        // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(8);
+        tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
         mapViewer.setZoom(0);
 
         Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);

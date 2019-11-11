@@ -3,6 +3,7 @@ package GUI;
 
 import GUI.MapViewer.GatewayPainter;
 import GUI.MapViewer.NumberPainter;
+import GUI.util.GUISettings;
 import GUI.util.GUIUtil;
 import IotDomain.Environment;
 import IotDomain.networkentity.Gateway;
@@ -59,8 +60,7 @@ public class ConfigureGatewayPanel {
 
     private void loadMap(Boolean isRefresh) {
         mapViewer.setTileFactory(tileFactory);
-        // Use 8 threads in parallel to load the tiles
-        tileFactory.setThreadPoolSize(8);
+        tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
 
 
         int i = 1;

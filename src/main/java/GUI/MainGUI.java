@@ -2,6 +2,7 @@ package GUI;
 
 
 import GUI.MapViewer.*;
+import GUI.util.GUISettings;
 import GUI.util.GUIUtil;
 import GUI.util.SpectrumPaintScale;
 import IotDomain.*;
@@ -121,10 +122,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     public static void main(String[] args) {
         SimulationRunner simulationRunner = SimulationRunner.getInstance();
 
-
         SwingUtilities.invokeLater(() -> {
             mapViewer.setTileFactory(tileFactory);
-            tileFactory.setThreadPoolSize(8);
+            tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
 
             JFrame frame = new JFrame("Dynamic DingNet simulator");
             MainGUI gui = new MainGUI(simulationRunner);

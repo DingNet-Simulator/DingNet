@@ -1,5 +1,6 @@
 package GUI.MapViewer;
 
+import GUI.util.GUISettings;
 import IotDomain.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
@@ -16,8 +17,6 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
     private PollutionGrid pollutionGrid;
     private Environment environment;
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private final float TRANSPARENCY = .3f;
 
     public PollutionGridPainter(Environment environment) {
         this.pollutionGrid = PollutionGrid.getInstance();
@@ -32,7 +31,9 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
         Rectangle rect = map.getViewportBounds();
         g.translate(-rect.x, -rect.y);
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (GUISettings.USE_ANTIALIASING) {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        }
 
         int maxX = environment.getMaxXpos() + 1;
         int maxY = environment.getMaxYpos() + 1;
@@ -67,11 +68,11 @@ public class PollutionGridPainter implements Painter<JXMapViewer> {
 
     private Color getColor(float airQuality) {
         if (airQuality <= 0.2) {
-            return new Color(0f, .3f - airQuality, 0f, TRANSPARENCY);
+            return new Color(0f, .3f - airQuality, 0f, GUISettings.TRANSPARENCY_POLLUTIONGRID);
         } else if (airQuality <= 0.5) {
-            return new Color(.3f + airQuality, .1f + airQuality, 0f, TRANSPARENCY);
+            return new Color(.3f + airQuality, .1f + airQuality, 0f, GUISettings.TRANSPARENCY_POLLUTIONGRID);
         } else {
-            return new Color(airQuality, 0f, 0f, TRANSPARENCY);
+            return new Color(airQuality, 0f, 0f, GUISettings.TRANSPARENCY_POLLUTIONGRID);
         }
 
     }

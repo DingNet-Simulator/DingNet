@@ -7,11 +7,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class ImageLoader {
-    private static final String PATH_MOTE_IMAGE = "/images/Mote.png";
-    private static final String PATH_USERMOTE_ACTIVE_IMAGE = "/images/Mote-green.png";
-    private static final String PATH_USERMOTE_INACTIVE_IMAGE = "/images/Mote-blue.png";
-    private static final String PATH_GATEWAY_IMAGE = "images/Gateway.png";
-
     public static final BufferedImage IMAGE_MOTE;
     public static final BufferedImage IMAGE_USERMOTE_ACTIVE;
     public static final BufferedImage IMAGE_USERMOTE_INACTIVE;
@@ -19,10 +14,10 @@ public class ImageLoader {
 
 
     static {
-        IMAGE_MOTE = loadImage(PATH_MOTE_IMAGE);
-        IMAGE_USERMOTE_ACTIVE = loadImage(PATH_USERMOTE_ACTIVE_IMAGE);
-        IMAGE_USERMOTE_INACTIVE = loadImage(PATH_USERMOTE_INACTIVE_IMAGE);
-        IMAGE_GATEWAY = loadImage(PATH_GATEWAY_IMAGE);
+        IMAGE_MOTE = loadImage(GUISettings.PATH_MOTE_IMAGE);
+        IMAGE_USERMOTE_ACTIVE = loadImage(GUISettings.PATH_USERMOTE_ACTIVE_IMAGE);
+        IMAGE_USERMOTE_INACTIVE = loadImage(GUISettings.PATH_USERMOTE_INACTIVE_IMAGE);
+        IMAGE_GATEWAY = loadImage(GUISettings.PATH_GATEWAY_IMAGE);
     }
 
     private static BufferedImage loadImage(String path) {
