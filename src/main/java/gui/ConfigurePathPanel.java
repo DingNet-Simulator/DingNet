@@ -3,16 +3,12 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import gui.configuration.AbstractConfigurePanel;
 import gui.mapviewer.*;
 import gui.util.GUISettings;
 import gui.util.GUIUtil;
-import iot.Environment;
 import iot.networkentity.Mote;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.OSMTileFactoryInfo;
-import org.jxmapviewer.input.CenterMapListener;
-import org.jxmapviewer.input.PanMouseInputListener;
-import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
@@ -22,7 +18,6 @@ import util.MapHelper;
 import util.Path;
 
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +27,7 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ConfigurePathPanel {
+public class ConfigurePathPanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
 
     private JPanel drawPanel;
@@ -41,40 +36,24 @@ public class ConfigurePathPanel {
     private JButton cancelButton;
     private JButton guidedButton;
     private JButton freeButton;
-    private Environment environment;
-    private static JXMapViewer mapViewer = new JXMapViewer();
-    // Create a TileFactoryInfo for OpenStreetMap
-    private static TileFactoryInfo info = new OSMTileFactoryInfo();
-    private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
 
     private List<Long> currentWayPoints;
     private GraphStructure graph;
 
     private Mote currentMote = null;
-    private MainGUI parent;
     private CompoundPainter<JXMapViewer> painter;
 
-    ConfigurePathPanel(Environment environment, MainGUI parent) {
-        this.parent = parent;
-        this.environment = environment;
+    ConfigurePathPanel(MainGUI mainGUI) {
+        super(mainGUI);
+        mapViewer.addMouseListener(new MapMouseAdapter());
         graph = GraphStructure.getInstance();
+
         currentWayPoints = new LinkedList<>();
         saveTrackButton.setEnabled(false);
         this.painter = new CompoundPainter<>();
 
-        loadMap(false);
-
-
-        mapViewer.addMouseListener(new MapMouseAdapter());
-        mapViewer.setZoom(6);
-        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
-        MouseInputListener mia = new PanMouseInputListener(mapViewer);
-        mapViewer.addMouseListener(mia);
-        mapViewer.addMouseMotionListener(mia);
-        mapViewer.addMouseListener(new CenterMapListener(mapViewer));
-
-        saveTrackButton.addActionListener(new MapSaveTrackActionLister());
-        cancelButton.addActionListener(new MapCancelActionLister());
+        saveTrackButton.addActionListener(new MapSaveTrackActionListener());
+        cancelButton.addActionListener(new MapCancelActionListener());
         guidedButton.addActionListener(e -> {
             loadMap(true);
             errorLabel.setText("<html><br>1. Select mote<br> by clicking on <br>mote symbol<br><br>2. Select first<br>" +
@@ -84,10 +63,12 @@ public class ConfigurePathPanel {
         freeButton.addActionListener(e ->
             JOptionPane.showMessageDialog(null, "Only guided path configuration is supported for now.", "Notification", JOptionPane.ERROR_MESSAGE)
         );
+
+        loadMap(false);
     }
 
 
-    private void loadMap(Boolean isRefresh) {
+    protected void loadMap(boolean isRefresh) {
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
         tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
@@ -129,7 +110,6 @@ public class ConfigurePathPanel {
         mapViewer.setOverlayPainter(painter);
         if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
-            mapViewer.setZoom(5);
         }
         drawPanel.add(mapViewer);
     }
@@ -293,7 +273,7 @@ public class ConfigurePathPanel {
         }
     }
 
-    private class MapSaveTrackActionLister implements ActionListener {
+    private class MapSaveTrackActionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             Path path = new Path();
@@ -306,13 +286,13 @@ public class ConfigurePathPanel {
                 currentWayPoints = new LinkedList<>();
                 loadMap(true);
 
-                parent.refresh();
+                mainGUI.refresh();
                 saveTrackButton.setEnabled(false);
             }
         }
     }
 
-    private class MapCancelActionLister implements ActionListener {
+    private class MapCancelActionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             currentWayPoints = new LinkedList<>();

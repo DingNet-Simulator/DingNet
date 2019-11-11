@@ -4,27 +4,20 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import gui.configuration.AbstractConfigurePanel;
 import gui.mapviewer.MotePainter;
 import gui.mapviewer.MoteWayPoint;
 import gui.mapviewer.NumberPainter;
 import gui.util.GUISettings;
 import gui.util.GUIUtil;
-import iot.Environment;
 import iot.networkentity.Mote;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.OSMTileFactoryInfo;
-import org.jxmapviewer.input.CenterMapListener;
-import org.jxmapviewer.input.PanMouseInputListener;
-import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
-import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.TileFactoryInfo;
 import org.jxmapviewer.viewer.Waypoint;
 
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -34,33 +27,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ConfigureMotePanel {
+public class ConfigureMotePanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
-    private Environment environment;
-    private static JXMapViewer mapViewer = new JXMapViewer();
-    // Create a TileFactoryInfo for OpenStreetMap
-    private static TileFactoryInfo info = new OSMTileFactoryInfo();
-    private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    private MainGUI parent;
 
-    public ConfigureMotePanel(Environment environment, MainGUI parent) {
-        this.parent = parent;
-        this.environment = environment;
-        loadMap(false);
-        for (MouseListener ml : mapViewer.getMouseListeners()) {
-            mapViewer.removeMouseListener(ml);
-        }
+    public ConfigureMotePanel(MainGUI mainGUI) {
+        super(mainGUI, 5);
         mapViewer.addMouseListener(new MapMouseAdapter(this));
-        mapViewer.setZoom(6);
-        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
-        MouseInputListener mia = new PanMouseInputListener(mapViewer);
-        mapViewer.addMouseListener(mia);
-        mapViewer.addMouseMotionListener(mia);
-        mapViewer.addMouseListener(new CenterMapListener(mapViewer));
+        loadMap(false);
     }
 
-    private void loadMap(Boolean isRefresh) {
+    protected void loadMap(boolean isRefresh) {
         mapViewer.setTileFactory(tileFactory);
         tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
         mapViewer.setZoom(0);
@@ -87,16 +64,10 @@ public class ConfigureMotePanel {
 
         if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
-            mapViewer.setZoom(5);
         }
 
         drawPanel.add(mapViewer);
 
-    }
-
-    public void refresh() {
-        loadMap(true);
-        parent.refresh();
     }
 
 

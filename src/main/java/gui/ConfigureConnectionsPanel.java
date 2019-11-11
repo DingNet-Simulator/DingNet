@@ -4,76 +4,49 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import gui.configuration.AbstractConfigurePanel;
 import gui.mapviewer.LinePainter;
 import gui.mapviewer.WayPointPainter;
 import gui.util.GUISettings;
 import gui.util.GUIUtil;
-import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.OSMTileFactoryInfo;
-import org.jxmapviewer.input.CenterMapListener;
-import org.jxmapviewer.input.PanMouseInputListener;
-import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
-import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.TileFactoryInfo;
 import util.Connection;
 import util.GraphStructure;
 import util.MapHelper;
 
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 import java.util.*;
 
-public class ConfigureConnectionsPanel {
+public class ConfigureConnectionsPanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
     private JRadioButton addRadioBtn;
     private JPanel configurePanel;
     private JRadioButton deleteRadioBtn;
     private JButton cancelButton;
-    private Environment environment;
 
-    private static JXMapViewer mapViewer = new JXMapViewer();
-    private static TileFactoryInfo info = new OSMTileFactoryInfo();
-    private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    private MainGUI parent;
     private CompoundPainter<JXMapViewer> painter;
-
     private Mode mode;
     private long firstWayPoint;
     private long secondWayPoint;
 
 
-    ConfigureConnectionsPanel(Environment environment, MainGUI parent) {
-        this.parent = parent;
-        this.environment = environment;
-        this.painter = new CompoundPainter<>();
+    ConfigureConnectionsPanel(MainGUI parent) {
+        super(parent, 5);
+        mapViewer.addMouseListener(new MapMouseAdapter());
 
+        this.painter = new CompoundPainter<>();
         this.mode = Mode.ADD;
         firstWayPoint = -1;
         secondWayPoint = -1;
-
-        loadMap(false);
-
-        for (MouseListener ml : mapViewer.getMouseListeners()) {
-            mapViewer.removeMouseListener(ml);
-        }
-
-        mapViewer.addMouseListener(new MapMouseAdapter());
-        mapViewer.setZoom(6);
-        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
-        MouseInputListener mia = new PanMouseInputListener(mapViewer);
-        mapViewer.addMouseListener(mia);
-        mapViewer.addMouseMotionListener(mia);
-        mapViewer.addMouseListener(new CenterMapListener(mapViewer));
 
         addRadioBtn.addActionListener(e -> {
             if (deleteRadioBtn.isSelected()) {
@@ -96,14 +69,11 @@ public class ConfigureConnectionsPanel {
             this.resetSelectedWayPoints();
             refresh();
         });
+
+        loadMap(false);
     }
 
-    public void refresh() {
-        loadMap(true);
-        parent.refresh();
-    }
-
-    private void loadMap(Boolean isRefresh) {
+    protected void loadMap(boolean isRefresh) {
         mapViewer.setTileFactory(tileFactory);
         // Use 8 threads in parallel to load the tiles
         tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
@@ -138,7 +108,6 @@ public class ConfigureConnectionsPanel {
 
         if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
-            mapViewer.setZoom(5);
         }
 
         drawPanel.add(mapViewer);
@@ -259,7 +228,7 @@ public class ConfigureConnectionsPanel {
                     }
 
                     loadMap(true);
-                    parent.refresh();
+                    mainGUI.refresh();
                     resetSelectedWayPoints();
                 }
             }

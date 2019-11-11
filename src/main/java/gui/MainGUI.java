@@ -256,6 +256,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     }
 
 
+    public Environment getEnvironment() {
+        return simulationRunner.getEnvironment();
+    }
+
+
     private void loadAlgorithms() {
         var algorithms = simulationRunner.getAlgorithms();
 
@@ -868,7 +873,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             JFrame frame = new JFrame("Configure configuration");
-            ConfigureGUI configureGUI = new ConfigureGUI(simulationRunner.getEnvironment(), gui, frame);
+            ConfigureGUI configureGUI = new ConfigureGUI(gui, frame);
             frame.setContentPane(configureGUI.getMainPanel());
             frame.setPreferredSize(new Dimension(700, 600));
             frame.setMinimumSize(new Dimension(700, 600));

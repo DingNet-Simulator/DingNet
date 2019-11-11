@@ -3,24 +3,17 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import gui.configuration.AbstractConfigurePanel;
 import gui.mapviewer.CharacteristicPainter;
 import gui.mapviewer.LinePainter;
 import gui.util.GUISettings;
 import iot.Characteristic;
-import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.OSMTileFactoryInfo;
-import org.jxmapviewer.input.CenterMapListener;
-import org.jxmapviewer.input.PanMouseInputListener;
-import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
-import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.TileFactoryInfo;
 
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -31,30 +24,22 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ConfigureRegionPanel {
+public class ConfigureRegionPanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
     private JPanel legendPanel;
-    private Environment environment;
-    private static JXMapViewer mapViewer = new JXMapViewer();
-    // Create a TileFactoryInfo for OpenStreetMap
-    private static TileFactoryInfo info = new OSMTileFactoryInfo();
-    private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+
     private int amountOfSquares;
 
-    public ConfigureRegionPanel(Environment environment) {
-        this.environment = environment;
+    public ConfigureRegionPanel(MainGUI mainGUI) {
+        super(mainGUI);
+        mapViewer.addMouseListener(new RegionMouseAdapter(this));
+
         // FIXME Is using math.round a good idea here?
         amountOfSquares = (int) Math.round(Math.sqrt(environment.getNumberOfZones()));
+
         loadMap(false);
         loadLegend();
-        mapViewer.addMouseListener(new RegionMouseAdapter(this));
-        mapViewer.setZoom(6);
-        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
-        MouseInputListener mia = new PanMouseInputListener(mapViewer);
-        mapViewer.addMouseListener(mia);
-        mapViewer.addMouseMotionListener(mia);
-        mapViewer.addMouseListener(new CenterMapListener(mapViewer));
     }
 
     public void update() {
@@ -85,7 +70,7 @@ public class ConfigureRegionPanel {
         }
     }
 
-    private void loadMap(Boolean isRefresh) {
+    protected void loadMap(boolean isRefresh) {
         mapViewer.removeAll();
         mapViewer.setTileFactory(tileFactory);
         tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
@@ -152,7 +137,6 @@ public class ConfigureRegionPanel {
 
         if (!isRefresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
-            mapViewer.setZoom(5);
         }
         drawPanel.add(mapViewer);
     }
@@ -248,8 +232,6 @@ public class ConfigureRegionPanel {
                 frame.setMinimumSize(new Dimension(600, 400));
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
-
-
             }
         }
 

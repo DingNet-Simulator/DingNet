@@ -3,11 +3,12 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import iot.Environment;
+import gui.configuration.AbstractConfigurePanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class ConfigureGUI {
     private JPanel mainPanel;
@@ -16,117 +17,44 @@ public class ConfigureGUI {
     private JButton gatewayButton;
     private JButton closeButton;
     private JPanel configurePanel;
-    private JButton mapButton;
+    private JButton pathButton;
     private JButton waypointsButton;
     private JButton connectionsButton;
 
-    public ConfigureGUI(Environment environment, MainGUI parent, JFrame frame) {
-        mapButton.setFocusPainted(false);
-        mapButton.setMargin(new Insets(0, 0, 0, 0));
-        mapButton.setContentAreaFilled(false);
-        mapButton.setBorderPainted(false);
-        mapButton.setOpaque(false);
-        mapButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-        mapButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    public ConfigureGUI(MainGUI parent, JFrame frame) {
+        Consumer<JButton> buttonInitializer = (button) -> {
+            button.setFocusPainted(false);
+            button.setMargin(new Insets(0, 0, 0, 0));
+            button.setContentAreaFilled(false);
+            button.setBorderPainted(false);
+            button.setOpaque(false);
+            button.setBorder(new EmptyBorder(0, 0, 0, 0));
+            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        };
 
-        regionButton.setFocusPainted(false);
-        regionButton.setMargin(new Insets(0, 0, 0, 0));
-        regionButton.setContentAreaFilled(false);
-        regionButton.setBorderPainted(false);
-        regionButton.setOpaque(false);
-        regionButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-        regionButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        moteButton.setFocusPainted(false);
-        moteButton.setMargin(new Insets(0, 0, 0, 0));
-        moteButton.setContentAreaFilled(false);
-        moteButton.setBorderPainted(false);
-        moteButton.setOpaque(false);
-        moteButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-        moteButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        gatewayButton.setFocusPainted(false);
-        gatewayButton.setMargin(new Insets(0, 0, 0, 0));
-        gatewayButton.setContentAreaFilled(false);
-        gatewayButton.setBorderPainted(false);
-        gatewayButton.setOpaque(false);
-        gatewayButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-        gatewayButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        closeButton.setFocusPainted(false);
-        closeButton.setMargin(new Insets(0, 0, 0, 0));
-        closeButton.setContentAreaFilled(false);
-        closeButton.setBorderPainted(false);
-        closeButton.setOpaque(false);
-        closeButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-        closeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        waypointsButton.setFocusPainted(false);
-        waypointsButton.setMargin(new Insets(0, 0, 0, 0));
-        waypointsButton.setContentAreaFilled(false);
-        waypointsButton.setBorderPainted(false);
-        waypointsButton.setOpaque(false);
-        waypointsButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-        waypointsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        connectionsButton.setFocusPainted(false);
-        connectionsButton.setMargin(new Insets(0, 0, 0, 0));
-        connectionsButton.setContentAreaFilled(false);
-        connectionsButton.setBorderPainted(false);
-        connectionsButton.setOpaque(false);
-        connectionsButton.setBorder(new EmptyBorder(0, 0, 0, 0));
-        connectionsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        buttonInitializer.accept(regionButton);
+        buttonInitializer.accept(moteButton);
+        buttonInitializer.accept(gatewayButton);
+        buttonInitializer.accept(pathButton);
+        buttonInitializer.accept(waypointsButton);
+        buttonInitializer.accept(connectionsButton);
+        buttonInitializer.accept(closeButton);
 
 
-        regionButton.addActionListener(e -> {
-            ConfigureRegionPanel configureRegionPanel = new ConfigureRegionPanel(environment);
+        Consumer<AbstractConfigurePanel> panelSwitcher = (panel) -> {
             configurePanel.removeAll();
-            configurePanel.add(configureRegionPanel.getMainPanel());
+            configurePanel.add(panel.getMainPanel());
             configurePanel.repaint();
             configurePanel.revalidate();
-        });
+        };
 
-        moteButton.addActionListener(e -> {
-            ConfigureMotePanel configureMotePanel = new ConfigureMotePanel(environment, parent);
-            configurePanel.removeAll();
-            configurePanel.add(configureMotePanel.getMainPanel());
-            configurePanel.repaint();
-            configurePanel.revalidate();
-        });
-
-        gatewayButton.addActionListener(e -> {
-            ConfigureGatewayPanel configureGatewayPanel = new ConfigureGatewayPanel(environment, parent);
-            configurePanel.removeAll();
-            configurePanel.add(configureGatewayPanel.getMainPanel());
-            configurePanel.repaint();
-            configurePanel.revalidate();
-        });
-
+        regionButton.addActionListener(e -> panelSwitcher.accept(new ConfigureRegionPanel(parent)));
+        moteButton.addActionListener(e -> panelSwitcher.accept(new ConfigureMotePanel(parent)));
+        gatewayButton.addActionListener(e -> panelSwitcher.accept(new ConfigureGatewayPanel(parent)));
+        pathButton.addActionListener(e -> panelSwitcher.accept(new ConfigurePathPanel(parent)));
+        waypointsButton.addActionListener(e -> panelSwitcher.accept(new ConfigureWayPointsPanel(parent)));
+        connectionsButton.addActionListener(e -> panelSwitcher.accept(new ConfigureConnectionsPanel(parent)));
         closeButton.addActionListener(e -> frame.dispose());
-
-        mapButton.addActionListener(e -> {
-            ConfigurePathPanel configurePathPanel = new ConfigurePathPanel(environment, parent);
-            configurePanel.removeAll();
-            configurePanel.add(configurePathPanel.getMainPanel());
-            configurePanel.repaint();
-            configurePanel.revalidate();
-        });
-
-        waypointsButton.addActionListener(e -> {
-            ConfigureWayPointsPanel configureWayPointsPanel = new ConfigureWayPointsPanel(environment, parent);
-            configurePanel.removeAll();
-            configurePanel.add(configureWayPointsPanel.getMainPanel());
-            configurePanel.repaint();
-            configurePanel.revalidate();
-        });
-
-        connectionsButton.addActionListener(e -> {
-            ConfigureConnectionsPanel configureConnectionsPanel = new ConfigureConnectionsPanel(environment, parent);
-            configurePanel.removeAll();
-            configurePanel.add(configureConnectionsPanel.getMainPanel());
-            configurePanel.repaint();
-            configurePanel.revalidate();
-        });
     }
 
     public JPanel getMainPanel() {
@@ -171,9 +99,9 @@ public class ConfigureGUI {
         panel1.add(separator4, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel1.add(spacer2, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        mapButton = new JButton();
-        mapButton.setText("Paths");
-        panel1.add(mapButton, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        pathButton = new JButton();
+        pathButton.setText("Paths");
+        panel1.add(pathButton, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         regionButton = new JButton();
         regionButton.setText("Region");
         panel1.add(regionButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
