@@ -1,10 +1,8 @@
 
 package unit;
 
-import IotDomain.Characteristic;
-import IotDomain.Environment;
-import IotDomain.networkentity.Gateway;
-import IotDomain.networkentity.Mote;
+import iot.Characteristic;
+import iot.Environment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;

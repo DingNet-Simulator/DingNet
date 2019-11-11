@@ -1,9 +1,9 @@
 package util.xml;
 
-import IotDomain.Characteristic;
-import IotDomain.Environment;
-import IotDomain.Simulation;
-import IotDomain.networkentity.*;
+import iot.Characteristic;
+import iot.Environment;
+import iot.Simulation;
+import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

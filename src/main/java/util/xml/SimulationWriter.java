@@ -1,10 +1,10 @@
 package util.xml;
 
-import IotDomain.Simulation;
-import IotDomain.lora.LoraTransmission;
-import IotDomain.networkentity.Gateway;
-import IotDomain.networkentity.Mote;
-import IotDomain.networkentity.NetworkEntity;
+import iot.Simulation;
+import iot.lora.LoraTransmission;
+import iot.networkentity.Gateway;
+import iot.networkentity.Mote;
+import iot.networkentity.NetworkEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

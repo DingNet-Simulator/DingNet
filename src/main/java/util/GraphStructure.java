@@ -1,6 +1,6 @@
 package util;
 
-import IotDomain.Environment;
+import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.*;
