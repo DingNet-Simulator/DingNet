@@ -29,6 +29,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.cache.FileBasedLocalCache;
 import org.jxmapviewer.input.CenterMapListener;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
@@ -124,6 +125,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         SwingUtilities.invokeLater(() -> {
             mapViewer.setTileFactory(tileFactory);
             tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
+
+            if (GUISettings.USE_MAP_CACHING) {
+                File cache = new File(System.getProperty("user.dir") + "/.cache");
+                tileFactory.setLocalCache(new FileBasedLocalCache(cache, false));
+            }
 
             JFrame frame = new JFrame("Dynamic DingNet simulator");
             MainGUI gui = new MainGUI(simulationRunner);
