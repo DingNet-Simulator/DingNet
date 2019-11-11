@@ -23,4 +23,5 @@ public class GUISettings {
     public static final String PATH_CIRCLE_UNSELECTED = "/images/Circle_unselected.png";
     public static final String PATH_EDIT_ICON = "/images/Edit_icon.png";
 
+    public static final String PATH_CACHE_TILEFACTORY = System.getProperty("user.dir") + "/.cache";
 }

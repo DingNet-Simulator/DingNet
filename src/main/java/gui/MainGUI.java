@@ -127,7 +127,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
 
             if (GUISettings.USE_MAP_CACHING) {
-                File cache = new File(System.getProperty("user.dir") + "/.cache");
+                File cache = new File(GUISettings.PATH_CACHE_TILEFACTORY);
                 tileFactory.setLocalCache(new FileBasedLocalCache(cache, false));
             }
 

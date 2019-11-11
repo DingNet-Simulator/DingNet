@@ -35,7 +35,7 @@ public abstract class AbstractConfigurePanel {
         this.environment = mainGUI.getEnvironment();
 
         if (GUISettings.USE_MAP_CACHING) {
-            File cache = new File(System.getProperty("user.dir") + "/.cache");
+            File cache = new File(GUISettings.PATH_CACHE_TILEFACTORY);
             tileFactory.setLocalCache(new FileBasedLocalCache(cache, false));
         }
 
