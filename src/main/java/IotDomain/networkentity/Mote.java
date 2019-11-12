@@ -257,7 +257,7 @@ public class Mote extends NetworkEntity {
      * @param packet the packet to send
      */
     public void sendToGateWay(LoraWanPacket packet){
-        if (lastPacketSent == null ||   //is the first packet
+        if ((lastPacketSent == null && packet.getPayload().length > 0) ||   //is the first packet
             (packet.getPayload().length > 1 &&
                 (packet.getPayload()[0].equals(MessageType.KEEPALIVE.getCode()) ||
                 !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload())))) {

@@ -9,6 +9,7 @@ import IotDomain.lora.MacCommand;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
+import util.ListHelper;
 import util.Pair;
 import util.TimeHelper;
 
@@ -68,7 +69,7 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
     private LinkedList<LinkedHashMap<LoraTransmission,Boolean>> receivedTransmissions = new LinkedList<>();
 
     // A list with the transmissions transmitted by the entity
-    private LinkedList<LinkedList<LoraTransmission>> sentTransmissions = new LinkedList<>();
+    private List<List<LoraTransmission>> sentTransmissions = new LinkedList<>();
 
     // If the mote is enabled in the current simulation.
     private Boolean enabled;
@@ -161,7 +162,7 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
      */
     @Basic
     @Raw
-    public LinkedList<LoraTransmission> getSentTransmissions(Integer run) {
+    public List<LoraTransmission> getSentTransmissions(Integer run) {
         return sentTransmissions.get(run);
     }
 
@@ -397,6 +398,7 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
      */
     protected void loraSend(LoraWanPacket message) {
         if (!isTransmitting) {
+            isTransmitting = true;
             powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
             spreadingFactorHistory.getLast().add(getSF());
             Stream.concat(getEnvironment().getGateways().stream(), getEnvironment().getMotes().stream())
@@ -405,7 +407,14 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
                 .peek(lt -> lt.setCollisionObserver(this))
                 .peek(LoraTransmission::depart)
                 .findAny()
-                .ifPresent(lt -> sentTransmissions.getLast().add(lt));
+                .ifPresent(lt -> ListHelper.getLast(sentTransmissions).add(lt));
+            var clock = getEnvironment().getClock();
+            clock.addTrigger(clock.getTime().plusNanos((long)TimeHelper.miliToNano(ListHelper.getLast(ListHelper.getLast(sentTransmissions)).getTimeOnAir())), () -> {
+                isTransmitting = false;
+                return LocalTime.of(0,0);
+            });
+        } else {
+            throw new IllegalStateException("impossible send two packet at the same time");
         }
     }
 
