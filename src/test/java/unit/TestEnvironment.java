@@ -3,27 +3,47 @@ package unit;
 
 import iot.Characteristic;
 import iot.Environment;
+import iot.networkentity.Gateway;
+import iot.networkentity.Mote;
+import iot.strategy.response.gateway.DummyResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Connection;
-import util.GraphStructure;
+import util.*;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestEnvironment {
 
+    private Mote generateDummyMote(Environment environment, long id) {
+        return new Mote(id, 0, 0, environment, 20, 12, new ArrayList<>(), 10000, new Path(), 1, 1, 1, 1);
+    }
+
+    private Gateway generateDummyGateway(Environment environment, long id) {
+        return new Gateway(id, 0, 0, environment, 20, 12, new DummyResponse());
+    }
+
     @BeforeEach
-    void init() throws IllegalAccessException, NoSuchFieldException {
+    void init() throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         // The environment constructor initializes the GraphStructure instance -> destruct each test
-        Field instance = GraphStructure.class.getDeclaredField("instance");
-        instance.setAccessible(true);
-        instance.set(null, null);
+        Field instanceGraph = GraphStructure.class.getDeclaredField("instance");
+        instanceGraph.setAccessible(true);
+        instanceGraph.set(null, null);
+
+        Field instanceMapHelper = MapHelper.class.getDeclaredField("instance");
+        instanceMapHelper.setAccessible(true);
+        Constructor defaultMapHelperConstructor = MapHelper.class.getDeclaredConstructor();
+        defaultMapHelperConstructor.setAccessible(true);
+        instanceMapHelper.set(null, defaultMapHelperConstructor.newInstance());
     }
 
     @Test
@@ -88,17 +108,93 @@ class TestEnvironment {
         });
     }
 
-//    @Test
-//    void addMotes() {
-//        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
-//
-//        environment.addMote(new Mote());
-//    }
-//
-//    @Test
-//    void addGateWays() {
-//        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
-//
-//        environment.addGateway(new Gateway());
-//    }
+    @Test
+    void addMotes() {
+        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+
+        Mote dummyMote1 = generateDummyMote(environment, 1);
+        Mote dummyMote2 = generateDummyMote(environment, 2);
+
+        environment.addMote(dummyMote1);
+        environment.addMote(dummyMote2);
+
+        var motes = environment.getMotes();
+        assertEquals(motes.size(), 2);
+        assertTrue(motes.contains(dummyMote1));
+        assertTrue(motes.contains(dummyMote2));
+    }
+
+    @Test
+    void addGateways() {
+        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+
+        Gateway dummyGateway1 = generateDummyGateway(environment, 1);
+        Gateway dummyGateway2 = generateDummyGateway(environment, 200);
+
+        environment.addGateway(dummyGateway1);
+        environment.addGateway(dummyGateway2);
+
+        var gateways = environment.getGateways();
+        assertEquals(gateways.size(), 2);
+        assertTrue(gateways.contains(dummyGateway1));
+        assertTrue(gateways.contains(dummyGateway2));
+    }
+
+    @Test
+    void addMoteGatewayFail() {
+        Environment environment1 = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+        Environment environment2 = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+
+        Gateway gw = generateDummyGateway(environment1, 1);
+        Mote mote = generateDummyMote(environment1, 908);
+
+        environment2.addMote(mote);
+        environment2.addGateway(gw);
+
+        assertTrue(environment1.getMotes().isEmpty());
+        assertTrue(environment2.getMotes().isEmpty());
+        assertTrue(environment1.getGateways().isEmpty());
+        assertTrue(environment2.getGateways().isEmpty());
+    }
+
+    @Test
+    void moveMote() {
+        Environment environment = new Environment(new Characteristic[600][600], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+
+        GeoPosition destination1 = MapHelper.getInstance().toGeoPosition(200, 500);
+        GeoPosition destination2 = MapHelper.getInstance().toGeoPosition(300, 400);
+        Path path = new Path();
+        path.addPosition(destination1);
+        path.addPosition(destination2);
+
+        Mote mote = new Mote(1, 200, 200, environment, 20, 12, List.of(), 10000, path, 1, 0, 1, 0);
+
+        environment.addMote(mote);
+
+        for (int i = 0; i < 300; i++) {
+            environment.moveMote(mote, destination1);
+        }
+
+        assertEquals(mote.getXPosInt(), 200);
+        assertEquals(mote.getYPosInt(), 500);
+
+        for (int i = 0; i < 100; i++) {
+            environment.moveMote(mote, destination2);
+        }
+
+        assertNotEquals(mote.getXPosInt(), 300);
+        assertNotEquals(mote.getYPosInt(), 400);
+
+        for (int i = 0; i < 42; i++) {
+            environment.moveMote(mote, destination2);
+        }
+
+        assertEquals(mote.getXPosInt(), 300);
+        assertEquals(mote.getYPosInt(), 400);
+    }
+
+    @Test
+    void multipleEnvironments() {
+        // TODO
+    }
 }

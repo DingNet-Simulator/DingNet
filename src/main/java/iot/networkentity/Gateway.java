@@ -32,20 +32,20 @@ public class Gateway extends NetworkEntity {
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
     public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
-        this(new SendNewestPacket(), gatewayEUI, xPos, yPos, environment, transmissionPower, SF);
+        this(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, new SendNewestPacket());
     }
 
     /**
      * A construtor creating a gateway with a given xPos, yPos, environment and transmission power.
-     * @param responseStrategy  strategy to enable response to mote
      * @param gatewayEUI        gateway identifier.
      * @param xPos              The x-coordinate of the gateway on the map.
      * @param yPos              The y-coordinate of the gateway on the map.
      * @param environment       The map of the environment.
      * @param transmissionPower The transmission power of the gateway.
+     * @param responseStrategy  strategy to enable response to mote
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
-    public Gateway(ResponseStrategy responseStrategy, long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
+    public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, ResponseStrategy responseStrategy) {
         super(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
         subscribedMoteProbes = new LinkedList<>();
         mqttClient = new MqttMock();

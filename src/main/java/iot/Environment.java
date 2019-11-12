@@ -314,7 +314,7 @@ public class Environment implements Serializable {
      * @param mote The mote to move.
      * @param destination The position to move towards.
      */
-    void moveMote(Mote mote, GeoPosition destination) {
+    public void moveMote(Mote mote, GeoPosition destination) {
         double xPosDest = toMapXCoordinate(destination);
         double yPosDest = toMapYCoordinate(destination);
         double xPosMote = mote.getXPosDouble();
