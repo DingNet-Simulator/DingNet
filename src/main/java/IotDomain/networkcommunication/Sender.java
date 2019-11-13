@@ -25,4 +25,6 @@ public interface Sender<P extends Packet> {
     RegionalParameter getRegionalParameter();
 
     double getTransmissionPower();
+
+    void reset();
 }

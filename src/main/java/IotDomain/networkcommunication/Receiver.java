@@ -17,4 +17,6 @@ public interface Receiver<P extends Packet> {
     P getPacket();
 
     Receiver<P> setConsumerPacket(Consumer<LoraTransmission<P>> consumerPacket);
+
+    void reset();
 }

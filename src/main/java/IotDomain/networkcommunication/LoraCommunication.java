@@ -9,13 +9,15 @@ import util.Pair;
 import util.TimeHelper;
 
 import java.time.LocalTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class LoraCommunication implements Sender<LoraWanPacket> {
 
     private RegionalParameter regionalParameter;
-    private List<LoraWanPacket> sendingQueue;
     private double transmissionPower;
     private boolean isTransmitting;
     private final NetworkEntity sender;
@@ -27,8 +29,7 @@ public class LoraCommunication implements Sender<LoraWanPacket> {
     private final Random random = new Random();
 
     public LoraCommunication(NetworkEntity sender, Environment env) {
-        sendingQueue = new LinkedList<>();
-        isTransmitting = false;
+        reset();
         this.env = env;
         this.sender = sender;
     }
@@ -158,12 +159,12 @@ public class LoraCommunication implements Sender<LoraWanPacket> {
 
     @Override
     public List<LoraWanPacket> getSendingQueue() {
-        return sendingQueue;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public LoraWanPacket getTransmittingMessage() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -191,5 +192,10 @@ public class LoraCommunication implements Sender<LoraWanPacket> {
     @Override
     public double getTransmissionPower() {
         return transmissionPower;
+    }
+
+    @Override
+    public void reset() {
+        isTransmitting = false;
     }
 }

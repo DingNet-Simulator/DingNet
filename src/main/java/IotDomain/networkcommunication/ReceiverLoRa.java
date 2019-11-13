@@ -84,4 +84,9 @@ public class ReceiverLoRa implements Receiver<LoraWanPacket> {
         this.consumerPacket = consumerPacket;
         return this;
     }
+
+    @Override
+    public void reset() {
+        transmissions.clear();
+    }
 }
