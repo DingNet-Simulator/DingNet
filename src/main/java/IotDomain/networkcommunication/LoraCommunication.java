@@ -10,6 +10,7 @@ import util.TimeHelper;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LoraCommunication implements Sender<LoraWanPacket> {
 
@@ -38,19 +39,19 @@ public class LoraCommunication implements Sender<LoraWanPacket> {
         if (!isTransmitting) {
             isTransmitting = true;
             var payloadSize = packet.getPayload().length + packet.getFrameHeader().getFOpts().length;
-            if (regionalParameter.getMaximumPayloadSize() >= payloadSize) {
+            if (regionalParameter.getMaximumPayloadSize() < payloadSize) {
                 throw new IllegalArgumentException("Payload size greater then the max size. Payload size: " + payloadSize + ", " +
                     "but max size allowed with this regional parameter is: " + regionalParameter.getMaximumPayloadSize());
             }
             var timeOnAir = computeTimeOnAir(packet);
-            var ret = receiver.stream()
+            var stream = receiver.stream()
                 .map(r -> new Pair<>(r,
                     new LoraTransmission<>(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
                         regionalParameter, timeOnAir, env.getClock().getTime(), packet)))
-                .filter(p -> packetStrengthHighEnough(p.getRight().getTransmissionPower()))
-                .peek(p -> p.getLeft().receive(p.getRight()))
-                .findAny()
-                .map(Pair::getRight);
+                .filter(p -> packetStrengthHighEnough(p.getRight().getTransmissionPower()));
+            var filteredSet = stream.collect(Collectors.toSet());
+            var ret = filteredSet.stream().findFirst().map(Pair::getRight);
+            filteredSet.forEach(p -> p.getLeft().receive(p.getRight()));
             if (ret.isPresent()) {
                 var clock = env.getClock();
                 clock.addTrigger(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)), () -> {
@@ -171,13 +172,13 @@ public class LoraCommunication implements Sender<LoraWanPacket> {
     }
 
     @Override
-    public Sender setTransmissionPower(double transmissionPower) {
+    public Sender<LoraWanPacket> setTransmissionPower(double transmissionPower) {
         this.transmissionPower = transmissionPower;
         return this;
     }
 
     @Override
-    public Sender setRegionalParameter(RegionalParameter regionalParameter) {
+    public Sender<LoraWanPacket> setRegionalParameter(RegionalParameter regionalParameter) {
         this.regionalParameter = regionalParameter;
         return this;
     }
