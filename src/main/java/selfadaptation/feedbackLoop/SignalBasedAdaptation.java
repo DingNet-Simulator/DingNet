@@ -3,7 +3,7 @@ package selfadaptation.feedbackloop;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import iot.QualityOfService;
-import iot.networkcommunication.LoraTransmission;
+import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;

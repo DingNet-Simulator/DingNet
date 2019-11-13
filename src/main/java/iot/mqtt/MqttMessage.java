@@ -1,6 +1,7 @@
 package iot.mqtt;
 
 import iot.lora.FrameHeader;
+import util.Converter;
 
 import java.util.List;
 
@@ -36,8 +37,8 @@ public class MqttMessage {
         return data;
     }
 
-    public Byte[] getDataAsArray() {
-        return data.toArray(new Byte[0]);
+    public byte[] getDataAsArray() {
+        return Converter.toRowType(data.toArray(new Byte[0]));
     }
 
     public FrameHeader getHeader() {

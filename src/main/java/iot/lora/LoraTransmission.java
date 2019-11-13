@@ -128,7 +128,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
      * Returns the time on air.
      * @return  The time on air.
      */
-    public Double getTimeOnAir() {
+    public double getTimeOnAir() {
         return timeOnAir;
     }
 
@@ -170,7 +170,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
      * Returns the bandwidth of the transmission.
      * @return  The bandwidth of the transmission.
      */
-    public Integer getBandwidth() {
+    public int getBandwidth() {
         return regionalParameter.getBandwidth();
     }
 
@@ -178,7 +178,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
      * Returns the spreading factor.
      * @return The spreading factor.
      */
-    public Integer getSpreadingFactor() {
+    public int getSpreadingFactor() {
         return regionalParameter.getSpreadingFactor();
     }
 
@@ -213,7 +213,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
      * Returns the x-coordinate of the transmission.
      * @return The x-coordinate of the transmission.
      */
-    public Integer getXPos() {
+    public int getXPos() {
         return xPos;
     }
 
@@ -221,7 +221,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
      * Returns the y-coordinate of the transmission.
      * @return The y-coordinate of the transmission.
      */
-    public Integer getYPos() {
+    public int getYPos() {
         return yPos;
     }
 

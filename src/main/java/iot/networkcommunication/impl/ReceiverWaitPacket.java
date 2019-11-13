@@ -46,7 +46,7 @@ public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
             .findAny()
             .ifPresent(t -> packet.setCollided());
         transmissions.add(packet);
-        clock.addTrigger(packet.getDepartureTime().plus(packet.getTimeOnAir().longValue(), ChronoUnit.MILLIS),()->{
+        clock.addTrigger(packet.getDepartureTime().plus((long)packet.getTimeOnAir(), ChronoUnit.MILLIS),()->{
             packet.setArrived();
             consumerPacket.accept(packet);
             return LocalTime.of(0,0);
@@ -60,11 +60,11 @@ public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
      * @return true if the packets collide, false otherwise.
      */
     private boolean collision(LoraTransmission a, LoraTransmission b) {
-        return a.getSpreadingFactor().equals(b.getSpreadingFactor()) &&     //check spreading factor
+        return a.getSpreadingFactor() == b.getSpreadingFactor() &&     //check spreading factor
             a.getTransmissionPower() - b.getTransmissionPower() < transmissionPowerThreshold && //check transmission power
-            Math.abs(Duration.between(a.getDepartureTime().plusNanos(TimeHelper.miliToNano(a.getTimeOnAir().longValue()) / 2), //check time on air
-                b.getDepartureTime().plusNanos(TimeHelper.miliToNano(b.getTimeOnAir().longValue()) / 2)).toNanos())
-                < TimeHelper.miliToNano(a.getTimeOnAir().longValue()) / 2 + TimeHelper.miliToNano(b.getTimeOnAir().longValue()) / 2;
+            Math.abs(Duration.between(a.getDepartureTime().plusNanos(TimeHelper.miliToNano((long)a.getTimeOnAir()) / 2), //check time on air
+                b.getDepartureTime().plusNanos(TimeHelper.miliToNano((long)b.getTimeOnAir()) / 2)).toNanos())
+                < TimeHelper.miliToNano((long)a.getTimeOnAir()) / 2 + TimeHelper.miliToNano((long)b.getTimeOnAir()) / 2;
     }
 
     @Override

@@ -39,7 +39,7 @@ public class UserMote extends Mote {
             payload[0] = MessageType.REQUEST_PATH.getCode();
             System.arraycopy(getGPSSensor().generateData(getPosInt(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
             System.arraycopy(Converter.toByteArray(destination), 0, payload, 9, 8);
-            return new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
+            return new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
         }
         return LoraWanPacket.createEmptyPacket(getEUI(), getApplicationEUI());
@@ -72,7 +72,7 @@ public class UserMote extends Mote {
         byte[] payload= new byte[9];
         payload[0] = MessageType.REQUEST_UPDATE_PATH.getCode();
         System.arraycopy(Converter.toByteArray(getPath().getDestination().get()), 0, payload, 1, 8);
-        sendToGateWay(new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
+        sendToGateWay(new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
             new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>()));
 
         var clock = getEnvironment().getClock();

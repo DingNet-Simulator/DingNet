@@ -12,7 +12,6 @@ import iot.strategy.consume.ConsumePacketStrategy;
 import iot.strategy.store.MaintainLastPacket;
 import iot.strategy.store.ReceivedPacketStrategy;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Converter;
 import util.MapHelper;
 import util.Path;
 
@@ -236,7 +235,7 @@ public class Mote extends NetworkEntity {
                     payload = lastPacketSent.getPayload();
                     payload[0] = MessageType.KEEPALIVE.getCode();
                 }
-                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
+                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
                 sendToGateWay(packet);
                 return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
@@ -274,7 +273,7 @@ public class Mote extends NetworkEntity {
     }
 
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand,Byte[]> macCommands) {
-        Byte[] payload = new Byte[data.length+macCommands.size()+1];
+        byte[] payload = new byte[data.length+macCommands.size()+1];
         payload[0] = MessageType.SENSOR_VALUE.getCode();
         if (payload.length > 1) {
             int i = 1;

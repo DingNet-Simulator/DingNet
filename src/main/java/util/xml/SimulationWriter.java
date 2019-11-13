@@ -100,9 +100,9 @@ public class SimulationWriter {
 
             Element origin = doc.createElement("origin");
             Element xPos = doc.createElement("xPosition");
-            xPos.appendChild(doc.createTextNode(transmission.getXPos().toString()));
+            xPos.appendChild(doc.createTextNode(""+transmission.getXPos()));
             Element yPos = doc.createElement("yPosition");
-            yPos.appendChild(doc.createTextNode(transmission.getYPos().toString()));
+            yPos.appendChild(doc.createTextNode(""+transmission.getYPos()));
             origin.appendChild(xPos);
             origin.appendChild(yPos);
 
@@ -113,7 +113,7 @@ public class SimulationWriter {
             departureTime.appendChild(doc.createTextNode(transmission.getDepartureTime().toString()));
 
             Element timeOnAir = doc.createElement("timeOnAir");
-            timeOnAir.appendChild(doc.createTextNode(transmission.getTimeOnAir().toString()));
+            timeOnAir.appendChild(doc.createTextNode(""+transmission.getTimeOnAir()));
 
             Element powerSetting = doc.createElement("powerSetting");
             powerSetting.appendChild(doc.createTextNode(networkEntity.getPowerSettingHistory(run).get(i).toString()));

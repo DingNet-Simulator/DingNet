@@ -2,7 +2,6 @@ package iot.lora;
 
 
 import iot.networkcommunication.api.Packet;
-import util.Converter;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -13,11 +12,11 @@ public class LoraWanPacket implements Serializable, Packet {
     /**
      * The payload of a packet.
      */
-    private final Byte[] payload;//TODO change to row type
+    private final byte[] payload;//TODO change to row type
     /**
      * if the packet has low data rate optimization.
      */
-    private final Boolean lowDataRateOptimization;
+    private final boolean lowDataRateOptimization;
     /**
      * The coding rate of the packet
      */
@@ -25,23 +24,23 @@ public class LoraWanPacket implements Serializable, Packet {
     /**
      * The amount of preamble symbols of the packet
      */
-    private final Integer amountOfPreambleSymbols;
+    private final int amountOfPreambleSymbols;
     /**
      * The length in symbols of the packet.
      */
-    private final Integer length;
+    private final int length;
     /**
      * The MAC commands included in the packet.
      */
-    private final LinkedList<MacCommand> macCommands;
+    private final List<MacCommand> macCommands;
     /**
      * The EUI of designated receiver.
      */
-    private final Long designatedReceiverEUI;
+    private final long designatedReceiverEUI;
     /**
      * The EUI of the sender.
      */
-    private final Long senderEUI;
+    private final long senderEUI;
 
     private final FrameHeader header;
 
@@ -58,7 +57,7 @@ public class LoraWanPacket implements Serializable, Packet {
      * @param codingRate
      * @param macCommands
      */
-    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, Byte[] payload, FrameHeader header, Boolean lowDataRateOptimization,
+    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, byte[] payload, FrameHeader header, Boolean lowDataRateOptimization,
                          Integer amountOfPreambleSymbols, double codingRate, LinkedList<MacCommand> macCommands){
         this.senderEUI = senderEUI;
         this.designatedReceiverEUI = designatedReceiverEUI;
@@ -79,7 +78,7 @@ public class LoraWanPacket implements Serializable, Packet {
      * @param header
      * @param macCommands
      */
-    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, Byte[] payload, FrameHeader header, LinkedList<MacCommand> macCommands){
+    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, byte[] payload, FrameHeader header, LinkedList<MacCommand> macCommands){
         this(senderEUI, designatedReceiverEUI, payload, header,false,8,0.8,macCommands);
     }
 
@@ -90,12 +89,12 @@ public class LoraWanPacket implements Serializable, Packet {
      * @param payload
      * @param macCommands
      */
-    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, Byte[] payload, LinkedList<MacCommand> macCommands) {
+    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, byte[] payload, LinkedList<MacCommand> macCommands) {
         this(senderEUI, designatedReceiverEUI, payload, new BasicFrameHeader(), false, 8, 0.8, macCommands);
     }
 
     public static LoraWanPacket createEmptyPacket(Long senderEUI, Long designatedReceiverEUI) {
-        return new LoraWanPacket(senderEUI, designatedReceiverEUI, new Byte[0], new LinkedList<>());
+        return new LoraWanPacket(senderEUI, designatedReceiverEUI, new byte[0], new LinkedList<>());
     }
 
     //endregion
@@ -120,7 +119,7 @@ public class LoraWanPacket implements Serializable, Packet {
      * @return the payload
      */
     public byte[] getPayload() {
-        return Converter.toRowType(payload);
+        return payload;
     }
 
     /**

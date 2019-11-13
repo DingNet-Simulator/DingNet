@@ -2,7 +2,7 @@ package selfadaptation.feedbackloop;
 
 
 import be.kuleuven.cs.som.annotate.Model;
-import iot.networkcommunication.LoraTransmission;
+import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import selfadaptation.instrumentation.FeedbackLoopGatewayBuffer;
