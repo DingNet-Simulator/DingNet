@@ -37,7 +37,7 @@ public abstract class NetworkEntity implements Serializable {
     private List<List<Integer>> spreadingFactorHistory;
 
     // An unsinged long representing the 64 bit unique identifier.
-    private final Long EUI;
+    private final long EUI;
 
 
     // NOTE: The x and y coordinates below (in double format) are NOT geo coordinates
@@ -68,7 +68,7 @@ public abstract class NetworkEntity implements Serializable {
     private List<List<LoraTransmission>> sentTransmissions = new LinkedList<>();
 
     // If the mote is enabled in the current simulation.
-    private Boolean enabled;
+    private boolean enabled;
 
     private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
     private Sender<LoraWanPacket> sender;
