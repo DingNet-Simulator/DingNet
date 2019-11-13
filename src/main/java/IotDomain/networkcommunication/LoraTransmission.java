@@ -1,6 +1,5 @@
 package IotDomain.networkcommunication;
 
-import IotDomain.lora.EU868ParameterByDataRate;
 import IotDomain.lora.RegionalParameter;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
@@ -9,9 +8,6 @@ import util.Pair;
 
 import java.io.Serializable;
 import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
 
 /**
  * A class representing a packet in the LoraWan simulation.
@@ -34,30 +30,23 @@ public class LoraTransmission<P extends Packet> implements Serializable{
     /**
      * A double representing the transmission power.
      */
-    private Double transmissionPower = 0.0;
+    private double transmissionPower = 0.0;
 
     /**
      * An integer representing the x-coordinate of the packet.
      */
-    private Integer xPos;
+    private int xPos;
 
     /**
      * An integer representing the y-coordinate of the packet.
      */
-    private Integer yPos;
+    private int yPos;
 
 
     /**
      * The content of the message.
      */
     private final P content;
-
-    /**
-     * A Random necessary for the gaussian in the model.
-     */
-    private final Random random = new Random();
-
-    private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
 
     private final RegionalParameter regionalParameter;
 
@@ -69,12 +58,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
     /**
      * The time on air of a transmission.
      */
-    private final Double timeOnAir;
-
-    /**
-     * The path travelled by the transmission.
-     */
-    private LinkedList<Pair<Integer,Integer>> usedPath;
+    private final double timeOnAir;
 
     private boolean arrived;
 
@@ -110,7 +94,6 @@ public class LoraTransmission<P extends Packet> implements Serializable{
         this.regionalParameter = regionalParameter;
         this.departureTime = departureTime;
         this.timeOnAir = timeOnAir;
-        usedPath = new LinkedList<>();
     }
     //endregion
 
