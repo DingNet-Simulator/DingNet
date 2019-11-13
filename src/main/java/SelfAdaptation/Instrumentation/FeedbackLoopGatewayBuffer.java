@@ -1,6 +1,6 @@
 package SelfAdaptation.Instrumentation;
 
-import IotDomain.lora.LoraTransmission;
+import IotDomain.networkcommunication.LoraTransmission;
 import IotDomain.networkentity.Gateway;
 import IotDomain.networkentity.Mote;
 import util.Pair;

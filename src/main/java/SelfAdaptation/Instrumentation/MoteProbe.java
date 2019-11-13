@@ -1,10 +1,12 @@
 package SelfAdaptation.Instrumentation;
 
-import IotDomain.lora.LoraTransmission;
+import IotDomain.Environment;
+import IotDomain.networkcommunication.LoraTransmission;
 import IotDomain.networkentity.Gateway;
 import IotDomain.networkentity.Mote;
 import IotDomain.networkentity.NetworkEntity;
 import SelfAdaptation.FeedbackLoop.GenericFeedbackLoop;
+import util.EnvironmentHelper;
 
 import java.util.LinkedList;
 
@@ -48,9 +50,9 @@ public class MoteProbe {
     public Double getHighestReceivedSignal(Mote mote) {
         LinkedList<LoraTransmission> lastTransmissions = new LinkedList<>();
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
-            Boolean placed = false;
+            boolean placed = false;
             for (int i = gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).size() - 1; i >= 0 && !placed; i--) {
-                if (gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(i).getSender() == mote) {
+                if (gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(i).getSender() == mote.getEUI()) {
                     lastTransmissions.add(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).getLast());
                     placed = true;
                 }
@@ -81,25 +83,30 @@ public class MoteProbe {
     public Double getShortestDistanceToGateway(Mote mote) {
         LinkedList<LoraTransmission> lastTransmissions = new LinkedList<>();
         for(Gateway gateway :mote.getEnvironment().getGateways()){
-            Boolean placed = false;
+            boolean placed = false;
             for(int i = gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).size()-1; i>=0 && !placed; i--) {
-                if(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(i).getSender() == mote) {
+                if(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(i).getSender() == mote.getEUI()) {
                     lastTransmissions.add(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).getLast());
                     placed = true;
                 }
             }
         }
+        var env = mote.getEnvironment();
         LoraTransmission bestTransmission = lastTransmissions.getFirst();
         for (LoraTransmission transmission : lastTransmissions){
-            if(Math.sqrt(Math.pow(transmission.getReceiver().getYPosInt()-transmission.getYPos(),2)+
-                    Math.pow(transmission.getReceiver().getXPosInt()-transmission.getXPos(),2))
-                    < Math.sqrt(Math.pow(bestTransmission.getReceiver().getYPosInt()-bestTransmission.getYPos(),2)+
-                    Math.pow(bestTransmission.getReceiver().getXPosInt()-bestTransmission.getXPos(),2)))
+            if(Math.sqrt(Math.pow(getEntityByID(env, transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
+                    Math.pow(getEntityByID(env, transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2))
+                    < Math.sqrt(Math.pow(getEntityByID(env, bestTransmission.getReceiver()).getYPosInt()-bestTransmission.getYPos(),2)+
+                    Math.pow(getEntityByID(env, bestTransmission.getReceiver()).getXPosInt()-bestTransmission.getXPos(),2)))
                 bestTransmission = transmission;
         }
-        return Math.sqrt(Math.pow(bestTransmission.getReceiver().getYPosInt()-bestTransmission.getYPos(),2)+
-                Math.pow(bestTransmission.getReceiver().getXPosInt()-bestTransmission.getXPos(),2));
+        return Math.sqrt(Math.pow(getEntityByID(env, bestTransmission.getReceiver()).getYPosInt()-bestTransmission.getYPos(),2)+
+                Math.pow(getEntityByID(env, bestTransmission.getReceiver()).getXPosInt()-bestTransmission.getXPos(),2));
 
+    }
+
+    private NetworkEntity getEntityByID(Environment env, long id) {
+        return EnvironmentHelper.getNetworkEntityById(env, id);
     }
 
     /**

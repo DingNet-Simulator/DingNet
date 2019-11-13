@@ -1,12 +1,13 @@
 package util.xml;
 
 import IotDomain.Simulation;
-import IotDomain.lora.LoraTransmission;
+import IotDomain.networkcommunication.LoraTransmission;
 import IotDomain.networkentity.Gateway;
 import IotDomain.networkentity.Mote;
 import IotDomain.networkentity.NetworkEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import util.EnvironmentHelper;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -72,18 +73,19 @@ public class SimulationWriter {
     private static Element writeLoraTransmissions(Document doc, NetworkEntity networkEntity, int run, Simulation simulation) {
         Element receivedTransmissions = doc.createElement("receivedTransmissions");
         int i = 0;
-
+        var env = simulation.getEnvironment();
         for (LoraTransmission transmission : networkEntity.getSentTransmissions(run)) {
             Element receivedTransmissionElement = doc.createElement("receivedTransmission");
             Element sender = doc.createElement("sender");
 
-            if (transmission.getSender().getClass() == Mote.class) {
-                Mote mote = (Mote) transmission.getSender();
-                int moteId = simulation.getEnvironment().getMotes().indexOf(mote);
+            var senderEntity = EnvironmentHelper.getNetworkEntityById(env, transmission.getSender());
+            if (senderEntity instanceof Mote) {
+                Mote mote = (Mote) senderEntity;
+                int moteId = env.getMotes().indexOf(mote);
                 sender.appendChild(doc.createTextNode("Mote " + moteId));
             } else {
-                Gateway gateway = (Gateway) transmission.getSender();
-                int gatewayId = simulation.getEnvironment().getGateways().indexOf(gateway);
+                Gateway gateway = (Gateway) senderEntity;
+                int gatewayId = env.getGateways().indexOf(gateway);
                 sender.appendChild(doc.createTextNode("Gateway " + gatewayId));
             }
 
@@ -105,7 +107,7 @@ public class SimulationWriter {
             origin.appendChild(yPos);
 
             Element contentSize = doc.createElement("contentSize");
-            contentSize.appendChild(doc.createTextNode(transmission.getContent().getLength().toString()));
+            contentSize.appendChild(doc.createTextNode(""+transmission.getContent().getLength()));
 
             Element departureTime = doc.createElement("departureTime");
             departureTime.appendChild(doc.createTextNode(transmission.getDepartureTime().toString()));
@@ -117,7 +119,9 @@ public class SimulationWriter {
             powerSetting.appendChild(doc.createTextNode(networkEntity.getPowerSettingHistory(run).get(i).toString()));
 
             Element collision = doc.createElement("collision");
-            collision.appendChild(doc.createTextNode(transmission.getReceiver().getAllReceivedTransmissions(run).get(transmission).toString()));
+            collision.appendChild(doc.createTextNode(
+                EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver())
+                    .getAllReceivedTransmissions(run).get(transmission).toString()));
 
             receivedTransmissionElement.appendChild(sender);
             receivedTransmissionElement.appendChild(transmissionPower);

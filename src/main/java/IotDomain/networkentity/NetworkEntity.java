@@ -1,7 +1,6 @@
 package IotDomain.networkentity;
 
 import IotDomain.Environment;
-import IotDomain.lora.LoraTransmission;
 import IotDomain.lora.MacCommand;
 import IotDomain.networkcommunication.*;
 import be.kuleuven.cs.som.annotate.Basic;
@@ -13,8 +12,6 @@ import util.TimeHelper;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -70,8 +67,8 @@ public abstract class NetworkEntity implements Serializable {
     // If the mote is enabled in the current simulation.
     private Boolean enabled;
 
-    private Sender<IotDomain.networkcommunication.LoraWanPacket> sender;
-    private Receiver<IotDomain.networkcommunication.LoraWanPacket> receiver;
+    private Sender<LoraWanPacket> sender;
+    private Receiver<LoraWanPacket> receiver;
 
     /**
      *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
@@ -214,7 +211,7 @@ public abstract class NetworkEntity implements Serializable {
      * @param transmission The transmission to receiveTransmission.
      * @Effect if the package has a high enough transmission power, it is added using packetStrengthHighEnough().
      */
-    public void receiveTransmission(LoraTransmission transmission) {
+ /*   public void receiveTransmission(LoraTransmission transmission) {
         if(packetStrengthHighEnough(transmission)) {
             boolean collision = false;
             for (LoraTransmission receivedTransmission: getAllReceivedTransmissions(getEnvironment().getNumberOfRuns()-1).keySet()) {
@@ -235,9 +232,9 @@ public abstract class NetworkEntity implements Serializable {
                 return LocalTime.of(0,0);
             });
         }
-    }
+    }*/
 
-    public void receive(IotDomain.networkcommunication.LoraTransmission<LoraWanPacket> transmission) {
+    public void receive(LoraTransmission<LoraWanPacket> transmission) {
         receivedTransmissions.getLast().put(transmission,false);
             if(!transmission.isCollided()) {
                 handleMacCommands(transmission.getContent());

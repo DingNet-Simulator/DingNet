@@ -1,6 +1,7 @@
 package IotDomain.collisionstrategy;
 
-import IotDomain.lora.LoraTransmission;
+
+import IotDomain.networkcommunication.LoraTransmission;
 
 public class Aloha implements CollisionStrategy {
     @Override

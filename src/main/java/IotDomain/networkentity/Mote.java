@@ -262,7 +262,7 @@ public class Mote extends NetworkEntity {
             (packet.getPayload().length > 1 &&
                 (packet.getPayload()[0] == MessageType.KEEPALIVE.getCode() ||
                 !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload())))) {
-            loraSend(packet);
+            send(packet);
             canReceive = true;
             lastPacketSent = packet;
             resetKeepAliveTrigger(0);

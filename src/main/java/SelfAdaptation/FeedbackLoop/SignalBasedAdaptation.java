@@ -1,7 +1,7 @@
 package SelfAdaptation.FeedbackLoop;
 
 import IotDomain.QualityOfService;
-import IotDomain.lora.LoraTransmission;
+import IotDomain.networkcommunication.LoraTransmission;
 import IotDomain.networkentity.Gateway;
 import IotDomain.networkentity.Mote;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;

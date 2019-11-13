@@ -1,6 +1,6 @@
 package IotDomain.collisionstrategy;
 
-import IotDomain.lora.LoraTransmission;
+import IotDomain.networkcommunication.LoraTransmission;
 
 public interface CollisionStrategy {
 

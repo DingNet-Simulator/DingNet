@@ -5,7 +5,7 @@ import GUI.MapViewer.*;
 import GUI.util.GUIUtil;
 import GUI.util.SpectrumPaintScale;
 import IotDomain.*;
-import IotDomain.lora.LoraTransmission;
+import IotDomain.networkcommunication.LoraTransmission;
 import IotDomain.networkentity.*;
 import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
 import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
@@ -36,6 +36,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.*;
+import util.EnvironmentHelper;
 import util.MapHelper;
 import util.Pair;
 
@@ -1339,16 +1340,20 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
         this.packetsSent = 0;
         this.packetsLost = 0;
-
+        var env = mote.getEnvironment();
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
             for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run).keySet()) {
-                if (transmission.getSender() == mote) {
+                if (transmission.getSender() == mote.getEUI()) {
                     this.packetsSent++;
                     if (!gateway.getAllReceivedTransmissions(run).get(transmission))
-                        transmissionsMote.getLast().add(new Pair<>(transmission.getReceiver(), new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
+                        transmissionsMote.getLast().add(
+                            new Pair<>(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()),
+                            new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
                     else {
-                        transmissionsMote.getLast().add(new Pair<>(transmission.getReceiver(), new Pair<>(transmission.getDepartureTime().toSecondOfDay(), (double) 20)));
+                        transmissionsMote.getLast().add(
+                            new Pair<>(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()),
+                            new Pair<>(transmission.getDepartureTime().toSecondOfDay(), (double) 20)));
                         this.packetsLost++;
                     }
                 }
@@ -1488,7 +1493,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
             for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run).keySet()) {
-                if (transmission.getSender() == mote) {
+                if (transmission.getSender() == mote.getEUI()) {
                     transmissionsMote.getLast().add(transmission);
                 }
             }
@@ -1498,12 +1503,13 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         }
         XYSeriesCollection dataDistanceToGateway = new XYSeriesCollection();
 
+        var env = mote.getEnvironment();
         for (LinkedList<LoraTransmission> list : transmissionsMote) {
             XYSeries series = new XYSeries("gateway " + (mote.getEnvironment().getGateways().indexOf(list.get(0).getReceiver()) + 1));
             int i = 0;
             for (LoraTransmission transmission : list) {
-                series.add(i, (Number) Math.sqrt(Math.pow(transmission.getReceiver().getYPosInt() - transmission.getYPos(), 2) +
-                        Math.pow(transmission.getReceiver().getXPosInt() - transmission.getXPos(), 2)));
+                series.add(i, (Number) Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
+                        Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2)));
                 i = i + 1;
             }
             dataDistanceToGateway.addSeries(series);
