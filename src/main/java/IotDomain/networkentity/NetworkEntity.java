@@ -1,7 +1,9 @@
 package IotDomain.networkentity;
 
 import IotDomain.Environment;
+import IotDomain.lora.EU868ParameterByDataRate;
 import IotDomain.lora.MacCommand;
+import IotDomain.lora.RegionalParameter;
 import IotDomain.networkcommunication.*;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
@@ -67,6 +69,7 @@ public abstract class NetworkEntity implements Serializable {
     // If the mote is enabled in the current simulation.
     private Boolean enabled;
 
+    private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
     private Sender<LoraWanPacket> sender;
     private Receiver<LoraWanPacket> receiver;
 
@@ -114,7 +117,10 @@ public abstract class NetworkEntity implements Serializable {
         sentTransmissions.add(new LinkedList<>());
         enabled = true;
         receiver = new ReceiverLoRa(this, getEnvironment().getClock(), transmissionPowerThreshold).setConsumerPacket(this::receive);
-        sender = new LoraCommunication(this, getEnvironment());
+        sender = new LoraCommunication(this, getEnvironment())
+            .setRegionalParameter(regionalParameters.stream().filter(r -> r.getSpreadingFactor() == this.SF).findFirst().orElseThrow())//TODO
+            .setTransmissionPower(transmissionPower);
+        //TODO reset after call to setters
     }
 
     /**
