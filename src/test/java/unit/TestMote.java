@@ -10,6 +10,7 @@ import util.GraphStructure;
 import util.MapHelper;
 import util.Path;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TestMote {
     @BeforeAll
-    static void init() {
+    static void init() throws NoSuchFieldException, IllegalAccessException {
+        Field instance = GraphStructure.class.getDeclaredField("instance");
+        instance.setAccessible(true);
+        instance.set(null, null);
+
         GraphStructure.initialize(new HashMap<>(), new HashMap<>());
     }
 
