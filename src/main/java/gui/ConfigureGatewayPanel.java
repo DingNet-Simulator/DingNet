@@ -64,8 +64,8 @@ public class ConfigureGatewayPanel extends AbstractConfigurePanel {
                         JFrame frame = new JFrame("Gateway settings");
                         GatewayGUI gatewayGUI = new GatewayGUI(gateway);
                         frame.setContentPane(gatewayGUI.getMainPanel());
-                        frame.setPreferredSize(new Dimension(600, 400));
-                        frame.setMinimumSize(new Dimension(600, 400));
+                        frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
+                        frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());
                         frame.setVisible(true);
                         exists = true;
                     }
@@ -75,8 +75,8 @@ public class ConfigureGatewayPanel extends AbstractConfigurePanel {
                     JFrame frame = new JFrame("New gateway");
                     NewGatewayGUI newGatewayGUI = new NewGatewayGUI(environment, geo, frame, panel);
                     frame.setContentPane(newGatewayGUI.getMainPanel());
-                    frame.setPreferredSize(new Dimension(600, 400));
-                    frame.setMinimumSize(new Dimension(600, 400));
+                    frame.setMinimumSize(newGatewayGUI.getMainPanel().getMinimumSize());
+                    frame.setPreferredSize(newGatewayGUI.getMainPanel().getPreferredSize());
                     frame.setVisible(true);
                 }
 

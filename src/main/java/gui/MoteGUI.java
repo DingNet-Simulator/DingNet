@@ -7,12 +7,16 @@ import gui.util.GUIUtil;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import iot.networkentity.UserMote;
+import util.GraphStructure;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
 
-public class MoteGUI extends JFrame {
+public class MoteGUI {
     private JLabel EUIDText;
     private JLabel latitudeLabel;
     private JLabel longitudeLabel;
@@ -29,6 +33,8 @@ public class MoteGUI extends JFrame {
     private JList<MoteSensor> sensorList;
     private JSpinner movementSpinner;
     private JCheckBox isActiveCheckBox;
+    private JLabel destinationLabel;
+    private JComboBox<Long> destinationComboBox;
     private Mote mote;
 
     public MoteGUI(Mote mote, JFrame frame) {
@@ -47,9 +53,15 @@ public class MoteGUI extends JFrame {
 
         if (mote instanceof UserMote) {
             isActiveCheckBox.setVisible(true);
+            destinationLabel.setVisible(true);
+            destinationComboBox.setVisible(true);
+
             isActiveCheckBox.setSelected(((UserMote) mote).isActive());
+            initializeDestinationComboBox();
         } else {
             isActiveCheckBox.setVisible(false);
+            destinationLabel.setVisible(false);
+            destinationComboBox.setVisible(false);
         }
         sensorSpinner.setModel(new DefaultComboBoxModel<>(MoteSensor.values()));
 
@@ -73,44 +85,40 @@ public class MoteGUI extends JFrame {
 
 
         saveButton.addActionListener(e -> {
-            mote.setSF((Integer) SFSpinner.getValue());
-            mote.setXPos((Integer) xPosSpinner.getValue());
-            mote.setYPos((Integer) yPosSpinner.getValue());
-            mote.setTransmissionPower((Integer) powerSpinner.getValue());
+            mote.setSF((int) SFSpinner.getValue());
+            mote.setXPos((int) xPosSpinner.getValue());
+            mote.setYPos((int) yPosSpinner.getValue());
+            mote.setTransmissionPower((int) powerSpinner.getValue());
             LinkedList<MoteSensor> moteSensors = new LinkedList<>();
             for (Object moteSensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
                 moteSensors.add((MoteSensor) moteSensor);
             }
             mote.setSensors(moteSensors);
-            mote.setMovementSpeed((Double) movementSpinner.getValue());
+            mote.setMovementSpeed((double) movementSpinner.getValue());
             if (isActiveCheckBox.isVisible()) {
-                //noinspection ConstantConditions
+                assert mote instanceof UserMote;
                 ((UserMote) mote).setActive(isActiveCheckBox.isSelected());
+                int index = destinationComboBox.getSelectedIndex();
+                ((UserMote) mote).setDestination(GraphStructure.getInstance().getWayPoint(destinationComboBox.getItemAt(index)));
             }
-            refresh();
             frame.dispose();
         });
 
     }
 
-    public JPanel getMainPanel() {
-        return mainPanel;
+    private void initializeDestinationComboBox() {
+        destinationComboBox.setEnabled(true);
+
+        UserMote userMote = (UserMote) this.mote;
+        long currentDestinationID = GraphStructure.getInstance().getClosestWayPoint(userMote.getDestination());
+
+        List<Long> wayPointIds = new ArrayList<>(GraphStructure.getInstance().getWayPoints().keySet());
+        destinationComboBox.setModel(new DefaultComboBoxModel<>(wayPointIds.toArray(Long[]::new)));
+        destinationComboBox.setSelectedIndex(wayPointIds.indexOf(currentDestinationID));
     }
 
-    private void refresh() {
-        EUIDText.setText(Long.toUnsignedString(mote.getEUI()));
-        updateLatLonFields();
-        xPosSpinner.setValue(mote.getXPosInt());
-        yPosSpinner.setValue(mote.getYPosInt());
-        powerSpinner.setValue(mote.getTransmissionPower());
-        SFSpinner.setValue(mote.getSF());
-        TPThresholdText.setText(mote.getTransmissionPowerThreshold().toString());
-        if (mote instanceof UserMote) {
-            isActiveCheckBox.setVisible(true);
-            isActiveCheckBox.setSelected(((UserMote) mote).isActive());
-        } else {
-            isActiveCheckBox.setVisible(false);
-        }
+    public JPanel getMainPanel() {
+        return mainPanel;
     }
 
 
@@ -143,7 +151,9 @@ public class MoteGUI extends JFrame {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(13, 6, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setLayout(new GridLayoutManager(14, 6, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setMinimumSize(new Dimension(680, 527));
+        mainPanel.setPreferredSize(new Dimension(680, 527));
         final Spacer spacer1 = new Spacer();
         mainPanel.add(spacer1, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 20), new Dimension(20, -1), null, 0, false));
         final JLabel label1 = new JLabel();
@@ -190,9 +200,9 @@ public class MoteGUI extends JFrame {
         mainPanel.add(label6, new GridConstraints(7, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         saveButton = new JButton();
         saveButton.setText("Save");
-        mainPanel.add(saveButton, new GridConstraints(11, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(saveButton, new GridConstraints(12, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer4 = new Spacer();
-        mainPanel.add(spacer4, new GridConstraints(12, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 20), new Dimension(-1, 20), null, 0, false));
+        mainPanel.add(spacer4, new GridConstraints(13, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 20), new Dimension(-1, 20), null, 0, false));
         final JLabel label7 = new JLabel();
         label7.setText("Mote ");
         mainPanel.add(label7, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -201,31 +211,38 @@ public class MoteGUI extends JFrame {
         mainPanel.add(moteNumberLabel, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label8 = new JLabel();
         label8.setText("Sensors:");
-        mainPanel.add(label8, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(label8, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         addButton = new JButton();
         addButton.setText("Add");
-        mainPanel.add(addButton, new GridConstraints(9, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(addButton, new GridConstraints(10, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sensorSpinner = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         sensorSpinner.setModel(defaultComboBoxModel1);
-        mainPanel.add(sensorSpinner, new GridConstraints(9, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(sensorSpinner, new GridConstraints(10, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label9 = new JLabel();
         label9.setText("Movement speed");
-        mainPanel.add(label9, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(label9, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         movementSpinner = new JSpinner();
-        mainPanel.add(movementSpinner, new GridConstraints(8, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(movementSpinner, new GridConstraints(9, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label10 = new JLabel();
         label10.setText("m/s");
-        mainPanel.add(label10, new GridConstraints(8, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(label10, new GridConstraints(9, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.setHorizontalScrollBarPolicy(31);
-        mainPanel.add(scrollPane1, new GridConstraints(10, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, new Dimension(-1, 90), 0, false));
+        mainPanel.add(scrollPane1, new GridConstraints(11, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, new Dimension(-1, 90), 0, false));
         sensorList = new JList();
         scrollPane1.setViewportView(sensorList);
         isActiveCheckBox = new JCheckBox();
         isActiveCheckBox.setEnabled(true);
         isActiveCheckBox.setText("is active");
         mainPanel.add(isActiveCheckBox, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        destinationComboBox = new JComboBox();
+        destinationComboBox.setVisible(true);
+        mainPanel.add(destinationComboBox, new GridConstraints(8, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        destinationLabel = new JLabel();
+        destinationLabel.setText("Destination (waypoint ID)");
+        destinationLabel.setVisible(true);
+        mainPanel.add(destinationLabel, new GridConstraints(8, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

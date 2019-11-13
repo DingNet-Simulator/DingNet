@@ -110,6 +110,10 @@ public class UserMote extends Mote {
         return this.destination;
     }
 
+    public void setDestination(GeoPosition destination) {
+        this.destination = destination;
+    }
+
     @Override
     public boolean isEnabled() {
         return super.isEnabled() && isActive();

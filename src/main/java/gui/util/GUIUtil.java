@@ -85,6 +85,6 @@ public class GUIUtil {
         int minutes = (int) Math.floor((value - degrees) * 60);
         double seconds = (double) Math.round(((value - degrees) * 60 - minutes) * 60 * 1000d) / 1000d;
 
-        return String.format("%s %d° %d' %f\"", value > 0 ? alt1 : alt2, degrees, minutes, seconds);
+        return String.format("%s %d° %d' %.2f\"", value > 0 ? alt1 : alt2, degrees, minutes, seconds);
     }
 }

@@ -51,6 +51,8 @@ public class SelectMoteGUI extends JFrame {
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(7, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setMinimumSize(new Dimension(300, 300));
+        mainPanel.setPreferredSize(new Dimension(300, 300));
         final JLabel label1 = new JLabel();
         label1.setText("Select a mote:");
         mainPanel.add(label1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -80,4 +82,5 @@ public class SelectMoteGUI extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }

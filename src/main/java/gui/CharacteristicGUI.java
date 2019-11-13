@@ -16,10 +16,11 @@ public class CharacteristicGUI {
     private JPanel mainPanel;
     private JComboBox<Characteristic> characteristicComboBox;
     private JButton okButton;
-    private Integer beginX;
-    private Integer beginY;
-    private Integer endX;
-    private Integer endY;
+
+    private int beginX;
+    private int beginY;
+    private int endX;
+    private int endY;
 
 
     public CharacteristicGUI(Environment environment, int x, int y, int amountOfSquares, ConfigureRegionPanel parent, JFrame frame) {
@@ -65,6 +66,8 @@ public class CharacteristicGUI {
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(5, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setMinimumSize(new Dimension(600, 400));
+        mainPanel.setPreferredSize(new Dimension(600, 400));
         final JLabel label1 = new JLabel();
         label1.setText("Change characteristic:");
         mainPanel.add(label1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -89,4 +92,5 @@ public class CharacteristicGUI {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }

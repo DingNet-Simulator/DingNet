@@ -5,7 +5,10 @@
     <constraints>
       <xy x="20" y="20" width="613" height="400"/>
     </constraints>
-    <properties/>
+    <properties>
+      <minimumSize width="600" height="400"/>
+      <preferredSize width="600" height="400"/>
+    </properties>
     <border type="none"/>
     <children>
       <vspacer id="2a80a">

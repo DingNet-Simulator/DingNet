@@ -226,8 +226,8 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
                 JFrame frame = new JFrame("Choose Characteristics");
                 CharacteristicGUI characteristicGUI = new CharacteristicGUI(environment, i - 1, j - 1, amountOfSquares, configureRegionPanel, frame);
                 frame.setContentPane(characteristicGUI.getMainPanel());
-                frame.setPreferredSize(new Dimension(600, 400));
-                frame.setMinimumSize(new Dimension(600, 400));
+                frame.setMinimumSize(characteristicGUI.getMainPanel().getMinimumSize());
+                frame.setPreferredSize(characteristicGUI.getMainPanel().getPreferredSize());
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
             }

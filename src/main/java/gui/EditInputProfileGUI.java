@@ -117,6 +117,8 @@ public class EditInputProfileGUI {
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setMinimumSize(new Dimension(750, 400));
+        mainPanel.setPreferredSize(new Dimension(750, 400));
         tabbedPane1 = new JTabbedPane();
         tabbedPane1.setEnabled(true);
         mainPanel.add(tabbedPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
@@ -205,5 +207,6 @@ public class EditInputProfileGUI {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }
 

@@ -78,6 +78,8 @@ public class ConfigureGUI {
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setMinimumSize(new Dimension(700, 600));
+        mainPanel.setPreferredSize(new Dimension(700, 600));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(15, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(50, -1), null, 0, false));
@@ -149,5 +151,6 @@ public class ConfigureGUI {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }
 

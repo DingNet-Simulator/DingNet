@@ -4,7 +4,8 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import gui.mapviewer.SensorDataPainter;
+import com.sun.tools.javac.Main;
+import gui.mapviewer.*;
 import gui.util.*;
 import iot.*;
 import iot.lora.LoraTransmission;
@@ -34,9 +35,7 @@ import org.jxmapviewer.input.CenterMapListener;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
-import org.jxmapviewer.viewer.DefaultTileFactory;
-import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.*;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
@@ -439,8 +438,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
                 JFrame frame = new JFrame("Gateway settings");
                 GatewayGUI gatewayGUI = new GatewayGUI(simulationRunner.getEnvironment().getGateways().get(index - 1));
                 frame.setContentPane(gatewayGUI.getMainPanel());
-                frame.setPreferredSize(new Dimension(600, 400));
-                frame.setMinimumSize(new Dimension(600, 400));
+                frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
+                frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());
                 frame.setVisible(true);
             }
         }
@@ -457,8 +456,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
                 JFrame frame = new JFrame("Mote settings");
                 MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame);
                 frame.setContentPane(moteGUI.getMainPanel());
-                frame.setPreferredSize(new Dimension(600, 400));
-                frame.setMinimumSize(new Dimension(600, 400));
+                frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
+                frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
                 frame.setVisible(true);
                 frame.addWindowListener(new WindowAdapter() {
                     @Override
@@ -487,8 +486,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             JFrame frame = new JFrame("Select Mote");
             SelectMoteGUI selectMoteGUI = new SelectMoteGUI(simulationRunner.getEnvironment(), mainGui, frame);
             frame.setContentPane(selectMoteGUI.getMainPanel());
-            frame.setPreferredSize(new Dimension(750, 750));
-            frame.setMinimumSize(new Dimension(750, 750));
+            frame.setMinimumSize(selectMoteGUI.getMainPanel().getMinimumSize());
+            frame.setPreferredSize(selectMoteGUI.getMainPanel().getPreferredSize());
             frame.setVisible(true);
         }
     }
@@ -560,8 +559,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             SelectMoteApplicationGUI selectMoteApplicationGUI =
                 new SelectMoteApplicationGUI(simulationRunner.getEnvironment(), mainGui, frame);
             frame.setContentPane(selectMoteApplicationGUI.getMainPanel());
-            frame.setPreferredSize(new Dimension(600, 400));
-            frame.setMinimumSize(new Dimension(600, 400));
+            frame.setMinimumSize(selectMoteApplicationGUI.getMainPanel().getMinimumSize());
+            frame.setPreferredSize(selectMoteApplicationGUI.getMainPanel().getPreferredSize());
             frame.setVisible(true);
         }
     }
@@ -578,11 +577,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         public void mouseClicked(MouseEvent e) {
             if (simulationRunner.getEnvironment() != null) {
                 JFrame frame = new JFrame("Edit input profile");
-                EditInputProfileGUI EditInputProfileGUI =
+                EditInputProfileGUI editInputProfileGUI =
                     new EditInputProfileGUI(inputProfile, simulationRunner.getEnvironment());
-                frame.setContentPane(EditInputProfileGUI.getMainPanel());
-                frame.setPreferredSize(new Dimension(750, 400));
-                frame.setMinimumSize(new Dimension(750, 400));
+                frame.setContentPane(editInputProfileGUI.getMainPanel());
+                frame.setMinimumSize(editInputProfileGUI.getMainPanel().getMinimumSize());
+                frame.setPreferredSize(editInputProfileGUI.getMainPanel().getPreferredSize());
                 frame.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(null, "Load a configuration before editing an input profile", "InfoBox: Edit InputProfile", JOptionPane.INFORMATION_MESSAGE);
@@ -842,7 +841,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         return this.generateGraph(environment, MoteSensor.OZONE, "Ozone");
     }
 
-    private class ConfigureActionListener implements ActionListener {
+    private static class ConfigureActionListener implements ActionListener {
         private MainGUI gui;
 
         ConfigureActionListener(MainGUI gui) {
@@ -854,8 +853,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             JFrame frame = new JFrame("Configure configuration");
             ConfigureGUI configureGUI = new ConfigureGUI(gui, frame);
             frame.setContentPane(configureGUI.getMainPanel());
-            frame.setPreferredSize(new Dimension(700, 600));
-            frame.setMinimumSize(new Dimension(700, 600));
+            frame.setMinimumSize(configureGUI.getMainPanel().getMinimumSize());
+            frame.setPreferredSize(configureGUI.getMainPanel().getPreferredSize());
             frame.setVisible(true);
 
         }

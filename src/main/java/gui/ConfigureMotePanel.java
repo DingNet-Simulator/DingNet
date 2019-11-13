@@ -78,8 +78,8 @@ public class ConfigureMotePanel extends AbstractConfigurePanel {
                         JFrame frame = new JFrame("Mote settings");
                         MoteGUI moteGUI = new MoteGUI(mote, frame);
                         frame.setContentPane(moteGUI.getMainPanel());
-                        frame.setPreferredSize(new Dimension(600, 400));
-                        frame.setMinimumSize(new Dimension(600, 400));
+                        frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
+                        frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
                         frame.setVisible(true);
                         exists = true;
                         frame.addWindowListener(new WindowAdapter() {
@@ -95,9 +95,9 @@ public class ConfigureMotePanel extends AbstractConfigurePanel {
                 if (!exists) {
                     JFrame frame = new JFrame("New mote");
                     NewMoteGUI newMoteGUI = new NewMoteGUI(environment, geo, frame, panel);
+                    frame.setMinimumSize(newMoteGUI.getMainPanel().getMinimumSize());
+                    frame.setPreferredSize(newMoteGUI.getMainPanel().getPreferredSize());
                     frame.setContentPane(newMoteGUI.getMainPanel());
-                    frame.setPreferredSize(new Dimension(600, 500));
-                    frame.setMinimumSize(new Dimension(600, 500));
                     frame.setVisible(true);
                 }
 
