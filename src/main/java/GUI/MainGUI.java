@@ -1343,10 +1343,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         var env = mote.getEnvironment();
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
-            for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run).keySet()) {
+            for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run)) {
                 if (transmission.getSender() == mote.getEUI()) {
                     this.packetsSent++;
-                    if (!gateway.getAllReceivedTransmissions(run).get(transmission))
+                    if (!transmission.isCollided())
                         transmissionsMote.getLast().add(
                             new Pair<>(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()),
                             new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
@@ -1492,7 +1492,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
-            for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run).keySet()) {
+            for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run)) {
                 if (transmission.getSender() == mote.getEUI()) {
                     transmissionsMote.getLast().add(transmission);
                 }

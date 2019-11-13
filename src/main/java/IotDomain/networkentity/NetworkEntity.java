@@ -9,11 +9,12 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
 import util.Converter;
+import util.ListHelper;
 import util.Pair;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public abstract class NetworkEntity implements Serializable {
     private Environment environment;
 
     // The transmission power of the entity.
-    private double transmissionPower;
+    private int transmissionPower;
 
     // The spreading factor setting of the node.
     private int SF = 12;
@@ -59,7 +60,7 @@ public abstract class NetworkEntity implements Serializable {
     private final double transmissionPowerThreshold;
 
     // A map with the transmissions received by the entity and if they collided with an other packet.
-    private LinkedList<LinkedHashMap<LoraTransmission,Boolean>> receivedTransmissions = new LinkedList<>();
+    private LinkedList<LinkedHashSet<LoraTransmission>> receivedTransmissions = new LinkedList<>();
 
     // A list with the transmissions transmitted by the entity
     private List<List<LoraTransmission>> sentTransmissions = new LinkedList<>();
@@ -88,7 +89,7 @@ public abstract class NetworkEntity implements Serializable {
      *
      */
     @Raw
-    NetworkEntity(long EUI, double xPos, double yPos, Environment environment, double transmissionPower, int SF,
+    NetworkEntity(long EUI, double xPos, double yPos, Environment environment, int transmissionPower, int SF,
                   double transmissionPowerThreshold) {
         this.environment = environment;
         if (environment.isValidXpos(xPos)) {
@@ -111,7 +112,7 @@ public abstract class NetworkEntity implements Serializable {
         powerSettingHistory.add(new LinkedList<>());
         spreadingFactorHistory = new LinkedList<>();
         spreadingFactorHistory.add(new LinkedList<>());
-        receivedTransmissions.add(new LinkedHashMap<>());
+        receivedTransmissions.add(new LinkedHashSet<>());
         sentTransmissions.add(new LinkedList<>());
         enabled = true;
         receiver = new ReceiverLoRa(this, getEnvironment().getClock(), transmissionPowerThreshold).setConsumerPacket(this::receive);
@@ -168,7 +169,7 @@ public abstract class NetworkEntity implements Serializable {
      * Returns all transmissions with collisions included
      * @return all transmissions with collisions included
      */
-    public LinkedHashMap<LoraTransmission,Boolean> getAllReceivedTransmissions(Integer run) {
+    public LinkedHashSet<LoraTransmission> getAllReceivedTransmissions(int run) {
         return receivedTransmissions.get(run);
     }
 
@@ -176,13 +177,10 @@ public abstract class NetworkEntity implements Serializable {
      * Returns only the transmission actually received by the gateway.
      * @return only the transmission actually received by the gateway.
      */
-    public LinkedList<LoraTransmission> getReceivedTransmissions(Integer run) {
-        LinkedList<LoraTransmission> transmissions = new LinkedList<>();
-        for(LoraTransmission transmission : getAllReceivedTransmissions(run).keySet()) {
-            if(!getAllReceivedTransmissions(run).get(transmission))
-                transmissions.add(transmission);
-        }
-        return transmissions;
+    public LinkedList<LoraTransmission> getReceivedTransmissions(int run) {
+        return getAllReceivedTransmissions(run).stream()
+            .filter(t -> !t.isCollided())
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
@@ -191,11 +189,11 @@ public abstract class NetworkEntity implements Serializable {
      * @return true if the transmission power is valid. False otherwise.
      */
     @Immutable
-    private static boolean isValidTransmissionPower(double transmissionPower) {
+    private static boolean isValidTransmissionPower(int transmissionPower) {
         return true;
     }
 
-    public void setTransmissionPower(double transmissionPower) {
+    public void setTransmissionPower(int transmissionPower) {
         this.transmissionPower = transmissionPower;
         sender.setTransmissionPower(transmissionPower);
     }
@@ -206,7 +204,7 @@ public abstract class NetworkEntity implements Serializable {
      */
     @Basic
     @Raw
-    public double getTransmissionPower() {
+    public int getTransmissionPower() {
         return transmissionPower;
     }
 
@@ -215,11 +213,11 @@ public abstract class NetworkEntity implements Serializable {
      * @param transmission The transmission to receiveTransmission.
      */
     private void receive(LoraTransmission<LoraWanPacket> transmission) {
-        receivedTransmissions.getLast().put(transmission,false);
-            if(!transmission.isCollided()) {
-                handleMacCommands(transmission.getContent());
-                OnReceive(transmission.getContent());
-            }
+        receivedTransmissions.getLast().add(transmission);
+        if(!transmission.isCollided()) {
+            handleMacCommands(transmission.getContent());
+            OnReceive(transmission.getContent());
+        }
     }
 
     /**
@@ -386,11 +384,15 @@ public abstract class NetworkEntity implements Serializable {
             .filter(ne -> filterLoraSend(ne, message))
             .map(NetworkEntity::getReceiver)
             .collect(Collectors.toSet());
-        sender.send(message, recs); //TODO use return value to add statistic
-
+        sender.send(message, recs)
+            .ifPresent(t -> {
+                ListHelper.getLast(powerSettingHistory).add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
+                ListHelper.getLast(spreadingFactorHistory).add(getSF());
+                ListHelper.getLast(sentTransmissions).add(t);
+            });
     }
 
-    public Receiver<IotDomain.networkcommunication.LoraWanPacket> getReceiver() {
+    public Receiver<LoraWanPacket> getReceiver() {
         return receiver;
     }
 
@@ -421,7 +423,7 @@ public abstract class NetworkEntity implements Serializable {
         spreadingFactorHistory.clear();
         spreadingFactorHistory.add(new LinkedList<>());
         receivedTransmissions.clear();
-        receivedTransmissions.add(new LinkedHashMap<>());
+        receivedTransmissions.add(new LinkedHashSet<>());
         sentTransmissions.clear();
         sentTransmissions.add(new LinkedList<>());
         receiver.reset();
@@ -434,7 +436,7 @@ public abstract class NetworkEntity implements Serializable {
     public void addRun() {
         powerSettingHistory.add(new LinkedList<>());
         spreadingFactorHistory.add(new LinkedList<>());
-        receivedTransmissions.add(new LinkedHashMap<>());
+        receivedTransmissions.add(new LinkedHashSet<>());
         sentTransmissions.add(new LinkedList<>());
         receiver.reset();
         sender.reset();

@@ -119,9 +119,7 @@ public class SimulationWriter {
             powerSetting.appendChild(doc.createTextNode(networkEntity.getPowerSettingHistory(run).get(i).toString()));
 
             Element collision = doc.createElement("collision");
-            collision.appendChild(doc.createTextNode(
-                EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver())
-                    .getAllReceivedTransmissions(run).get(transmission).toString()));
+            collision.appendChild(doc.createTextNode(""+transmission.isCollided()));
 
             receivedTransmissionElement.appendChild(sender);
             receivedTransmissionElement.appendChild(transmissionPower);

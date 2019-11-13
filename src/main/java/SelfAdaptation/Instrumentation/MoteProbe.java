@@ -114,7 +114,7 @@ public class MoteProbe {
      * @param mote The mote to get the power setting of.
      * @return The power setting of the mote.
      */
-    public Integer getPowerSetting(NetworkEntity mote) {
+    public int getPowerSetting(NetworkEntity mote) {
 
         return mote.getTransmissionPower();
 
