@@ -8,7 +8,7 @@ import util.pollution.PollutionLevel;
 
 import java.lang.reflect.Field;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class TestPollutionGrid {

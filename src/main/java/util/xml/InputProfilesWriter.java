@@ -1,7 +1,7 @@
 package util.xml;
 
-import GUI.MainGUI;
-import IotDomain.InputProfile;
+import gui.MainGUI;
+import iot.InputProfile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

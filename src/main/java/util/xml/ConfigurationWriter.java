@@ -1,11 +1,11 @@
 package util.xml;
 
-import IotDomain.Environment;
-import IotDomain.Simulation;
-import IotDomain.networkentity.Gateway;
-import IotDomain.networkentity.Mote;
-import IotDomain.networkentity.MoteSensor;
-import IotDomain.networkentity.UserMote;
+import iot.Environment;
+import iot.Simulation;
+import iot.networkentity.Gateway;
+import iot.networkentity.Mote;
+import iot.networkentity.MoteSensor;
+import iot.networkentity.UserMote;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -101,9 +101,9 @@ public class ConfigurationWriter {
 
             for (Mote mote : environment.getMotes()) {
                 if (mote instanceof UserMote) {
-                    motes.appendChild(new UserMoteWriter(doc, (UserMote) mote).buildMoteElement());
+                    motes.appendChild(new UserMoteWriter(doc, (UserMote) mote, environment).buildMoteElement());
                 } else {
-                    motes.appendChild(new MoteWriter(doc, mote).buildMoteElement());
+                    motes.appendChild(new MoteWriter(doc, mote, environment).buildMoteElement());
                 }
             }
 
@@ -210,11 +210,13 @@ public class ConfigurationWriter {
         Document doc;
         Mote mote;
         GraphStructure graph;
+        Environment environment;
 
-        MoteWriter(Document doc, Mote mote) {
+        MoteWriter(Document doc, Mote mote, Environment environment) {
             this.doc = doc;
             this.mote = mote;
             this.graph = GraphStructure.getInstance();
+            this.environment = environment;
         }
 
         Element generateDevEUIElement() {
@@ -227,7 +229,7 @@ public class ConfigurationWriter {
             Element location = doc.createElement("location");
             Element wayPoint = doc.createElement("waypoint");
 
-            GeoPosition position = MapHelper.getInstance().toGeoPosition(mote.getOriginalPosInt());
+            GeoPosition position = MapHelper.toGeoPosition(mote.getOriginalPosInt(), environment.getMapOrigin());
             wayPoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
             location.appendChild(wayPoint);
 
@@ -313,8 +315,8 @@ public class ConfigurationWriter {
     }
 
     private static class UserMoteWriter extends MoteWriter {
-        UserMoteWriter(Document doc, UserMote mote) {
-            super(doc, mote);
+        UserMoteWriter(Document doc, UserMote mote, Environment environment) {
+            super(doc, mote, environment);
         }
 
         Element generateIsActiveElement() {

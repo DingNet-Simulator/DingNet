@@ -1,9 +1,10 @@
 package util.xml;
 
-import IotDomain.Characteristic;
-import IotDomain.Environment;
-import IotDomain.Simulation;
-import IotDomain.networkentity.*;
+import datagenerator.GPSDataGenerator;
+import iot.Characteristic;
+import iot.Environment;
+import iot.Simulation;
+import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -196,7 +197,7 @@ public class ConfigurationReader {
             Element location = (Element) node.getElementsByTagName("location").item(0);
             Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
             GeoPosition position = wayPoints.get(IDMappingWayPoints.get(Long.parseLong(waypoint.getAttribute("id"))));
-            return MapHelper.getInstance().toMapCoordinate(position);
+            return MapHelper.toMapCoordinate(position, environment.getMapOrigin());
         }
 
         int getTransmissionPower() {
@@ -222,6 +223,13 @@ public class ConfigurationReader {
                 Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(i);
                 moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
             }
+
+            // FIXME find another way to do this...
+            moteSensors.stream()
+                .map(MoteSensor::getSensorDataGenerator)
+                .filter(o -> o instanceof GPSDataGenerator)
+                .forEach(o -> ((GPSDataGenerator) o).setOrigin(environment.getMapOrigin()));
+
             return moteSensors;
         }
 

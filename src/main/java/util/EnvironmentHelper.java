@@ -1,7 +1,7 @@
 package util;
 
-import IotDomain.Environment;
-import IotDomain.networkentity.NetworkEntity;
+import iot.Environment;
+import iot.networkentity.NetworkEntity;
 
 import java.util.stream.Stream;
 

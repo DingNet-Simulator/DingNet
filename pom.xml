@@ -76,7 +76,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>GUI.MainGUI</mainClass>
+                            <mainClass>gui.MainGUI</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -105,7 +105,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>GUI.MainGUI</mainClass>
+                    <mainClass>gui.MainGUI</mainClass>
                 </configuration>
             </plugin>
             <plugin>

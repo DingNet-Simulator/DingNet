@@ -1,20 +1,18 @@
 package util.xml;
 
-import GUI.MainGUI;
-import IotDomain.InputProfile;
-import IotDomain.QualityOfService;
-import SelfAdaptation.AdaptationGoals.AdaptationGoal;
-import SelfAdaptation.AdaptationGoals.IntervalAdaptationGoal;
-import SelfAdaptation.AdaptationGoals.ThresholdAdaptationGoal;
+import gui.MainGUI;
+import iot.InputProfile;
+import iot.QualityOfService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+import selfadaptation.adaptationgoals.AdaptationGoal;
+import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
+import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
