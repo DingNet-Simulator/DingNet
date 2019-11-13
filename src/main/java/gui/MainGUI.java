@@ -105,6 +105,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private JLabel colBoundLabel;
     private JButton resultsButton;
     private JButton timedRunButton;
+    private JPanel panelResults;
+    private JPanel panelSimulation;
+    private JPanel panelBottom;
+    private JToolBar toolBarSingleRun;
+    private JToolBar toolBarMultiRun;
 
     private static JXMapViewer mapViewer = new JXMapViewer();
     // Create a TileFactoryInfo for OpenStreetMap
@@ -117,7 +122,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private double usedEnergy;
     private int packetsSent;
     private int packetsLost;
-
 
 
     public static void main(String[] args) {
@@ -145,9 +149,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         });
     }
-
-
-
 
 
     public MainGUI(SimulationRunner simulationRunner) {
@@ -626,6 +627,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
     /**
      * Sets the graphs of the corresponding characteristics of a given mote of a given run.
+     *
      * @param moteIndex The index of the mote.
      * @param run       The number of the run.
      */
@@ -952,6 +954,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     /**
      * Generates a received power graph for a specific mote for a specific run, the amount of packets sent and the amount lost.
      * NOTE: this also updates the fields {@code packetsSent} and {@code packetsLost} to the corresponding values of that mote.
+     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A Pair containing ChartPanel containing a received power graph and another pair containing 2 integers: the amount of packets sent and the amount lost.
@@ -1013,6 +1016,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
     /**
      * Generates a spreading factor graph for a specific mote for a specific run.
+     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a spreading factor graph.
@@ -1060,6 +1064,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     /**
      * Generates a used energy graph and the total used energy for a specific mote for a specific run.
      * NOTE: this also updates the field {@code usedEnergy} to the corresponding value of that mote.
+     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A Pair withChartPanel containing a used energy graph and a double the total ued energy.
@@ -1103,6 +1108,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
     /**
      * Generates a distance to gateway graph for a specific mote for a specific run.
+     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a distance to gateway graph.
@@ -1164,6 +1170,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
     /**
      * Generates a power setting graph for a specific mote for a specific run.
+     *
      * @param mote The mote to generate the graph of.
      * @param run  The run to generate the graph of
      * @return A ChartPanel containing a power setting graph.
@@ -1253,9 +1260,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         }
         this.setEnabledRunButtons(true);
     }
-
-
-
 
 
     {
@@ -1547,31 +1551,91 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         ozonePanel = new JPanel();
         ozonePanel.setLayout(new BorderLayout(0, 0));
         tabbedPane1.addTab("Ozone", ozonePanel);
-        final JPanel panel15 = new JPanel();
-        panel15.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), 0, 0));
-        panel3.add(panel15, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelBottom = new JPanel();
+        panelBottom.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), 0, 0));
+        panel3.add(panelBottom, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelResults = new JPanel();
+        panelResults.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), 0, 0));
+        panelBottom.add(panelResults, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JToolBar toolBar6 = new JToolBar();
+        toolBar6.setFloatable(false);
+        panelResults.add(toolBar6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 35), null, 0, false));
+        final JToolBar.Separator toolBar$Separator12 = new JToolBar.Separator();
+        toolBar6.add(toolBar$Separator12);
+        final JLabel label15 = new JLabel();
+        label15.setText("Experimental results:  ");
+        toolBar6.add(label15);
+        simulationSaveButton = new JButton();
+        simulationSaveButton.setText("Save");
+        toolBar6.add(simulationSaveButton);
+        final JLabel label16 = new JLabel();
+        label16.setText("  ");
+        toolBar6.add(label16);
+        clearButton = new JButton();
+        clearButton.setText("Clear");
+        toolBar6.add(clearButton);
+        final JToolBar.Separator toolBar$Separator13 = new JToolBar.Separator();
+        toolBar6.add(toolBar$Separator13);
+        final Spacer spacer12 = new Spacer();
+        toolBar6.add(spacer12);
+        panelSimulation = new JPanel();
+        panelSimulation.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panelBottom.add(panelSimulation, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 35), null, 0, false));
         toolBarAdaptation = new JToolBar();
         toolBarAdaptation.setBorderPainted(true);
         toolBarAdaptation.setFloatable(false);
         toolBarAdaptation.setRollover(true);
         toolBarAdaptation.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        panel15.add(toolBarAdaptation, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
-        final JLabel label15 = new JLabel();
-        label15.setText("Simulation  ");
-        toolBarAdaptation.add(label15);
+        panelSimulation.add(toolBarAdaptation, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        final JLabel label17 = new JLabel();
+        label17.setText("Simulation  ");
+        toolBarAdaptation.add(label17);
         adaptationComboBox = new JComboBox();
         toolBarAdaptation.add(adaptationComboBox);
-        final JToolBar.Separator toolBar$Separator12 = new JToolBar.Separator();
-        toolBarAdaptation.add(toolBar$Separator12);
+        final JToolBar.Separator toolBar$Separator14 = new JToolBar.Separator();
+        toolBarAdaptation.add(toolBar$Separator14);
+        final JPanel panel15 = new JPanel();
+        panel15.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), 0, 0));
+        toolBarAdaptation.add(panel15);
+        toolBarMultiRun = new JToolBar();
+        toolBarMultiRun.setFloatable(false);
+        panel15.add(toolBarMultiRun, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 35), null, 0, false));
+        final JToolBar.Separator toolBar$Separator15 = new JToolBar.Separator();
+        toolBarMultiRun.add(toolBar$Separator15);
+        totalRunButton = new JButton();
+        totalRunButton.setText("Total Run");
+        toolBarMultiRun.add(totalRunButton);
+        final JLabel label18 = new JLabel();
+        label18.setText("  ");
+        toolBarMultiRun.add(label18);
+        final JLabel label19 = new JLabel();
+        label19.setText("Progress: ");
+        toolBarMultiRun.add(label19);
+        totalRunProgressBar = new JProgressBar();
+        toolBarMultiRun.add(totalRunProgressBar);
+        final JToolBar.Separator toolBar$Separator16 = new JToolBar.Separator();
+        toolBarMultiRun.add(toolBar$Separator16);
+        progressLabel = new JLabel();
+        progressLabel.setText("0/0");
+        toolBarMultiRun.add(progressLabel);
+        final JToolBar.Separator toolBar$Separator17 = new JToolBar.Separator();
+        toolBarMultiRun.add(toolBar$Separator17);
+        toolBarSingleRun = new JToolBar();
+        toolBarSingleRun.setFloatable(false);
+        panel15.add(toolBarSingleRun, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
         singleRunButton = new JButton();
         singleRunButton.setText("Single Run");
-        toolBarAdaptation.add(singleRunButton);
-        final JLabel label16 = new JLabel();
-        label16.setText("  ");
-        toolBarAdaptation.add(label16);
-        final JLabel label17 = new JLabel();
-        label17.setText("Speed:");
-        toolBarAdaptation.add(label17);
+        toolBarSingleRun.add(singleRunButton);
+        final JToolBar.Separator toolBar$Separator18 = new JToolBar.Separator();
+        toolBarSingleRun.add(toolBar$Separator18);
+        timedRunButton = new JButton();
+        timedRunButton.setText("Timed Run");
+        toolBarSingleRun.add(timedRunButton);
+        final JToolBar.Separator toolBar$Separator19 = new JToolBar.Separator();
+        toolBarSingleRun.add(toolBar$Separator19);
+        final JLabel label20 = new JLabel();
+        label20.setText("Speed:");
+        toolBarSingleRun.add(label20);
         speedSlider = new JSlider();
         speedSlider.setMajorTickSpacing(3);
         speedSlider.setMaximum(5);
@@ -1581,58 +1645,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         speedSlider.setPaintTicks(true);
         speedSlider.setValue(1);
         speedSlider.setValueIsAdjusting(false);
-        toolBarAdaptation.add(speedSlider);
-        timedRunButton = new JButton();
-        timedRunButton.setText("Timed Run");
-        toolBarAdaptation.add(timedRunButton);
-        final JPanel panel16 = new JPanel();
-        panel16.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), 0, 0));
-        toolBarAdaptation.add(panel16);
-        final JToolBar toolBar6 = new JToolBar();
-        toolBar6.setFloatable(false);
-        panel16.add(toolBar6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 35), null, 0, false));
-        final JToolBar.Separator toolBar$Separator13 = new JToolBar.Separator();
-        toolBar6.add(toolBar$Separator13);
-        totalRunButton = new JButton();
-        totalRunButton.setText("Total Run");
-        toolBar6.add(totalRunButton);
-        final JLabel label18 = new JLabel();
-        label18.setText("  ");
-        toolBar6.add(label18);
-        final JLabel label19 = new JLabel();
-        label19.setText("Progress: ");
-        toolBar6.add(label19);
-        totalRunProgressBar = new JProgressBar();
-        toolBar6.add(totalRunProgressBar);
-        final JToolBar.Separator toolBar$Separator14 = new JToolBar.Separator();
-        toolBar6.add(toolBar$Separator14);
-        progressLabel = new JLabel();
-        progressLabel.setText("0/0");
-        toolBar6.add(progressLabel);
-        final JPanel panel17 = new JPanel();
-        panel17.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), 0, 0));
-        panel15.add(panel17, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JToolBar toolBar7 = new JToolBar();
-        toolBar7.setFloatable(false);
-        panel17.add(toolBar7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 35), null, 0, false));
-        final JToolBar.Separator toolBar$Separator15 = new JToolBar.Separator();
-        toolBar7.add(toolBar$Separator15);
-        final JLabel label20 = new JLabel();
-        label20.setText("Experimental results:  ");
-        toolBar7.add(label20);
-        simulationSaveButton = new JButton();
-        simulationSaveButton.setText("Save");
-        toolBar7.add(simulationSaveButton);
-        final JLabel label21 = new JLabel();
-        label21.setText("  ");
-        toolBar7.add(label21);
-        clearButton = new JButton();
-        clearButton.setText("Clear");
-        toolBar7.add(clearButton);
-        final JToolBar.Separator toolBar$Separator16 = new JToolBar.Separator();
-        toolBar7.add(toolBar$Separator16);
-        final Spacer spacer12 = new Spacer();
-        toolBar7.add(spacer12);
+        toolBarSingleRun.add(speedSlider);
+        final JToolBar.Separator toolBar$Separator20 = new JToolBar.Separator();
+        toolBarSingleRun.add(toolBar$Separator20);
     }
 
     /**
