@@ -31,10 +31,10 @@ public abstract class NetworkEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     // A list representing the power setting of every transmission.
-    private LinkedList<List<Pair<Integer,Integer>>> powerSettingHistory;
+    private List<List<Pair<Integer,Integer>>> powerSettingHistory;
 
     // A list representing the spreading factor of every transmission.
-    private LinkedList<List<Integer>> spreadingFactorHistory;
+    private List<List<Integer>> spreadingFactorHistory;
 
     // An unsinged long representing the 64 bit unique identifier.
     private final Long EUI;
@@ -62,7 +62,7 @@ public abstract class NetworkEntity implements Serializable {
     private final double transmissionPowerThreshold;
 
     // A map with the transmissions received by the entity and if they collided with an other packet.
-    private LinkedList<LinkedHashSet<LoraTransmission>> receivedTransmissions = new LinkedList<>();
+    private List<LinkedHashSet<LoraTransmission>> receivedTransmissions = new LinkedList<>();
 
     // A list with the transmissions transmitted by the entity
     private List<List<LoraTransmission>> sentTransmissions = new LinkedList<>();
@@ -179,10 +179,10 @@ public abstract class NetworkEntity implements Serializable {
      * Returns only the transmission actually received by the gateway.
      * @return only the transmission actually received by the gateway.
      */
-    public LinkedList<LoraTransmission> getReceivedTransmissions(int run) {
+    public List<LoraTransmission> getReceivedTransmissions(int run) {
         return getAllReceivedTransmissions(run).stream()
             .filter(t -> !t.isCollided())
-            .collect(Collectors.toCollection(LinkedList::new));
+            .collect(Collectors.toList());
     }
 
     /**
@@ -215,7 +215,7 @@ public abstract class NetworkEntity implements Serializable {
      * @param transmission The transmission to receiveTransmission.
      */
     private void receive(LoraTransmission<LoraWanPacket> transmission) {
-        receivedTransmissions.getLast().add(transmission);
+        ListHelper.getLast(receivedTransmissions).add(transmission);
         if(!transmission.isCollided()) {
             handleMacCommands(transmission.getContent());
             OnReceive(transmission.getContent());

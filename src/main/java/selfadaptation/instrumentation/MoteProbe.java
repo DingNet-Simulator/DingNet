@@ -7,6 +7,7 @@ import iot.networkentity.Mote;
 import iot.networkentity.NetworkEntity;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
 import util.EnvironmentHelper;
+import util.ListHelper;
 
 import java.util.LinkedList;
 
@@ -53,7 +54,7 @@ public class MoteProbe {
             boolean placed = false;
             for (int i = gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).size() - 1; i >= 0 && !placed; i--) {
                 if (gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(i).getSender() == mote.getEUI()) {
-                    lastTransmissions.add(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).getLast());
+                    lastTransmissions.add(ListHelper.getLast(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1)));
                     placed = true;
                 }
             }
@@ -86,7 +87,7 @@ public class MoteProbe {
             boolean placed = false;
             for(int i = gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).size()-1; i>=0 && !placed; i--) {
                 if(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).get(i).getSender() == mote.getEUI()) {
-                    lastTransmissions.add(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1).getLast());
+                    lastTransmissions.add(ListHelper.getLast(gateway.getReceivedTransmissions(mote.getEnvironment().getNumberOfRuns()-1)));
                     placed = true;
                 }
             }

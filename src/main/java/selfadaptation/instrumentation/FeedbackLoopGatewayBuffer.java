@@ -3,6 +3,7 @@ package selfadaptation.instrumentation;
 import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
+import util.ListHelper;
 import util.Pair;
 
 import java.util.HashMap;
@@ -26,11 +27,11 @@ public class FeedbackLoopGatewayBuffer {
             if(contains){
                 gatewayBuffer.get(mote).add(new LinkedList<>());
             }
-            gatewayBuffer.get(mote).getLast().add(new Pair<>(gateway, gateway.getReceivedTransmissions(gateway.getEnvironment().getNumberOfRuns()-1).getLast()));
+            gatewayBuffer.get(mote).getLast().add(new Pair<>(gateway, ListHelper.getLast(gateway.getReceivedTransmissions(gateway.getEnvironment().getNumberOfRuns()-1))));
         }
         else {
             LinkedList<Pair<Gateway,LoraTransmission>> buffer = new LinkedList<>();
-            buffer.add(new Pair<>(gateway, gateway.getReceivedTransmissions(gateway.getEnvironment().getNumberOfRuns()-1).getLast()));
+            buffer.add(new Pair<>(gateway, ListHelper.getLast(gateway.getReceivedTransmissions(gateway.getEnvironment().getNumberOfRuns()-1))));
             LinkedList<LinkedList<Pair<Gateway,LoraTransmission>>> buffers = new LinkedList<>();
             buffers.add(buffer);
             gatewayBuffer.put(mote,buffers);
@@ -47,7 +48,7 @@ public class FeedbackLoopGatewayBuffer {
     }
 
     public LinkedList<LoraTransmission> getReceivedSignals(Mote mote){
-        LinkedList<LoraTransmission> result = new LinkedList();
+        LinkedList<LoraTransmission> result = new LinkedList<>();
         if(hasReceivedAllSignals(mote)){
 
             for(Pair<Gateway, LoraTransmission> pair : gatewayBuffer.get(mote).getFirst()){
