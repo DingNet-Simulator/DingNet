@@ -13,7 +13,7 @@ public class SootDataGenerator implements SensorDataGenerator {
     private static final int DEFAULT_SEED = 1;
     private static Random random = new Random(DEFAULT_SEED);
 
-    public static Double generateData(double x, double y) {
+    public static double generateData(double x, double y) {
         if (x < 210 && y < 230)
             return (double) 97 - 10 + (x + y) / 250 + 0.3 * random.nextGaussian();
         else if (x < 1100 && y < 1100)
@@ -39,8 +39,8 @@ public class SootDataGenerator implements SensorDataGenerator {
      * @param time The time of the measurement.
      * @return A measurement of soot at the given position and time.
      */
-    public byte[] generateData(Integer x, Integer y, LocalTime time){
-        Double result = SootDataGenerator.generateData((double)x, (double)y);
+    public byte[] generateData(int x, int y, LocalTime time){
+        double result = SootDataGenerator.generateData(x, y);
         return new byte[]{(byte)Math.floorMod((int) Math.round(result),255)};
     }
     public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time){

@@ -20,14 +20,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class GUIUtil {
-    public static List<LinePainter> getBorderPainters(int maxX, int maxY) {
-        var mapHelper = MapHelper.getInstance();
+    public static List<LinePainter> getBorderPainters(int maxX, int maxY, GeoPosition origin) {
         List<LinePainter> painters = new ArrayList<>();
 
-        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(0, maxY))));
-        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(maxX, 0))));
-        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(maxX, 0), mapHelper.toGeoPosition(maxX, maxY))));
-        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, maxY), mapHelper.toGeoPosition(maxX, maxY))));
+        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(0, 0, origin), MapHelper.toGeoPosition(0, maxY, origin))));
+        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(0, 0, origin), MapHelper.toGeoPosition(maxX, 0, origin))));
+        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(maxX, 0, origin), MapHelper.toGeoPosition(maxX, maxY, origin))));
+        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(0, maxY, origin), MapHelper.toGeoPosition(maxX, maxY, origin))));
 
         return painters;
     }
@@ -35,11 +34,10 @@ public class GUIUtil {
     public static Map<MoteWayPoint, Integer> getMoteMap(Environment environment) {
         Map<MoteWayPoint, Integer> map = new HashMap<>();
         var motes = environment.getMotes();
-        var mapHelper = MapHelper.getInstance();
 
         var wraps = motes.stream()
             .map(m -> {
-                var pos = mapHelper.toGeoPosition(m.getPosInt());
+                var pos = MapHelper.toGeoPosition(m.getPosInt(), environment.getMapOrigin());
                 if (m instanceof UserMote) {
                     return new MoteWayPoint(pos, true, ((UserMote)m).isActive());
                 }
@@ -55,10 +53,9 @@ public class GUIUtil {
     public static Map<Waypoint, Integer> getGatewayMap(Environment environment) {
         Map<Waypoint, Integer> map = new HashMap<>();
         var gateways = environment.getGateways();
-        var mapHelper = MapHelper.getInstance();
 
         IntStream.range(0, gateways.size())
-            .forEach(i -> map.put(new DefaultWaypoint(mapHelper.toGeoPosition(gateways.get(i).getPosInt())), i+1));
+            .forEach(i -> map.put(new DefaultWaypoint(MapHelper.toGeoPosition(gateways.get(i).getPosInt(), environment.getMapOrigin())), i+1));
 
         return map;
     }

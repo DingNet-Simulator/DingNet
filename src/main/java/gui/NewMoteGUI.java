@@ -115,7 +115,7 @@ public class NewMoteGUI {
     private void addWayPointIfNotPresent(int x, int y) {
         GraphStructure graph = GraphStructure.getInstance();
 
-        GeoPosition pos = MapHelper.getInstance().toGeoPosition(x, y);
+        GeoPosition pos = MapHelper.toGeoPosition(x, y, environment.getMapOrigin());
 
         if (graph.getClosestWayPointWithinRange(pos, DISTANCE_THRESHOLD_NEW_WAYPOINT).isEmpty()) {
             graph.addWayPoint(pos);
@@ -155,7 +155,7 @@ public class NewMoteGUI {
             (int) SFSpinner.getValue(), moteSensors, 20, new Path(),
             (double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
-            (int) offsetSendingSpinner.getValue(), MapHelper.getInstance().toGeoPosition(posX, posY));
+            (int) offsetSendingSpinner.getValue(), MapHelper.toGeoPosition(posX, posY, environment.getMapOrigin()));
         userMote.setActive(isActiveCheckBox.isSelected());
         environment.addMote(userMote);
     }

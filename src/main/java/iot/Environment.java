@@ -23,7 +23,6 @@ public class Environment implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final MapHelper mapHelper;
 
     /**
      * The max x-coordinate allowed on the map
@@ -33,6 +32,12 @@ public class Environment implements Serializable {
      * The max y-coordinate allowed on the map
      */
     private static int maxYpos = -1;
+
+    /**
+     * The origin of the map
+     */
+    private final GeoPosition origin;
+
     /**
      * A list containing all motes currently active on the map.
      */
@@ -63,6 +68,7 @@ public class Environment implements Serializable {
      */
     private GlobalClock clock;
 
+
     /**
      * A constructor generating a new environment with a given map with characteristics.
      * @param characteristics   The map with the characteristics of the current environment.
@@ -88,9 +94,8 @@ public class Environment implements Serializable {
         }
 
         this.numberOfZones = numberOfZones;
+        this.origin = mapOrigin;
         this.clock = new GlobalClock();
-        this.mapHelper = MapHelper.getInstance();
-        this.mapHelper.setMapOrigin(mapOrigin);
 
         if (GraphStructure.isInitialized()) {
             // Reinitialize the graph structure if a configuration has already been loaded in previously
@@ -273,7 +278,7 @@ public class Environment implements Serializable {
      * @return The coordinates of the point [0,0] on the map.
      */
     public GeoPosition getMapOrigin() {
-        return mapHelper.getMapOrigin();
+        return this.origin;
     }
 
     /**
@@ -290,7 +295,7 @@ public class Environment implements Serializable {
      * @return The longitude of the given x-coordinate
      */
     public double toLongitude(int xPos) {
-        return mapHelper.toLongitude(xPos);
+        return MapHelper.toLongitude(xPos, this.origin);
     }
 
     /**
@@ -299,7 +304,7 @@ public class Environment implements Serializable {
      * @return The latitude of the given y-coordinate.
      */
     public double toLatitude(int yPos) {
-        return mapHelper.toLatitude(yPos);
+        return MapHelper.toLatitude(yPos, this.origin);
     }
 
     /**
@@ -340,7 +345,7 @@ public class Environment implements Serializable {
      */
     public int toMapXCoordinate(GeoPosition geoPosition) {
         //? in computing distance just using the longitude of the geoposition. Why?
-        return mapHelper.toMapXCoordinate(geoPosition);
+        return MapHelper.toMapXCoordinate(geoPosition, this.origin);
     }
     /**
      * Converts a GeoPostion to an y-coordinate on the map.
@@ -349,11 +354,11 @@ public class Environment implements Serializable {
      */
     public int toMapYCoordinate(GeoPosition geoPosition) {
         //? in computing distance just using the longitude of the geoposition. Why?
-        return mapHelper.toMapYCoordinate(geoPosition);
+        return MapHelper.toMapYCoordinate(geoPosition, this.origin);
     }
 
     public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition) {
-        return mapHelper.toMapCoordinate(geoPosition);
+        return MapHelper.toMapCoordinate(geoPosition, this.origin);
     }
     /**
      * reset all entities in the configuration.

@@ -381,7 +381,7 @@ public class Mote extends NetworkEntity {
             return true;
         }
         //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
-        return MapHelper.getInstance()
-            .toMapCoordinate(path.getDestination().get()).equals(getPosInt());
+        return MapHelper.toMapCoordinate(path.getDestination().get(), getEnvironment().getMapOrigin())
+            .equals(getPosInt());
     }
 }

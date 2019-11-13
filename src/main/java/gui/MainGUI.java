@@ -286,8 +286,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             double latitude = environment.toLatitude(gateway.getYPosInt());
             double longitude = environment.toLongitude(gateway.getXPosInt());
             textArea.append(String.format("%s%s, %s%s",
-                MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecondText(latitude),
-                MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecondText(longitude)));
+                MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecond(latitude),
+                MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecond(longitude)));
 
             for (int i = 0; i < textArea.getMouseListeners().length; i++) {
                 textArea.removeMouseListener(textArea.getMouseListeners()[i]);
@@ -305,8 +305,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             double latitude = environment.toLatitude(mote.getYPosInt());
             double longitude = environment.toLongitude(mote.getXPosInt());
             textArea.append(String.format("%s%s, %s%s",
-                MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecondText(latitude),
-                MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecondText(longitude)));
+                MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecond(latitude),
+                MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecond(longitude)));
 
             for (int i = 0; i < textArea.getMouseListeners().length; i++) {
                 textArea.removeMouseListener(textArea.getMouseListeners()[i]);
@@ -394,9 +394,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         double latitude = environment.getMapCenter().getLatitude();
         double longitude = environment.getMapCenter().getLongitude();
         centerLabel.setText(" " + MapHelper.getDirectionSign(latitude, "lat") +
-                MapHelper.toDegreeMinuteSecondText(latitude) + ", " +
+                MapHelper.toDegreeMinuteSecond(latitude).toString() + ", " +
                 MapHelper.getDirectionSign(longitude, "long") +
-                MapHelper.toDegreeMinuteSecondText(longitude));
+                MapHelper.toDegreeMinuteSecond(longitude).toString());
     }
 
 

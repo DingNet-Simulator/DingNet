@@ -17,17 +17,17 @@ public enum MoteSensor {
     OZONE(new OzoneDataGenerator()),
     CARBON_DIOXIDE(new CarbonDioxideDataGenerator()),
     PARTICULATE_MATTER(new ParticulateMatterDataGenerator()),
-    GPS(new GPSDataGenerator()),
+    GPS(new GPSDataGenerator(null)),
     IAQ(IAQDataGeneratorSingleton.getInstance());
 
 
     private SensorDataGenerator sensorDataGenerator;
 
-    MoteSensor(SensorDataGenerator sensorDataGenerator){
+    MoteSensor(SensorDataGenerator sensorDataGenerator) {
         this.sensorDataGenerator = sensorDataGenerator;
     }
 
-    public byte[] getValue(Integer xpos, Integer ypos, LocalTime time){
+    public byte[] getValue(int xpos, int ypos, LocalTime time){
         return sensorDataGenerator.generateData(xpos,ypos,time);
     }
 
@@ -35,8 +35,8 @@ public enum MoteSensor {
         return sensorDataGenerator.nonStaticDataGeneration(xpos,ypos);
     }
 
-    public List<Byte> getValueAsList(Integer xpos, Integer ypos, LocalTime time){
-        var tmp = sensorDataGenerator.generateData(xpos,ypos,time);
+    public List<Byte> getValueAsList(int xpos, int ypos, LocalTime time){
+        var tmp = sensorDataGenerator.generateData(xpos, ypos, time);
         var ret = new LinkedList<Byte>();
         for (byte b : tmp) {
             ret.add(b);

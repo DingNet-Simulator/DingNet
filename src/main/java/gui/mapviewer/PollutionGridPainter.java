@@ -30,6 +30,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
     protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {
         g = (Graphics2D) g.create();
 
+
         // convert from viewport to world bitmap
         Rectangle rect = map.getViewportBounds();
         g.translate(-rect.x, -rect.y);
@@ -44,20 +45,24 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
         // Can decide to be more fine grained later on
         final int DIVISION = GUISettings.POLLUTION_GRID_SQUARES;
         TileFactory factory = map.getTileFactory();
-        MapHelper mapHelper = MapHelper.getInstance();
 
         for (int i = 0; i < DIVISION; i++) {
             for (int j = 0; j < DIVISION; j++) {
                 // The starting position of the square is specified by the point in the upper left corner
-                Point2D topLeft = factory.geoToPixel(mapHelper.toGeoPosition(
+                Point2D topLeft = factory.geoToPixel(MapHelper.toGeoPosition(
                     Math.round(i * ((float) maxX / DIVISION)),
-                    Math.round((j+1) * ((float) maxY / DIVISION))
+                    Math.round((j+1) * ((float) maxY / DIVISION)),
+                    environment.getMapOrigin()
                 ), map.getZoom());
-                Point2D bottomRight = factory.geoToPixel(mapHelper.toGeoPosition(
+                Point2D bottomRight = factory.geoToPixel(MapHelper.toGeoPosition(
                     Math.round((i+1) * ((float) maxX / DIVISION)),
-                    Math.round(j * ((float) maxY / DIVISION))
+                    Math.round(j * ((float) maxY / DIVISION)),
+                    environment.getMapOrigin()
                 ), map.getZoom());
-                GeoPosition middle = mapHelper.toGeoPosition((int) ((i+.5) * maxX / DIVISION), (int) ((j+.5) * maxY / DIVISION));
+                GeoPosition middle = MapHelper.toGeoPosition(
+                    (int) ((i+.5) * maxX / DIVISION),
+                    (int) ((j+.5) * maxY / DIVISION),
+                    environment.getMapOrigin());
 
                 float airQuality = (float) pollutionGrid.getPollutionLevel(middle).getPollutionFactor();
                 g.setColor(this.getColor(airQuality));

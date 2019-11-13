@@ -15,7 +15,7 @@ public interface SensorDataGenerator {
      * @param time time of measurement.
      * @return sensor data based on location and time.
      */
-    byte[] generateData(Integer x, Integer y, LocalTime time);
+    byte[] generateData(int x, int y, LocalTime time);
     byte[] generateData(Pair<Integer, Integer> pos, LocalTime time);
     double nonStaticDataGeneration(double x, double y);
 

@@ -39,7 +39,6 @@ class TestMote {
     @Test
     void setters() {
         Environment environment = new Environment(new Characteristic[200][200], new GeoPosition(10, 10), 1, new HashMap<>(), new HashMap<>());
-        MapHelper.getInstance().setMapOrigin(new GeoPosition(10, 10));
         Mote mote = new Mote(10L, 150, 150, environment, 8, 12, new ArrayList<>(), 100, new Path(), 5);
 
         // Maybe move this to some separate test for networkentity

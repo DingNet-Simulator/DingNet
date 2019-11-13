@@ -138,8 +138,10 @@ public class LoraTransmission implements Serializable{
 
         }
 
-        regionalParameter = regionalParameters.stream().filter(p -> p.getSpreadingFactor() == spreadingFactor &&
-            p.getBandwidth() == bandwidth).findFirst().orElseThrow(() -> new IllegalArgumentException("No regional parameter found with spreading factor: "
+        regionalParameter = regionalParameters.stream()
+            .filter(p -> p.getSpreadingFactor() == spreadingFactor && p.getBandwidth() == bandwidth)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("No regional parameter found with spreading factor: "
             + spreadingFactor + " and bandwidth: " + bandwidth));
 
         departureTime = getEnvironment().getClock().getTime();

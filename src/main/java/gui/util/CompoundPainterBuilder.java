@@ -65,7 +65,7 @@ public class CompoundPainterBuilder {
     }
 
     public CompoundPainterBuilder withBorders(Environment environment) {
-        painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos()));
+        painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos(), environment.getMapOrigin()));
         return this;
     }
 

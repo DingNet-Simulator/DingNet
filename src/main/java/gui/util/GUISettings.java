@@ -9,7 +9,7 @@ public class GUISettings {
     public static final int POLLUTION_GRID_SQUARES = 100;
 
     public static final boolean USE_ANTIALIASING = true;
-    public static final boolean USE_MAP_CACHING = false;
+    public static final boolean USE_MAP_CACHING = true;
 
     public static final float TRANSPARENCY_POLLUTIONGRID = .3f;
     public static final Color DEFAULT_WAYPOINT_COLOR = new Color(102,0,153);

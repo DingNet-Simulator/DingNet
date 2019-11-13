@@ -33,17 +33,11 @@ class TestEnvironment {
     }
 
     @BeforeEach
-    void init() throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+    void init() throws IllegalAccessException, NoSuchFieldException {
         // The environment constructor initializes the GraphStructure instance -> destruct each test
         Field instanceGraph = GraphStructure.class.getDeclaredField("instance");
         instanceGraph.setAccessible(true);
         instanceGraph.set(null, null);
-
-        Field instanceMapHelper = MapHelper.class.getDeclaredField("instance");
-        instanceMapHelper.setAccessible(true);
-        Constructor defaultMapHelperConstructor = MapHelper.class.getDeclaredConstructor();
-        defaultMapHelperConstructor.setAccessible(true);
-        instanceMapHelper.set(null, defaultMapHelperConstructor.newInstance());
     }
 
     @Test
@@ -159,10 +153,11 @@ class TestEnvironment {
 
     @Test
     void moveMote() {
-        Environment environment = new Environment(new Characteristic[600][600], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+        GeoPosition origin = new GeoPosition(0,0);
+        Environment environment = new Environment(new Characteristic[600][600], origin, 1, new HashMap<>(), new HashMap<>());
 
-        GeoPosition destination1 = MapHelper.getInstance().toGeoPosition(200, 500);
-        GeoPosition destination2 = MapHelper.getInstance().toGeoPosition(300, 400);
+        GeoPosition destination1 = MapHelper.toGeoPosition(200, 500, origin);
+        GeoPosition destination2 = MapHelper.toGeoPosition(300, 400, origin);
         Path path = new Path();
         path.addPosition(destination1);
         path.addPosition(destination2);

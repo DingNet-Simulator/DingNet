@@ -64,7 +64,7 @@ public class IAQDataGeneratorSingleton implements SensorDataGenerator {
     }
 
     @Override
-    public byte[] generateData(Integer x, Integer y, LocalTime time) {
+    public byte[] generateData(int x, int y, LocalTime time) {
         //`(height - y)` because in the simulator environment the origin is in the bottom left corner
         int moteRow = (height - y) / (height/row);
         int moteCol = x/ (width/columns);

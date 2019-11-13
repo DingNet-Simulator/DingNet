@@ -59,7 +59,7 @@ public class UserMote extends Mote {
             if (path.getDestination().isPresent() &&    //at least tha path has one point
                 !path.getDestination().get().equals(destination) &&
                 wayPoints.size() > 1 &&
-                MapHelper.getInstance().toMapCoordinate(wayPoints.get(wayPoints.size()-2)).equals(getPosInt())) {
+                MapHelper.toMapCoordinate(wayPoints.get(wayPoints.size()-2), getEnvironment().getMapOrigin()).equals(getPosInt())) {
                 //require new part of path
                 askNewPartOfPath();
             }
@@ -118,14 +118,14 @@ public class UserMote extends Mote {
 
     @Override
     public boolean isArrivedToDestination() {
-        return this.getPosInt().equals(MapHelper.getInstance().toMapCoordinate(destination));
+        return this.getPosInt().equals(MapHelper.toMapCoordinate(destination, getEnvironment().getMapOrigin()));
     }
 
 
     @Override
     public void initialize() {
         super.initialize();
-        setPath(new Path(List.of(MapHelper.getInstance().toGeoPosition(this.getPosInt()))));
+        setPath(new Path(List.of(MapHelper.toGeoPosition(this.getPosInt(), getEnvironment().getMapOrigin()))));
         this.alreadyRequested = false;
     }
 }

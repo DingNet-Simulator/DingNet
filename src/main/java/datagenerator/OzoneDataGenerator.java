@@ -18,7 +18,7 @@ public class OzoneDataGenerator implements SensorDataGenerator {
         random = new Random(DEFAULT_SEED);
     }
 
-    public static Double generateData(double x, double y) {
+    public static double generateData(double x, double y) {
         if (x < 200 && y < 200)
             return (double) 97 - 30 + (x + y) / 250 + 0.3 * random.nextGaussian();
         else if (x < 1000 && y < 1000)
@@ -38,8 +38,8 @@ public class OzoneDataGenerator implements SensorDataGenerator {
      * @param time The time of the measurement.
      * @return A measurement of ozone at the given position and time.
      */
-    public byte[] generateData(Integer x, Integer y, LocalTime time){
-        Double result = OzoneDataGenerator.generateData((double)x, (double) y);
+    public byte[] generateData(int x, int y, LocalTime time){
+        double result = OzoneDataGenerator.generateData(x,  y);
         return new byte[]{(byte)Math.floorMod((int) Math.round(result),255)};
     }
     public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time){
