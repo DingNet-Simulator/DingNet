@@ -12,6 +12,7 @@ import selfadaptation.feedbackLoop.ReliableEfficientDistanceGateway;
 import selfadaptation.feedbackLoop.SignalBasedAdaptation;
 import selfadaptation.instrumentation.MoteEffector;
 import selfadaptation.instrumentation.MoteProbe;
+import util.MutableInteger;
 import util.Pair;
 import util.pollution.PollutionGrid;
 import util.xml.*;
@@ -113,12 +114,10 @@ public class SimulationRunner {
     public void setApproach(String name) {
         var selectedAlgorithm = algorithms.stream()
             .filter(o -> o.getName().equals(name))
-            .findFirst();
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException(String.format("Could not load approach with name %s", name)));
 
-        if (selectedAlgorithm.isEmpty()) {
-            throw new RuntimeException(String.format("Could not load approach with name %s", name));
-        }
-        simulation.setApproach(selectedAlgorithm.get());
+        simulation.setApproach(selectedAlgorithm);
     }
 
     public void updateQoS(QualityOfService QoS) {
@@ -143,14 +142,14 @@ public class SimulationRunner {
         return simulation.isFinished();
     }
 
-    public void simulate(int updateFrequency, SimulationUpdateListener listener) {
+    public void simulate(MutableInteger updateFrequency, SimulationUpdateListener listener) {
         new Thread(() -> {
             long simulationStep = 0;
             while (!this.isSimulationFinished()) {
                 this.simulateStep();
 
                 // Visualize every x seconds
-                if (simulationStep++ % (updateFrequency * 1000) == 0) {
+                if (simulationStep++ % (updateFrequency.intValue() * 1000) == 0) {
                     listener.update();
                 }
             }

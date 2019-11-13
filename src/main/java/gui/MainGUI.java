@@ -37,6 +37,7 @@ import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import selfadaptation.feedbackLoop.GenericFeedbackLoop;
 import util.MapHelper;
+import util.MutableInteger;
 import util.Pair;
 
 import javax.swing.*;
@@ -47,6 +48,8 @@ import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
@@ -109,6 +112,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private static DefaultTileFactory tileFactory = new DefaultTileFactory(info);
 
     private SimulationRunner simulationRunner;
+    private MutableInteger simulationSpeed;
 
     private double usedEnergy;
     private int packetsSent;
@@ -148,6 +152,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
     public MainGUI(SimulationRunner simulationRunner) {
         this.simulationRunner = simulationRunner;
+        this.simulationSpeed = new MutableInteger(GUISettings.BASE_VISUALIZATION_SPEED);
 
         updateInputProfiles();
         updateAdaptationGoals();
@@ -186,7 +191,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             this.setEnabledRunButtons(false);
             simulationRunner.setupSingleRun();
 
-            simulationRunner.simulate(speedSlider.getValue() * 5, this);
+            simulationRunner.simulate(simulationSpeed, this);
         });
 
         timedRunButton.addActionListener(e -> {
@@ -198,7 +203,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             this.setEnabledRunButtons(false);
             simulationRunner.setupTimedRun();
 
-            simulationRunner.simulate(speedSlider.getValue() * 5, this);
+            simulationRunner.simulate(simulationSpeed, this);
         });
 
         totalRunButton.addActionListener(e -> {
@@ -250,6 +255,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             moteCharacteristicsDialog.pack();
             moteCharacteristicsDialog.setVisible(true);
         });
+
+        speedSlider.addChangeListener(
+            e -> this.simulationSpeed.setValue(GUISettings.BASE_VISUALIZATION_SPEED * speedSlider.getValue())
+        );
     }
 
 

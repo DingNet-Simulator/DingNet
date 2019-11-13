@@ -7,6 +7,7 @@ public class GUISettings {
 
     public static final int THREADPOOLSIZE = 8;
     public static final int POLLUTION_GRID_SQUARES = 100;
+    public static final int BASE_VISUALIZATION_SPEED = 1;
 
     public static final boolean USE_ANTIALIASING = true;
     public static final boolean USE_MAP_CACHING = true;
