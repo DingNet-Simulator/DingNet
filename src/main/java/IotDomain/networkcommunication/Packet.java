@@ -9,4 +9,6 @@ public interface Packet {
     byte[] getPayload();
 
     byte[] getHeader();
+
+    int getLength();
 }

@@ -177,6 +177,7 @@ public class LoraWanPacket implements Serializable, Packet{
      * Returns the length in symbols.
      * @return the length in symbols.
      */
+    @Override
     public int getLength(){
         return length;
     }
