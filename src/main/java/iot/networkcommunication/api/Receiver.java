@@ -1,5 +1,6 @@
-package iot.networkcommunication;
+package iot.networkcommunication.api;
 
+import iot.lora.LoraTransmission;
 import util.Pair;
 
 import java.util.function.Consumer;

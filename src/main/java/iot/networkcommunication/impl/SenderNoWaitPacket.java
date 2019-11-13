@@ -1,8 +1,12 @@
-package iot.networkcommunication;
+package iot.networkcommunication.impl;
 
 import iot.Characteristic;
 import iot.Environment;
+import iot.lora.LoraTransmission;
+import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
+import iot.networkcommunication.api.Receiver;
+import iot.networkcommunication.api.Sender;
 import iot.networkentity.NetworkEntity;
 import org.jetbrains.annotations.NotNull;
 import util.Pair;
@@ -15,7 +19,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LoraCommunication implements Sender<LoraWanPacket> {
+public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
 
     private RegionalParameter regionalParameter;
     private double transmissionPower;
@@ -28,7 +32,7 @@ public class LoraCommunication implements Sender<LoraWanPacket> {
      */
     private final Random random = new Random();
 
-    public LoraCommunication(NetworkEntity sender, Environment env) {
+    public SenderNoWaitPacket(NetworkEntity sender, Environment env) {
         reset();
         this.env = env;
         this.sender = sender;

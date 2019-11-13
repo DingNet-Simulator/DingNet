@@ -1,6 +1,8 @@
-package iot.networkcommunication;
+package iot.networkcommunication.api;
 
 
+import iot.lora.LoraTransmission;
+import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package iot.strategy.consume;
 
 
-import iot.networkcommunication.LoraWanPacket;
+import iot.lora.LoraWanPacket;
 import iot.networkentity.Mote;
 
 import java.util.Arrays;

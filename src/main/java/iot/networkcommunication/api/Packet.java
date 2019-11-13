@@ -1,4 +1,4 @@
-package iot.networkcommunication;
+package iot.networkcommunication.api;
 
 public interface Packet {
 

@@ -1,7 +1,7 @@
 package iot.strategy.response.gateway;
 
 
-import iot.networkcommunication.LoraWanPacket;
+import iot.lora.LoraWanPacket;
 import iot.networkentity.Gateway;
 
 import java.util.LinkedList;

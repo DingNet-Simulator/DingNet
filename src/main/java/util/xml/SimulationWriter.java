@@ -1,7 +1,7 @@
 package util.xml;
 
 import iot.Simulation;
-import iot.networkcommunication.LoraTransmission;
+import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.NetworkEntity;

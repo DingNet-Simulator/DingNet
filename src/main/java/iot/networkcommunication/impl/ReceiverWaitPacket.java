@@ -1,6 +1,9 @@
-package iot.networkcommunication;
+package iot.networkcommunication.impl;
 
 import iot.GlobalClock;
+import iot.lora.LoraTransmission;
+import iot.lora.LoraWanPacket;
+import iot.networkcommunication.api.Receiver;
 import iot.networkentity.NetworkEntity;
 import util.Pair;
 import util.TimeHelper;
@@ -12,7 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ReceiverLoRa implements Receiver<LoraWanPacket> {
+public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
 
     // The levels of power in between which it can discriminate.
     private final double transmissionPowerThreshold;
@@ -24,7 +27,7 @@ public class ReceiverLoRa implements Receiver<LoraWanPacket> {
 
     private final NetworkEntity receiver;
 
-    public ReceiverLoRa(NetworkEntity receiver, GlobalClock clock, double transmissionPowerThreshold) {
+    public ReceiverWaitPacket(NetworkEntity receiver, GlobalClock clock, double transmissionPowerThreshold) {
         this.transmissionPowerThreshold = transmissionPowerThreshold;
         this.receiver = receiver;
         this.clock = clock;

@@ -1,9 +1,9 @@
-package iot.networkcommunication;
+package iot.lora;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
-import iot.lora.RegionalParameter;
+import iot.networkcommunication.api.Packet;
 import util.Pair;
 
 import java.io.Serializable;

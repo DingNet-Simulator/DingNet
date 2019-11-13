@@ -2,7 +2,7 @@ package iot.strategy.store;
 
 
 
-import iot.networkcommunication.LoraWanPacket;
+import iot.lora.LoraWanPacket;
 
 import java.util.Optional;
 

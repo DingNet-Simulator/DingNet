@@ -5,10 +5,11 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
 import iot.Environment;
-import iot.lora.EU868ParameterByDataRate;
-import iot.lora.MacCommand;
-import iot.lora.RegionalParameter;
-import iot.networkcommunication.*;
+import iot.lora.*;
+import iot.networkcommunication.api.Receiver;
+import iot.networkcommunication.api.Sender;
+import iot.networkcommunication.impl.ReceiverWaitPacket;
+import iot.networkcommunication.impl.SenderNoWaitPacket;
 import util.Converter;
 import util.ListHelper;
 import util.Pair;
@@ -116,8 +117,8 @@ public abstract class NetworkEntity implements Serializable {
         receivedTransmissions.add(new LinkedHashSet<>());
         sentTransmissions.add(new LinkedList<>());
         enabled = true;
-        receiver = new ReceiverLoRa(this, getEnvironment().getClock(), transmissionPowerThreshold).setConsumerPacket(this::receive);
-        sender = new LoraCommunication(this, getEnvironment())
+        receiver = new ReceiverWaitPacket(this, getEnvironment().getClock(), transmissionPowerThreshold).setConsumerPacket(this::receive);
+        sender = new SenderNoWaitPacket(this, getEnvironment())
             .setRegionalParameter(regionalParameters.stream().filter(r -> r.getSpreadingFactor() == this.SF).findFirst().orElseThrow())
             .setTransmissionPower(transmissionPower);
     }

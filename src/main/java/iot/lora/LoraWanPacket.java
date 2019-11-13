@@ -1,16 +1,14 @@
-package iot.networkcommunication;
+package iot.lora;
 
 
-import iot.lora.BasicFrameHeader;
-import iot.lora.FrameHeader;
-import iot.lora.MacCommand;
+import iot.networkcommunication.api.Packet;
 import util.Converter;
 
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class LoraWanPacket implements Serializable, Packet{
+public class LoraWanPacket implements Serializable, Packet {
     private static final long serialVersionUID = 1L;
     /**
      * The payload of a packet.

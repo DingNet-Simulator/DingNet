@@ -1,13 +1,11 @@
 package iot.networkentity;
 
 
-
-
 import iot.Environment;
+import iot.lora.LoraWanPacket;
 import iot.mqtt.MqttClientBasicApi;
 import iot.mqtt.MqttMessage;
 import iot.mqtt.MqttMock;
-import iot.networkcommunication.LoraWanPacket;
 import iot.strategy.response.gateway.ResponseStrategy;
 import iot.strategy.response.gateway.SendNewestPacket;
 import selfadaptation.instrumentation.MoteProbe;
