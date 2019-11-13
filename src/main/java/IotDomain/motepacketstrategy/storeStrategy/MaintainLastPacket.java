@@ -1,6 +1,7 @@
 package IotDomain.motepacketstrategy.storeStrategy;
 
-import IotDomain.lora.LoraWanPacket;
+
+import IotDomain.networkcommunication.LoraWanPacket;
 
 import java.util.Optional;
 
@@ -11,8 +12,8 @@ public class MaintainLastPacket implements ReceivedPacketStrategy {
 
     @Override
     public void addReceivedMessage(LoraWanPacket packet) {
-        if (packet.getHeader().getFCntAsShort() > lastPacketReceived) {
-            lastPacketReceived = packet.getHeader().getFCntAsShort();
+        if (packet.getFrameHeader().getFCntAsShort() > lastPacketReceived) {
+            lastPacketReceived = packet.getFrameHeader().getFCntAsShort();
             this.packet = packet;
         }
     }

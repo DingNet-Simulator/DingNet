@@ -1,15 +1,13 @@
 package IotDomain.networkentity;
 
 import IotDomain.Environment;
-import IotDomain.collisionstrategy.CollisionStrategy;
-import IotDomain.lora.CollisionObserver;
 import IotDomain.lora.LoraTransmission;
-import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
+import IotDomain.networkcommunication.*;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
-import util.ListHelper;
+import util.Converter;
 import util.Pair;
 import util.TimeHelper;
 
@@ -21,18 +19,16 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 /**
  * An  abstract class representing an entity active in the LoraWan network
  */
-public abstract class NetworkEntity implements Serializable, CollisionObserver {
+public abstract class NetworkEntity implements Serializable {
     // EUI of the network entity
     private static final long serialVersionUID = 1L;
-
-    // A boolean to know when the entity is transmitting
-    private boolean isTransmitting;
 
     // A list representing the power setting of every transmission.
     private LinkedList<List<Pair<Integer,Integer>>> powerSettingHistory;
@@ -74,7 +70,8 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
     // If the mote is enabled in the current simulation.
     private Boolean enabled;
 
-    private CollisionStrategy collisionStrategy;
+    private Sender<IotDomain.networkcommunication.LoraWanPacket> sender;
+    private Receiver<IotDomain.networkcommunication.LoraWanPacket> receiver;
 
     /**
      *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
@@ -118,8 +115,9 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
         spreadingFactorHistory.add(new LinkedList<>());
         receivedTransmissions.add(new LinkedHashMap<>());
         sentTransmissions.add(new LinkedList<>());
-        isTransmitting = false;
         enabled = true;
+        receiver = new ReceiverLoRa(this, getEnvironment().getClock(), transmissionPowerThreshold).setConsumerPacket(this::receive);
+        sender = new LoraCommunication(this, getEnvironment());
     }
 
     /**
@@ -212,7 +210,7 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
     }
 
     /**
-     * A method for receiving a packet, which checks if it can detect the packet and then adds it to the reeived packets.
+     * A method for receiving a packet, which checks if it can detect the packet and then adds it to the received packets.
      * @param transmission The transmission to receiveTransmission.
      * @Effect if the package has a high enough transmission power, it is added using packetStrengthHighEnough().
      */
@@ -237,7 +235,14 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
                 return LocalTime.of(0,0);
             });
         }
+    }
 
+    public void receive(IotDomain.networkcommunication.LoraTransmission<LoraWanPacket> transmission) {
+        receivedTransmissions.getLast().put(transmission,false);
+            if(!transmission.isCollided()) {
+                handleMacCommands(transmission.getContent());
+                OnReceive(transmission.getContent());
+            }
     }
 
     /**
@@ -245,7 +250,7 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
      * @param packet the packets with MAC commands
      */
     public void handleMacCommands(LoraWanPacket packet) {
-        LinkedList<Byte> payload = new LinkedList<>(Arrays.asList(packet.getPayload()));
+        LinkedList<Byte> payload = new LinkedList<>(Arrays.asList(Converter.toObjectType(packet.getPayload())));
         LinkedList<Byte> variables = new LinkedList<>();
         for(MacCommand command : packet.getMacCommands()) {
             for(Integer i = 0; i<command.getLength(); i++) {
@@ -396,26 +401,17 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
      * A method which sends a message to all gateways in the environment
      * @param message The message to send.
      */
-    protected void loraSend(LoraWanPacket message) {
-        if (!isTransmitting) {
-            isTransmitting = true;
-            powerSettingHistory.getLast().add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
-            spreadingFactorHistory.getLast().add(getSF());
-            Stream.concat(getEnvironment().getGateways().stream(), getEnvironment().getMotes().stream())
-                .filter(ne -> filterLoraSend(ne, message))
-                .map(ne -> new LoraTransmission(this, ne, getTransmissionPower(), 125, getSF(), message))
-                .peek(lt -> lt.setCollisionObserver(this))
-                .peek(LoraTransmission::depart)
-                .findAny()
-                .ifPresent(lt -> ListHelper.getLast(sentTransmissions).add(lt));
-            var clock = getEnvironment().getClock();
-            clock.addTrigger(clock.getTime().plusNanos((long)TimeHelper.miliToNano(ListHelper.getLast(ListHelper.getLast(sentTransmissions)).getTimeOnAir())), () -> {
-                isTransmitting = false;
-                return LocalTime.of(0,0);
-            });
-        } else {
-            throw new IllegalStateException("impossible send two packet at the same time");
-        }
+    protected void send(LoraWanPacket message) {
+        var recs = Stream.concat(getEnvironment().getGateways().stream(), getEnvironment().getMotes().stream())
+            .filter(ne -> filterLoraSend(ne, message))
+            .map(NetworkEntity::getReceiver)
+            .collect(Collectors.toSet());
+        sender.send(message, recs); //TODO use return value to add statistic
+
+    }
+
+    public Receiver<IotDomain.networkcommunication.LoraWanPacket> getReceiver() {
+        return receiver;
     }
 
     /**
@@ -498,15 +494,6 @@ public abstract class NetworkEntity implements Serializable, CollisionObserver {
     public void enable(boolean enabled) {
         this.enabled = enabled;
     }
-
-    //region aloha
-    @Override
-    public void notifyCollision(LoraTransmission loraTransmission) {
-        //collisionStrategy.manageCollision(loraTransmission);
-
-    }
-
-    //endregion
 
     /**
      *

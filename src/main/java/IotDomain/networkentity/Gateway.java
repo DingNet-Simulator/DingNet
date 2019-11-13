@@ -2,14 +2,14 @@ package IotDomain.networkentity;
 
 
 import IotDomain.Environment;
-import IotDomain.gatewayresponsestrategy.NoResponse;
 import IotDomain.gatewayresponsestrategy.ResponseStrategy;
 import IotDomain.gatewayresponsestrategy.SendNewestPacket;
-import IotDomain.lora.LoraWanPacket;
 import IotDomain.mqtt.MqttClientBasicApi;
 import IotDomain.mqtt.MqttMessage;
 import IotDomain.mqtt.MqttMock;
+import IotDomain.networkcommunication.LoraWanPacket;
 import SelfAdaptation.Instrumentation.MoteProbe;
+import util.Converter;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -75,18 +75,18 @@ public class Gateway extends NetworkEntity {
     protected void OnReceive(LoraWanPacket packet) {
         //manage the message only if it is of a mote
         if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
-            var message = new MqttMessage(packet.getHeader(), new LinkedList<>(Arrays.asList(packet.getPayload())), packet.getSenderEUI(), getEUI(), packet.getDesignatedReceiverEUI());
-            mqttClient.publish(getTopic(packet.getDesignatedReceiverEUI(), packet.getSenderEUI()), message);
+            var message = new MqttMessage(packet.getFrameHeader(), new LinkedList<>(Arrays.asList(Converter.toObjectType(packet.getPayload()))), packet.getSenderEUI(), getEUI(), packet.getReceiverEUI());
+            mqttClient.publish(getTopic(packet.getReceiverEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
                 moteProbe.trigger(this, packet.getSenderEUI());
             }
-            responseStrategy.retrieveResponse(packet.getDesignatedReceiverEUI(), packet.getSenderEUI()).ifPresent(this::loraSend);
+            responseStrategy.retrieveResponse(packet.getReceiverEUI(), packet.getSenderEUI()).ifPresent(this::send);
         }
     }
 
     @Override
     boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
-        return networkEntity.getEUI() == packet.getDesignatedReceiverEUI();
+        return networkEntity.getEUI() == packet.getReceiverEUI();
     }
 
     @Override

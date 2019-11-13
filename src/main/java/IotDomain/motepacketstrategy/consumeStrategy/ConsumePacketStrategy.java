@@ -1,6 +1,6 @@
 package IotDomain.motepacketstrategy.consumeStrategy;
 
-import IotDomain.lora.LoraWanPacket;
+import IotDomain.networkcommunication.LoraWanPacket;
 import IotDomain.networkentity.Mote;
 
 @FunctionalInterface

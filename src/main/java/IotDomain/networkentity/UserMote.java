@@ -2,10 +2,10 @@ package IotDomain.networkentity;
 
 import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
-import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ReplacePath;
+import IotDomain.networkcommunication.LoraWanPacket;
 import SensorDataGenerators.SensorDataGenerator;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;

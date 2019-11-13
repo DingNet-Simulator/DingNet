@@ -1,6 +1,6 @@
 package IotDomain.motepacketstrategy.consumeStrategy;
 
-import IotDomain.lora.LoraWanPacket;
+import IotDomain.networkcommunication.LoraWanPacket;
 import IotDomain.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
@@ -22,7 +22,7 @@ public class ReplacePath implements ConsumePacketStrategy {
         if ((packet.getPayload().length % BYTES_FOR_GEO_COORDINATE) != 0) {
             throw new IllegalStateException("the packet doesn't contain the correct amount of byte");
         }
-        var payload = Converter.toRowType(packet.getPayload());
+        var payload = packet.getPayload();
         final List<GeoPosition> path = new LinkedList<>();
         for (int i = 0; i+ BYTES_FOR_GEO_COORDINATE <= payload.length; i+= BYTES_FOR_GEO_COORDINATE) {
             path.add(Converter.toGeoPosition(payload, i));

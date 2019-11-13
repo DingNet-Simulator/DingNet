@@ -2,16 +2,17 @@ package IotDomain.networkentity;
 
 import IotDomain.Environment;
 import IotDomain.lora.BasicFrameHeader;
-import IotDomain.lora.LoraWanPacket;
 import IotDomain.lora.MacCommand;
 import IotDomain.lora.MessageType;
 import IotDomain.motepacketstrategy.consumeStrategy.ConsumePacketStrategy;
 import IotDomain.motepacketstrategy.storeStrategy.MaintainLastPacket;
 import IotDomain.motepacketstrategy.storeStrategy.ReceivedPacketStrategy;
+import IotDomain.networkcommunication.LoraWanPacket;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Converter;
 import util.MapHelper;
 import util.Path;
 
@@ -136,7 +137,7 @@ public class Mote extends NetworkEntity {
     @Override
     protected void OnReceive(LoraWanPacket packet) {
         //if is a message sent to from a gateway to this mote
-        if (canReceive && getEUI() == packet.getDesignatedReceiverEUI() &&
+        if (canReceive && getEUI() == packet.getReceiverEUI() &&
             getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
             canReceive = false;
             receivedPacketStrategy.addReceivedMessage(packet);
@@ -228,14 +229,14 @@ public class Mote extends NetworkEntity {
         keepAliveTriggerId = getEnvironment().getClock().addTrigger(
             getEnvironment().getClock().getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
             () -> {
-                Byte[] payload;
+                byte[] payload;
                 if (lastPacketSent == null) {
-                    payload = new Byte[]{MessageType.KEEPALIVE.getCode()};
+                    payload = new byte[]{MessageType.KEEPALIVE.getCode()};
                 } else {
                     payload = lastPacketSent.getPayload();
                     payload[0] = MessageType.KEEPALIVE.getCode();
                 }
-                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
+                var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), Converter.toObjectType(payload),
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
                 sendToGateWay(packet);
                 return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
@@ -259,7 +260,7 @@ public class Mote extends NetworkEntity {
     public void sendToGateWay(LoraWanPacket packet){
         if ((lastPacketSent == null && packet.getPayload().length > 0) ||   //is the first packet
             (packet.getPayload().length > 1 &&
-                (packet.getPayload()[0].equals(MessageType.KEEPALIVE.getCode()) ||
+                (packet.getPayload()[0] == MessageType.KEEPALIVE.getCode() ||
                 !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload())))) {
             loraSend(packet);
             canReceive = true;
