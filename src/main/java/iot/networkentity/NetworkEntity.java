@@ -419,7 +419,7 @@ public abstract class NetworkEntity implements Serializable {
     /**
      * Resets the received and sent transmissions and the power setting and the spreading factor history of the entity.
      */
-    public void reset() {
+    public void resetHistory() {
         powerSettingHistory.clear();
         powerSettingHistory.add(new LinkedList<>());
         spreadingFactorHistory.clear();

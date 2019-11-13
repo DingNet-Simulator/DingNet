@@ -5,12 +5,10 @@ import datagenerator.SensorDataGenerator;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
-import util.Pair;
 import util.TimeHelper;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -129,7 +127,7 @@ public class Simulation {
      */
     @Basic
     void setApproach(GenericFeedbackLoop approach) {
-        if(getApproach()!= null) {
+        if (getApproach()!= null) {
             getApproach().stop();
         }
         this.approach = approach;
@@ -137,15 +135,7 @@ public class Simulation {
     }
     // <GetterSetters>
 
-    void updateMotesLocation(Map<Mote, Pair<Integer,Integer>> locations)
-    {
-        List<Mote> motes = this.environment.getMotes();
-        for (Mote mote : motes) {
-            Pair<Integer,Integer> location = locations.get(mote);
-            mote.setXPos(location.getLeft());
-            mote.setYPos(location.getRight());
-        }
-    }
+
     /**
      * Gets the probability with which a mote should be active from the input profile of the current simulation.
      * If no probability is specified, the probability is set to one.
@@ -154,12 +144,12 @@ public class Simulation {
     private void setupMotesActivationStatus() {
         LinkedList<Mote> motes = this.environment.getMotes();
         Set<Integer> moteProbabilities = this.inputProfile.getProbabilitiesForMotesKeys();
-        for(int i = 0; i < motes.size(); i++) {
+        for (int i = 0; i < motes.size(); i++) {
             Mote mote = motes.get(i);
-            Double activityProbability = 1.0;
-            if(moteProbabilities.contains(i))
+            double activityProbability = 1;
+            if (moteProbabilities.contains(i))
                 activityProbability = this.inputProfile.getProbabilityForMote(i);
-            if(Math.random() >= 1.0 - activityProbability)
+            if (Math.random() >= 1 - activityProbability)
                 mote.enable(true);
         }
     }
@@ -167,9 +157,9 @@ public class Simulation {
     /**
      * check that do all motes arrive at their destination
      */
-    private Boolean areAllMotesAtDestination() {
-        return this.environment.getMotes().stream().allMatch(m ->
-                !m.isEnabled() || m.isArrivedToDestination());
+    private boolean areAllMotesAtDestination() {
+        return this.environment.getMotes().stream()
+            .allMatch(m -> !m.isEnabled() || m.isArrivedToDestination());
     }
 
 
@@ -205,11 +195,21 @@ public class Simulation {
         this.wayPointMap = new HashMap<>();
         this.timeMap = new HashMap<>();
 
+        setupMotesActivationStatus();
+
         for (Mote mote : this.environment.getMotes()) {
+            // Reset all the sensors of the mote
+            mote.getSensors().stream()
+                .map(MoteSensor::getSensorDataGenerator)
+                .forEach(SensorDataGenerator::reset);
+
+            // Initialize the mote (e.g. reset starting position)
             mote.initialize();
 
             timeMap.put(mote, this.environment.getClock().getTime());
             wayPointMap.put(mote,0);
+
+            // Add initial triggers to the clock for mote data transmissions (transmit sensor readings)
             environment.getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
                 mote.sendToGateWay(
                     mote.getSensors().stream()
@@ -223,65 +223,21 @@ public class Simulation {
         this.continueSimulation = pred;
     }
 
-    void setupSingleRun() {
-        setupMotesActivationStatus();
-        reset();
+    void setupSingleRun(boolean startFresh) {
+        if (startFresh) {
+            resetHistory();
+        }
         this.setupSimulation((env) -> !areAllMotesAtDestination());
     }
 
     void setupTimedRun() {
-        setupMotesActivationStatus();
-        reset();
+        resetHistory();
         var finalTime = environment.getClock().getTime()
             .plus(inputProfile.getSimulationDuration(), inputProfile.getTimeUnit());
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }
 
-    private void reset() {
-        this.environment.reset();
-        getEnvironment().getMotes().stream()
-            .flatMap(m -> m.getSensors().stream())
-            .map(MoteSensor::getSensorDataGenerator)
-            .forEach(SensorDataGenerator::reset);
-    }
-
-
-    /**
-     * A method for running the simulation multiple times, specified in the InputProfile.
-     * @param fn A callback function used to track the progress of the runs : fn(Pair<>(currentIndex, totalRuns)).
-     */
-    void multipleRuns(Consumer<Pair<Integer, Integer>> fn) {
-        Thread t = new Thread(() -> {
-            getEnvironment().reset();
-            int nrOfRuns = inputProfile.getNumberOfRuns();
-
-            // Store the initial positions of the motes so that these can be reset after each simulation run
-            Map<Mote, Pair<Integer, Integer>> initialLocationMap = new HashMap<>();
-            getEnvironment().getMotes().forEach(m -> initialLocationMap.put(m, m.getPosInt()));
-
-            for (int i = 0; i < inputProfile.getNumberOfRuns(); i++) {
-                setupMotesActivationStatus();
-                getEnvironment().getClock().reset();    //why we add this
-                this.setupSimulation((env) -> !areAllMotesAtDestination());
-
-                if (fn != null) {
-                    fn.accept(new Pair<>(i, nrOfRuns));
-                }
-                if (i != 0) {
-                    getEnvironment().addRun();
-                }
-
-                while (!isFinished()) {
-                    this.simulateStep();
-                }
-
-                updateMotesLocation(initialLocationMap);
-            }
-
-            if (fn != null) {
-                fn.accept(new Pair<>(nrOfRuns, nrOfRuns));
-            }
-        });
-        t.start();
+    private void resetHistory() {
+        this.environment.resetHistory();
     }
 }

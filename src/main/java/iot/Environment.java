@@ -363,13 +363,13 @@ public class Environment implements Serializable {
     /**
      * reset all entities in the configuration.
      */
-    public void reset() {
+    public void resetHistory() {
         getClock().reset();
         for(Mote mote: getMotes()) {
-            mote.reset();
+            mote.resetHistory();
         }
         for(Gateway gateway: getGateways()) {
-            gateway.reset();
+            gateway.resetHistory();
         }
         numberOfRuns = 1;
     }

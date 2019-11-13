@@ -46,11 +46,11 @@ public class Mote extends NetworkEntity {
     private int startMovementOffset;
 
     // The last used frameCounter used when transmitting lora messages
-    private short frameCounter = 0;
+    private short frameCounter;
 
-    protected boolean canReceive = false;
+    protected boolean canReceive;
 
-    private long keepAliveTriggerId = -1L;
+    private long keepAliveTriggerId;
 
     private LoraWanPacket lastPacketSent;
 
@@ -67,9 +67,9 @@ public class Mote extends NetworkEntity {
 
     // application identifier
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
-    private final ReceivedPacketStrategy receivedPacketStrategy = new MaintainLastPacket();
+    private ReceivedPacketStrategy receivedPacketStrategy;
 
-    final List<ConsumePacketStrategy> consumePacketStrategies = new ArrayList<>();
+    protected List<ConsumePacketStrategy> consumePacketStrategies;
 
     //endregion
 
@@ -104,7 +104,8 @@ public class Mote extends NetworkEntity {
         this.startMovementOffset = startMovementOffset;
         this.periodSendingPacket = periodSendingPacket;
         this.startSendingOffset = startSendingOffset;
-        resetKeepAliveTrigger(this.startSendingOffset);
+
+        this.initialize();
     }
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -152,10 +153,15 @@ public class Mote extends NetworkEntity {
     public void initialize() {
         this.setXPos(this.initialPosition.getLeft());
         this.setYPos(this.initialPosition.getRight());
-        this.receivedPacketStrategy.clear();
-        lastPacketSent = null;
-        keepAliveTriggerId = -1;
-        canReceive = false;
+
+        this.frameCounter = 0;
+        this.canReceive = false;
+        this.keepAliveTriggerId = -1L;
+        this.lastPacketSent = null;
+        this.receivedPacketStrategy = new MaintainLastPacket();
+        this.consumePacketStrategies =  new ArrayList<>();
+
+        resetKeepAliveTrigger(this.startSendingOffset);
     }
 
     /**

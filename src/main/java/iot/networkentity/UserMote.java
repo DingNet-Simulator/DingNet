@@ -26,9 +26,9 @@ public class UserMote extends Mote {
 
     UserMote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
-        consumePacketStrategies.add(new ReplacePath());
         this.destination = destination;
-        // the method initialized() is called at the beginning of each simulation so we don't need to call also here
+
+        this.initialize();
     }
 
     @Override
@@ -128,7 +128,9 @@ public class UserMote extends Mote {
     @Override
     public void initialize() {
         super.initialize();
+
         setPath(new Path(List.of(MapHelper.toGeoPosition(this.getPosInt(), getEnvironment().getMapOrigin()))));
         this.alreadyRequested = false;
+        consumePacketStrategies.add(new ReplacePath());
     }
 }

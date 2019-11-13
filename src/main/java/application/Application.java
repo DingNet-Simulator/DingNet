@@ -31,4 +31,8 @@ public abstract class Application {
 
         return sensorData;
     }
+
+    public void destruct() {
+        this.mqttClient.disconnect();
+    }
 }

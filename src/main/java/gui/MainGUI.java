@@ -4,7 +4,6 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.sun.tools.javac.Main;
 import gui.mapviewer.*;
 import gui.util.*;
 import iot.*;

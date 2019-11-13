@@ -5,6 +5,7 @@ import application.PollutionMonitor;
 import application.RoutingApplication;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
+import org.jetbrains.annotations.NotNull;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
@@ -126,9 +127,12 @@ public class SimulationRunner {
 
 
 
-
     public void setupSingleRun() {
-        simulation.setupSingleRun();
+        this.setupSingleRun(true);
+    }
+
+    public void setupSingleRun(boolean startFresh) {
+        simulation.setupSingleRun(startFresh);
 
         PollutionGrid.getInstance().clean();
         routingApplication.clean();
@@ -136,6 +140,9 @@ public class SimulationRunner {
 
     public void setupTimedRun() {
         simulation.setupTimedRun();
+
+        PollutionGrid.getInstance().clean();
+        routingApplication.clean();
     }
 
     private boolean isSimulationFinished() {
@@ -146,7 +153,7 @@ public class SimulationRunner {
         new Thread(() -> {
             long simulationStep = 0;
             while (!this.isSimulationFinished()) {
-                this.simulateStep();
+                this.simulation.simulateStep();
 
                 // Visualize every x seconds
                 if (simulationStep++ % (updateFrequency.intValue() * 1000) == 0) {
@@ -160,18 +167,35 @@ public class SimulationRunner {
         }).start();
     }
 
-    private void simulateStep() {
-        simulation.simulateStep();
-    }
-
 
     @SuppressWarnings("unused")
     public void totalRun() {
-        totalRun(null);
+        this.totalRun(o -> {});
     }
 
-    public void totalRun(Consumer<Pair<Integer, Integer>> fn) {
-        simulation.multipleRuns(fn);
+    public void totalRun(@NotNull Consumer<Pair<Integer, Integer>> fn) {
+        int nrOfRuns = simulation.getInputProfile()
+            .orElseThrow(() -> new IllegalStateException("No input profile selected before running the simulation"))
+            .getNumberOfRuns();
+        setupSingleRun(true);
+
+        new Thread(() -> {
+            fn.accept(new Pair<>(0, nrOfRuns));
+
+            for (int i = 0; i < nrOfRuns; i++) {
+
+                while (!simulation.isFinished()) {
+                    this.simulation.simulateStep();
+                }
+
+                fn.accept(new Pair<>(i+1, nrOfRuns));
+
+                if (i != nrOfRuns - 1) {
+                    getEnvironment().addRun();
+                    setupSingleRun(false);
+                }
+            }
+        }).start();
     }
 
 
@@ -196,9 +220,7 @@ public class SimulationRunner {
             }
         }
 
-        // Setup of user applications
-        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment());
-        this.routingApplication = new RoutingApplication(new AStarRouter());
+        setupApplications();
     }
 
 
@@ -213,5 +235,17 @@ public class SimulationRunner {
 
     public RoutingApplication getRoutingApplication() {
         return routingApplication;
+    }
+
+    public void setupApplications() {
+        if (this.pollutionMonitor != null) {
+            this.pollutionMonitor.destruct();
+        }
+        if (this.routingApplication != null) {
+            this.routingApplication.destruct();
+        }
+
+        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment());
+        this.routingApplication = new RoutingApplication(new AStarRouter());
     }
 }
