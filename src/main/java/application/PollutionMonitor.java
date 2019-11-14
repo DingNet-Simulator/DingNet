@@ -2,7 +2,7 @@ package application;
 
 import iot.Environment;
 import iot.lora.MessageType;
-import iot.mqtt.MqttMessage;
+import iot.mqtt.BasicMqttMessage;
 import iot.mqtt.Topics;
 import iot.networkentity.MoteSensor;
 import util.MapHelper;
@@ -39,7 +39,7 @@ public class PollutionMonitor extends Application {
             .orElse(0.0);
     }
 
-    private void handleSensorData(MqttMessage message) {
+    private void handleSensorData(BasicMqttMessage message) {
         // Filter out the first byte
         var body = message.getData().subList(1, message.getData().size());
         if (body.isEmpty()) {
@@ -68,7 +68,7 @@ public class PollutionMonitor extends Application {
     }
 
     @Override
-    public void consumePackets(String topicFilter, MqttMessage message) {
+    public void consumePackets(String topicFilter, BasicMqttMessage message) {
         // Only handle packets with sensor data
         if (message.getData().get(0) == MessageType.SENSOR_VALUE.getCode()) {
             handleSensorData(message);

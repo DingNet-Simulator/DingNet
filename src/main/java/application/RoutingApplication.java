@@ -2,7 +2,7 @@ package application;
 
 import iot.lora.BasicFrameHeader;
 import iot.lora.MessageType;
-import iot.mqtt.MqttMessage;
+import iot.mqtt.BasicMqttMessage;
 import iot.mqtt.Topics;
 import iot.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -31,7 +31,7 @@ public class RoutingApplication extends Application {
     }
 
 
-    private void handleRouteRequest(MqttMessage message) {
+    private void handleRouteRequest(BasicMqttMessage message) {
         var body = message.getData().subList(1, message.getData().size());
         long deviceEUI = message.getDeviceEUI();
 
@@ -85,7 +85,7 @@ public class RoutingApplication extends Application {
 
         BasicFrameHeader header = new BasicFrameHeader().setFCnt(frameCounter);
 
-        MqttMessage routeMessage = new MqttMessage(header, payload, deviceEUI, -1L, 1L);
+        BasicMqttMessage routeMessage = new BasicMqttMessage(header, payload, deviceEUI, -1L, 1L);
         this.mqttClient.publish(Topics.getAppToNetServer(message.getApplicationEUI(), deviceEUI), routeMessage);
     }
 
@@ -98,7 +98,7 @@ public class RoutingApplication extends Application {
     }
 
     @Override
-    public void consumePackets(String topicFilter, MqttMessage message) {
+    public void consumePackets(String topicFilter, BasicMqttMessage message) {
         // Only handle packets with a route request
         var messageType = message.getData().get(0);
         if (messageType == MessageType.REQUEST_PATH.getCode() || messageType == MessageType.REQUEST_UPDATE_PATH.getCode()) {
