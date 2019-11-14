@@ -49,7 +49,7 @@ public class MqttMock implements MqttClientBasicApi {
     }
 
     @Override
-    public <T> T convertMessage(MqttMessage message, Class<T> clazz) {
+    public <T extends MqttMessage> T convertMessage(MqttMessage message, Class<T> clazz) {
         return clazz.cast(message);
     }
 

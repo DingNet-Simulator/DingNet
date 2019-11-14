@@ -14,5 +14,5 @@ public interface MqttClientBasicApi {
 
     void unsubscribe(String topicFilter);
 
-    <T> T convertMessage(MqttMessage message, Class<T> clazz);
+    <T extends MqttMessage> T convertMessage(MqttMessage message, Class<T> clazz);
 }
