@@ -8,6 +8,7 @@ import util.Pair;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.Objects;
 
 /**
  * A class representing a packet in the LoraWan simulation.
@@ -235,4 +236,21 @@ public class LoraTransmission<P extends Packet> implements Serializable{
     }
 
     //endregion
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LoraTransmission<?> that = (LoraTransmission<?>) o;
+        return getSender() == that.getSender() &&
+            getReceiver() == that.getReceiver() &&
+            getContent().equals(that.getContent()) &&
+            getDepartureTime().equals(that.getDepartureTime());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSender(), getReceiver(), getContent(), getDepartureTime());
+    }
 }

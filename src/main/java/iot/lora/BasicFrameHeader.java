@@ -1,6 +1,7 @@
 package iot.lora;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class BasicFrameHeader implements FrameHeader {
 
@@ -53,5 +54,18 @@ public class BasicFrameHeader implements FrameHeader {
     @Override
     public byte[] getFOpts() {
         return new byte[0];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BasicFrameHeader that = (BasicFrameHeader) o;
+        return getFCntAsShort() == that.getFCntAsShort();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFCntAsShort());
     }
 }

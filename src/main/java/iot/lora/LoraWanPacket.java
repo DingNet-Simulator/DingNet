@@ -4,8 +4,10 @@ package iot.lora;
 import iot.networkcommunication.api.Packet;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class LoraWanPacket implements Serializable, Packet {
     private static final long serialVersionUID = 1L;
@@ -178,5 +180,24 @@ public class LoraWanPacket implements Serializable, Packet {
     @Override
     public int getLength(){
         return length;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LoraWanPacket that = (LoraWanPacket) o;
+        return designatedReceiverEUI == that.designatedReceiverEUI &&
+            getSenderEUI() == that.getSenderEUI() &&
+            Arrays.equals(getPayload(), that.getPayload()) &&
+            getMacCommands().equals(that.getMacCommands()) &&
+            getFrameHeader().equals(that.getFrameHeader());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(getMacCommands(), designatedReceiverEUI, getSenderEUI(), getFrameHeader());
+        result = 31 * result + Arrays.hashCode(getPayload());
+        return result;
     }
 }
