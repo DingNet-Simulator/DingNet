@@ -13,4 +13,6 @@ public interface MqttClientBasicApi {
     void subscribe(String topicFilter, BiConsumer<String, MqttMessage> messageListener);
 
     void unsubscribe(String topicFilter);
+
+    <T> T convertMessage(MqttMessage message, Class<T> clazz);
 }

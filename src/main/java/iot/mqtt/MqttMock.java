@@ -48,6 +48,11 @@ public class MqttMock implements MqttClientBasicApi {
         broker.unsubscribe(this, topicFilter);
     }
 
+    @Override
+    public <T> T convertMessage(MqttMessage message, Class<T> clazz) {
+        return clazz.cast(message);
+    }
+
     public void dispatch(String filter, String topic, MqttMessage message) {
         if (subscribed.containsKey(filter)) {
             subscribed.get(filter).accept(topic, message);
