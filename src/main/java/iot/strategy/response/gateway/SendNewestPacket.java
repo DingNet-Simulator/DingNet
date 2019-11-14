@@ -2,6 +2,7 @@ package iot.strategy.response.gateway;
 
 
 import iot.lora.LoraWanPacket;
+import iot.mqtt.Topics;
 import iot.networkentity.Gateway;
 import util.Pair;
 
@@ -32,18 +33,8 @@ public class SendNewestPacket implements ResponseStrategy {
         gateway.getEnvironment().getMotes().stream()
             .map(m -> new Pair<>(m.getApplicationEUI(), m.getEUI()))
             .forEach(m -> gateway.getMqttClient().subscribe(
-                getTopic(m.getLeft(), m.getRight()),
+                Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
                 (t, msg) -> packetBuffer.put(m, new LoraWanPacket(gateway.getEUI(), msg.getDeviceEUI(), msg.getDataAsArray(), msg.getHeader(), new LinkedList<>()))));
-    }
-
-    private String getTopic(Long applicationEUI, Long deviceEUI) {
-        return new StringBuilder()
-            .append("application/")
-            .append(applicationEUI)
-            .append("/node/")
-            .append(deviceEUI)
-            .append("/tx")
-            .toString();
     }
 
     @Override

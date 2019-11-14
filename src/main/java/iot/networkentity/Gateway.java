@@ -6,6 +6,7 @@ import iot.lora.LoraWanPacket;
 import iot.mqtt.MqttClientBasicApi;
 import iot.mqtt.MqttMessage;
 import iot.mqtt.MqttMock;
+import iot.mqtt.Topics;
 import iot.strategy.response.gateway.ResponseStrategy;
 import iot.strategy.response.gateway.SendNewestPacket;
 import selfadaptation.instrumentation.MoteProbe;
@@ -75,8 +76,8 @@ public class Gateway extends NetworkEntity {
     protected void OnReceive(LoraWanPacket packet) {
         //manage the message only if it is of a mote
         if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
-            var message = new MqttMessage(packet.getFrameHeader(), new LinkedList<>(Arrays.asList(Converter.toObjectType(packet.getPayload()))), packet.getSenderEUI(), getEUI(), packet.getReceiverEUI());
-            mqttClient.publish(getTopic(packet.getReceiverEUI(), packet.getSenderEUI()), message);
+            var message = new MqttMessage(packet.getFrameHeader(), Arrays.asList(Converter.toObjectType(packet.getPayload())), packet.getSenderEUI(), getEUI(), packet.getReceiverEUI());
+            mqttClient.publish(Topics.getGatewayToNetServer(packet.getReceiverEUI(), getEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
                 moteProbe.trigger(this, packet.getSenderEUI());
             }
@@ -91,16 +92,6 @@ public class Gateway extends NetworkEntity {
 
     @Override
     public void initialize() {}
-
-    private String getTopic(Long applicationEUI, Long deviceEUI) {
-        return new StringBuilder()
-            .append("application/")
-            .append(applicationEUI)
-            .append("/node/")
-            .append(deviceEUI)
-            .append("/rx")
-            .toString();
-    }
 
     public MqttClientBasicApi getMqttClient() {
         return mqttClient;

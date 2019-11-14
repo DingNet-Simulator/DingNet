@@ -3,6 +3,7 @@ package application;
 import iot.lora.BasicFrameHeader;
 import iot.lora.MessageType;
 import iot.mqtt.MqttMessage;
+import iot.mqtt.Topics;
 import iot.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
@@ -22,7 +23,7 @@ public class RoutingApplication extends Application {
     private PathFinder pathFinder;
 
     public RoutingApplication(PathFinder pathFinder) {
-        super(List.of("application/+/node/+/rx"));
+        super(List.of(Topics.getNetServerToApp("+", "+")));
         this.routes = new HashMap<>();
         this.lastPositions = new HashMap<>();
         this.graph = GraphStructure.getInstance();
@@ -85,7 +86,7 @@ public class RoutingApplication extends Application {
         BasicFrameHeader header = new BasicFrameHeader().setFCnt(frameCounter);
 
         MqttMessage routeMessage = new MqttMessage(header, payload, deviceEUI, -1L, 1L);
-        this.mqttClient.publish(String.format("application/%d/node/%d/tx", message.getApplicationEUI(), deviceEUI), routeMessage);
+        this.mqttClient.publish(Topics.getAppToNetServer(message.getApplicationEUI(), deviceEUI), routeMessage);
     }
 
 

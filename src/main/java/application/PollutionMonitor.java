@@ -3,6 +3,7 @@ package application;
 import iot.Environment;
 import iot.lora.MessageType;
 import iot.mqtt.MqttMessage;
+import iot.mqtt.Topics;
 import iot.networkentity.MoteSensor;
 import util.MapHelper;
 import util.pollution.PollutionGrid;
@@ -20,7 +21,7 @@ public class PollutionMonitor extends Application {
 
 
     public PollutionMonitor(Environment environment) {
-        super(List.of("application/+/node/+/rx"));
+        super(List.of(Topics.getNetServerToApp("+", "+")));
 
         this.pollutionGrid = PollutionGrid.getInstance();
         this.environment = environment;
