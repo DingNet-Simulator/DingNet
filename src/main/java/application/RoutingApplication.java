@@ -85,7 +85,7 @@ public class RoutingApplication extends Application {
 
         BasicFrameHeader header = new BasicFrameHeader().setFCnt(frameCounter);
 
-        BasicMqttMessage routeMessage = new BasicMqttMessage(header, payload, deviceEUI, -1L, 1L);
+        BasicMqttMessage routeMessage = new BasicMqttMessage(header, payload, deviceEUI, 1L);
         this.mqttClient.publish(Topics.getAppToNetServer(message.getApplicationEUI(), deviceEUI), routeMessage);
     }
 

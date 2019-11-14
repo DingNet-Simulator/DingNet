@@ -8,14 +8,12 @@ import java.util.List;
 public class BasicMqttMessage implements MqttMessage {
 
     private final long deviceEUI;
-    private final long gatewayEUI;
     private final long applicationEUI;
     private final List<Byte> data;
     private final FrameHeader header;
 
-    public BasicMqttMessage(FrameHeader header, List<Byte> packet, long deviceEUI, long gatewayEUI, long applicationEUI) {
+    public BasicMqttMessage(FrameHeader header, List<Byte> packet, long deviceEUI, long applicationEUI) {
         this.deviceEUI = deviceEUI;
-        this.gatewayEUI = gatewayEUI;
         this.applicationEUI = applicationEUI;
         data = packet;
         this.header = header;
@@ -23,10 +21,6 @@ public class BasicMqttMessage implements MqttMessage {
 
     public long getDeviceEUI() {
         return deviceEUI;
-    }
-
-    public long getGatewayEUI() {
-        return gatewayEUI;
     }
 
     public long getApplicationEUI() {

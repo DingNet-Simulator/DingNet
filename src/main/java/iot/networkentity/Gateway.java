@@ -76,7 +76,7 @@ public class Gateway extends NetworkEntity {
     protected void OnReceive(LoraWanPacket packet) {
         //manage the message only if it is of a mote
         if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
-            var message = new BasicMqttMessage(packet.getFrameHeader(), Arrays.asList(Converter.toObjectType(packet.getPayload())), packet.getSenderEUI(), getEUI(), packet.getReceiverEUI());
+            var message = new BasicMqttMessage(packet.getFrameHeader(), Arrays.asList(Converter.toObjectType(packet.getPayload())), packet.getSenderEUI(), packet.getReceiverEUI());
             mqttClient.publish(Topics.getGatewayToNetServer(packet.getReceiverEUI(), getEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
                 moteProbe.trigger(this, packet.getSenderEUI());
