@@ -8,7 +8,6 @@ import iot.networkentity.Gateway;
 import util.Pair;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ public class SendNewestPacket implements ResponseStrategy {
                 Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
                 (t, msg1) -> {
                     var msg = gateway.getMqttClient().convertMessage(msg1, BasicMqttMessage.class);
-                    packetBuffer.put(m, new LoraWanPacket(gateway.getEUI(), msg.getDeviceEUI(), msg.getDataAsArray(), msg.getHeader(), new LinkedList<>()));
+                    packetBuffer.put(m, new LoraWanPacket(gateway.getEUI(), msg.getDeviceEUI(), msg.getDataAsArray(), msg.getHeader(), msg.getMacCommands()));
                 }));
     }
 
