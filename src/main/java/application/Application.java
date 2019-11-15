@@ -1,9 +1,9 @@
 package application;
 
-import iot.mqtt.BasicMqttMessage;
 import iot.mqtt.MqttClientBasicApi;
 import iot.mqtt.MqttMessage;
 import iot.mqtt.MqttMock;
+import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 
@@ -20,10 +20,10 @@ public abstract class Application {
     }
 
     private void consumePackets(String topicFilter, MqttMessage message) {
-        consumePackets(topicFilter, mqttClient.convertMessage(message, BasicMqttMessage.class));
+        consumePackets(topicFilter, mqttClient.convertMessage(message, TransmissionWrapper.class));
     }
 
-    public abstract void consumePackets(String topicFilter, BasicMqttMessage message);
+    public abstract void consumePackets(String topicFilter, TransmissionWrapper message);
 
     Map<MoteSensor, Byte[]> retrieveSensorData(Mote mote, List<Byte> messageBody) {
         Map<MoteSensor, Byte[]> sensorData = new HashMap<>();

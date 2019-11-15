@@ -1,18 +1,19 @@
 package application;
 
 import iot.lora.BasicFrameHeader;
+import iot.lora.LoraWanPacket;
 import iot.lora.MessageType;
 import iot.mqtt.BasicMqttMessage;
 import iot.mqtt.Topics;
+import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Converter;
 import util.GraphStructure;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class RoutingApplication extends Application {
@@ -31,9 +32,11 @@ public class RoutingApplication extends Application {
     }
 
 
-    private void handleRouteRequest(BasicMqttMessage message) {
-        var body = message.getData().subList(1, message.getData().size());
-        long deviceEUI = message.getDeviceEUI();
+    private void handleRouteRequest(LoraWanPacket message) {
+        var body = Arrays.stream(Converter.toObjectType(message.getPayload()))
+            .skip(1)
+            .collect(Collectors.toList());
+        long deviceEUI = message.getSenderEUI();
 
         GeoPosition motePosition;
         GeoPosition destinationPosition;
@@ -86,7 +89,7 @@ public class RoutingApplication extends Application {
         BasicFrameHeader header = new BasicFrameHeader().setFCnt(frameCounter);
 
         BasicMqttMessage routeMessage = new BasicMqttMessage(header, payload, deviceEUI, 1L);
-        this.mqttClient.publish(Topics.getAppToNetServer(message.getApplicationEUI(), deviceEUI), routeMessage);
+        this.mqttClient.publish(Topics.getAppToNetServer(message.getReceiverEUI(), deviceEUI), routeMessage);
     }
 
 
@@ -98,9 +101,10 @@ public class RoutingApplication extends Application {
     }
 
     @Override
-    public void consumePackets(String topicFilter, BasicMqttMessage message) {
+    public void consumePackets(String topicFilter, TransmissionWrapper transmission) {
+        var message = transmission.getTransmission().getContent();
         // Only handle packets with a route request
-        var messageType = message.getData().get(0);
+        var messageType = message.getPayload()[0];
         if (messageType == MessageType.REQUEST_PATH.getCode() || messageType == MessageType.REQUEST_UPDATE_PATH.getCode()) {
             handleRouteRequest(message);
         }

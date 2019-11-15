@@ -218,7 +218,7 @@ public abstract class NetworkEntity implements Serializable {
         ListHelper.getLast(receivedTransmissions).add(transmission);
         if(!transmission.isCollided()) {
             handleMacCommands(transmission.getContent());
-            OnReceive(transmission.getContent());
+            OnReceive(transmission);
         }
     }
 
@@ -271,10 +271,10 @@ public abstract class NetworkEntity implements Serializable {
     }
 
     /**
-     * A method describing what the entity should do after successfully receiving a packet.
-     * @param packet The received packet.
+     * A method describing what the entity should do after successfully receiving a transmission.
+     * @param transmission The received transmission.
      */
-    protected abstract void OnReceive(LoraWanPacket packet);
+    protected abstract void OnReceive(LoraTransmission<LoraWanPacket> transmission);
 
 
     /**
