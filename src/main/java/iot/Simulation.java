@@ -171,13 +171,13 @@ public class Simulation {
     void simulateStep() {
         this.environment.getMotes().stream()
             .filter(Mote::isEnabled)
-            .peek(Mote::consumePackets)
+            .map(mote -> { mote.consumePackets(); return mote;}) //DON'T replace with peek because the filtered mote after this line will not do the consume packet
             .filter(mote -> mote.getPath().getWayPoints().size() > wayPointMap.get(mote))
             .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                 TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
             .filter(mote -> TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
-            .peek(mote -> timeMap.put(mote, this.environment.getClock().getTime()))
             .forEach(mote -> {
+                timeMap.put(mote, this.environment.getClock().getTime());
                 if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPosInt())) {
                     this.environment.moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
                 } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}

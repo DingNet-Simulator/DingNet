@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ReceiverWaitPacket implements Receiver {
 
@@ -39,16 +40,18 @@ public class ReceiverWaitPacket implements Receiver {
     }
 
     @Override
-    public void receive(LoraTransmission packet) {
-        transmissions.stream()
-            .filter(t -> collision(packet, t))
-            .peek(LoraTransmission::setCollided)
-            .findAny()
-            .ifPresent(t -> packet.setCollided());
-        transmissions.add(packet);
-        clock.addTrigger(packet.getDepartureTime().plus((long)packet.getTimeOnAir(), ChronoUnit.MILLIS),()->{
-            packet.setArrived();
-            consumerPacket.accept(packet);
+    public void receive(LoraTransmission transmission) {
+        var collidedTransmission = transmissions.stream()
+            .filter(t -> collision(transmission, t))
+            .collect(Collectors.toList());
+        collidedTransmission.forEach(LoraTransmission::setCollided);
+        if (!collidedTransmission.isEmpty()) {
+            transmission.setCollided();
+        }
+        transmissions.add(transmission);
+        clock.addTrigger(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS),()->{
+            transmission.setArrived();
+            consumerPacket.accept(transmission);
             return LocalTime.of(0,0);
         });
     }
