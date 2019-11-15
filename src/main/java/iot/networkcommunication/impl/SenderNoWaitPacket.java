@@ -43,7 +43,6 @@ public class SenderNoWaitPacket implements Sender {
     @Override
     public Optional<LoraTransmission> send(@NotNull LoraWanPacket packet, @NotNull Set<Receiver> receiver) {
         if (!isTransmitting) {
-            isTransmitting = true;
             var payloadSize = packet.getPayload().length + packet.getFrameHeader().getFOpts().length;
             if (regionalParameter.getMaximumPayloadSize() < payloadSize) {
                 throw new IllegalArgumentException("Payload size greater then the max size. Payload size: " + payloadSize + ", " +
@@ -55,16 +54,19 @@ public class SenderNoWaitPacket implements Sender {
                     new LoraTransmission(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
                         regionalParameter, timeOnAir, env.getClock().getTime(), packet)))
                 .filter(p -> packetStrengthHighEnough(p.getRight().getTransmissionPower()));
+
             var filteredSet = stream.collect(Collectors.toSet());
+
             var ret = filteredSet.stream().findFirst().map(Pair::getRight);
             filteredSet.forEach(p -> p.getLeft().receive(p.getRight()));
-            if (ret.isPresent()) {
-                var clock = env.getClock();
-                clock.addTrigger(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)), () -> {
-                    isTransmitting = false;
-                    return LocalTime.of(0, 0);
-                });
-            }
+
+            isTransmitting = true;
+            var clock = env.getClock();
+            clock.addTrigger(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)), () -> {
+                isTransmitting = false;
+                return LocalTime.of(0, 0);
+            });
+
             return ret;
         } else {
             throw new IllegalStateException("impossible send two packet at the same time");
