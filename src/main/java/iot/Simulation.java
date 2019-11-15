@@ -2,8 +2,10 @@ package iot;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import datagenerator.SensorDataGenerator;
+import iot.mqtt.MqttMock;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
+import iot.networkentity.NetworkServer;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
 import util.TimeHelper;
 
@@ -35,7 +37,7 @@ public class Simulation {
      */
     private Predicate<Environment> continueSimulation;
 
-
+    private NetworkServer networkServer = new NetworkServer(new MqttMock());
     /**
      * Intermediate parameters used during simulation
      */
@@ -239,5 +241,6 @@ public class Simulation {
 
     private void resetHistory() {
         this.environment.resetHistory();
+        this.networkServer.reset();
     }
 }
