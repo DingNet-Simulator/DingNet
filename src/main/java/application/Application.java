@@ -1,7 +1,6 @@
 package application;
 
 import iot.mqtt.MqttClientBasicApi;
-import iot.mqtt.MqttMessage;
 import iot.mqtt.MqttMock;
 import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.Mote;
@@ -16,11 +15,7 @@ public abstract class Application {
 
     Application(List<String> topics) {
         this.mqttClient = new MqttMock();
-        topics.forEach(t -> this.mqttClient.subscribe(t, this::consumePackets));
-    }
-
-    private void consumePackets(String topicFilter, MqttMessage message) {
-        consumePackets(topicFilter, mqttClient.convertMessage(message, TransmissionWrapper.class));
+        topics.forEach(t -> this.mqttClient.subscribe(t, TransmissionWrapper.class, this::consumePackets));
     }
 
     public abstract void consumePackets(String topicFilter, TransmissionWrapper message);

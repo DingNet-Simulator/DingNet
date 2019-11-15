@@ -34,10 +34,9 @@ public class SendNewestPacket implements ResponseStrategy {
             .map(m -> new Pair<>(m.getApplicationEUI(), m.getEUI()))
             .forEach(m -> gateway.getMqttClient().subscribe(
                 Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
-                (t, msg1) -> {
-                    var msg = gateway.getMqttClient().convertMessage(msg1, LoraWanPacketWrapper.class);
-                    packetBuffer.put(m, msg.getPacket());
-                }));
+                LoraWanPacketWrapper.class,
+                (t, msg) -> packetBuffer.put(m, msg.getPacket())
+            ));
     }
 
     @Override

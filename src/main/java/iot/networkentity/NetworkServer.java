@@ -42,8 +42,9 @@ public class NetworkServer {
 
     private void subscribeToGateways() {
         mqttClient.subscribe(Topics.getGatewayToNetServer("+", "+", "+"),
+            TransmissionWrapper.class,
             (topic, msg) -> {
-                var transmission = mqttClient.convertMessage(msg, TransmissionWrapper.class).getTransmission();
+                var transmission = msg.getTransmission();
                 //get mote id
                 var moteId = Topics.getMote(topic);
                 //get gateway id
@@ -64,6 +65,7 @@ public class NetworkServer {
 
     private void subscribeToApps() {
         mqttClient.subscribe(Topics.getAppToNetServer("+", "+"),
+            BasicMqttMessage.class,
             (topic, msg) -> {
                 //get mote id
                 var moteId = Topics.getMote(topic);
@@ -76,9 +78,8 @@ public class NetworkServer {
                         .map(Map.Entry::getKey)
                         .orElseThrow(() -> new IllegalStateException("no gateway available for the mote: " + moteId));
                     //send to best gateway
-                    var message = mqttClient.convertMessage(msg, BasicMqttMessage.class);
-                    var packet = new LoraWanPacket(gatewayId, moteId, message.getDataAsArray(),
-                        new BasicFrameHeader().setFCnt(incrementFrameCounter()), message.getMacCommands());
+                    var packet = new LoraWanPacket(gatewayId, moteId, msg.getDataAsArray(),
+                        new BasicFrameHeader().setFCnt(incrementFrameCounter()), msg.getMacCommands());
                     mqttClient.publish(Topics.getNetServerToGateway(Topics.getApp(topic), gatewayId, moteId),
                         new LoraWanPacketWrapper(packet));
                 }

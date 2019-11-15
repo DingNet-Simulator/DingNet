@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 
 public class MqttMock implements MqttClientBasicApi {
 
-    private final Map<String, BiConsumer<String, MqttMessage>> subscribed = new HashMap<>();
+    private final Map<String, MqttMessageConsumer> subscribed = new HashMap<>();
     private final MqttBrokerMock broker = MqttBrokerMock.getInstance();
 
 
@@ -35,11 +35,11 @@ public class MqttMock implements MqttClientBasicApi {
      * @param messageListener
      */
     @Override
-    public void subscribe(String topicFilter, BiConsumer<String, MqttMessage> messageListener) {
+    public <T extends MqttMessage> void subscribe(String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
         if (!subscribed.containsKey(topicFilter)) {
             broker.subscribe(this, topicFilter);
         }
-        subscribed.put(topicFilter, messageListener);
+        subscribed.put(topicFilter, new MqttMessageConsumer<T>(messageListener, classMessage));
     }
 
     @Override
@@ -48,14 +48,24 @@ public class MqttMock implements MqttClientBasicApi {
         broker.unsubscribe(this, topicFilter);
     }
 
-    @Override
-    public <T extends MqttMessage> T convertMessage(MqttMessage message, Class<T> clazz) {
-        return clazz.cast(message);
-    }
-
     public void dispatch(String filter, String topic, MqttMessage message) {
         if (subscribed.containsKey(filter)) {
             subscribed.get(filter).accept(topic, message);
+        }
+    }
+
+    private class MqttMessageConsumer<T extends MqttMessage> {
+
+        private final BiConsumer<String, T> consumer;
+        private final Class<T> clazz;
+
+        public MqttMessageConsumer(BiConsumer<String, T> consumer, Class<T> clazz) {
+            this.consumer = consumer;
+            this.clazz = clazz;
+        }
+
+        public void accept(String t, MqttMessage message) {
+            consumer.accept(t, clazz.cast(message));
         }
     }
 }
