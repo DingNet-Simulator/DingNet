@@ -197,6 +197,7 @@ public class Simulation {
         this.wayPointMap = new HashMap<>();
         this.timeMap = new HashMap<>();
 
+        this.networkServer.reset();
         setupMotesActivationStatus();
 
         for (Mote mote : this.environment.getMotes()) {
@@ -241,6 +242,5 @@ public class Simulation {
 
     private void resetHistory() {
         this.environment.resetHistory();
-        this.networkServer.reset();
     }
 }
