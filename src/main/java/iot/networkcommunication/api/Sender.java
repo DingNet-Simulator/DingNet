@@ -2,27 +2,28 @@ package iot.networkcommunication.api;
 
 
 import iot.lora.LoraTransmission;
+import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface Sender<P extends Packet> {
+public interface Sender {
 
-    Optional<LoraTransmission<P>> send(P packet, Set<Receiver<P>> receiver);
+    Optional<LoraTransmission> send(LoraWanPacket packet, Set<Receiver> receiver);
 
     boolean isTransmitting();
 
-    List<P> getSendingQueue();
+    List<LoraWanPacket> getSendingQueue();
 
-    P getTransmittingMessage();
+    LoraWanPacket getTransmittingMessage();
 
     void abort();
 
-    Sender<P> setTransmissionPower(double transmissionPower);
+    Sender setTransmissionPower(double transmissionPower);
 
-    Sender<P> setRegionalParameter(RegionalParameter regionalParameter);
+    Sender setRegionalParameter(RegionalParameter regionalParameter);
 
     RegionalParameter getRegionalParameter();
 

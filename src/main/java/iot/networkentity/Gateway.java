@@ -72,7 +72,7 @@ public class Gateway extends NetworkEntity {
      * @param transmission The received transmission.
      */
     @Override
-    protected void OnReceive(LoraTransmission<LoraWanPacket> transmission) {
+    protected void OnReceive(LoraTransmission transmission) {
         var packet = transmission.getContent();
         //manage the message only if it is of a mote
         if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {

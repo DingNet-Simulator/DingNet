@@ -71,8 +71,8 @@ public abstract class NetworkEntity implements Serializable {
     private boolean enabled;
 
     private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
-    private Sender<LoraWanPacket> sender;
-    private Receiver<LoraWanPacket> receiver;
+    private Sender sender;
+    private Receiver receiver;
 
     /**
      *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
@@ -214,7 +214,7 @@ public abstract class NetworkEntity implements Serializable {
      * A method for receiving a packet, which checks if it can detect the packet and then adds it to the received packets.
      * @param transmission The transmission to receiveTransmission.
      */
-    private void receive(LoraTransmission<LoraWanPacket> transmission) {
+    private void receive(LoraTransmission transmission) {
         ListHelper.getLast(receivedTransmissions).add(transmission);
         if(!transmission.isCollided()) {
             handleMacCommands(transmission.getContent());
@@ -274,7 +274,7 @@ public abstract class NetworkEntity implements Serializable {
      * A method describing what the entity should do after successfully receiving a transmission.
      * @param transmission The received transmission.
      */
-    protected abstract void OnReceive(LoraTransmission<LoraWanPacket> transmission);
+    protected abstract void OnReceive(LoraTransmission transmission);
 
 
     /**
@@ -394,7 +394,7 @@ public abstract class NetworkEntity implements Serializable {
             });
     }
 
-    public Receiver<LoraWanPacket> getReceiver() {
+    public Receiver getReceiver() {
         return receiver;
     }
 

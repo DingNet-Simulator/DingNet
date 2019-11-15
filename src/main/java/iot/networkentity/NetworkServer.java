@@ -1,7 +1,6 @@
 package iot.networkentity;
 
 import iot.lora.LoraTransmission;
-import iot.lora.LoraWanPacket;
 import iot.mqtt.MqttClientBasicApi;
 import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
@@ -12,10 +11,10 @@ import java.util.function.BinaryOperator;
 public class NetworkServer {
 
     // Map moteId -> (Map gatewayId -> lastTransmission)
-    private final Map<Long, Map<Long, LoraTransmission<LoraWanPacket>>> transmissionReceived;
-    private final Map<Long, List<LoraTransmission<LoraWanPacket>>> historyMote;
+    private final Map<Long, Map<Long, LoraTransmission>> transmissionReceived;
+    private final Map<Long, List<LoraTransmission>> historyMote;
     private final MqttClientBasicApi mqttClient;
-    private BinaryOperator<Map.Entry<Long, LoraTransmission<LoraWanPacket>>> chooseGatewayStrategy = this::chooseByTransmissionPower;
+    private BinaryOperator<Map.Entry<Long, LoraTransmission>> chooseGatewayStrategy = this::chooseByTransmissionPower;
 
     public NetworkServer(MqttClientBasicApi mqttClient) {
         this.mqttClient = mqttClient;
@@ -30,7 +29,7 @@ public class NetworkServer {
         historyMote.clear();
     }
 
-    public NetworkServer setChooseGatewayStrategy(BinaryOperator<Map.Entry<Long, LoraTransmission<LoraWanPacket>>> strategy) {
+    public NetworkServer setChooseGatewayStrategy(BinaryOperator<Map.Entry<Long, LoraTransmission>> strategy) {
         chooseGatewayStrategy = strategy;
         return this;
     }
@@ -95,9 +94,9 @@ public class NetworkServer {
             });
     }
 
-    private Map.Entry<Long, LoraTransmission<LoraWanPacket>> chooseByTransmissionPower(
-            Map.Entry<Long, LoraTransmission<LoraWanPacket>> e1,
-            Map.Entry<Long, LoraTransmission<LoraWanPacket>> e2) {
+    private Map.Entry<Long, LoraTransmission> chooseByTransmissionPower(
+            Map.Entry<Long, LoraTransmission> e1,
+            Map.Entry<Long, LoraTransmission> e2) {
         return e1.getValue().getTransmissionPower() >= e2.getValue().getTransmissionPower() ? e1 : e2;
     }
 }

@@ -15,13 +15,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
+public class ReceiverWaitPacket implements Receiver {
 
     // The levels of power in between which it can discriminate.
     private final double transmissionPowerThreshold;
-    private Consumer<LoraTransmission<LoraWanPacket>> consumerPacket;
+    private Consumer<LoraTransmission> consumerPacket;
 
-    private List<LoraTransmission<LoraWanPacket>> transmissions = new LinkedList<>();
+    private List<LoraTransmission> transmissions = new LinkedList<>();
 
     private GlobalClock clock;
 
@@ -39,7 +39,7 @@ public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
     }
 
     @Override
-    public void receive(LoraTransmission<LoraWanPacket> packet) {
+    public void receive(LoraTransmission packet) {
         transmissions.stream()
             .filter(t -> collision(packet, t))
             .peek(LoraTransmission::setCollided)
@@ -83,7 +83,7 @@ public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
     }
 
     @Override
-    public Receiver<LoraWanPacket> setConsumerPacket(Consumer<LoraTransmission<LoraWanPacket>> consumerPacket) {
+    public Receiver setConsumerPacket(Consumer<LoraTransmission> consumerPacket) {
         this.consumerPacket = consumerPacket;
         return this;
     }

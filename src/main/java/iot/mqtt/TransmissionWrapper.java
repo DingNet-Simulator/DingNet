@@ -1,17 +1,16 @@
 package iot.mqtt;
 
 import iot.lora.LoraTransmission;
-import iot.lora.LoraWanPacket;
 
 public class TransmissionWrapper implements MqttMessage {
 
-    private final LoraTransmission<LoraWanPacket> transmission;
+    private final LoraTransmission transmission;
 
-    public TransmissionWrapper(LoraTransmission<LoraWanPacket> transmission) {
+    public TransmissionWrapper(LoraTransmission transmission) {
         this.transmission = transmission;
     }
 
-    public LoraTransmission<LoraWanPacket> getTransmission() {
+    public LoraTransmission getTransmission() {
         return transmission;
     }
 }

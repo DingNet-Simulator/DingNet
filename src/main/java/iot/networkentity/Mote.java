@@ -132,7 +132,7 @@ public class Mote extends NetworkEntity {
      * @param transmission The received transmission.
      */
     @Override
-    protected void OnReceive(LoraTransmission<LoraWanPacket> transmission) {
+    protected void OnReceive(LoraTransmission transmission) {
         var packet = transmission.getContent();
         //if is a message sent to from a gateway to this mote
         if (canReceive && getEUI() == packet.getReceiverEUI() &&

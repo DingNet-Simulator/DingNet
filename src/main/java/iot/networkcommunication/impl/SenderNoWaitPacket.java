@@ -19,7 +19,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
+public class SenderNoWaitPacket implements Sender {
 
     private RegionalParameter regionalParameter;
     private double transmissionPower;
@@ -40,7 +40,7 @@ public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
 
 
     @Override
-    public Optional<LoraTransmission<LoraWanPacket>> send(@NotNull LoraWanPacket packet, @NotNull Set<Receiver<LoraWanPacket>> receiver) {
+    public Optional<LoraTransmission> send(@NotNull LoraWanPacket packet, @NotNull Set<Receiver> receiver) {
         if (!isTransmitting) {
             isTransmitting = true;
             var payloadSize = packet.getPayload().length + packet.getFrameHeader().getFOpts().length;
@@ -51,7 +51,7 @@ public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
             var timeOnAir = computeTimeOnAir(packet);
             var stream = receiver.stream()
                 .map(r -> new Pair<>(r,
-                    new LoraTransmission<>(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
+                    new LoraTransmission(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
                         regionalParameter, timeOnAir, env.getClock().getTime(), packet)))
                 .filter(p -> packetStrengthHighEnough(p.getRight().getTransmissionPower()));
             var filteredSet = stream.collect(Collectors.toSet());
@@ -177,13 +177,13 @@ public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
     }
 
     @Override
-    public Sender<LoraWanPacket> setTransmissionPower(double transmissionPower) {
+    public Sender setTransmissionPower(double transmissionPower) {
         this.transmissionPower = transmissionPower;
         return this;
     }
 
     @Override
-    public Sender<LoraWanPacket> setRegionalParameter(RegionalParameter regionalParameter) {
+    public Sender setRegionalParameter(RegionalParameter regionalParameter) {
         this.regionalParameter = regionalParameter;
         return this;
     }
