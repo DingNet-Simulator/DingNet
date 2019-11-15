@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class MaintainLastPacket implements ReceivedPacketStrategy {
 
-    private int lastPacketReceived = 0;
+    private int lastPacketReceived = -1;
     private LoraWanPacket packet;
 
     @Override
@@ -32,7 +32,7 @@ public class MaintainLastPacket implements ReceivedPacketStrategy {
 
     @Override
     public void clear() {
-        this.lastPacketReceived = 0;
+        this.lastPacketReceived = -1;
         this.packet = null;
     }
 }
