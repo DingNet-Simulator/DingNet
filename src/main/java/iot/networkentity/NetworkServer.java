@@ -5,7 +5,10 @@ import iot.mqtt.MqttClientBasicApi;
 import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BinaryOperator;
 
 public class NetworkServer {
@@ -39,9 +42,9 @@ public class NetworkServer {
             (topic, msg) -> {
                 var transmission = mqttClient.convertMessage(msg, TransmissionWrapper.class).getTransmission();
                 //get mote id
-                var moteId = getMote(topic);
+                var moteId = Topics.getMote(topic);
                 //get gateway id
-                var gatewayId = getGateway(topic);
+                var gatewayId = Topics.getGateway(topic);
                 //add trans to map with all check
                 if (!transmissionReceived.containsKey(moteId)) {
                     transmissionReceived.put(moteId, new HashMap<>());
@@ -55,31 +58,12 @@ public class NetworkServer {
                 historyMote.get(moteId).add(transmission);
             });
     }
-    //TODO add check
-    private long getMote(String topic) {
-        var list = Arrays.asList(topic.split("/"));
-        var index = list.indexOf("node");
-        return Long.valueOf(list.get(index + 1));
-    }
-    //TODO add check
-    private long getGateway(String topic) {
-        var list = Arrays.asList(topic.split("/"));
-        var index = list.indexOf("gateway");
-        return Long.valueOf(list.get(index + 1));
-    }
-
-    //TODO add check
-    private long getApp(String topic) {
-        var list = Arrays.asList(topic.split("/"));
-        var index = list.indexOf("application");
-        return Long.valueOf(list.get(index + 1));
-    }
 
     private void subscribeToApps() {
         mqttClient.subscribe(Topics.getAppToNetServer("+", "+"),
             (topic, msg) -> {
                 //get mote id
-                var moteId = getMote(topic);
+                var moteId = Topics.getMote(topic);
                 //find best gateway
                 if (transmissionReceived.containsKey(moteId)) {
                     var gatewayId = transmissionReceived.get(moteId)
@@ -89,7 +73,7 @@ public class NetworkServer {
                         .map(Map.Entry::getKey)
                         .orElseThrow(() -> new IllegalStateException("no gateway available for the mote: " + moteId));
                     //send to best gateway
-                    mqttClient.publish(Topics.getNetServerToGateway(getApp(topic), gatewayId, moteId), msg);
+                    mqttClient.publish(Topics.getNetServerToGateway(Topics.getApp(topic), gatewayId, moteId), msg);
                 }
             });
     }

@@ -1,9 +1,15 @@
 package iot.mqtt;
 
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+
 public class Topics {
 
     private final static String UPSTREAM_SUFFIX = "/rx";
     private final static String DOWNSTREAM_SUFFIX = "/tx";
+    private final static String MOTE_ID = "node";
+    private final static String GATEWAY_ID = "gateway";
+    private final static String APPLICATION_ID = "application";
 
     public static String getGatewayToNetServer(long applicationId, long gatewayId, long nodeId) {
         return getGatewayToNetServer(""+applicationId, ""+gatewayId, ""+nodeId);
@@ -39,9 +45,12 @@ public class Topics {
 
     private static String createTopic(String applicationId, String nodeId, String suffix) {
         return new StringBuilder()
-            .append("application/")
+            .append(APPLICATION_ID)
+            .append("/")
             .append(applicationId)
-            .append("/node/")
+            .append("/")
+            .append(MOTE_ID)
+            .append("/")
             .append(nodeId)
             .append(suffix)
             .toString();
@@ -49,13 +58,39 @@ public class Topics {
 
     private static String createTopicWithGateway(String applicationId, String gatewayId, String nodeId, String suffix) {
         return new StringBuilder()
-            .append("application/")
+            .append(APPLICATION_ID)
+            .append("/")
             .append(applicationId)
-            .append("/gateway/")
+            .append("/")
+            .append(GATEWAY_ID)
+            .append("/")
             .append(gatewayId)
-            .append("/node/")
+            .append("/")
+            .append(MOTE_ID)
+            .append("/")
             .append(nodeId)
             .append(suffix)
             .toString();
+    }
+
+    public static long getMote(String topic) {
+        return getId(MOTE_ID, topic);
+    }
+
+    public static long getGateway(String topic) {
+        return getId(GATEWAY_ID, topic);
+    }
+
+    public static long getApp(String topic) {
+        return getId(APPLICATION_ID, topic);
+    }
+
+    private static long getId(String idName, String topic) {
+        var list = Arrays.asList(topic.split("/"));
+        var index = list.indexOf(idName);
+        if (index < 0 || index >= list.size()-1) {
+            throw new NoSuchElementException("required id not found: " + idName + " in the topic: " + topic);
+        }
+        return Long.valueOf(list.get(index + 1));
     }
 }
