@@ -1,9 +1,9 @@
 package iot.networkentity;
 
+import iot.lora.BasicFrameHeader;
 import iot.lora.LoraTransmission;
-import iot.mqtt.MqttClientBasicApi;
-import iot.mqtt.Topics;
-import iot.mqtt.TransmissionWrapper;
+import iot.lora.LoraWanPacket;
+import iot.mqtt.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -18,6 +18,7 @@ public class NetworkServer {
     private final Map<Long, List<LoraTransmission>> historyMote;
     private final MqttClientBasicApi mqttClient;
     private BinaryOperator<Map.Entry<Long, LoraTransmission>> chooseGatewayStrategy = this::chooseByTransmissionPower;
+    private short frameCounter;
 
     public NetworkServer(MqttClientBasicApi mqttClient) {
         this.mqttClient = mqttClient;
@@ -25,11 +26,13 @@ public class NetworkServer {
         historyMote = new HashMap<>();
         subscribeToGateways();
         subscribeToApps();
+        frameCounter = 0;
     }
 
     public void reset() {
         transmissionReceived.clear();
         historyMote.clear();
+        frameCounter = 0;
     }
 
     public NetworkServer setChooseGatewayStrategy(BinaryOperator<Map.Entry<Long, LoraTransmission>> strategy) {
@@ -73,10 +76,16 @@ public class NetworkServer {
                         .map(Map.Entry::getKey)
                         .orElseThrow(() -> new IllegalStateException("no gateway available for the mote: " + moteId));
                     //send to best gateway
-                    mqttClient.publish(Topics.getNetServerToGateway(Topics.getApp(topic), gatewayId, moteId), msg);
+                    var message = mqttClient.convertMessage(msg, BasicMqttMessage.class);
+                    var packet = new LoraWanPacket(gatewayId, moteId, message.getDataAsArray(),
+                        new BasicFrameHeader().setFCnt(incrementFrameCounter()), message.getMacCommands());
+                    mqttClient.publish(Topics.getNetServerToGateway(Topics.getApp(topic), gatewayId, moteId),
+                        new LoraWanPacketWrapper(packet));
                 }
             });
     }
+
+    private short incrementFrameCounter() {return frameCounter++;}
 
     private Map.Entry<Long, LoraTransmission> chooseByTransmissionPower(
             Map.Entry<Long, LoraTransmission> e1,
