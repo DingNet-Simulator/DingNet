@@ -5,6 +5,7 @@ import iot.Environment;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
+import iot.lora.RxSensitivity;
 import iot.networkcommunication.api.Receiver;
 import iot.networkcommunication.api.Sender;
 import iot.networkentity.NetworkEntity;
@@ -153,7 +154,7 @@ public class SenderNoWaitPacket implements Sender {
      * Checks if a transmission is strong enough to be received.
      */
     private boolean packetStrengthHighEnough(double transmissionPower) {
-        return transmissionPower > -174 - 10 * Math.log10(regionalParameter.getBandwidth()) - (2.5 * regionalParameter.getSpreadingFactor() - 10);
+        return transmissionPower > RxSensitivity.getReceiverSensitivity(regionalParameter);
     }
 
     @Override
