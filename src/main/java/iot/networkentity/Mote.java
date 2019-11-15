@@ -12,6 +12,7 @@ import org.jxmapviewer.viewer.GeoPosition;
 import util.MapHelper;
 import util.Path;
 
+import java.time.LocalTime;
 import java.util.*;
 
 
@@ -242,7 +243,7 @@ public class Mote extends NetworkEntity {
                 var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
                 sendToGateWay(packet);
-                return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
+                return LocalTime.of(0,0);
             }
         );
     }
