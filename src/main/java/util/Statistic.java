@@ -4,22 +4,26 @@ import iot.lora.LoraTransmission;
 import iot.networkentity.NetworkEntity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Statistic {
 
     private static Statistic instance = new Statistic();
 
+    private int runNumber = 0;
+
     // A list representing the power setting of every transmission.
-    private final Map<Long, List<List<Pair<Integer,Integer>>>> powerSettingHistory;
+    private final Map<Long, List<PowerSettingDataPoint>> powerSettingHistory;
 
     // A list representing the spreading factor of every transmission.
-    private final Map<Long, List<List<Integer>>> spreadingFactorHistory;
+    private final Map<Long, List<SpreadingFactorDataPoint>> spreadingFactorHistory;
 
     // A map with the transmissions received by the entity and if they collided with an other packet.
-    private final Map<Long, List<LinkedHashSet<LoraTransmission>>> receivedTransmissions;
+    // TODO make sure the order is also preserved when streaming the results and filtering on runNumbers
+    private final Map<Long, LinkedHashSet<LoraTransmissionDataPoint>> receivedTransmissions;
 
     // A list with the transmissions transmitted by the entity
-    private final Map<Long, List<List<LoraTransmission>>> sentTransmissions;
+    private final Map<Long, List<LoraTransmissionDataPoint>> sentTransmissions;
 
     private Statistic() {
         powerSettingHistory = new HashMap<>();
@@ -39,7 +43,7 @@ public class Statistic {
     public void addPowerSettingEntry(long networkEntity, Pair<Integer,Integer> entry) {
         initIfAbsent(powerSettingHistory, networkEntity);
         var lists = powerSettingHistory.get(networkEntity);
-        ListHelper.getLast(lists).add(entry);
+        lists.add(new PowerSettingDataPoint(this.runNumber, entry.getLeft(), entry.getRight()));
     }
 
     public void addSpreadingFactorEntry(NetworkEntity networkEntity, int entry) {
@@ -49,7 +53,7 @@ public class Statistic {
     public void addSpreadingFactorEntry(long networkEntity, int entry) {
         initIfAbsent(spreadingFactorHistory, networkEntity);
         var lists = spreadingFactorHistory.get(networkEntity);
-        ListHelper.getLast(lists).add(entry);
+        lists.add(new SpreadingFactorDataPoint(this.runNumber, entry));
     }
 
     public void addReceivedTransmissionsEntry(NetworkEntity networkEntity, LoraTransmission entry) {
@@ -57,9 +61,11 @@ public class Statistic {
     }
 
     public void addReceivedTransmissionsEntry(long networkEntity, LoraTransmission entry) {
-        initIfAbsent(receivedTransmissions, networkEntity);
+        if (!receivedTransmissions.containsKey(networkEntity)) {
+            receivedTransmissions.put(networkEntity, new LinkedHashSet<>());
+        }
         var lists = receivedTransmissions.get(networkEntity);
-        ListHelper.getLast(lists).add(entry);
+        lists.add(new LoraTransmissionDataPoint(runNumber, entry));
     }
 
     public void addSentTransmissionsEntry(NetworkEntity networkEntity, LoraTransmission entry) {
@@ -69,7 +75,7 @@ public class Statistic {
     public void addSentTransmissionsEntry(long networkEntity, LoraTransmission entry) {
         initIfAbsent(sentTransmissions, networkEntity);
         var lists = sentTransmissions.get(networkEntity);
-        ListHelper.getLast(lists).add(entry);
+        lists.add(new LoraTransmissionDataPoint(runNumber, entry));
     }
 
     private <E> void initIfAbsent(Map<Long, List<E>> map, long id) {
@@ -83,45 +89,56 @@ public class Statistic {
         spreadingFactorHistory.clear();
         receivedTransmissions.clear();
         sentTransmissions.clear();
+
+        runNumber = 0;
     }
 
     public void addRun() {
-        powerSettingHistory.forEach((k,v) -> v.add(new LinkedList<>()));
-        spreadingFactorHistory.forEach((k,v) -> v.add(new LinkedList<>()));
-        receivedTransmissions.forEach((k,v) -> v.add(new LinkedHashSet<>()));
-        sentTransmissions.forEach((k,v) -> v.add(new LinkedList<>()));
+        runNumber++;
     }
 
-    public List<List<Pair<Integer,Integer>>> getPowerSettingHistory(long networkEntity) {
+    public List<PowerSettingDataPoint> getPowerSettingHistory(long networkEntity) {
         return powerSettingHistory.get(networkEntity);
     }
 
     public List<Pair<Integer,Integer>> getPowerSettingHistory(long networkEntity, int run) {
-        return getPowerSettingHistory(networkEntity).get(run);
+        return getPowerSettingHistory(networkEntity).stream()
+            .filter(o -> o.runNumber == run)
+            .map(o -> new Pair<>(o.timeInSeconds, o.powerSetting))
+            .collect(Collectors.toList());
     }
 
-    public List<List<Integer>> getSpreadingFactorHistory(long networkEntity) {
+    public List<SpreadingFactorDataPoint> getSpreadingFactorHistory(long networkEntity) {
         return spreadingFactorHistory.get(networkEntity);
     }
 
     public List<Integer> getSpreadingFactorHistory(long networkEntity, int run) {
-        return getSpreadingFactorHistory(networkEntity).get(run);
+        return getSpreadingFactorHistory(networkEntity).stream()
+            .filter(o -> o.runNumber == run)
+            .map(o -> o.spreadingFactor)
+            .collect(Collectors.toList());
     }
 
-    public List<LinkedHashSet<LoraTransmission>> getReceivedTransmissions(long networkEntity) {
+    public LinkedHashSet<LoraTransmissionDataPoint> getReceivedTransmissions(long networkEntity) {
         return receivedTransmissions.get(networkEntity);
     }
 
     public LinkedHashSet<LoraTransmission> getReceivedTransmissions(long networkEntity, int run) {
-        return getReceivedTransmissions(networkEntity).get(run);
+        return getReceivedTransmissions(networkEntity).stream()
+            .filter(o -> o.runNumber == run)
+            .map(o -> o.transmission)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public List<List<LoraTransmission>> getSentTransmissions(long networkEntity) {
+    public List<LoraTransmissionDataPoint> getSentTransmissions(long networkEntity) {
         return sentTransmissions.get(networkEntity);
     }
 
     public List<LoraTransmission> getSentTransmissions(long networkEntity, int run) {
-        return getSentTransmissions(networkEntity).get(run);
+        return getSentTransmissions(networkEntity).stream()
+            .filter(o -> o.runNumber == run)
+            .map(o -> o.transmission)
+            .collect(Collectors.toList());
     }
 
     public List<Double> getUsedEnergy(long networkEntity, int run) {
@@ -132,6 +149,43 @@ public class Statistic {
             i++;
         }
         return usedEnergy;
+    }
+
+
+
+
+
+    private static class PowerSettingDataPoint {
+        public int runNumber;
+        public int timeInSeconds;
+        public int powerSetting;
+
+        PowerSettingDataPoint(int runNumber, int timeInSeconds, int powerSetting) {
+            this.runNumber = runNumber;
+            this.timeInSeconds = timeInSeconds;
+            this.powerSetting = powerSetting;
+        }
+    }
+
+    private static class SpreadingFactorDataPoint {
+        public int runNumber;
+        public int spreadingFactor;
+
+        public SpreadingFactorDataPoint(int runNumber, int spreadingFactor) {
+            this.runNumber = runNumber;
+            this.spreadingFactor = spreadingFactor;
+        }
+    }
+
+
+    private static class LoraTransmissionDataPoint {
+        public int runNumber;
+        public LoraTransmission transmission;
+
+        LoraTransmissionDataPoint(int runNumber, LoraTransmission transmission) {
+            this.runNumber = runNumber;
+            this.transmission = transmission;
+        }
     }
 }
 
