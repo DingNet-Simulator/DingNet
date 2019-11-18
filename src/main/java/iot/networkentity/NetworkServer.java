@@ -41,7 +41,7 @@ public class NetworkServer {
     }
 
     private void subscribeToGateways() {
-        mqttClient.subscribe(Topics.getGatewayToNetServer("+", "+", "+"),
+        mqttClient.subscribe(this, Topics.getGatewayToNetServer("+", "+", "+"),
             TransmissionWrapper.class,
             (topic, msg) -> {
                 var transmission = msg.getTransmission();
@@ -64,7 +64,7 @@ public class NetworkServer {
     }
 
     private void subscribeToApps() {
-        mqttClient.subscribe(Topics.getAppToNetServer("+", "+"),
+        mqttClient.subscribe(this, Topics.getAppToNetServer("+", "+"),
             BasicMqttMessage.class,
             (topic, msg) -> {
                 //get mote id

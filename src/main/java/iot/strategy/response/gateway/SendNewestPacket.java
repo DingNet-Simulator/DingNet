@@ -33,6 +33,7 @@ public class SendNewestPacket implements ResponseStrategy {
         gateway.getEnvironment().getMotes().stream()
             .map(m -> new Pair<>(m.getApplicationEUI(), m.getEUI()))
             .forEach(m -> gateway.getMqttClient().subscribe(
+                this,
                 Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
                 LoraWanPacketWrapper.class,
                 (t, msg) -> packetBuffer.put(m, msg.getPacket())

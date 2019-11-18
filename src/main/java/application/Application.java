@@ -15,7 +15,7 @@ public abstract class Application {
 
     Application(List<String> topics) {
         this.mqttClient = MQTTClientFactory.getSingletonInstance();
-        topics.forEach(t -> this.mqttClient.subscribe(t, TransmissionWrapper.class, this::consumePackets));
+        topics.forEach(t -> this.mqttClient.subscribe(this, t, TransmissionWrapper.class, this::consumePackets));
     }
 
     public abstract void consumePackets(String topicFilter, TransmissionWrapper message);

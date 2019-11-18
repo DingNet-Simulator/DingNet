@@ -78,6 +78,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
     public void disconnect() {
         try {
             mqttClient.disconnect();
+            subscribed = new HashMap<>();
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -97,7 +98,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
     }
 
     @Override
-    public <T extends MqttMessage> void subscribe(String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
+    public <T extends MqttMessage> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
         if (!subscribed.containsKey(topicFilter)) {
             subscribed.put(topicFilter, new LinkedList<>());
             try {
@@ -106,30 +107,40 @@ public class PahoMqttClient implements MqttClientBasicApi{
                 e.printStackTrace();
             }
         }
-        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(messageListener, classMessage));
+        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(subscriber, messageListener, classMessage));
     }
 
     @Override
-    public void unsubscribe(String topicFilter) {
-        try {
-            mqttClient.unsubscribe(topicFilter);
-        } catch (MqttException e) {
-            e.printStackTrace();
+    public void unsubscribe(Object subscriber, String topicFilter) {
+        subscribed.get(topicFilter).removeIf(c -> c.getSubscriber().equals(subscriber));
+        if (subscribed.get(topicFilter).isEmpty()) {
+            try {
+                mqttClient.unsubscribe(topicFilter);
+                subscribed.remove(topicFilter);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private class MqttMessageConsumer<T extends MqttMessage> {
 
+        private final Object subscriber;
         private final BiConsumer<String, T> consumer;
         private final Class<T> clazz;
 
-        public MqttMessageConsumer(BiConsumer<String, T> consumer, Class<T> clazz) {
+        public MqttMessageConsumer(Object subscriber, BiConsumer<String, T> consumer, Class<T> clazz) {
             this.consumer = consumer;
             this.clazz = clazz;
+            this.subscriber = subscriber;
         }
 
         public void accept(String t, String message) {
             consumer.accept(t, gson.fromJson(message, clazz));
+        }
+
+        public Object getSubscriber() {
+            return subscriber;
         }
     }
 }

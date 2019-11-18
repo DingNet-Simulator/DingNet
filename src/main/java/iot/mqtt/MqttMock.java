@@ -37,18 +37,21 @@ public class MqttMock implements MqttClientBasicApi {
      * @param messageListener
      */
     @Override
-    public <T extends MqttMessage> void subscribe(String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
+    public <T extends MqttMessage> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
         if (!subscribed.containsKey(topicFilter)) {
             broker.subscribe(this, topicFilter);
             subscribed.put(topicFilter, new LinkedList<>());
         }
-        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(messageListener, classMessage));
+        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(subscriber, messageListener, classMessage));
     }
 
     @Override
-    public void unsubscribe(String topicFilter) {
-        subscribed.remove(topicFilter);
-        broker.unsubscribe(this, topicFilter);
+    public void unsubscribe(Object subscriber, String topicFilter) {
+        subscribed.get(topicFilter).removeIf(c -> c.getSubscriber().equals(subscriber));
+        if (subscribed.get(topicFilter).isEmpty()) {
+            subscribed.remove(topicFilter);
+            broker.unsubscribe(this, topicFilter);
+        }
     }
 
     public void dispatch(String filter, String topic, MqttMessage message) {
@@ -59,16 +62,22 @@ public class MqttMock implements MqttClientBasicApi {
 
     private class MqttMessageConsumer<T extends MqttMessage> {
 
+        private final Object subscriber;
         private final BiConsumer<String, T> consumer;
         private final Class<T> clazz;
 
-        public MqttMessageConsumer(BiConsumer<String, T> consumer, Class<T> clazz) {
+        public MqttMessageConsumer(Object subscriber, BiConsumer<String, T> consumer, Class<T> clazz) {
             this.consumer = consumer;
             this.clazz = clazz;
+            this.subscriber = subscriber;
         }
 
         public void accept(String t, MqttMessage message) {
             consumer.accept(t, clazz.cast(message));
+        }
+
+        public Object getSubscriber() {
+            return subscriber;
         }
     }
 }
