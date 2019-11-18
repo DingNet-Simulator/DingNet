@@ -1,7 +1,7 @@
 package application;
 
+import iot.mqtt.MQTTClientFactory;
 import iot.mqtt.MqttClientBasicApi;
-import iot.mqtt.MqttMock;
 import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
@@ -14,7 +14,7 @@ public abstract class Application {
     MqttClientBasicApi mqttClient;
 
     Application(List<String> topics) {
-        this.mqttClient = new MqttMock();
+        this.mqttClient = MQTTClientFactory.getSingletonInstance();
         topics.forEach(t -> this.mqttClient.subscribe(t, TransmissionWrapper.class, this::consumePackets));
     }
 

@@ -2,7 +2,7 @@ package iot;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import datagenerator.SensorDataGenerator;
-import iot.mqtt.MqttMock;
+import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import iot.networkentity.NetworkServer;
@@ -37,7 +37,7 @@ public class Simulation {
      */
     private Predicate<Environment> continueSimulation;
 
-    private NetworkServer networkServer = new NetworkServer(new MqttMock());
+    private NetworkServer networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
     /**
      * Intermediate parameters used during simulation
      */

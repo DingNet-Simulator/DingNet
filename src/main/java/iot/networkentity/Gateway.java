@@ -4,8 +4,8 @@ package iot.networkentity;
 import iot.Environment;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
+import iot.mqtt.MQTTClientFactory;
 import iot.mqtt.MqttClientBasicApi;
-import iot.mqtt.MqttMock;
 import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
 import iot.strategy.response.gateway.ResponseStrategy;
@@ -49,7 +49,7 @@ public class Gateway extends NetworkEntity {
     public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, ResponseStrategy responseStrategy) {
         super(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
         subscribedMoteProbes = new LinkedList<>();
-        mqttClient = new MqttMock();
+        mqttClient = MQTTClientFactory.getSingletonInstance();
         this.responseStrategy = responseStrategy.init(this);
     }
 
