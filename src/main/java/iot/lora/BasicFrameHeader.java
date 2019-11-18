@@ -7,8 +7,10 @@ public class BasicFrameHeader implements FrameHeader {
 
     private static final int SOURCE_ADDRESS_LENGTH = 4;
 
-    private byte[] sourceAddress = new byte[0];
+    private byte[] sourceAddress = new byte[SOURCE_ADDRESS_LENGTH];
     private short FCnt = 0;
+    private byte[] FOpts = new byte[0];
+    private byte fCtrl = -1;
 
 
     public BasicFrameHeader setSourceAddress(byte[] sourceAddress) {
@@ -31,6 +33,16 @@ public class BasicFrameHeader implements FrameHeader {
         return setFCnt(ByteBuffer.wrap(FCnt).getShort());
     }
 
+    public BasicFrameHeader setFOpts(byte[] FOpts) {
+        this.FOpts = FOpts;
+        return this;
+    }
+
+    public BasicFrameHeader setfCtrl(byte fCtrl) {
+        this.fCtrl = fCtrl;
+        return this;
+    }
+
     @Override
     public byte[] getSourceAddress() {
         return sourceAddress;
@@ -38,7 +50,7 @@ public class BasicFrameHeader implements FrameHeader {
 
     @Override
     public byte getFCtrl() {
-        throw new UnsupportedOperationException();
+        return fCtrl;
     }
 
     @Override
