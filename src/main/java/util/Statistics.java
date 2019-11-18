@@ -6,9 +6,9 @@ import iot.networkentity.NetworkEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Statistic {
+public class Statistics {
 
-    private static Statistic instance = new Statistic();
+    private static Statistics instance = new Statistics();
 
     private int runNumber = 0;
 
@@ -25,25 +25,21 @@ public class Statistic {
     // A list with the transmissions transmitted by the entity
     private final Map<Long, List<LoraTransmissionDataPoint>> sentTransmissions;
 
-    private Statistic() {
+    private Statistics() {
         powerSettingHistory = new HashMap<>();
         spreadingFactorHistory = new HashMap<>();
         receivedTransmissions = new HashMap<>();
         sentTransmissions = new HashMap<>();
     }
 
-    public static Statistic getInstance() {
+    public static Statistics getInstance() {
         return instance;
     }
 
-    public void addPowerSettingEntry(NetworkEntity networkEntity, Pair<Integer,Integer> entry) {
-        addPowerSettingEntry(networkEntity.getEUI(), entry);
-    }
-
-    public void addPowerSettingEntry(long networkEntity, Pair<Integer,Integer> entry) {
+    public void addPowerSettingEntry(long networkEntity, int timeInSeconds, int powerSetting) {
         initIfAbsent(powerSettingHistory, networkEntity);
         var lists = powerSettingHistory.get(networkEntity);
-        lists.add(new PowerSettingDataPoint(this.runNumber, entry.getLeft(), entry.getRight()));
+        lists.add(new PowerSettingDataPoint(this.runNumber, timeInSeconds, powerSetting));
     }
 
     public void addSpreadingFactorEntry(NetworkEntity networkEntity, int entry) {
@@ -151,9 +147,14 @@ public class Statistic {
         return usedEnergy;
     }
 
+    public List<LoraTransmission> getAllReceivedTransmissions(long eui, int run) {
+        return this.getReceivedTransmissions(eui, run).stream()
+            .filter(t -> !t.isCollided())
+            .collect(Collectors.toList());
+    }
 
 
-    private static class PowerSettingDataPoint {
+    public static class PowerSettingDataPoint {
         public int runNumber;
         public int timeInSeconds;
         public int powerSetting;
@@ -165,7 +166,7 @@ public class Statistic {
         }
     }
 
-    private static class SpreadingFactorDataPoint {
+    public static class SpreadingFactorDataPoint {
         public int runNumber;
         public int spreadingFactor;
 
@@ -176,7 +177,7 @@ public class Statistic {
     }
 
 
-    private static class LoraTransmissionDataPoint {
+    public static class LoraTransmissionDataPoint {
         public int runNumber;
         public LoraTransmission transmission;
 

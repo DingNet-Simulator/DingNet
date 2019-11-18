@@ -207,7 +207,7 @@ public class Simulation {
                 .forEach(SensorDataGenerator::reset);
 
             // Initialize the mote (e.g. reset starting position)
-            mote.initialize();
+            mote.reset();
 
             timeMap.put(mote, this.environment.getClock().getTime());
             wayPointMap.put(mote,0);

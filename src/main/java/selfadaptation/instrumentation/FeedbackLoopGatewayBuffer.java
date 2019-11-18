@@ -5,9 +5,11 @@ import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import util.ListHelper;
 import util.Pair;
+import util.Statistics;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class FeedbackLoopGatewayBuffer {
     private HashMap<Mote,LinkedList<LinkedList<Pair<Gateway, LoraTransmission>>>> gatewayBuffer;
@@ -17,21 +19,28 @@ public class FeedbackLoopGatewayBuffer {
     }
 
     public void add(Mote mote, Gateway gateway){
-        if(gatewayBuffer.keySet().contains(mote)){
-            Boolean contains = false;
-            for(Pair<Gateway, LoraTransmission> pair : gatewayBuffer.get(mote).getLast()){
+        if(gatewayBuffer.containsKey(mote)){
+            boolean contains = false;
+            for (Pair<Gateway, LoraTransmission> pair : gatewayBuffer.get(mote).getLast()) {
                 if (pair.getLeft() == gateway){
                     contains = true;
+                    break;
                 }
             }
-            if(contains){
+            if (contains) {
                 gatewayBuffer.get(mote).add(new LinkedList<>());
             }
-            gatewayBuffer.get(mote).getLast().add(new Pair<>(gateway, ListHelper.getLast(gateway.getReceivedTransmissions(gateway.getEnvironment().getNumberOfRuns()-1))));
-        }
-        else {
+
+            // FIXME this needs looking into, not sure how this is used in the actual simulation
+            var transmissions = Statistics.getInstance().getAllReceivedTransmissions(gateway.getEUI(), gateway.getEnvironment().getNumberOfRuns() - 1);
+
+            gatewayBuffer.get(mote).getLast().add(new Pair<>(gateway, ListHelper.getLast(transmissions)));
+        } else {
             LinkedList<Pair<Gateway,LoraTransmission>> buffer = new LinkedList<>();
-            buffer.add(new Pair<>(gateway, ListHelper.getLast(gateway.getReceivedTransmissions(gateway.getEnvironment().getNumberOfRuns()-1))));
+            var transmissions = Statistics.getInstance().getAllReceivedTransmissions(gateway.getEUI(), gateway.getEnvironment().getNumberOfRuns() - 1);
+
+            buffer.add(new Pair<>(gateway, ListHelper.getLast(transmissions)));
+
             LinkedList<LinkedList<Pair<Gateway,LoraTransmission>>> buffers = new LinkedList<>();
             buffers.add(buffer);
             gatewayBuffer.put(mote,buffers);
@@ -39,23 +48,19 @@ public class FeedbackLoopGatewayBuffer {
     }
 
     public boolean hasReceivedAllSignals(Mote mote){
-        if(gatewayBuffer.get(mote).size()>1){
-            return true;
-        }
-        else{
-            return false;
-        }
+        return gatewayBuffer.get(mote).size() > 1;
     }
 
     public LinkedList<LoraTransmission> getReceivedSignals(Mote mote){
         LinkedList<LoraTransmission> result = new LinkedList<>();
-        if(hasReceivedAllSignals(mote)){
 
-            for(Pair<Gateway, LoraTransmission> pair : gatewayBuffer.get(mote).getFirst()){
+        if (hasReceivedAllSignals(mote)) {
+            for (Pair<Gateway, LoraTransmission> pair : gatewayBuffer.get(mote).getFirst()){
                 result.add(pair.getRight());
             }
             gatewayBuffer.get(mote).remove(0);
         }
+
         return result;
     }
 }

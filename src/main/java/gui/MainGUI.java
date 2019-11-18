@@ -18,6 +18,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -38,10 +39,7 @@ import org.jxmapviewer.viewer.*;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
-import util.EnvironmentHelper;
-import util.MapHelper;
-import util.MutableInteger;
-import util.Pair;
+import util.*;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -733,10 +731,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         DefaultXYZDataset data = new DefaultXYZDataset();
         HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesList = new HashMap<>();
         LinkedList<Pair<GeoPosition, Double>> dataSet = new LinkedList<>();
+        Statistics statistics = Statistics.getInstance();
 
         for (Mote mote : simulationRunner.getEnvironment().getMotes()) {
             if (mote.getSensors().contains(moteSensor)) {
-                for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
+                for (LoraTransmission transmission : statistics.getSentTransmissions(mote.getEUI(), mote.getEnvironment().getNumberOfRuns() - 1)) {
                     int xPos = transmission.getXPos();
                     int yPos = transmission.getYPos();
                     for (Pair<Integer, Integer> key : seriesList.keySet()) {
@@ -782,8 +781,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         XYSeriesCollection dataSoot = new XYSeriesCollection();
         int i = 0;
         XYSeries series = new XYSeries(keyName);
+        Statistics statistics = Statistics.getInstance();
+
         if (mote.getSensors().contains(moteSensor)) {
-            for (LoraTransmission transmission : mote.getSentTransmissions(mote.getEnvironment().getNumberOfRuns() - 1)) {
+            for (LoraTransmission transmission : statistics.getSentTransmissions(mote.getEUI(), mote.getEnvironment().getNumberOfRuns() - 1)) {
                 series.add(i * 10, moteSensor.getValue(transmission.getXPos(), transmission.getYPos()));
                 i = i + 1;
             }
@@ -966,9 +967,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         this.packetsSent = 0;
         this.packetsLost = 0;
         var env = mote.getEnvironment();
+        Statistics statistics = Statistics.getInstance();
+
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
-            for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run)) {
+            for (LoraTransmission transmission : statistics.getAllReceivedTransmissions(gateway.getEUI(), run)) {
                 if (transmission.getSender() == mote.getEUI()) {
                     this.packetsSent++;
                     if (!transmission.isCollided())
@@ -1029,9 +1032,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private ChartPanel generateSpreadingFactorGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataSpreadingFactorMote = new XYSeriesCollection();
         XYSeries seriesSpreadingFactorMote = new XYSeries("Spreading factor");
+        Statistics statistics = Statistics.getInstance();
 
         int i = 0;
-        for (int spreadingFactor : mote.getSpreadingFactorHistory(run)) {
+        for (int spreadingFactor : statistics.getSpreadingFactorHistory(mote.getEUI(), run)) {
             seriesSpreadingFactorMote.add(i, spreadingFactor);
             i++;
         }
@@ -1120,10 +1124,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
      */
     private ChartPanel generateDistanceToGatewayGraph(Mote mote, int run) {
         LinkedList<LinkedList<LoraTransmission>> transmissionsMote = new LinkedList<>();
+        Statistics statistics = Statistics.getInstance();
 
         for (Gateway gateway : mote.getEnvironment().getGateways()) {
             transmissionsMote.add(new LinkedList<>());
-            for (LoraTransmission transmission : gateway.getAllReceivedTransmissions(run)) {
+            for (LoraTransmission transmission : statistics.getAllReceivedTransmissions(gateway.getEUI(), run)) {
                 if (transmission.getSender() == mote.getEUI()) {
                     transmissionsMote.getLast().add(transmission);
                 }
@@ -1184,7 +1189,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private ChartPanel generatePowerSettingGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataPowerSettingMote = new XYSeriesCollection();
         XYSeries seriesPowerSettingMote = new XYSeries("Power setting");
-        for (Pair<Integer, Integer> powerSetting : mote.getPowerSettingHistory(run)) {
+        Statistics statistics = Statistics.getInstance();
+
+        for (Pair<Integer, Integer> powerSetting : statistics.getPowerSettingHistory(mote.getEUI(), run)) {
             seriesPowerSettingMote.add(powerSetting.getLeft(), powerSetting.getRight());
         }
         dataPowerSettingMote.addSeries(seriesPowerSettingMote);
