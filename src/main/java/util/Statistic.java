@@ -153,8 +153,6 @@ public class Statistic {
 
 
 
-
-
     private static class PowerSettingDataPoint {
         public int runNumber;
         public int timeInSeconds;
