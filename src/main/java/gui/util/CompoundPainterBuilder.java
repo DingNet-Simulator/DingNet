@@ -84,7 +84,7 @@ public class CompoundPainterBuilder {
         environment.getMotes().stream()
             .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
             .findFirst()
-            .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), Color.CYAN, 2)));
+            .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), Color.RED, 1)));
         return this;
     }
 

@@ -212,7 +212,7 @@ public class NewMoteGUI {
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayoutManager(18, 6, new Insets(0, 0, 0, 0), -1, -1));
-        mainPanel.setMinimumSize(new Dimension(620, 579));
+        mainPanel.setMinimumSize(new Dimension(640, 579));
         mainPanel.setPreferredSize(new Dimension(640, 579));
         final Spacer spacer1 = new Spacer();
         mainPanel.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 5), new Dimension(-1, 5), new Dimension(-1, 5), 0, false));
