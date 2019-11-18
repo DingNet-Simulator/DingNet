@@ -1,12 +1,14 @@
 package iot.mqtt;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class MqttMock implements MqttClientBasicApi {
 
-    private final Map<String, MqttMessageConsumer> subscribed = new HashMap<>();
+    private final Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
     private final MqttBrokerMock broker = MqttBrokerMock.getInstance();
 
 
@@ -38,8 +40,9 @@ public class MqttMock implements MqttClientBasicApi {
     public <T extends MqttMessage> void subscribe(String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
         if (!subscribed.containsKey(topicFilter)) {
             broker.subscribe(this, topicFilter);
+            subscribed.put(topicFilter, new LinkedList<>());
         }
-        subscribed.put(topicFilter, new MqttMessageConsumer<T>(messageListener, classMessage));
+        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(messageListener, classMessage));
     }
 
     @Override
@@ -50,7 +53,7 @@ public class MqttMock implements MqttClientBasicApi {
 
     public void dispatch(String filter, String topic, MqttMessage message) {
         if (subscribed.containsKey(filter)) {
-            subscribed.get(filter).accept(topic, message);
+            subscribed.get(filter).forEach(c -> c.accept(topic, message));
         }
     }
 

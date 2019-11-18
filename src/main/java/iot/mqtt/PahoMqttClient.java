@@ -11,7 +11,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Base64;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -20,6 +20,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
 
     private MqttClient mqttClient;
     private Gson gson;
+    private Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
 
     public PahoMqttClient() {
         this("tcp://mqtt.eclipse.org:1883", "testFenomeno1995");
@@ -97,14 +98,15 @@ public class PahoMqttClient implements MqttClientBasicApi{
 
     @Override
     public <T extends MqttMessage> void subscribe(String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
-        try {
-            mqttClient.subscribe(topicFilter, (topic, msg) -> {
-                T message = gson.fromJson(msg.toString(), classMessage);
-                messageListener.accept(topic, message);
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
+        if (!subscribed.containsKey(topicFilter)) {
+            subscribed.put(topicFilter, new LinkedList<>());
+            try {
+                mqttClient.subscribe(topicFilter, (topic, msg) -> subscribed.get(topicFilter).forEach(c -> c.accept(topic, msg.toString())));
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
         }
+        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(messageListener, classMessage));
     }
 
     @Override
@@ -113,6 +115,21 @@ public class PahoMqttClient implements MqttClientBasicApi{
             mqttClient.unsubscribe(topicFilter);
         } catch (MqttException e) {
             e.printStackTrace();
+        }
+    }
+
+    private class MqttMessageConsumer<T extends MqttMessage> {
+
+        private final BiConsumer<String, T> consumer;
+        private final Class<T> clazz;
+
+        public MqttMessageConsumer(BiConsumer<String, T> consumer, Class<T> clazz) {
+            this.consumer = consumer;
+            this.clazz = clazz;
+        }
+
+        public void accept(String t, String message) {
+            consumer.accept(t, gson.fromJson(message, clazz));
         }
     }
 }
