@@ -9,7 +9,7 @@ import iot.mqtt.MqttMock;
 import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
 import iot.strategy.response.gateway.ResponseStrategy;
-import iot.strategy.response.gateway.SendNewestPacket;
+import iot.strategy.response.gateway.SendPacketImmediately;
 import selfadaptation.instrumentation.MoteProbe;
 
 import java.util.LinkedList;
@@ -33,7 +33,7 @@ public class Gateway extends NetworkEntity {
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
     public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
-        this(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, new SendNewestPacket());
+        this(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, new SendPacketImmediately());
     }
 
     /**
@@ -84,6 +84,8 @@ public class Gateway extends NetworkEntity {
             responseStrategy.retrieveResponse(packet.getReceiverEUI(), packet.getSenderEUI()).ifPresent(this::send);
         }
     }
+
+    public void sendToDevice(LoraWanPacket packet) { send(packet);}
 
     @Override
     boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
