@@ -243,7 +243,6 @@ public class LoraTransmission implements Serializable{
         if (o == null || getClass() != o.getClass()) return false;
         LoraTransmission that = (LoraTransmission) o;
         return getSender() == that.getSender() &&
-            getReceiver() == that.getReceiver() &&
             getContent().equals(that.getContent()) &&
             getDepartureTime().equals(that.getDepartureTime());
     }
