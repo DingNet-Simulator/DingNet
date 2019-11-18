@@ -67,10 +67,12 @@ public class PahoMqttClient implements MqttClientBasicApi{
     public void connect() {
         var opt = new MqttConnectOptions();
         opt.setCleanSession(true);
-        try {
-            mqttClient.connect(opt);
-        } catch (MqttException e) {
-            e.printStackTrace();
+        if (!mqttClient.isConnected()) {
+            try {
+                mqttClient.connect(opt);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
         }
     }
 

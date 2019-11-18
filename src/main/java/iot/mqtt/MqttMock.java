@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 public class MqttMock implements MqttClientBasicApi {
 
-    private final Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
+    private Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
     private final MqttBrokerMock broker = MqttBrokerMock.getInstance();
 
 
@@ -24,6 +24,7 @@ public class MqttMock implements MqttClientBasicApi {
     @Override
     public void disconnect() {
         broker.disconnect(this);
+        subscribed = new HashMap<>();
     }
 
     @Override

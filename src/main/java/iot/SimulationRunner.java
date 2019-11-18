@@ -3,6 +3,7 @@ package iot;
 import application.AStarRouter;
 import application.PollutionMonitor;
 import application.RoutingApplication;
+import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import org.jetbrains.annotations.NotNull;
@@ -136,6 +137,9 @@ public class SimulationRunner {
 
         PollutionGrid.getInstance().clean();
         routingApplication.clean();
+        var mqtt = MQTTClientFactory.getSingletonInstance();
+        mqtt.disconnect();
+        mqtt.connect();
     }
 
     public void setupTimedRun() {
@@ -143,6 +147,9 @@ public class SimulationRunner {
 
         PollutionGrid.getInstance().clean();
         routingApplication.clean();
+        var mqtt = MQTTClientFactory.getSingletonInstance();
+        mqtt.disconnect();
+        mqtt.connect();
     }
 
     private boolean isSimulationFinished() {
