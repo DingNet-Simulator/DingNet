@@ -79,8 +79,10 @@ public class PahoMqttClient implements MqttClientBasicApi{
     @Override
     public void disconnect() {
         try {
-            mqttClient.disconnect();
-            subscribed = new HashMap<>();
+            if (mqttClient.isConnected()) {
+                mqttClient.disconnect();
+            }
+            subscribed.clear();
         } catch (MqttException e) {
             e.printStackTrace();
         }
