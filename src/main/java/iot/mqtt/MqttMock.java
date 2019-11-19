@@ -24,7 +24,7 @@ public class MqttMock implements MqttClientBasicApi {
     @Override
     public void disconnect() {
         broker.disconnect(this);
-        subscribed = new HashMap<>();
+        subscribed.clear();
     }
 
     @Override
