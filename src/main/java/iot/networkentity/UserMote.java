@@ -126,7 +126,7 @@ public class UserMote extends Mote {
 
 
     @Override
-    public void initialize() {
+    protected void initialize() {
         super.initialize();
 
         setPath(new Path(List.of(MapHelper.toGeoPosition(this.getPosInt(), getEnvironment().getMapOrigin()))));

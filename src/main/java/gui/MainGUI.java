@@ -18,7 +18,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -1081,9 +1080,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private ChartPanel generateUsedEnergyGraph(NetworkEntity mote, int run) {
         XYSeriesCollection dataUsedEnergyEntity = new XYSeriesCollection();
         int i = 0;
+        Statistics statistics = Statistics.getInstance();
+
         XYSeries seriesUsedEnergyEntity = new XYSeries("Used energy");
         this.usedEnergy = 0;
-        for (Double usedEnergy : mote.getUsedEnergy(run)) {
+        for (double usedEnergy : statistics.getUsedEnergy(mote.getEUI(), run)) {
             this.usedEnergy += usedEnergy;
             seriesUsedEnergyEntity.add(i, usedEnergy);
             i = i + 1;

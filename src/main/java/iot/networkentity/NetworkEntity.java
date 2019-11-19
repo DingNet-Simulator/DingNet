@@ -346,16 +346,6 @@ public abstract class NetworkEntity implements Serializable {
         return EUI;
     }
 
-    @Deprecated
-    public List<Double> getUsedEnergy(Integer run) {
-        List<Double> usedEnergy = new LinkedList<>();
-        int i= 0;
-//        for(LoraTransmission transmission: getSentTransmissions(run)) {
-//            usedEnergy.add(Math.pow(10,((double)getPowerSettingHistory(run).get(i).getRight())/10)*transmission.getTimeOnAir()/1000);
-//            i++;
-//        }
-        return usedEnergy;
-    }
 
     /**
      * Returns if the entity is enabled in this run.
@@ -385,7 +375,7 @@ public abstract class NetworkEntity implements Serializable {
     /**
      * Method which is called at the start of every simulation run.
      */
-    public abstract void initialize();
+    protected abstract void initialize();
 
     public void reset() {
         receiver.reset();

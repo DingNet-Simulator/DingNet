@@ -3,6 +3,7 @@ package iot;
 import be.kuleuven.cs.som.annotate.Basic;
 import datagenerator.SensorDataGenerator;
 import iot.mqtt.MQTTClientFactory;
+import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import iot.networkentity.NetworkServer;
@@ -199,6 +200,8 @@ public class Simulation {
 
         this.networkServer.reset();
         setupMotesActivationStatus();
+
+        this.environment.getGateways().forEach(Gateway::reset);
 
         for (Mote mote : this.environment.getMotes()) {
             // Reset all the sensors of the mote

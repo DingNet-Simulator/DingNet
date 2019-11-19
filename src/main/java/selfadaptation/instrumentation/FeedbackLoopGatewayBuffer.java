@@ -32,12 +32,12 @@ public class FeedbackLoopGatewayBuffer {
             }
 
             // FIXME this needs looking into, not sure how this is used in the actual simulation
-            var transmissions = Statistics.getInstance().getAllReceivedTransmissions(gateway.getEUI(), gateway.getEnvironment().getNumberOfRuns() - 1);
+            var transmissions = Statistics.getInstance().getReceivedTransmissions(gateway.getEUI(), gateway.getEnvironment().getNumberOfRuns() - 1);
 
             gatewayBuffer.get(mote).getLast().add(new Pair<>(gateway, ListHelper.getLast(transmissions)));
         } else {
             LinkedList<Pair<Gateway,LoraTransmission>> buffer = new LinkedList<>();
-            var transmissions = Statistics.getInstance().getAllReceivedTransmissions(gateway.getEUI(), gateway.getEnvironment().getNumberOfRuns() - 1);
+            var transmissions = Statistics.getInstance().getReceivedTransmissions(gateway.getEUI(), gateway.getEnvironment().getNumberOfRuns() - 1);
 
             buffer.add(new Pair<>(gateway, ListHelper.getLast(transmissions)));
 

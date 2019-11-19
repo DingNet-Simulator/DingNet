@@ -31,7 +31,7 @@ public abstract class GenericFeedbackLoop {
     /**
      * A boolean to know if the feedback loop is active
      */
-    private Boolean active;
+    private boolean active;
 
     /**
      * A method describing what the approach should do when being called on a mote.
@@ -57,7 +57,7 @@ public abstract class GenericFeedbackLoop {
      * A method to check if the feedback loop is active.
      * @return true if the feedback loop is active.
      */
-    public Boolean isActive() {
+    public boolean isActive() {
         return active;
     }
 

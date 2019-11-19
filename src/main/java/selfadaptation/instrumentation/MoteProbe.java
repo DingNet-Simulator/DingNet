@@ -42,7 +42,7 @@ public class MoteProbe {
      * @param mote The mote to generate the graph of.
      * @return the spreading factor of the mote
      */
-    public Integer getSpreadingFactor(NetworkEntity mote) {
+    public int getSpreadingFactor(NetworkEntity mote) {
         return mote.getSF();
     }
 
@@ -51,11 +51,11 @@ public class MoteProbe {
      * @param gateway
      * @param devEUI
      */
-    public void trigger(Gateway gateway, Long devEUI){
+    public void trigger(Gateway gateway, long devEUI){
         gateway.getEnvironment().getMotes().stream()
             .filter(m -> m.getEUI() == devEUI && getGenericFeedbackLoop().isActive())
-            .findFirst()
-            .ifPresent((m) -> getGenericFeedbackLoop().adapt(m, gateway));
+            .reduce((a, b) -> b)
+            .ifPresent(m -> getGenericFeedbackLoop().adapt(m, gateway));
     }
 
     public int getPowerSetting(Mote mote) {

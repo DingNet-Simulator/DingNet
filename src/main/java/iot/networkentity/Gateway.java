@@ -93,7 +93,7 @@ public class Gateway extends NetworkEntity {
     }
 
     @Override
-    public void initialize() {}
+    protected void initialize() {}
 
     public MqttClientBasicApi getMqttClient() {
         return mqttClient;

@@ -119,12 +119,19 @@ public class Statistics {
         return receivedTransmissions.get(networkEntity);
     }
 
-    public LinkedHashSet<LoraTransmission> getReceivedTransmissions(long networkEntity, int run) {
-        return getReceivedTransmissions(networkEntity).stream()
+    public List<LoraTransmission> getReceivedTransmissions(long eui, int run) {
+        return this.getAllReceivedTransmissions(eui, run).stream()
+            .filter(t -> !t.isCollided())
+            .collect(Collectors.toList());
+    }
+
+    public LinkedHashSet<LoraTransmission> getAllReceivedTransmissions(long eui, int run) {
+        return getReceivedTransmissions(eui).stream()
             .filter(o -> o.runNumber == run)
             .map(o -> o.transmission)
             .collect(Collectors.toCollection(LinkedHashSet::new));
     }
+
 
     public List<LoraTransmissionDataPoint> getSentTransmissions(long networkEntity) {
         return sentTransmissions.get(networkEntity);
@@ -145,12 +152,6 @@ public class Statistics {
             i++;
         }
         return usedEnergy;
-    }
-
-    public List<LoraTransmission> getAllReceivedTransmissions(long eui, int run) {
-        return this.getReceivedTransmissions(eui, run).stream()
-            .filter(t -> !t.isCollided())
-            .collect(Collectors.toList());
     }
 
 
