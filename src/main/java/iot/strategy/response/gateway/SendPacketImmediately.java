@@ -7,19 +7,11 @@ import iot.mqtt.Topics;
 import iot.networkentity.Gateway;
 import util.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
-public class SendNewestPacket implements ResponseStrategy {
+public class SendPacketImmediately implements ResponseStrategy {
 
-    //map <appEUI, devEUI> -> buffered packet
-    private final Map<Pair<Long, Long>, LoraWanPacket> packetBuffer;
     private Gateway gateway;
-
-    public SendNewestPacket() {
-        packetBuffer = new HashMap<>();
-    }
 
     @Override
     public ResponseStrategy init(Gateway gateway) {
@@ -36,12 +28,12 @@ public class SendNewestPacket implements ResponseStrategy {
                 this,
                 Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
                 LoraWanPacketWrapper.class,
-                (t, msg) -> packetBuffer.put(m, msg.getPacket())
+                (t, msg) -> gateway.sendToDevice(msg.getPacket())
             ));
     }
 
     @Override
     public Optional<LoraWanPacket> retrieveResponse(Long applicationEUI, Long deviceEUI) {
-        return Optional.ofNullable(packetBuffer.remove(new Pair<>(applicationEUI, deviceEUI)));
+        return Optional.empty();
     }
 }

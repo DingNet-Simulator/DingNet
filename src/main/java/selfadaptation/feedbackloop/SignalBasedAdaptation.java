@@ -105,7 +105,7 @@ public class SignalBasedAdaptation extends GenericFeedbackLoop {
 
             LinkedList<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
 
-            Double receivedPower = receivedSignals.getFirst().getTransmissionPower();
+            double receivedPower = receivedSignals.getFirst().getTransmissionPower();
 
             for (LoraTransmission transmission : receivedSignals) {
                 if (receivedPower < transmission.getTransmissionPower()) {

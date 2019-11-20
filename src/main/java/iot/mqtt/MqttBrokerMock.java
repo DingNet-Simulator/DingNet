@@ -40,7 +40,7 @@ public class MqttBrokerMock {
         clientSubscribed.remove(instance);
     }
 
-    public void publish(String topic, MqttMessage message) {
+    public void publish(String topic, MqttMessageType message) {
         clientSubscribed.entrySet().stream()
             .map(e -> new Pair<>(e.getKey(), e.getValue()
                 .stream()

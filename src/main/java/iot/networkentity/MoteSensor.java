@@ -17,7 +17,7 @@ public enum MoteSensor {
     OZONE(new OzoneDataGenerator()),
     CARBON_DIOXIDE(new CarbonDioxideDataGenerator()),
     PARTICULATE_MATTER(new ParticulateMatterDataGenerator()),
-    GPS(new GPSDataGenerator(null)),
+    GPS(new GPSDataGenerator()),
     IAQ(IAQDataGeneratorSingleton.getInstance());
 
 

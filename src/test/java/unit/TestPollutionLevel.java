@@ -1,8 +1,8 @@
 package unit;
 
+import application.pollution.PollutionLevel;
 import org.junit.jupiter.api.Test;
 import util.Pair;
-import util.pollution.PollutionLevel;
 
 import java.util.ArrayList;
 import java.util.List;

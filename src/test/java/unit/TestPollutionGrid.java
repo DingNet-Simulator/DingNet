@@ -1,10 +1,10 @@
 package unit;
 
+import application.pollution.PollutionGrid;
+import application.pollution.PollutionLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.pollution.PollutionGrid;
-import util.pollution.PollutionLevel;
 
 import java.lang.reflect.Field;
 

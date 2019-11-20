@@ -1,10 +1,13 @@
 package iot;
 
-import application.AStarRouter;
-import application.PollutionMonitor;
-import application.RoutingApplication;
+import application.pollution.PollutionGrid;
+import application.pollution.PollutionMonitor;
+import application.routing.AStarRouter;
+import application.routing.RoutingApplication;
+import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
+import iot.networkentity.NetworkServer;
 import org.jetbrains.annotations.NotNull;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
@@ -15,7 +18,6 @@ import selfadaptation.instrumentation.MoteEffector;
 import selfadaptation.instrumentation.MoteProbe;
 import util.MutableInteger;
 import util.Pair;
-import util.pollution.PollutionGrid;
 import util.xml.*;
 
 import java.io.File;
@@ -35,6 +37,8 @@ public class SimulationRunner {
     private QualityOfService QoS;
     private RoutingApplication routingApplication;
     private PollutionMonitor pollutionMonitor;
+    private NetworkServer networkServer;
+
 
 
     public static SimulationRunner getInstance() {
@@ -54,10 +58,7 @@ public class SimulationRunner {
         simulation = new Simulation();
         inputProfiles = loadInputProfiles();
 
-
-        /*
-         * Loading all the algorithms
-         */
+        // Loading all the algorithms
         GenericFeedbackLoop noAdaptation = new GenericFeedbackLoop("No Adaptation") {
             @Override
             public void adapt(Mote mote, Gateway gateway) {
@@ -88,8 +89,12 @@ public class SimulationRunner {
             feedbackLoop.setMoteProbe(moteProbe.get(algorithms.indexOf(feedbackLoop)));
             feedbackLoop.setMoteEffector(moteEffector.get(algorithms.indexOf(feedbackLoop)));
         }
+
+        networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
     }
 
+
+    // region getters/setters
 
     public Environment getEnvironment() {
         return simulation.getEnvironment();
@@ -111,6 +116,10 @@ public class SimulationRunner {
         return QoS;
     }
 
+    public RoutingApplication getRoutingApplication() {
+        return routingApplication;
+    }
+
 
     public void setApproach(String name) {
         var selectedAlgorithm = algorithms.stream()
@@ -125,7 +134,10 @@ public class SimulationRunner {
         this.QoS.updateAdaptationGoals(QoS);
     }
 
+    // endregion
 
+
+    // region setup simulations
 
     public void setupSingleRun() {
         this.setupSingleRun(true);
@@ -134,16 +146,32 @@ public class SimulationRunner {
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
 
-        PollutionGrid.getInstance().clean();
+        this.setupSimulationRunner();
         routingApplication.clean();
     }
 
     public void setupTimedRun() {
         simulation.setupTimedRun();
 
-        PollutionGrid.getInstance().clean();
+        this.setupSimulationRunner();
         routingApplication.clean();
     }
+
+    /**
+     * Setup of applications/servers/clients before each run
+     */
+    private void setupSimulationRunner() {
+        // Remove previous pollution measurements
+        PollutionGrid.getInstance().clean();
+
+        // Reset received transmissions in the networkServer
+        this.networkServer.reset();
+    }
+
+    // endregion
+
+
+    // region simulations
 
     private boolean isSimulationFinished() {
         return simulation.isFinished();
@@ -198,10 +226,10 @@ public class SimulationRunner {
         }).start();
     }
 
+    // endregion
 
 
-
-
+    // region loading/saving/cleanup
 
     void updateInputProfilesFile() {
         InputProfilesWriter.updateInputProfilesFile(inputProfiles);
@@ -212,6 +240,8 @@ public class SimulationRunner {
     }
 
     public void loadConfigurationFromFile(File file) {
+        this.cleanupSimulation();
+
         ConfigurationReader.loadConfiguration(file, simulation);
 
         for (Gateway gateway : simulation.getEnvironment().getGateways()) {
@@ -233,11 +263,12 @@ public class SimulationRunner {
         SimulationWriter.saveSimulationToFile(file, simulation);
     }
 
-    public RoutingApplication getRoutingApplication() {
-        return routingApplication;
-    }
 
-    public void setupApplications() {
+    /**
+     * Method which is called when a new configuration will be opened,
+     * provides manual cleanup for old applications/servers/clients/...
+     */
+    private void cleanupSimulation() {
         if (this.pollutionMonitor != null) {
             this.pollutionMonitor.destruct();
         }
@@ -245,7 +276,14 @@ public class SimulationRunner {
             this.routingApplication.destruct();
         }
 
+//        this.networkServer.reset();
+        this.networkServer.reconnect();
+    }
+
+    private void setupApplications() {
         this.pollutionMonitor = new PollutionMonitor(this.getEnvironment());
         this.routingApplication = new RoutingApplication(new AStarRouter());
     }
+
+    // endregion
 }

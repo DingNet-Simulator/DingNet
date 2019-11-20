@@ -15,12 +15,10 @@ import util.MapHelper;
 import util.Path;
 
 import javax.swing.*;
-import javax.swing.event.ListDataListener;
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 public class NewMoteGUI {
     private JPanel mainPanel;
@@ -138,30 +136,28 @@ public class NewMoteGUI {
         }
     }
 
-    private void addMote() {
+    private List<MoteSensor> getSelectedMoteSensors() {
         List<MoteSensor> moteSensors = new LinkedList<>();
-        for (int i = 0; i < sensorList.getModel().getSize(); i++) {
-            moteSensors.add(sensorList.getModel().getElementAt(i));
+        for (Object sensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
+            moteSensors.add((MoteSensor) sensor);
         }
+        return moteSensors;
+    }
 
+    private void addMote() {
         int posX = (int) xPosSpinner.getValue();
         int posY = (int) yPosSpinner.getValue();
         addWayPointIfNotPresent(posX, posY);
 
         environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUIDtextField.getText()), posX, posY,
             environment, (int) powerSpinner.getValue(),
-            (int) SFSpinner.getValue(), moteSensors, 20, new Path(),
+            (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(),
             (double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
             (int) offsetSendingSpinner.getValue()));
     }
 
     private void addUserMote() {
-        List<MoteSensor> moteSensors = new LinkedList<>();
-        for (int i = 0; i < sensorList.getModel().getSize(); i++) {
-            moteSensors.add(sensorList.getModel().getElementAt(i));
-        }
-
         int posX = (int) xPosSpinner.getValue();
         int posY = (int) yPosSpinner.getValue();
         addWayPointIfNotPresent(posX, posY);
@@ -174,7 +170,7 @@ public class NewMoteGUI {
 
         UserMote userMote = MoteFactory.createUserMote(Long.parseUnsignedLong(EUIDtextField.getText()), posX,
             posY, environment, (int) powerSpinner.getValue(),
-            (int) SFSpinner.getValue(), moteSensors, 20, new Path(),
+            (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(),
             (double) movementSpinner.getValue(),
             (int) movementStartOffsetSpinner.getValue(), (int) periodSpinner.getValue(),
             (int) offsetSendingSpinner.getValue(), destination);

@@ -1,13 +1,16 @@
 package iot.lora;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class BasicFrameHeader implements FrameHeader {
 
     private static final int SOURCE_ADDRESS_LENGTH = 4;
 
-    private byte[] sourceAddress = new byte[0];
+    private byte[] sourceAddress = new byte[SOURCE_ADDRESS_LENGTH];
     private short FCnt = 0;
+    private byte[] FOpts = new byte[0];
+    private byte fCtrl = -1;
 
 
     public BasicFrameHeader setSourceAddress(byte[] sourceAddress) {
@@ -30,6 +33,16 @@ public class BasicFrameHeader implements FrameHeader {
         return setFCnt(ByteBuffer.wrap(FCnt).getShort());
     }
 
+    public BasicFrameHeader setFOpts(byte[] FOpts) {
+        this.FOpts = FOpts;
+        return this;
+    }
+
+    public BasicFrameHeader setfCtrl(byte fCtrl) {
+        this.fCtrl = fCtrl;
+        return this;
+    }
+
     @Override
     public byte[] getSourceAddress() {
         return sourceAddress;
@@ -37,7 +50,7 @@ public class BasicFrameHeader implements FrameHeader {
 
     @Override
     public byte getFCtrl() {
-        throw new UnsupportedOperationException();
+        return fCtrl;
     }
 
     @Override
@@ -53,5 +66,18 @@ public class BasicFrameHeader implements FrameHeader {
     @Override
     public byte[] getFOpts() {
         return new byte[0];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BasicFrameHeader that = (BasicFrameHeader) o;
+        return getFCntAsShort() == that.getFCntAsShort();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFCntAsShort());
     }
 }

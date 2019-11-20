@@ -2,16 +2,16 @@ package iot.networkentity;
 
 
 import iot.Environment;
+import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
+import iot.mqtt.MQTTClientFactory;
 import iot.mqtt.MqttClientBasicApi;
-import iot.mqtt.MqttMessage;
-import iot.mqtt.MqttMock;
+import iot.mqtt.Topics;
+import iot.mqtt.TransmissionWrapper;
 import iot.strategy.response.gateway.ResponseStrategy;
-import iot.strategy.response.gateway.SendNewestPacket;
+import iot.strategy.response.gateway.SendPacketImmediately;
 import selfadaptation.instrumentation.MoteProbe;
-import util.Converter;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
@@ -33,7 +33,7 @@ public class Gateway extends NetworkEntity {
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
     public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
-        this(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, new SendNewestPacket());
+        this(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, new SendPacketImmediately());
     }
 
     /**
@@ -49,7 +49,7 @@ public class Gateway extends NetworkEntity {
     public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, ResponseStrategy responseStrategy) {
         super(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
         subscribedMoteProbes = new LinkedList<>();
-        mqttClient = new MqttMock();
+        mqttClient = MQTTClientFactory.getSingletonInstance();
         this.responseStrategy = responseStrategy.init(this);
     }
 
@@ -68,15 +68,16 @@ public class Gateway extends NetworkEntity {
     }
 
     /**
-     * Sends a received packet directly to the MQTT server.
-     * @param packet The received packet.
+     * Sends a received transmission directly to the MQTT server.
+     * @param transmission The received transmission.
      */
     @Override
-    protected void OnReceive(LoraWanPacket packet) {
+    protected void OnReceive(LoraTransmission transmission) {
+        var packet = transmission.getContent();
         //manage the message only if it is of a mote
         if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
-            var message = new MqttMessage(packet.getFrameHeader(), new LinkedList<>(Arrays.asList(Converter.toObjectType(packet.getPayload()))), packet.getSenderEUI(), getEUI(), packet.getReceiverEUI());
-            mqttClient.publish(getTopic(packet.getReceiverEUI(), packet.getSenderEUI()), message);
+            var message = new TransmissionWrapper(transmission);
+            mqttClient.publish(Topics.getGatewayToNetServer(packet.getReceiverEUI(), getEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
                 moteProbe.trigger(this, packet.getSenderEUI());
             }
@@ -84,23 +85,15 @@ public class Gateway extends NetworkEntity {
         }
     }
 
+    public void sendToDevice(LoraWanPacket packet) { send(packet);}
+
     @Override
     boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
         return networkEntity.getEUI() == packet.getReceiverEUI();
     }
 
     @Override
-    public void initialize() {}
-
-    private String getTopic(Long applicationEUI, Long deviceEUI) {
-        return new StringBuilder()
-            .append("application/")
-            .append(applicationEUI)
-            .append("/node/")
-            .append(deviceEUI)
-            .append("/rx")
-            .toString();
-    }
+    protected void initialize() {}
 
     public MqttClientBasicApi getMqttClient() {
         return mqttClient;

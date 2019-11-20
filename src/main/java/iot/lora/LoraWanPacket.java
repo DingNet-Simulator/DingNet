@@ -1,13 +1,13 @@
 package iot.lora;
 
 
-import iot.networkcommunication.api.Packet;
-
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
-public class LoraWanPacket implements Serializable, Packet {
+public class LoraWanPacket implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * The payload of a packet.
@@ -58,7 +58,7 @@ public class LoraWanPacket implements Serializable, Packet {
      * @param macCommands
      */
     public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, byte[] payload, FrameHeader header, Boolean lowDataRateOptimization,
-                         Integer amountOfPreambleSymbols, double codingRate, LinkedList<MacCommand> macCommands){
+                         Integer amountOfPreambleSymbols, double codingRate, List<MacCommand> macCommands){
         this.senderEUI = senderEUI;
         this.designatedReceiverEUI = designatedReceiverEUI;
         this.amountOfPreambleSymbols = amountOfPreambleSymbols;
@@ -78,7 +78,7 @@ public class LoraWanPacket implements Serializable, Packet {
      * @param header
      * @param macCommands
      */
-    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, byte[] payload, FrameHeader header, LinkedList<MacCommand> macCommands){
+    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, byte[] payload, FrameHeader header, List<MacCommand> macCommands){
         this(senderEUI, designatedReceiverEUI, payload, header,false,8,0.8,macCommands);
     }
 
@@ -89,20 +89,15 @@ public class LoraWanPacket implements Serializable, Packet {
      * @param payload
      * @param macCommands
      */
-    public LoraWanPacket(Long senderEUI, Long designatedReceiverEUI, byte[] payload, LinkedList<MacCommand> macCommands) {
+    public LoraWanPacket(long senderEUI, long designatedReceiverEUI, byte[] payload, List<MacCommand> macCommands) {
         this(senderEUI, designatedReceiverEUI, payload, new BasicFrameHeader(), false, 8, 0.8, macCommands);
     }
 
-    public static LoraWanPacket createEmptyPacket(Long senderEUI, Long designatedReceiverEUI) {
+    public static LoraWanPacket createEmptyPacket(long senderEUI, long designatedReceiverEUI) {
         return new LoraWanPacket(senderEUI, designatedReceiverEUI, new byte[0], new LinkedList<>());
     }
 
     //endregion
-
-    //TODO
-    public byte[] getHeader() {
-        return new byte[0];
-    }
 
     public FrameHeader getFrameHeader() {return header;}
 
@@ -126,7 +121,6 @@ public class LoraWanPacket implements Serializable, Packet {
      * Returns the EUI of designated receiver.
      * @return The EUI of designated receiver.
      */
-    @Override
     public long getReceiverEUI() {
         return designatedReceiverEUI;
     }
@@ -175,8 +169,26 @@ public class LoraWanPacket implements Serializable, Packet {
      * Returns the length in symbols.
      * @return the length in symbols.
      */
-    @Override
     public int getLength(){
         return length;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LoraWanPacket that = (LoraWanPacket) o;
+        return designatedReceiverEUI == that.designatedReceiverEUI &&
+            getSenderEUI() == that.getSenderEUI() &&
+            Arrays.equals(getPayload(), that.getPayload()) &&
+            getMacCommands().equals(that.getMacCommands()) &&
+            getFrameHeader().equals(that.getFrameHeader());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(getMacCommands(), designatedReceiverEUI, getSenderEUI(), getFrameHeader());
+        result = 31 * result + Arrays.hashCode(getPayload());
+        return result;
     }
 }

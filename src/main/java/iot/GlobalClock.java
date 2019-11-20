@@ -66,6 +66,13 @@ public class GlobalClock {
         return trig.getUid();
     }
 
+    public long addTriggerOneShot(LocalTime time, Runnable trigger){
+        return addTrigger(time, () -> {
+            trigger.run();
+            return LocalTime.of(0,0);
+        });
+    }
+
     private void addTrigger(LocalTime time,Trigger trigger) {
         if(containsTriggers(time)){
             triggers.get(time).add(0,trigger);

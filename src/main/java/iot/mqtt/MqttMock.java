@@ -1,12 +1,14 @@
 package iot.mqtt;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class MqttMock implements MqttClientBasicApi {
 
-    private final Map<String, BiConsumer<String, MqttMessage>> subscribed = new HashMap<>();
+    private Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
     private final MqttBrokerMock broker = MqttBrokerMock.getInstance();
 
 
@@ -22,10 +24,11 @@ public class MqttMock implements MqttClientBasicApi {
     @Override
     public void disconnect() {
         broker.disconnect(this);
+        subscribed.clear();
     }
 
     @Override
-    public void publish(String topic, MqttMessage message) {
+    public void publish(String topic, MqttMessageType message) {
         broker.publish(topic, message);
     }
 
@@ -35,22 +38,47 @@ public class MqttMock implements MqttClientBasicApi {
      * @param messageListener
      */
     @Override
-    public void subscribe(String topicFilter, BiConsumer<String, MqttMessage> messageListener) {
+    public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
         if (!subscribed.containsKey(topicFilter)) {
             broker.subscribe(this, topicFilter);
+            subscribed.put(topicFilter, new LinkedList<>());
         }
-        subscribed.put(topicFilter, messageListener);
+        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(subscriber, messageListener, classMessage));
     }
 
     @Override
-    public void unsubscribe(String topicFilter) {
-        subscribed.remove(topicFilter);
-        broker.unsubscribe(this, topicFilter);
+    public void unsubscribe(Object subscriber, String topicFilter) {
+        subscribed.get(topicFilter).removeIf(c -> c.getSubscriber().equals(subscriber));
+        if (subscribed.get(topicFilter).isEmpty()) {
+            subscribed.remove(topicFilter);
+            broker.unsubscribe(this, topicFilter);
+        }
     }
 
-    public void dispatch(String filter, String topic, MqttMessage message) {
+    public void dispatch(String filter, String topic, MqttMessageType message) {
         if (subscribed.containsKey(filter)) {
-            subscribed.get(filter).accept(topic, message);
+            subscribed.get(filter).forEach(c -> c.accept(topic, message));
+        }
+    }
+
+    private static class MqttMessageConsumer<T extends MqttMessageType> {
+
+        private final Object subscriber;
+        private final BiConsumer<String, T> consumer;
+        private final Class<T> clazz;
+
+        public MqttMessageConsumer(Object subscriber, BiConsumer<String, T> consumer, Class<T> clazz) {
+            this.consumer = consumer;
+            this.clazz = clazz;
+            this.subscriber = subscriber;
+        }
+
+        public void accept(String t, MqttMessageType message) {
+            consumer.accept(t, clazz.cast(message));
+        }
+
+        public Object getSubscriber() {
+            return subscriber;
         }
     }
 }

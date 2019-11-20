@@ -1,4 +1,4 @@
-package application;
+package application.routing;
 
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;

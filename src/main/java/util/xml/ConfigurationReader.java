@@ -1,6 +1,5 @@
 package util.xml;
 
-import datagenerator.GPSDataGenerator;
 import iot.Characteristic;
 import iot.Environment;
 import iot.Simulation;
@@ -226,12 +225,6 @@ public class ConfigurationReader {
                 Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(i);
                 moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
             }
-
-            // FIXME find another way to do this...
-            moteSensors.stream()
-                .map(MoteSensor::getSensorDataGenerator)
-                .filter(o -> o instanceof GPSDataGenerator)
-                .forEach(o -> ((GPSDataGenerator) o).setOrigin(environment.getMapOrigin()));
 
             return moteSensors;
         }

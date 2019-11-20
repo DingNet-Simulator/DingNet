@@ -13,6 +13,7 @@ import iot.networkcommunication.impl.SenderNoWaitPacket;
 import util.Converter;
 import util.ListHelper;
 import util.Pair;
+import util.Statistics;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -29,12 +30,6 @@ import java.util.stream.Stream;
 public abstract class NetworkEntity implements Serializable {
     // EUI of the network entity
     private static final long serialVersionUID = 1L;
-
-    // A list representing the power setting of every transmission.
-    private List<List<Pair<Integer,Integer>>> powerSettingHistory;
-
-    // A list representing the spreading factor of every transmission.
-    private List<List<Integer>> spreadingFactorHistory;
 
     // An unsinged long representing the 64 bit unique identifier.
     private final long EUI;
@@ -61,18 +56,12 @@ public abstract class NetworkEntity implements Serializable {
     // The levels of power in between which it can discriminate.
     private final double transmissionPowerThreshold;
 
-    // A map with the transmissions received by the entity and if they collided with an other packet.
-    private List<LinkedHashSet<LoraTransmission>> receivedTransmissions = new LinkedList<>();
-
-    // A list with the transmissions transmitted by the entity
-    private List<List<LoraTransmission>> sentTransmissions = new LinkedList<>();
-
     // If the mote is enabled in the current simulation.
     private boolean enabled;
 
     private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
-    private Sender<LoraWanPacket> sender;
-    private Receiver<LoraWanPacket> receiver;
+    private Sender sender;
+    private Receiver receiver;
 
     /**
      *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
@@ -110,12 +99,6 @@ public abstract class NetworkEntity implements Serializable {
 
         this.transmissionPowerThreshold = transmissionPowerThreshold;
         this.EUI = EUI;
-        powerSettingHistory = new LinkedList<>();
-        powerSettingHistory.add(new LinkedList<>());
-        spreadingFactorHistory = new LinkedList<>();
-        spreadingFactorHistory.add(new LinkedList<>());
-        receivedTransmissions.add(new LinkedHashSet<>());
-        sentTransmissions.add(new LinkedList<>());
         enabled = true;
         receiver = new ReceiverWaitPacket(this, getEnvironment().getClock(), transmissionPowerThreshold).setConsumerPacket(this::receive);
         sender = new SenderNoWaitPacket(this, getEnvironment())
@@ -139,50 +122,6 @@ public abstract class NetworkEntity implements Serializable {
     @Raw
     public Environment getEnvironment() {
         return environment;
-    }
-
-    /**
-     * Return the power setting history of the entity.
-     * @return The power setting history of the entity.
-     */
-    public List<Pair<Integer,Integer>> getPowerSettingHistory(Integer run) {
-        return powerSettingHistory.get(run);
-    }
-
-    /**
-     * Return the spreading factor history of the entity.
-     * @return The spreading factor history of the entity.
-     */
-    public List<Integer> getSpreadingFactorHistory(Integer run) {
-        return spreadingFactorHistory.get(run);
-    }
-
-    /**
-     *  Returns The transmissions sent by the entity.
-     * @return The transmissions sent by the entity.
-     */
-    @Basic
-    @Raw
-    public List<LoraTransmission> getSentTransmissions(Integer run) {
-        return sentTransmissions.get(run);
-    }
-
-    /**
-     * Returns all transmissions with collisions included
-     * @return all transmissions with collisions included
-     */
-    public LinkedHashSet<LoraTransmission> getAllReceivedTransmissions(int run) {
-        return receivedTransmissions.get(run);
-    }
-
-    /**
-     * Returns only the transmission actually received by the gateway.
-     * @return only the transmission actually received by the gateway.
-     */
-    public List<LoraTransmission> getReceivedTransmissions(int run) {
-        return getAllReceivedTransmissions(run).stream()
-            .filter(t -> !t.isCollided())
-            .collect(Collectors.toList());
     }
 
     /**
@@ -214,11 +153,11 @@ public abstract class NetworkEntity implements Serializable {
      * A method for receiving a packet, which checks if it can detect the packet and then adds it to the received packets.
      * @param transmission The transmission to receiveTransmission.
      */
-    private void receive(LoraTransmission<LoraWanPacket> transmission) {
-        ListHelper.getLast(receivedTransmissions).add(transmission);
-        if(!transmission.isCollided()) {
+    private void receive(LoraTransmission transmission) {
+        Statistics.getInstance().addReceivedTransmissionsEntry(this.getEUI(), transmission);
+        if (!transmission.isCollided()) {
             handleMacCommands(transmission.getContent());
-            OnReceive(transmission.getContent());
+            OnReceive(transmission);
         }
     }
 
@@ -271,10 +210,10 @@ public abstract class NetworkEntity implements Serializable {
     }
 
     /**
-     * A method describing what the entity should do after successfully receiving a packet.
-     * @param packet The received packet.
+     * A method describing what the entity should do after successfully receiving a transmission.
+     * @param transmission The received transmission.
      */
-    protected abstract void OnReceive(LoraWanPacket packet);
+    protected abstract void OnReceive(LoraTransmission transmission);
 
 
     /**
@@ -388,13 +327,14 @@ public abstract class NetworkEntity implements Serializable {
             .collect(Collectors.toSet());
         sender.send(message, recs)
             .ifPresent(t -> {
-                ListHelper.getLast(powerSettingHistory).add(new Pair<>(getEnvironment().getClock().getTime().toSecondOfDay(),getTransmissionPower()));
-                ListHelper.getLast(spreadingFactorHistory).add(getSF());
-                ListHelper.getLast(sentTransmissions).add(t);
+                Statistics statistics = Statistics.getInstance();
+                statistics.addPowerSettingEntry(this.getEUI(), getEnvironment().getClock().getTime().toSecondOfDay(), getTransmissionPower());
+                statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
+                statistics.addSentTransmissionsEntry(this.getEUI(), t);
             });
     }
 
-    public Receiver<LoraWanPacket> getReceiver() {
+    public Receiver getReceiver() {
         return receiver;
     }
 
@@ -406,43 +346,6 @@ public abstract class NetworkEntity implements Serializable {
         return EUI;
     }
 
-    public List<Double> getUsedEnergy(Integer run) {
-        List<Double> usedEnergy = new LinkedList<>();
-        int i= 0;
-        for(LoraTransmission transmission: getSentTransmissions(run)) {
-            usedEnergy.add(Math.pow(10,((double)getPowerSettingHistory(run).get(i).getRight())/10)*transmission.getTimeOnAir()/1000);
-            i++;
-        }
-        return usedEnergy;
-    }
-
-    /**
-     * Resets the received and sent transmissions and the power setting and the spreading factor history of the entity.
-     */
-    public void resetHistory() {
-        powerSettingHistory.clear();
-        powerSettingHistory.add(new LinkedList<>());
-        spreadingFactorHistory.clear();
-        spreadingFactorHistory.add(new LinkedList<>());
-        receivedTransmissions.clear();
-        receivedTransmissions.add(new LinkedHashSet<>());
-        sentTransmissions.clear();
-        sentTransmissions.add(new LinkedList<>());
-        receiver.reset();
-        sender.reset();
-    }
-
-    /**
-     * Adds a new list to the received and sent transmissions and the power setting and the spreading factor history of the entity.
-     */
-    public void addRun() {
-        powerSettingHistory.add(new LinkedList<>());
-        spreadingFactorHistory.add(new LinkedList<>());
-        receivedTransmissions.add(new LinkedHashSet<>());
-        sentTransmissions.add(new LinkedList<>());
-        receiver.reset();
-        sender.reset();
-    }
 
     /**
      * Returns if the entity is enabled in this run.
@@ -472,5 +375,12 @@ public abstract class NetworkEntity implements Serializable {
     /**
      * Method which is called at the start of every simulation run.
      */
-    public abstract void initialize();
+    protected abstract void initialize();
+
+    public void reset() {
+        receiver.reset();
+        sender.reset();
+
+        this.initialize();
+    }
 }

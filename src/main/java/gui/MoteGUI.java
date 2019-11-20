@@ -9,12 +9,11 @@ import iot.networkentity.MoteSensor;
 import iot.networkentity.UserMote;
 import util.GraphStructure;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class MoteGUI {
     private JLabel EUIDText;
@@ -89,9 +88,9 @@ public class MoteGUI {
             mote.setXPos((int) xPosSpinner.getValue());
             mote.setYPos((int) yPosSpinner.getValue());
             mote.setTransmissionPower((int) powerSpinner.getValue());
-            LinkedList<MoteSensor> moteSensors = new LinkedList<>();
-            for (Object moteSensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
-                moteSensors.add((MoteSensor) moteSensor);
+            List<MoteSensor> moteSensors = new LinkedList<>();
+            for (Object sensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
+                moteSensors.add((MoteSensor) sensor);
             }
             mote.setSensors(moteSensors);
             mote.setMovementSpeed((double) movementSpinner.getValue());

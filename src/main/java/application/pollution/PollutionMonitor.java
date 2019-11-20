@@ -1,16 +1,19 @@
-package application;
+package application.pollution;
 
+import application.Application;
 import iot.Environment;
+import iot.lora.LoraWanPacket;
 import iot.lora.MessageType;
-import iot.mqtt.MqttMessage;
+import iot.mqtt.Topics;
+import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.MoteSensor;
+import util.Converter;
 import util.MapHelper;
-import util.pollution.PollutionGrid;
-import util.pollution.PollutionLevel;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PollutionMonitor extends Application {
 
@@ -20,7 +23,7 @@ public class PollutionMonitor extends Application {
 
 
     public PollutionMonitor(Environment environment) {
-        super(List.of("application/+/node/+/rx"));
+        super(List.of(Topics.getNetServerToApp("+", "+")));
 
         this.pollutionGrid = PollutionGrid.getInstance();
         this.environment = environment;
@@ -38,15 +41,17 @@ public class PollutionMonitor extends Application {
             .orElse(0.0);
     }
 
-    private void handleSensorData(MqttMessage message) {
+    private void handleSensorData(LoraWanPacket message) {
         // Filter out the first byte
-        var body = message.getData().subList(1, message.getData().size());
+        var body = Arrays.stream(Converter.toObjectType(message.getPayload()))
+            .skip(1)
+            .collect(Collectors.toList());
         if (body.isEmpty()) {
             return;
         }
 
         var mote = this.environment.getMotes().stream()
-            .filter(m -> m.getEUI() == message.getDeviceEUI())
+            .filter(m -> m.getEUI() == message.getSenderEUI())
             .findFirst()
             .orElseThrow();
 
@@ -63,13 +68,14 @@ public class PollutionMonitor extends Application {
             return;
         }
 
-        this.pollutionGrid.addMeasurement(message.getDeviceEUI(), position, new PollutionLevel(this.determinePollutionLevel(sensorData)));
+        this.pollutionGrid.addMeasurement(message.getSenderEUI(), position, new PollutionLevel(this.determinePollutionLevel(sensorData)));
     }
 
     @Override
-    public void consumePackets(String topicFilter, MqttMessage message) {
-        // Only handle packets with sensor data
-        if (message.getData().get(0) == MessageType.SENSOR_VALUE.getCode()) {
+    public void consumePackets(String topicFilter, TransmissionWrapper transmission) {
+        var message = transmission.getTransmission().getContent();
+        // Only handle packets with a route request
+        if (message.getPayload()[0] == MessageType.SENSOR_VALUE.getCode()) {
             handleSensorData(message);
         }
     }

@@ -4,10 +4,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import iot.Environment;
-import iot.lora.BasicFrameHeader;
-import iot.lora.LoraWanPacket;
-import iot.lora.MacCommand;
-import iot.lora.MessageType;
+import iot.lora.*;
 import iot.strategy.consume.ConsumePacketStrategy;
 import iot.strategy.store.MaintainLastPacket;
 import iot.strategy.store.ReceivedPacketStrategy;
@@ -131,11 +128,12 @@ public class Mote extends NetworkEntity {
 
     //endregion
     /**
-     * A method describing what the mote should do after successfully receiving a packet.
-     * @param packet The received packet.
+     * A method describing what the mote should do after successfully receiving a transmission.
+     * @param transmission The received transmission.
      */
     @Override
-    protected void OnReceive(LoraWanPacket packet) {
+    protected void OnReceive(LoraTransmission transmission) {
+        var packet = transmission.getContent();
         //if is a message sent to from a gateway to this mote
         if (canReceive && getEUI() == packet.getReceiverEUI() &&
             getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
@@ -150,7 +148,7 @@ public class Mote extends NetworkEntity {
     }
 
     @Override
-    public void initialize() {
+    protected void initialize() {
         this.setXPos(this.initialPosition.getLeft());
         this.setYPos(this.initialPosition.getRight());
 
@@ -231,7 +229,7 @@ public class Mote extends NetworkEntity {
         if (keepAliveTriggerId != -1L) {
             getEnvironment().getClock().removeTrigger(keepAliveTriggerId);
         }
-        keepAliveTriggerId = getEnvironment().getClock().addTrigger(
+        keepAliveTriggerId = getEnvironment().getClock().addTriggerOneShot(
             getEnvironment().getClock().getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
             () -> {
                 byte[] payload;
@@ -244,7 +242,6 @@ public class Mote extends NetworkEntity {
                 var packet = new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
                 sendToGateWay(packet);
-                return getEnvironment().getClock().getTime().plusSeconds(periodSendingPacket * 5); //TODO configure parameter
             }
         );
     }

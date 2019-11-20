@@ -8,6 +8,7 @@ import iot.networkentity.NetworkEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import util.EnvironmentHelper;
+import util.Statistics;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -74,7 +75,9 @@ public class SimulationWriter {
         Element receivedTransmissions = doc.createElement("receivedTransmissions");
         int i = 0;
         var env = simulation.getEnvironment();
-        for (LoraTransmission transmission : networkEntity.getSentTransmissions(run)) {
+        Statistics statistics = Statistics.getInstance();
+
+        for (LoraTransmission transmission : statistics.getSentTransmissions(networkEntity.getEUI(), run)) {
             Element receivedTransmissionElement = doc.createElement("receivedTransmission");
             Element sender = doc.createElement("sender");
 
@@ -116,7 +119,7 @@ public class SimulationWriter {
             timeOnAir.appendChild(doc.createTextNode(""+transmission.getTimeOnAir()));
 
             Element powerSetting = doc.createElement("powerSetting");
-            powerSetting.appendChild(doc.createTextNode(networkEntity.getPowerSettingHistory(run).get(i).toString()));
+            powerSetting.appendChild(doc.createTextNode(statistics.getPowerSettingHistory(networkEntity.getEUI(), run).get(i).toString()));
 
             Element collision = doc.createElement("collision");
             collision.appendChild(doc.createTextNode(""+transmission.isCollided()));

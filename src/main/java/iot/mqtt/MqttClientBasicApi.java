@@ -8,9 +8,9 @@ public interface MqttClientBasicApi {
 
     void disconnect();
 
-    void publish(String topic, MqttMessage message);
+    void publish(String topic, MqttMessageType message);
 
-    void subscribe(String topicFilter, BiConsumer<String, MqttMessage> messageListener);
+    <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener);
 
-    void unsubscribe(String topicFilter);
+    void unsubscribe(Object subscriber, String topicFilter);
 }

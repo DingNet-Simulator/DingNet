@@ -82,11 +82,10 @@ public class UserMote extends Mote {
 
         var clock = getEnvironment().getClock();
         var oldDestination = getPath().getDestination();
-        clock.addTrigger(clock.getTime().plusSeconds(30), () -> {
+        clock.addTriggerOneShot(clock.getTime().plusSeconds(30), () -> {
             if (oldDestination.equals(getPath().getDestination())) {
                 askNewPartOfPath();
             }
-            return LocalTime.of(0, 0);
         });
     }
 
@@ -131,7 +130,7 @@ public class UserMote extends Mote {
 
 
     @Override
-    public void initialize() {
+    protected void initialize() {
         super.initialize();
 
         setPath(new Path(List.of(MapHelper.toGeoPosition(this.getPosInt(), getEnvironment().getMapOrigin()))));

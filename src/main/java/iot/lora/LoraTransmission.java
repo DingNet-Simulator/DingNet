@@ -3,16 +3,16 @@ package iot.lora;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
-import iot.networkcommunication.api.Packet;
 import util.Pair;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.Objects;
 
 /**
  * A class representing a packet in the LoraWan simulation.
  */
-public class LoraTransmission<P extends Packet> implements Serializable{
+public class LoraTransmission implements Serializable{
 
     //region field
     private static final long serialVersionUID = 1L;
@@ -46,7 +46,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
     /**
      * The content of the message.
      */
-    private final P content;
+    private final LoraWanPacket content;
 
     private final RegionalParameter regionalParameter;
 
@@ -76,7 +76,7 @@ public class LoraTransmission<P extends Packet> implements Serializable{
      */
     public LoraTransmission(long sender, long receiver, Pair<Integer, Integer> positionSender,
                             double transmissionPower, RegionalParameter regionalParameter, double timeOnAir,
-                            LocalTime departureTime, P content) {
+                            LocalTime departureTime, LoraWanPacket content) {
 
         this.sender = sender;
         this.receiver = receiver;
@@ -230,9 +230,25 @@ public class LoraTransmission<P extends Packet> implements Serializable{
      * @return  the content of the transmission.
      */
     @Basic
-    public P getContent() {
+    public LoraWanPacket getContent() {
         return content;
     }
 
     //endregion
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LoraTransmission that = (LoraTransmission) o;
+        return getSender() == that.getSender() &&
+            getContent().equals(that.getContent()) &&
+            getDepartureTime().equals(that.getDepartureTime());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSender(), getReceiver(), getContent(), getDepartureTime());
+    }
 }

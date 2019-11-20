@@ -9,19 +9,19 @@ import util.Pair;
 import util.TimeHelper;
 
 import java.time.Duration;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
+public class ReceiverWaitPacket implements Receiver {
 
     // The levels of power in between which it can discriminate.
     private final double transmissionPowerThreshold;
-    private Consumer<LoraTransmission<LoraWanPacket>> consumerPacket;
+    private Consumer<LoraTransmission> consumerPacket;
 
-    private List<LoraTransmission<LoraWanPacket>> transmissions = new LinkedList<>();
+    private List<LoraTransmission> transmissions = new LinkedList<>();
 
     private GlobalClock clock;
 
@@ -39,17 +39,18 @@ public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
     }
 
     @Override
-    public void receive(LoraTransmission<LoraWanPacket> packet) {
-        transmissions.stream()
-            .filter(t -> collision(packet, t))
-            .peek(LoraTransmission::setCollided)
-            .findAny()
-            .ifPresent(t -> packet.setCollided());
-        transmissions.add(packet);
-        clock.addTrigger(packet.getDepartureTime().plus((long)packet.getTimeOnAir(), ChronoUnit.MILLIS),()->{
-            packet.setArrived();
-            consumerPacket.accept(packet);
-            return LocalTime.of(0,0);
+    public void receive(LoraTransmission transmission) {
+        var collidedTransmission = transmissions.stream()
+            .filter(t -> collision(transmission, t))
+            .collect(Collectors.toList());
+        collidedTransmission.forEach(LoraTransmission::setCollided);
+        if (!collidedTransmission.isEmpty()) {
+            transmission.setCollided();
+        }
+        transmissions.add(transmission);
+        clock.addTriggerOneShot(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS),()->{
+            transmission.setArrived();
+            consumerPacket.accept(transmission);
         });
     }
 
@@ -83,7 +84,7 @@ public class ReceiverWaitPacket implements Receiver<LoraWanPacket> {
     }
 
     @Override
-    public Receiver<LoraWanPacket> setConsumerPacket(Consumer<LoraTransmission<LoraWanPacket>> consumerPacket) {
+    public Receiver setConsumerPacket(Consumer<LoraTransmission> consumerPacket) {
         this.consumerPacket = consumerPacket;
         return this;
     }

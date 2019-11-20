@@ -5,6 +5,7 @@ import iot.Environment;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
+import iot.lora.RxSensitivity;
 import iot.networkcommunication.api.Receiver;
 import iot.networkcommunication.api.Sender;
 import iot.networkentity.NetworkEntity;
@@ -12,14 +13,13 @@ import org.jetbrains.annotations.NotNull;
 import util.Pair;
 import util.TimeHelper;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
+public class SenderNoWaitPacket implements Sender {
 
     private RegionalParameter regionalParameter;
     private double transmissionPower;
@@ -40,9 +40,8 @@ public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
 
 
     @Override
-    public Optional<LoraTransmission<LoraWanPacket>> send(@NotNull LoraWanPacket packet, @NotNull Set<Receiver<LoraWanPacket>> receiver) {
+    public Optional<LoraTransmission> send(@NotNull LoraWanPacket packet, @NotNull Set<Receiver> receiver) {
         if (!isTransmitting) {
-            isTransmitting = true;
             var payloadSize = packet.getPayload().length + packet.getFrameHeader().getFOpts().length;
             if (regionalParameter.getMaximumPayloadSize() < payloadSize) {
                 throw new IllegalArgumentException("Payload size greater then the max size. Payload size: " + payloadSize + ", " +
@@ -51,19 +50,21 @@ public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
             var timeOnAir = computeTimeOnAir(packet);
             var stream = receiver.stream()
                 .map(r -> new Pair<>(r,
-                    new LoraTransmission<>(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
+                    new LoraTransmission(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
                         regionalParameter, timeOnAir, env.getClock().getTime(), packet)))
                 .filter(p -> packetStrengthHighEnough(p.getRight().getTransmissionPower()));
+
             var filteredSet = stream.collect(Collectors.toSet());
-            var ret = filteredSet.stream().findFirst().map(Pair::getRight);
+
+            var ret = filteredSet.stream()
+                .findFirst()
+                .map(Pair::getRight);
             filteredSet.forEach(p -> p.getLeft().receive(p.getRight()));
-            if (ret.isPresent()) {
-                var clock = env.getClock();
-                clock.addTrigger(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)), () -> {
-                    isTransmitting = false;
-                    return LocalTime.of(0, 0);
-                });
-            }
+
+            isTransmitting = true;
+            var clock = env.getClock();
+            clock.addTriggerOneShot(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)),
+                () -> isTransmitting = false);
             return ret;
         } else {
             throw new IllegalStateException("impossible send two packet at the same time");
@@ -153,7 +154,7 @@ public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
      * Checks if a transmission is strong enough to be received.
      */
     private boolean packetStrengthHighEnough(double transmissionPower) {
-        return transmissionPower > -174 - 10 * Math.log10(regionalParameter.getBandwidth()) - (2.5 * regionalParameter.getSpreadingFactor() - 10);
+        return transmissionPower > RxSensitivity.getReceiverSensitivity(regionalParameter);
     }
 
     @Override
@@ -177,13 +178,13 @@ public class SenderNoWaitPacket implements Sender<LoraWanPacket> {
     }
 
     @Override
-    public Sender<LoraWanPacket> setTransmissionPower(double transmissionPower) {
+    public Sender setTransmissionPower(double transmissionPower) {
         this.transmissionPower = transmissionPower;
         return this;
     }
 
     @Override
-    public Sender<LoraWanPacket> setRegionalParameter(RegionalParameter regionalParameter) {
+    public Sender setRegionalParameter(RegionalParameter regionalParameter) {
         this.regionalParameter = regionalParameter;
         return this;
     }

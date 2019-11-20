@@ -1,28 +1,29 @@
-package application;
+package application.routing;
 
-import iot.lora.BasicFrameHeader;
+import application.Application;
+import iot.lora.LoraWanPacket;
 import iot.lora.MessageType;
-import iot.mqtt.MqttMessage;
+import iot.mqtt.BasicMqttMessage;
+import iot.mqtt.Topics;
+import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Converter;
 import util.GraphStructure;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class RoutingApplication extends Application {
-    private static short seqNr = (short) 1;
     private Map<Long, List<GeoPosition>> routes;
     private Map<Long, GeoPosition> lastPositions;
     private GraphStructure graph;
     private PathFinder pathFinder;
 
     public RoutingApplication(PathFinder pathFinder) {
-        super(List.of("application/+/node/+/rx"));
+        super(List.of(Topics.getNetServerToApp("+", "+")));
         this.routes = new HashMap<>();
         this.lastPositions = new HashMap<>();
         this.graph = GraphStructure.getInstance();
@@ -30,9 +31,11 @@ public class RoutingApplication extends Application {
     }
 
 
-    private void handleRouteRequest(MqttMessage message) {
-        var body = message.getData().subList(1, message.getData().size());
-        long deviceEUI = message.getDeviceEUI();
+    private void handleRouteRequest(LoraWanPacket message) {
+        var body = Arrays.stream(Converter.toObjectType(message.getPayload()))
+            .skip(1)
+            .collect(Collectors.toList());
+        long deviceEUI = message.getSenderEUI();
 
         GeoPosition motePosition;
         GeoPosition destinationPosition;
@@ -73,19 +76,12 @@ public class RoutingApplication extends Application {
             payload.add(b);
         }
 
-        short frameCounter;
         if (!lastPositions.containsKey(deviceEUI) || !lastPositions.get(deviceEUI).equals(motePosition)) {
-            frameCounter = seqNr++;
             lastPositions.put(deviceEUI, motePosition);
-        } else {
-            // Reuse the previous sequence number if the same request is received
-            frameCounter = (short) (seqNr-1);
         }
 
-        BasicFrameHeader header = new BasicFrameHeader().setFCnt(frameCounter);
-
-        MqttMessage routeMessage = new MqttMessage(header, payload, deviceEUI, -1L, 1L);
-        this.mqttClient.publish(String.format("application/%d/node/%d/tx", message.getApplicationEUI(), deviceEUI), routeMessage);
+        BasicMqttMessage routeMessage = new BasicMqttMessage(payload);
+        this.mqttClient.publish(Topics.getAppToNetServer(message.getReceiverEUI(), deviceEUI), routeMessage);
     }
 
 
@@ -97,9 +93,10 @@ public class RoutingApplication extends Application {
     }
 
     @Override
-    public void consumePackets(String topicFilter, MqttMessage message) {
+    public void consumePackets(String topicFilter, TransmissionWrapper transmission) {
+        var message = transmission.getTransmission().getContent();
         // Only handle packets with a route request
-        var messageType = message.getData().get(0);
+        var messageType = message.getPayload()[0];
         if (messageType == MessageType.REQUEST_PATH.getCode() || messageType == MessageType.REQUEST_UPDATE_PATH.getCode()) {
             handleRouteRequest(message);
         }
@@ -108,6 +105,5 @@ public class RoutingApplication extends Application {
     public void clean() {
         this.routes = new HashMap<>();
         this.lastPositions = new HashMap<>();
-        seqNr = 1;
     }
 }
