@@ -54,12 +54,10 @@ public class CompoundPainterBuilder {
     }
 
     public CompoundPainterBuilder withConnections(GraphStructure graph) {
-        var connections = graph.getConnections().values();
-        for (var conn : connections) {
-            painters.add(new LinePainter(
-                List.of(graph.getWayPoint(conn.getFrom()), graph.getWayPoint(conn.getTo())), Color.RED, 2
-            ));
-        }
+        Color lineColor = GUISettings.CONNECTION_LINE_COLOR;
+        int lineSize = GUISettings.CONNECTION_LINE_SIZE;
+
+        graph.getConnections().values().forEach(c -> painters.add(new LinePainter(List.of(graph.getWayPoint(c.getFrom()), graph.getWayPoint(c.getTo())), lineColor, lineSize)));
         return this;
     }
 
@@ -69,7 +67,10 @@ public class CompoundPainterBuilder {
     }
 
     public CompoundPainterBuilder withMotePaths(Environment environment) {
-        environment.getMotes().forEach(m -> painters.add(new LinePainter(m.getPath().getWayPoints(), Color.RED, 1)));
+        Color lineColor = GUISettings.MOTE_PATH_LINE_COLOR;
+        int lineSize = GUISettings.MOTE_PATH_LINE_SIZE;
+
+        environment.getMotes().forEach(m -> painters.add(new LinePainter(m.getPath().getWayPoints(), lineColor, lineSize)));
         return this;
     }
 
@@ -79,11 +80,14 @@ public class CompoundPainterBuilder {
     }
 
     public CompoundPainterBuilder withRoutingPath(Environment environment, RoutingApplication routingApplication) {
+        Color lineColor = GUISettings.ROUTING_PATH_LINE_COLOR;
+        int lineSize = GUISettings.ROUTING_PATH_LINE_SIZE;
+
         // Optional painter of the complete path
         environment.getMotes().stream()
             .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
             .findFirst()
-            .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), Color.RED, 1)));
+            .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), lineColor, lineSize)));
         return this;
     }
 

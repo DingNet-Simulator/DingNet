@@ -16,6 +16,15 @@ public class GUISettings {
     public static final float TRANSPARENCY_POLLUTIONGRID = .3f;
     public static final Color DEFAULT_WAYPOINT_COLOR = new Color(102,0,153);
 
+    public static final Color CONNECTION_LINE_COLOR = Color.RED;
+    public static final int CONNECTION_LINE_SIZE = 2;
+
+    public static final Color ROUTING_PATH_LINE_COLOR = Color.CYAN;
+    public static final int ROUTING_PATH_LINE_SIZE = 1;
+
+    public static final Color MOTE_PATH_LINE_COLOR = Color.RED;
+    public static final int MOTE_PATH_LINE_SIZE = 1;
+
     public static final String PATH_MOTE_IMAGE = "/images/Mote.png";
     public static final String PATH_USERMOTE_ACTIVE_IMAGE = "/images/cyclist.png";
     public static final String PATH_USERMOTE_INACTIVE_IMAGE = "/images/bicycle.png";
