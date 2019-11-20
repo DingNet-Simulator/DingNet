@@ -9,7 +9,6 @@ import util.Pair;
 import util.TimeHelper;
 
 import java.time.Duration;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,10 +48,9 @@ public class ReceiverWaitPacket implements Receiver {
             transmission.setCollided();
         }
         transmissions.add(transmission);
-        clock.addTrigger(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS),()->{
+        clock.addTriggerOneShot(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS),()->{
             transmission.setArrived();
             consumerPacket.accept(transmission);
-            return LocalTime.of(0,0);
         });
     }
 

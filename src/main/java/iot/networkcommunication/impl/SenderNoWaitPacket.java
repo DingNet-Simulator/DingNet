@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import util.Pair;
 import util.TimeHelper;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -64,11 +63,8 @@ public class SenderNoWaitPacket implements Sender {
 
             isTransmitting = true;
             var clock = env.getClock();
-            clock.addTrigger(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)), () -> {
-                isTransmitting = false;
-                return LocalTime.of(0, 0);
-            });
-
+            clock.addTriggerOneShot(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)),
+                () -> isTransmitting = false);
             return ret;
         } else {
             throw new IllegalStateException("impossible send two packet at the same time");
