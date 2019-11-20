@@ -3,18 +3,18 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import datagenerator.GPSDataGenerator;
 import gui.util.GUIUtil;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import iot.networkentity.UserMote;
 import util.GraphStructure;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class MoteGUI {
     private JLabel EUIDText;
@@ -90,8 +90,14 @@ public class MoteGUI {
             mote.setYPos((int) yPosSpinner.getValue());
             mote.setTransmissionPower((int) powerSpinner.getValue());
             LinkedList<MoteSensor> moteSensors = new LinkedList<>();
-            for (Object moteSensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
-                moteSensors.add((MoteSensor) moteSensor);
+            for (Object sensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
+                MoteSensor moteSensor = (MoteSensor) sensor;
+
+                // FIXME find a better way
+                if (moteSensor.getSensorDataGenerator() instanceof GPSDataGenerator) {
+                    ((GPSDataGenerator) moteSensor.getSensorDataGenerator()).setOrigin(mote.getEnvironment().getMapOrigin());
+                }
+                moteSensors.add(moteSensor);
             }
             mote.setSensors(moteSensors);
             mote.setMovementSpeed((double) movementSpinner.getValue());

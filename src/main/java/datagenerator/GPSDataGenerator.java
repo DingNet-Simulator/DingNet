@@ -10,8 +10,8 @@ import java.time.LocalTime;
 public class GPSDataGenerator implements SensorDataGenerator {
     private GeoPosition origin;
 
-    public GPSDataGenerator(GeoPosition origin) {
-        this.origin = origin;
+    public GPSDataGenerator() {
+        this.origin = null;
     }
 
     public void setOrigin(GeoPosition origin) {
@@ -20,6 +20,9 @@ public class GPSDataGenerator implements SensorDataGenerator {
 
     @Override
     public byte[] generateData(int x, int y, LocalTime time) {
+        if (origin == null) {
+            throw new IllegalStateException("Origin should be set first before using the GPS data generator");
+        }
         return Converter.toByteArray(new GeoPosition(MapHelper.toLatitude(y, origin), MapHelper.toLongitude(x, origin)));
     }
     public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time){
