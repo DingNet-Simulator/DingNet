@@ -12,10 +12,13 @@ import java.util.Map;
 
 public abstract class Application {
     MqttClientBasicApi mqttClient;
+    private List<String> topics;
 
     Application(List<String> topics) {
         this.mqttClient = MQTTClientFactory.getSingletonInstance();
         topics.forEach(t -> this.mqttClient.subscribe(this, t, TransmissionWrapper.class, this::consumePackets));
+
+        this.topics = topics;
     }
 
     public abstract void consumePackets(String topicFilter, TransmissionWrapper message);
@@ -33,6 +36,6 @@ public abstract class Application {
     }
 
     public void destruct() {
-        this.mqttClient.disconnect();
+//        topics.forEach(t -> this.mqttClient.unsubscribe(this, t));
     }
 }

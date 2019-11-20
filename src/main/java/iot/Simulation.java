@@ -2,10 +2,8 @@ package iot;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import datagenerator.SensorDataGenerator;
-import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
-import iot.networkentity.NetworkServer;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
 import util.TimeHelper;
 
@@ -18,7 +16,7 @@ import java.util.function.Predicate;
  */
 public class Simulation {
 
-    /** <Params>
+    // region fields
     /**
      * The InputProfile used in the simulation.
      */
@@ -37,15 +35,15 @@ public class Simulation {
      */
     private Predicate<Environment> continueSimulation;
 
-    private NetworkServer networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
     /**
      * Intermediate parameters used during simulation
      */
     private Map<Mote, Integer> wayPointMap;
     private Map<Mote, LocalTime> timeMap;
-    // </Params>
 
-    // <Constructors>
+    // endregion
+
+    // region constructors
     /**
      * Constructs a simulation  with a given InputProfile, Environment, GenericFeedbackLoop and GUI.
      * @param inputProfile The InputProfile to use.
@@ -61,12 +59,11 @@ public class Simulation {
         this.timeMap = new HashMap<>();
     }
 
-    public Simulation(){
-    }
+    public Simulation() {}
 
-     // </Constructors>
+     // endregion
 
-    // <GetterSetters>
+    // region getter/setters
 
     /**
      * Gets the Environment used in th simulation.
@@ -135,7 +132,7 @@ public class Simulation {
         this.approach = approach;
         getApproach().start();
     }
-    // <GetterSetters>
+    // endregion
 
 
     /**
@@ -197,7 +194,6 @@ public class Simulation {
         this.wayPointMap = new HashMap<>();
         this.timeMap = new HashMap<>();
 
-        this.networkServer.reset();
         setupMotesActivationStatus();
 
         for (Mote mote : this.environment.getMotes()) {
@@ -226,21 +222,19 @@ public class Simulation {
         this.continueSimulation = pred;
     }
 
-    void setupSingleRun(boolean startFresh) {
-        if (startFresh) {
-            resetHistory();
+    void setupSingleRun(boolean shouldResetHistory) {
+        if (shouldResetHistory) {
+            this.environment.resetHistory();
         }
+
         this.setupSimulation((env) -> !areAllMotesAtDestination());
     }
 
     void setupTimedRun() {
-        resetHistory();
+        this.environment.resetHistory();
+
         var finalTime = environment.getClock().getTime()
             .plus(inputProfile.getSimulationDuration(), inputProfile.getTimeUnit());
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
-    }
-
-    private void resetHistory() {
-        this.environment.resetHistory();
     }
 }

@@ -57,7 +57,9 @@ public class SenderNoWaitPacket implements Sender {
 
             var filteredSet = stream.collect(Collectors.toSet());
 
-            var ret = filteredSet.stream().findFirst().map(Pair::getRight);
+            var ret = filteredSet.stream()
+                .findFirst()
+                .map(Pair::getRight);
             filteredSet.forEach(p -> p.getLeft().receive(p.getRight()));
 
             isTransmitting = true;

@@ -93,4 +93,12 @@ public class NetworkServer {
             Map.Entry<Long, LoraTransmission> e2) {
         return e1.getValue().getTransmissionPower() >= e2.getValue().getTransmissionPower() ? e1 : e2;
     }
+
+    public void reconnect() {
+        this.mqttClient.disconnect();
+        this.mqttClient.connect();
+
+        subscribeToGateways();
+        subscribeToApps();
+    }
 }

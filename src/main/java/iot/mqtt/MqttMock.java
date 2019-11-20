@@ -61,7 +61,7 @@ public class MqttMock implements MqttClientBasicApi {
         }
     }
 
-    private class MqttMessageConsumer<T extends MqttMessage> {
+    private static class MqttMessageConsumer<T extends MqttMessage> {
 
         private final Object subscriber;
         private final BiConsumer<String, T> consumer;
