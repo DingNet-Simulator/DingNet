@@ -8,6 +8,7 @@ import iot.lora.RegionalParameter;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,8 +90,8 @@ public class PahoMqttClient implements MqttClientBasicApi{
     }
 
     @Override
-    public void publish(String topic, MqttMessage message) {
-        var msg = new org.eclipse.paho.client.mqttv3.MqttMessage(gson.toJson(message).getBytes(US_ASCII));
+    public void publish(String topic, MqttMessageType message) {
+        var msg = new MqttMessage(gson.toJson(message).getBytes(US_ASCII));
         try {
             if(!mqttClient.isConnected()) {
                 connect();
@@ -102,7 +103,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
     }
 
     @Override
-    public <T extends MqttMessage> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
+    public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
         if (!subscribed.containsKey(topicFilter)) {
             subscribed.put(topicFilter, new LinkedList<>());
             try {
@@ -127,7 +128,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
         }
     }
 
-    private class MqttMessageConsumer<T extends MqttMessage> {
+    private class MqttMessageConsumer<T extends MqttMessageType> {
 
         private final Object subscriber;
         private final BiConsumer<String, T> consumer;

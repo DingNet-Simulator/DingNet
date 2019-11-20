@@ -2,7 +2,7 @@ package iot.mqtt;
 
 import iot.lora.LoraTransmission;
 
-public class TransmissionWrapper implements MqttMessage {
+public class TransmissionWrapper implements MqttMessageType {
 
     private final LoraTransmission transmission;
 

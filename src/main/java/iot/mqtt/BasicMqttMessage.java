@@ -6,7 +6,7 @@ import util.Converter;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BasicMqttMessage implements MqttMessage {
+public class BasicMqttMessage implements MqttMessageType {
 
     private final List<Byte> data;
     private List<MacCommand> macCommands;

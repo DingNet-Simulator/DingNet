@@ -2,7 +2,7 @@ package iot.mqtt;
 
 import iot.lora.LoraWanPacket;
 
-public class LoraWanPacketWrapper implements MqttMessage {
+public class LoraWanPacketWrapper implements MqttMessageType {
 
     private final LoraWanPacket packet;
 

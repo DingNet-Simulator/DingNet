@@ -28,7 +28,7 @@ public class MqttMock implements MqttClientBasicApi {
     }
 
     @Override
-    public void publish(String topic, MqttMessage message) {
+    public void publish(String topic, MqttMessageType message) {
         broker.publish(topic, message);
     }
 
@@ -38,7 +38,7 @@ public class MqttMock implements MqttClientBasicApi {
      * @param messageListener
      */
     @Override
-    public <T extends MqttMessage> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
+    public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
         if (!subscribed.containsKey(topicFilter)) {
             broker.subscribe(this, topicFilter);
             subscribed.put(topicFilter, new LinkedList<>());
@@ -55,13 +55,13 @@ public class MqttMock implements MqttClientBasicApi {
         }
     }
 
-    public void dispatch(String filter, String topic, MqttMessage message) {
+    public void dispatch(String filter, String topic, MqttMessageType message) {
         if (subscribed.containsKey(filter)) {
             subscribed.get(filter).forEach(c -> c.accept(topic, message));
         }
     }
 
-    private static class MqttMessageConsumer<T extends MqttMessage> {
+    private static class MqttMessageConsumer<T extends MqttMessageType> {
 
         private final Object subscriber;
         private final BiConsumer<String, T> consumer;
@@ -73,7 +73,7 @@ public class MqttMock implements MqttClientBasicApi {
             this.subscriber = subscriber;
         }
 
-        public void accept(String t, MqttMessage message) {
+        public void accept(String t, MqttMessageType message) {
             consumer.accept(t, clazz.cast(message));
         }
 
