@@ -19,6 +19,9 @@ import java.util.Map;
 
 public class UserMote extends Mote {
 
+    // Distance in km
+    public static final double DISTANCE_THRESHOLD_ROUNDING_ERROR = 0.001;
+
     private boolean isActive = false;
     private GeoPosition destination;
     private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
@@ -55,10 +58,12 @@ public class UserMote extends Mote {
             var path = getPath();
             var wayPoints = path.getWayPoints();
             //if I don't the path to the destination and I am at the penultimate position of the path
-            if (path.getDestination().isPresent() &&    //at least tha path has one point
-                !path.getDestination().get().equals(destination) &&
+            var center = getEnvironment().getMapOrigin();
+
+            if (path.getDestination().isPresent() &&    //at least the path has one point
+                MapHelper.distance(path.getDestination().get(), destination) > DISTANCE_THRESHOLD_ROUNDING_ERROR &&
                 wayPoints.size() > 1 &&
-                MapHelper.toMapCoordinate(wayPoints.get(wayPoints.size()-2), getEnvironment().getMapOrigin()).equals(getPosInt())) {
+                MapHelper.toMapCoordinate(wayPoints.get(wayPoints.size()-2), center).equals(getPosInt())) {
                 //require new part of path
                 askNewPartOfPath();
             }
