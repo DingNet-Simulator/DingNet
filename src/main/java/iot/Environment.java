@@ -4,10 +4,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Connection;
-import util.GraphStructure;
-import util.MapHelper;
-import util.Pair;
+import util.*;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -365,12 +362,7 @@ public class Environment implements Serializable {
      */
     public void resetHistory() {
         getClock().reset();
-        for(Mote mote: getMotes()) {
-            mote.resetHistory();
-        }
-        for(Gateway gateway: getGateways()) {
-            gateway.resetHistory();
-        }
+        Statistics.getInstance().reset();
         numberOfRuns = 1;
     }
 
@@ -379,12 +371,7 @@ public class Environment implements Serializable {
      */
     public void addRun() {
         getClock().reset();
-        for (Mote mote : getMotes()) {
-            mote.addRun();
-        }
-        for (Gateway gateway : getGateways()) {
-            gateway.addRun();
-        }
+        Statistics.getInstance().addRun();
         numberOfRuns++;
     }
 

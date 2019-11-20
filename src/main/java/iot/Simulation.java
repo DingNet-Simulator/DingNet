@@ -2,6 +2,7 @@ package iot;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import datagenerator.SensorDataGenerator;
+import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
@@ -196,6 +197,8 @@ public class Simulation {
 
         setupMotesActivationStatus();
 
+        this.environment.getGateways().forEach(Gateway::reset);
+
         for (Mote mote : this.environment.getMotes()) {
             // Reset all the sensors of the mote
             mote.getSensors().stream()
@@ -203,7 +206,7 @@ public class Simulation {
                 .forEach(SensorDataGenerator::reset);
 
             // Initialize the mote (e.g. reset starting position)
-            mote.initialize();
+            mote.reset();
 
             timeMap.put(mote, this.environment.getClock().getTime());
             wayPointMap.put(mote,0);

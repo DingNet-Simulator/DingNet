@@ -149,7 +149,7 @@ public class Mote extends NetworkEntity {
     }
 
     @Override
-    public void initialize() {
+    protected void initialize() {
         this.setXPos(this.initialPosition.getLeft());
         this.setYPos(this.initialPosition.getRight());
 
