@@ -1,6 +1,5 @@
 package application;
 
-import iot.lora.BasicFrameHeader;
 import iot.lora.LoraWanPacket;
 import iot.lora.MessageType;
 import iot.mqtt.BasicMqttMessage;
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class RoutingApplication extends Application {
-    private static short seqNr = (short) 1;
     private Map<Long, List<GeoPosition>> routes;
     private Map<Long, GeoPosition> lastPositions;
     private GraphStructure graph;
@@ -77,18 +75,11 @@ public class RoutingApplication extends Application {
             payload.add(b);
         }
 
-        short frameCounter;
         if (!lastPositions.containsKey(deviceEUI) || !lastPositions.get(deviceEUI).equals(motePosition)) {
-            frameCounter = seqNr++;
             lastPositions.put(deviceEUI, motePosition);
-        } else {
-            // Reuse the previous sequence number if the same request is received
-            frameCounter = (short) (seqNr-1);
         }
 
-        BasicFrameHeader header = new BasicFrameHeader().setFCnt(frameCounter);
-
-        BasicMqttMessage routeMessage = new BasicMqttMessage(header, payload, deviceEUI, 1L);
+        BasicMqttMessage routeMessage = new BasicMqttMessage(payload);
         this.mqttClient.publish(Topics.getAppToNetServer(message.getReceiverEUI(), deviceEUI), routeMessage);
     }
 
@@ -113,6 +104,5 @@ public class RoutingApplication extends Application {
     public void clean() {
         this.routes = new HashMap<>();
         this.lastPositions = new HashMap<>();
-        seqNr = 1;
     }
 }
