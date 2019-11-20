@@ -108,6 +108,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     private SimulationRunner simulationRunner;
     private MutableInteger simulationSpeed;
 
+    private MouseAdapter moteMouse = new MoteLegendMouseListener();
+    private MouseAdapter gateWayMouse = new GatewayLegendMouseListener();
+
     private double usedEnergy;
     private int packetsSent;
     private int packetsLost;
@@ -207,7 +210,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
             this.setEnabledRunButtons(false);
 
-            simulationRunner.totalRun(this::setProgress);
+            simulationRunner.totalRun(this::setProgressTotalRun);
         });
 
 
@@ -255,10 +258,70 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     }
 
 
+    // region setters/getters
+
     public Environment getEnvironment() {
         return simulationRunner.getEnvironment();
     }
 
+    private void setProgressTotalRun(Pair<Integer, Integer> progress) {
+        totalRunProgressBar.setMinimum(0);
+        totalRunProgressBar.setMaximum(progress.getRight());
+        totalRunProgressBar.setValue(progress.getLeft());
+        progressLabel.setText(progress.getLeft() + "/" + progress.getRight());
+
+        // If the runs have finished, re enable the run buttons
+        if (progress.getRight().equals(progress.getLeft())) {
+            this.setEnabledRunButtons(true);
+        }
+    }
+
+    void setRelCom(IntervalAdaptationGoal intervalAdaptationGoal) {
+        Simulation simulation = simulationRunner.getSimulation();
+        QualityOfService QoS = simulationRunner.getQoS();
+
+        simulation.getInputProfile().ifPresent(inputProfile -> {
+            inputProfile.putAdaptationGoal("reliableCommunication", intervalAdaptationGoal);
+            QoS.putAdaptationGoal("reliableCommunication", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("reliableCommunication"));
+            updateAdaptationGoals();
+        });
+    }
+
+    void setEnCon(ThresholdAdaptationGoal thresholdAdaptationGoal) {
+        Simulation simulation = simulationRunner.getSimulation();
+        QualityOfService QoS = simulationRunner.getQoS();
+
+        simulation.getInputProfile().ifPresent(inputProfile -> {
+            inputProfile.putAdaptationGoal("energyConsumption", thresholdAdaptationGoal);
+            QoS.putAdaptationGoal("energyConsumption", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("energyConsumption"));
+            updateAdaptationGoals();
+        });
+
+    }
+
+    void setColBound(ThresholdAdaptationGoal thresholdAdaptationGoal) {
+        Simulation simulation = simulationRunner.getSimulation();
+        QualityOfService QoS = simulationRunner.getQoS();
+
+        simulation.getInputProfile().ifPresent(inputProfile -> {
+            inputProfile.putAdaptationGoal("collisionBound", thresholdAdaptationGoal);
+            QoS.putAdaptationGoal("collisionBound", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("collisionBound"));
+            updateAdaptationGoals();
+        });
+
+    }
+
+
+    private void setEnabledRunButtons(boolean state) {
+        this.singleRunButton.setEnabled(state);
+        this.timedRunButton.setEnabled(state);
+        this.totalRunButton.setEnabled(state);
+    }
+
+    // endregion
+
+
+    // region Update labels/profiles/...
 
     private void loadAlgorithms() {
         var algorithms = simulationRunner.getAlgorithms();
@@ -270,16 +333,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
 
         adaptationComboBox.setModel(adaptationComboBoxModel);
     }
-
-
-    private void showNoInputProfileSelectedError() {
-        JOptionPane.showMessageDialog(null, "Make sure to have an input profile selected before running the simulator.",
-            "Warning: no input profile selected", JOptionPane.ERROR_MESSAGE);
-    }
-
-
-
-    // region Update labels/profiles/...
 
     private void updateEntries(Environment environment) {
         entitesPanel.removeAll();
@@ -495,27 +548,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     // endregion
 
 
-
-
-    private MouseAdapter gateWayMouse = new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            JTextArea jTextArea = (JTextArea) e.getSource();
-            String text = jTextArea.getText();
-            int index = Integer.parseInt(text.substring(8, text.indexOf(":")));
-            if (e.getClickCount() == 2) {
-                JFrame frame = new JFrame("Gateway settings");
-                GatewayGUI gatewayGUI = new GatewayGUI(simulationRunner.getEnvironment().getGateways().get(index - 1));
-                frame.setContentPane(gatewayGUI.getMainPanel());
-                frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
-                frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());
-                frame.setVisible(true);
-            }
-        }
-    };
-
-    private MouseAdapter moteMouse = new LegendMouseListener();
-
+    // region Actionlisteners/Adapters
 
     class MoteSelectActionListener implements ActionListener {
         private MainGUI mainGui;
@@ -609,7 +642,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     }
 
     private class InputProfileEditMouse extends MouseAdapter {
-
         private InputProfile inputProfile;
 
         InputProfileEditMouse(InputProfile inputProfile) {
@@ -669,8 +701,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             }
         }
     }
-
-
 
 
     private static class ConfigureActionListener implements ActionListener {
@@ -773,12 +803,13 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         }
     }
 
-    private class LegendMouseListener extends MouseAdapter implements ActionListener {
+    private class MoteLegendMouseListener extends MouseAdapter implements ActionListener {
+        @SuppressWarnings("FieldCanBeLocal")
         private final int CLICK_INTERVAL = (int) Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
         private Timer timer;
         MouseEvent event;
 
-        public LegendMouseListener() {
+        public MoteLegendMouseListener() {
             timer = new Timer(CLICK_INTERVAL, this);
         }
 
@@ -830,16 +861,31 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         }
     }
 
-    private void setProgress(Pair<Integer, Integer> progress) {
-        totalRunProgressBar.setMinimum(0);
-        totalRunProgressBar.setMaximum(progress.getRight());
-        totalRunProgressBar.setValue(progress.getLeft());
-        progressLabel.setText(progress.getLeft() + "/" + progress.getRight());
-
-        // If the runs have finished, re enable the run buttons
-        if (progress.getRight().equals(progress.getLeft())) {
-            this.setEnabledRunButtons(true);
+    private class GatewayLegendMouseListener extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            JTextArea jTextArea = (JTextArea) e.getSource();
+            String text = jTextArea.getText();
+            int index = Integer.parseInt(text.substring(8, text.indexOf(":")));
+            if (e.getClickCount() == 2) {
+                JFrame frame = new JFrame("Gateway settings");
+                GatewayGUI gatewayGUI = new GatewayGUI(simulationRunner.getEnvironment().getGateways().get(index - 1));
+                frame.setContentPane(gatewayGUI.getMainPanel());
+                frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
+                frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());
+                frame.setVisible(true);
+            }
         }
+    }
+
+    // endregion
+
+
+    // region Miscellanious
+
+    private void showNoInputProfileSelectedError() {
+        JOptionPane.showMessageDialog(null, "Make sure to have an input profile selected before running the simulator.",
+            "Warning: no input profile selected", JOptionPane.ERROR_MESSAGE);
     }
 
     private void updateGeneralResultsMote(Mote mote, int run) {
@@ -865,48 +911,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
     }
 
 
-    void setRelCom(IntervalAdaptationGoal intervalAdaptationGoal) {
-        Simulation simulation = simulationRunner.getSimulation();
-        QualityOfService QoS = simulationRunner.getQoS();
-
-        simulation.getInputProfile().ifPresent(inputProfile -> {
-            inputProfile.putAdaptationGoal("reliableCommunication", intervalAdaptationGoal);
-            QoS.putAdaptationGoal("reliableCommunication", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("reliableCommunication"));
-            updateAdaptationGoals();
-        });
-    }
-
-    void setEnCon(ThresholdAdaptationGoal thresholdAdaptationGoal) {
-        Simulation simulation = simulationRunner.getSimulation();
-        QualityOfService QoS = simulationRunner.getQoS();
-
-        simulation.getInputProfile().ifPresent(inputProfile -> {
-            inputProfile.putAdaptationGoal("energyConsumption", thresholdAdaptationGoal);
-            QoS.putAdaptationGoal("energyConsumption", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("energyConsumption"));
-            updateAdaptationGoals();
-        });
-
-    }
-
-    void setColBound(ThresholdAdaptationGoal thresholdAdaptationGoal) {
-        Simulation simulation = simulationRunner.getSimulation();
-        QualityOfService QoS = simulationRunner.getQoS();
-
-        simulation.getInputProfile().ifPresent(inputProfile -> {
-            inputProfile.putAdaptationGoal("collisionBound", thresholdAdaptationGoal);
-            QoS.putAdaptationGoal("collisionBound", inputProfile.getQualityOfServiceProfile().getAdaptationGoal("collisionBound"));
-            updateAdaptationGoals();
-        });
-
-    }
-
-
-    private void setEnabledRunButtons(boolean state) {
-        this.singleRunButton.setEnabled(state);
-        this.timedRunButton.setEnabled(state);
-        this.totalRunButton.setEnabled(state);
-    }
-
     @Override
     public void update() {
         try {
@@ -925,6 +929,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         }
         this.setEnabledRunButtons(true);
     }
+
+    // endregion
 
 
     {
