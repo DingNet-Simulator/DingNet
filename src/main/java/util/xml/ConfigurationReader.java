@@ -9,7 +9,10 @@ import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import util.*;
+import util.Connection;
+import util.MapHelper;
+import util.Pair;
+import util.Path;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -324,7 +327,7 @@ public class ConfigurationReader {
         GeoPosition getDestination() {
             Element destinationElement = (Element) node.getElementsByTagName("destination").item(0);
             long wayPointId =  Long.parseLong(destinationElement.getAttribute("id"));
-            return Converter.toFloatingGeoPosition(wayPoints.get(IDMappingWayPoints.get(wayPointId)));
+            return wayPoints.get(IDMappingWayPoints.get(wayPointId));
         }
 
         @Override
