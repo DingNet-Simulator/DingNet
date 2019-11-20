@@ -9,6 +9,6 @@ public class DistanceHeuristic implements RoutingHeuristic {
         GeoPosition begin = entry.graph.getWayPoint(entry.connection.getFrom());
         GeoPosition end = entry.graph.getWayPoint(entry.connection.getTo());
 
-        return MapHelper.distance(begin, end) + MapHelper.distance(end, entry.destination);
+        return MapHelper.distance(begin, end);
     }
 }
