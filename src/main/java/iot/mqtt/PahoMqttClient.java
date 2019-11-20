@@ -23,7 +23,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
     private Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
 
     public PahoMqttClient() {
-        this("tcp://mqtt.eclipse.org:1883", "testFenomeno1995");
+        this("tcp://test.mosquitto.org:1883", "testFenomeno1995");
     }
 
     public PahoMqttClient(@NotNull String address, @NotNull String clientId) {
