@@ -42,6 +42,7 @@ import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
 import util.*;
 
+import javax.swing.Timer;
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -454,33 +455,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
         }
     };
 
-    private MouseAdapter moteMouse = new MouseAdapter() {
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            JTextArea jTextArea = (JTextArea) e.getSource();
-            String text = jTextArea.getText();
-            int index = Integer.parseInt(text.substring(5, text.indexOf(":")));
-            if (e.getClickCount() == 2) {
-                JFrame frame = new JFrame("Mote settings");
-                MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame);
-                frame.setContentPane(moteGUI.getMainPanel());
-                frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
-                frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
-                frame.setVisible(true);
-                frame.addWindowListener(new WindowAdapter() {
-                    @Override
-                    public void windowClosed(WindowEvent e) {
-                        refresh();
-                    }
-                });
-            }
-            if (e.getClickCount() == 1) {
-                setCharacteristics(index - 1, 0);
-            }
-        }
-
-    };
+    private MouseAdapter moteMouse = new LegendMouseListener();
 
 
     class MoteSelectActionListener implements ActionListener {
@@ -950,6 +925,63 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
                 file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
                 simulationRunner.saveSimulationToFile(file);
             }
+        }
+    }
+
+    private class LegendMouseListener extends MouseAdapter implements ActionListener {
+        private final int CLICK_INTERVAL = (int) Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+        private Timer timer;
+        MouseEvent event;
+
+        public LegendMouseListener() {
+            timer = new Timer(CLICK_INTERVAL, this);
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            event = e;
+
+            if (timer.isRunning() && !e.isConsumed() && e.getClickCount() > 1) {
+                doubleClick();
+                timer.stop();
+            } else {
+                // Initial click -> either the timer runs out (actionPerformed method), or this method is called again before the timer runs out
+                timer.restart();
+            }
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            timer.stop();
+            singleClick();
+        }
+
+        private int getClickedIndex() {
+            JTextArea jTextArea = (JTextArea) event.getSource();
+            String text = jTextArea.getText();
+            return Integer.parseInt(text.substring(5, text.indexOf(":")));
+        }
+
+        private void singleClick() {
+            int index = this.getClickedIndex();
+            setCharacteristics(index - 1, 0);
+        }
+
+        private void doubleClick() {
+            int index = this.getClickedIndex();
+
+            JFrame frame = new JFrame("Mote settings");
+            MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame);
+            frame.setContentPane(moteGUI.getMainPanel());
+            frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
+            frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
+            frame.setVisible(true);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    refresh();
+                }
+            });
         }
     }
 
