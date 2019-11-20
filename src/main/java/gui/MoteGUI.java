@@ -3,7 +3,6 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import datagenerator.GPSDataGenerator;
 import gui.util.GUIUtil;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
@@ -89,15 +88,9 @@ public class MoteGUI {
             mote.setXPos((int) xPosSpinner.getValue());
             mote.setYPos((int) yPosSpinner.getValue());
             mote.setTransmissionPower((int) powerSpinner.getValue());
-            LinkedList<MoteSensor> moteSensors = new LinkedList<>();
+            List<MoteSensor> moteSensors = new LinkedList<>();
             for (Object sensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
-                MoteSensor moteSensor = (MoteSensor) sensor;
-
-                // FIXME find a better way
-                if (moteSensor.getSensorDataGenerator() instanceof GPSDataGenerator) {
-                    ((GPSDataGenerator) moteSensor.getSensorDataGenerator()).setOrigin(mote.getEnvironment().getMapOrigin());
-                }
-                moteSensors.add(moteSensor);
+                moteSensors.add((MoteSensor) sensor);
             }
             mote.setSensors(moteSensors);
             mote.setMovementSpeed((double) movementSpinner.getValue());

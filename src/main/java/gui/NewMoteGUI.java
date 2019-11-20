@@ -4,7 +4,6 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import datagenerator.GPSDataGenerator;
 import gui.util.GUIUtil;
 import iot.Environment;
 import iot.networkentity.MoteFactory;
@@ -140,15 +139,8 @@ public class NewMoteGUI {
     private List<MoteSensor> getSelectedMoteSensors() {
         List<MoteSensor> moteSensors = new LinkedList<>();
         for (Object sensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
-            MoteSensor moteSensor = (MoteSensor) sensor;
-
-            // FIXME find a better way
-            if (moteSensor.getSensorDataGenerator() instanceof GPSDataGenerator) {
-                ((GPSDataGenerator) moteSensor.getSensorDataGenerator()).setOrigin(environment.getMapOrigin());
-            }
-            moteSensors.add(moteSensor);
+            moteSensors.add((MoteSensor) sensor);
         }
-
         return moteSensors;
     }
 

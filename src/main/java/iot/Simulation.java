@@ -1,6 +1,7 @@
 package iot;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import datagenerator.GPSDataGenerator;
 import datagenerator.SensorDataGenerator;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -199,11 +200,16 @@ public class Simulation {
 
         this.environment.getGateways().forEach(Gateway::reset);
 
-        for (Mote mote : this.environment.getMotes()) {
+        this.environment.getMotes().forEach(mote -> {
             // Reset all the sensors of the mote
             mote.getSensors().stream()
                 .map(MoteSensor::getSensorDataGenerator)
                 .forEach(SensorDataGenerator::reset);
+
+            mote.getSensors().stream()
+                .map(MoteSensor::getSensorDataGenerator)
+                .filter(s -> s instanceof GPSDataGenerator)
+                .forEach(s -> ((GPSDataGenerator) s).setOrigin(environment.getMapOrigin()));
 
             // Initialize the mote (e.g. reset starting position)
             mote.reset();
@@ -220,7 +226,7 @@ public class Simulation {
                     new HashMap<>());
                 return environment.getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
             });
-        }
+        });
 
         this.continueSimulation = pred;
     }
