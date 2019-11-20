@@ -1,15 +1,14 @@
 package application.routing.heuristic;
 
+import application.pollution.PollutionGrid;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.MapHelper;
-import application.pollution.PollutionGrid;
 
 public class SimplePollutionHeuristic implements RoutingHeuristic {
     @Override
     public double calculateHeuristic(HeuristicEntry entry) {
         GeoPosition begin = entry.graph.getWayPoint(entry.connection.getFrom());
         GeoPosition end = entry.graph.getWayPoint(entry.connection.getTo());
-
 
         double pollutionValue = PollutionGrid.getInstance()
             .getPollutionLevel(MapHelper.meanPosition(begin, end)).getPollutionFactor();
@@ -19,6 +18,6 @@ public class SimplePollutionHeuristic implements RoutingHeuristic {
                         (0.4 <= pollutionValue && pollutionValue < 0.6) ? 3 : 10;
 
         // The lower the pollution level, the better the heuristic
-        return (factor * MapHelper.distance(begin, end)) + MapHelper.distance(end, entry.destination);
+        return factor * MapHelper.distance(begin, end);
     }
 }

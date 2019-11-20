@@ -7,9 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AStarRouter implements PathFinder {
@@ -31,15 +29,19 @@ public class AStarRouter implements PathFinder {
         long endWaypointId = graph.getClosestWayPointWithinRange(end, DISTANCE_THRESHOLD_POSITIONS)
             .orElseThrow(() -> new IllegalStateException("The destination position retrieved from the message is not located at a waypoint."));
 
+        Set<Long> visitedConnections = new HashSet<>();
 
         PriorityQueue<FringeEntry> fringe = new PriorityQueue<>();
         // Initialize the fringe by adding the first outgoing connections
         graph.getConnections().entrySet().stream()
-            .filter(me -> me.getValue().getFrom() == beginWaypointId)
-            .forEach(me -> fringe.add(new FringeEntry(
-                List.of(me.getKey()),
-                this.heuristic.calculateHeuristic(new HeuristicEntry(graph, me.getValue(), end))
-            )));
+            .filter(entry -> entry.getValue().getFrom() == beginWaypointId)
+            .forEach(entry -> {
+                fringe.add(new FringeEntry(
+                    List.of(entry.getKey()),
+                    this.heuristic.calculateHeuristic(new HeuristicEntry(graph, entry.getValue(), end))
+                ));
+                visitedConnections.add(entry.getKey());
+            });
 
 
         // Actual A* algorithm
@@ -56,15 +58,16 @@ public class AStarRouter implements PathFinder {
             // Explore the different outgoing connections from the last connection in the list
             // -> Add the new possible paths (together with their new heuristic values) to the fringe
             graph.getOutgoingConnectionsById(lastWaypointId).stream()
-                .filter(cId -> !current.connections.contains(cId)) // Filter out circular routes (i.e., check if connection already in existing path)
-                .forEach(cId -> {
+                .filter(connId -> !visitedConnections.contains(connId)) // Filter out connections which we have already considered (since these were visited in a better path first)
+                .forEach(connId -> {
                     List<Long> extendedPath = new ArrayList<>(current.connections);
-                    extendedPath.add(cId);
+                    extendedPath.add(connId);
 
                     double newHeuristicValue = current.heuristicValue
-                        + this.heuristic.calculateHeuristic(new HeuristicEntry(graph, graph.getConnection(cId), end));
+                        + this.heuristic.calculateHeuristic(new HeuristicEntry(graph, graph.getConnection(connId), end));
 
                     fringe.add(new FringeEntry(extendedPath, newHeuristicValue));
+                    visitedConnections.add(connId);
                 });
         }
 
