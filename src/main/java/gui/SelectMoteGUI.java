@@ -25,7 +25,7 @@ public class SelectMoteGUI extends JFrame {
         }
 
         okButton.addActionListener(e -> {
-            parent.setCharacteristics(moteSelectorComboBox.getSelectedIndex(), runSelectorComboBox.getSelectedIndex());
+            parent.setMoteHistoryGraphs(moteSelectorComboBox.getSelectedIndex(), runSelectorComboBox.getSelectedIndex());
             frame.dispose();
         });
     }
