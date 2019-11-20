@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Application {
-    MqttClientBasicApi mqttClient;
+    protected MqttClientBasicApi mqttClient;
     private List<String> topics;
 
-    Application(List<String> topics) {
+    protected Application(List<String> topics) {
         this.mqttClient = MQTTClientFactory.getSingletonInstance();
         topics.forEach(t -> this.mqttClient.subscribe(this, t, TransmissionWrapper.class, this::consumePackets));
 
@@ -23,7 +23,7 @@ public abstract class Application {
 
     public abstract void consumePackets(String topicFilter, TransmissionWrapper message);
 
-    Map<MoteSensor, Byte[]> retrieveSensorData(Mote mote, List<Byte> messageBody) {
+    protected Map<MoteSensor, Byte[]> retrieveSensorData(Mote mote, List<Byte> messageBody) {
         Map<MoteSensor, Byte[]> sensorData = new HashMap<>();
 
         for (var sensor : mote.getSensors()) {

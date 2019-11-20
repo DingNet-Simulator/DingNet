@@ -1,4 +1,4 @@
-package util.pollution;
+package application.pollution;
 
 import org.jxmapviewer.viewer.GeoPosition;
 import util.MapHelper;

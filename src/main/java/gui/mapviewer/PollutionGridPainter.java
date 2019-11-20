@@ -1,5 +1,6 @@
 package gui.mapviewer;
 
+import application.pollution.PollutionGrid;
 import gui.util.GUISettings;
 import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
@@ -7,7 +8,6 @@ import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactory;
 import util.MapHelper;
-import util.pollution.PollutionGrid;
 
 import java.awt.*;
 import java.awt.geom.Point2D;

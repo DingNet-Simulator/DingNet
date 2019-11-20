@@ -1,9 +1,8 @@
 package gui.util;
 
-import application.RoutingApplication;
+import application.routing.RoutingApplication;
 import gui.mapviewer.*;
 import iot.Environment;
-import iot.networkentity.Mote;
 import iot.networkentity.UserMote;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;

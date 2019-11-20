@@ -1,5 +1,6 @@
-package application;
+package application.pollution;
 
+import application.Application;
 import iot.Environment;
 import iot.lora.LoraWanPacket;
 import iot.lora.MessageType;
@@ -8,8 +9,6 @@ import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.MoteSensor;
 import util.Converter;
 import util.MapHelper;
-import util.pollution.PollutionGrid;
-import util.pollution.PollutionLevel;
 
 import java.util.Arrays;
 import java.util.List;

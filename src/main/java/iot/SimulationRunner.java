@@ -1,8 +1,9 @@
 package iot;
 
-import application.AStarRouter;
-import application.PollutionMonitor;
-import application.RoutingApplication;
+import application.pollution.PollutionGrid;
+import application.pollution.PollutionMonitor;
+import application.routing.AStarRouter;
+import application.routing.RoutingApplication;
 import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -17,7 +18,6 @@ import selfadaptation.instrumentation.MoteEffector;
 import selfadaptation.instrumentation.MoteProbe;
 import util.MutableInteger;
 import util.Pair;
-import util.pollution.PollutionGrid;
 import util.xml.*;
 
 import java.io.File;

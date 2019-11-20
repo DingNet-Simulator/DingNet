@@ -171,7 +171,7 @@ public class GraphStructure {
     }
 
 
-    Connection getConnection(long connectionId) {
+    public Connection getConnection(long connectionId) {
         return this.connections.get(connectionId);
     }
 

@@ -1,5 +1,6 @@
-package application;
+package application.routing;
 
+import application.Application;
 import iot.lora.LoraWanPacket;
 import iot.lora.MessageType;
 import iot.mqtt.BasicMqttMessage;
