@@ -11,6 +11,7 @@ public class GUISettings {
 
     public static final boolean USE_ANTIALIASING = true;
     public static final boolean USE_MAP_CACHING = true;
+    public static final boolean START_FULL_SCREEN = true;
 
     public static final float TRANSPARENCY_POLLUTIONGRID = .3f;
     public static final Color DEFAULT_WAYPOINT_COLOR = new Color(102,0,153);

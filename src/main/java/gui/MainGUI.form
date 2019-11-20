@@ -3,12 +3,15 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="1843" height="825"/>
+      <xy x="20" y="20" width="1843" height="1000"/>
     </constraints>
-    <properties/>
+    <properties>
+      <minimumSize width="1500" height="1000"/>
+      <preferredSize width="1500" height="1000"/>
+    </properties>
     <border type="none"/>
     <children>
-      <toolbar id="5e0b1" binding="toolBarEnvironment">
+      <toolbar id="5e0b1" binding="configurationToolBar">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="-1" height="20"/>
@@ -90,33 +93,36 @@
           </hspacer>
         </children>
       </toolbar>
-      <splitpane id="a237f">
+      <splitpane id="a237f" binding="mainWindowSplitPane">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="200" height="200"/>
           </grid>
         </constraints>
         <properties>
-          <dividerLocation value="550"/>
+          <dividerLocation value="600"/>
           <orientation value="0"/>
         </properties>
         <border type="none"/>
         <children>
-          <splitpane id="75459">
+          <splitpane id="75459" binding="mapAndLegendListSplitPane">
             <constraints>
               <splitpane position="left"/>
             </constraints>
             <properties>
-              <preferredSize width="688" height="800"/>
+              <minimumSize width="1500" height="300"/>
+              <preferredSize width="1500" height="600"/>
             </properties>
             <border type="none"/>
             <children>
-              <grid id="85a33" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="85a33" binding="legendPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <splitpane position="left"/>
                 </constraints>
-                <properties/>
+                <properties>
+                  <minimumSize width="-1" height="-1"/>
+                </properties>
                 <border type="none"/>
                 <children>
                   <scrollpane id="46b69" binding="entitiesPane">
@@ -142,7 +148,7 @@
                   </scrollpane>
                 </children>
               </grid>
-              <grid id="b8001" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="b8001" binding="mapPanel" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <splitpane position="right"/>
@@ -215,18 +221,18 @@
               </grid>
             </children>
           </splitpane>
-          <grid id="47632" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="47632" binding="runAndStatisticsPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <splitpane position="right"/>
             </constraints>
             <properties>
-              <minimumSize width="1431" height="40"/>
-              <preferredSize width="1431" height="100"/>
+              <minimumSize width="1500" height="35"/>
+              <preferredSize width="1500" height="400"/>
             </properties>
             <border type="none"/>
             <children>
-              <splitpane id="86803">
+              <splitpane id="86803" binding="statisticsSplitPane">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                     <preferred-size width="200" height="200"/>
@@ -237,7 +243,7 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <grid id="32e80" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                  <grid id="32e80" binding="inputProfilePanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
                       <splitpane position="left"/>
@@ -516,7 +522,7 @@
                       </grid>
                     </children>
                   </grid>
-                  <grid id="f4529" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                  <grid id="f4529" binding="statisticsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
                       <splitpane position="right"/>
@@ -767,7 +773,7 @@
                   </grid>
                 </children>
               </splitpane>
-              <grid id="f02a5" binding="panelBottom" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
+              <grid id="f02a5" binding="simulationPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -775,7 +781,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <grid id="21cc2" binding="panelResults" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
+                  <grid id="21cc2" binding="resultsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
@@ -833,7 +839,7 @@
                       </toolbar>
                     </children>
                   </grid>
-                  <grid id="4df66" binding="panelSimulation" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                  <grid id="4df66" binding="runPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
