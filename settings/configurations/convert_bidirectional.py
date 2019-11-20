@@ -8,6 +8,16 @@ class Connection:
 	fromId: int
 	toId: int
 
+
+def containsConnection(conns, src, dst, includeReverse=True):
+	for conn in conns:
+		if conn.fromId == src and conn.toId == dst:
+			return True
+		if includeReverse and conn.fromId == dst and conn.toId == src:
+		    return True
+	return False
+
+
 def convertFile(fileLocation):
 	with open(fileLocation, 'r') as f:
 		doc = minidom.parse(f)
@@ -15,9 +25,13 @@ def convertFile(fileLocation):
 	connections = []
 	connElement = doc.getElementsByTagName('configuration')[0].getElementsByTagName('connections')[0]
 	for conn in connElement.getElementsByTagName('connection'):
-		connections.append(Connection(int(conn.attributes['id'].value), \
+		id, src, dst = int(conn.attributes['id'].value), \
 			int(conn.attributes['src'].value), \
-			int(conn.attributes['dst'].value)))
+			int(conn.attributes['dst'].value)
+
+		if not containsConnection(connections, src, dst):
+			connections.append(Connection(id, src, dst))
+
 
 	# for conn in connections:
 	# 	print(conn)
