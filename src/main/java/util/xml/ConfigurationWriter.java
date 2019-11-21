@@ -9,6 +9,7 @@ import iot.networkentity.UserMote;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import util.Connection;
 import util.GraphStructure;
 import util.MapHelper;
 import util.Path;
@@ -24,8 +25,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ConfigurationWriter {
+    private static IdRemapping idRemapping = new IdRemapping();
+
 
     public static void saveConfigurationToFile(File file, Simulation simulation) {
+        idRemapping.reset();
+
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Environment environment = simulation.getEnvironment();
@@ -63,7 +68,6 @@ public class ConfigurationWriter {
             region.appendChild(size);
 
             map.appendChild(region);
-            rootElement.appendChild(map);
 
 
             // ---------------
@@ -89,7 +93,51 @@ public class ConfigurationWriter {
                 characteristics.appendChild(row.getLast());
             }
 
-            rootElement.appendChild(characteristics);
+
+
+            // ---------------
+            //    WayPoints
+            // ---------------
+
+            Element wayPointsElement = doc.createElement("wayPoints");
+            var wayPoints = graph.getWayPoints();
+
+            for (var me : wayPoints.entrySet()) {
+                Element wayPointElement = doc.createElement("wayPoint");
+                long newId = idRemapping.addWayPoint(me.getKey(), me.getValue());
+
+                wayPointElement.setAttribute("id", Long.toString(newId));
+                var wayPoint = me.getValue();
+                wayPointElement.appendChild(doc.createTextNode(wayPoint.getLatitude() + "," + wayPoint.getLongitude()));
+                wayPointsElement.appendChild(wayPointElement);
+            }
+
+
+
+            // ---------------
+            //   Connections
+            // ---------------
+
+            Element connectionsElement = doc.createElement("connections");
+            var connections = graph.getConnections();
+
+            for (var me : connections.entrySet()) {
+                Element connectionElement = doc.createElement("connection");
+                long originalId = me.getKey();
+                Connection conn = me.getValue();
+
+                long newFromId = idRemapping.getNewWayPointId(conn.getFrom());
+                long newToId = idRemapping.getNewWayPointId(conn.getTo());
+
+                // Not really necesary here to make a new connection, but it's a bit awkward to put null here
+                long newId = idRemapping.addConnection(originalId, new Connection(newFromId, newToId));
+
+                connectionElement.setAttribute("id", Long.toString(newId));
+                connectionElement.setAttribute("src", Long.toString(newFromId));
+                connectionElement.setAttribute("dst", Long.toString(newToId));
+
+                connectionsElement.appendChild(connectionElement);
+            }
 
 
 
@@ -106,9 +154,6 @@ public class ConfigurationWriter {
                     motes.appendChild(new MoteWriter(doc, mote, environment).buildMoteElement());
                 }
             }
-
-            rootElement.appendChild(motes);
-
 
 
             // ---------------
@@ -144,53 +189,17 @@ public class ConfigurationWriter {
                 gateways.appendChild(gatewayElement);
             }
 
-            rootElement.appendChild(gateways);
-
-
-
-            // TODO could reassign IDs here so that they are sequential/'defragmented' again (starting from 1) for both waypoints and connections
-            // ---------------
-            //    WayPoints
-            // ---------------
-
-            Element wayPointsElement = doc.createElement("wayPoints");
-            var wayPoints = graph.getWayPoints();
-
-            for (var me : wayPoints.entrySet()) {
-                Element wayPointElement = doc.createElement("wayPoint");
-
-                wayPointElement.setAttribute("id", me.getKey().toString());
-                var wayPoint = me.getValue();
-                wayPointElement.appendChild(doc.createTextNode(wayPoint.getLatitude() + "," + wayPoint.getLongitude()));
-                wayPointsElement.appendChild(wayPointElement);
-            }
-
-            rootElement.appendChild(wayPointsElement);
-
-
-            // ---------------
-            //   Connections
-            // ---------------
-
-            Element connectionsElement = doc.createElement("connections");
-            var connections = graph.getConnections();
-
-            for (var me : connections.entrySet()) {
-                Element connectionElement = doc.createElement("connection");
-
-                connectionElement.setAttribute("id", me.getKey().toString());
-                connectionElement.setAttribute("src", Long.toString(me.getValue().getFrom()));
-                connectionElement.setAttribute("dst", Long.toString(me.getValue().getTo()));
-
-                connectionsElement.appendChild(connectionElement);
-            }
-
-            rootElement.appendChild(connectionsElement);
-
 
             // ---------------
             //    Data dump
             // ---------------
+
+            rootElement.appendChild(map);
+            rootElement.appendChild(characteristics);
+            rootElement.appendChild(motes);
+            rootElement.appendChild(gateways);
+            rootElement.appendChild(wayPointsElement);
+            rootElement.appendChild(connectionsElement);
 
             // write the content into xml file
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -230,7 +239,7 @@ public class ConfigurationWriter {
             Element wayPoint = doc.createElement("waypoint");
 
             GeoPosition position = MapHelper.toGeoPosition(mote.getOriginalPosInt(), environment.getMapOrigin());
-            wayPoint.setAttribute("id", Long.toString(graph.getClosestWayPoint(position)));
+            wayPoint.setAttribute("id", Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(position))));
             location.appendChild(wayPoint);
 
             return location;
@@ -293,7 +302,7 @@ public class ConfigurationWriter {
             Path path = mote.getPath();
             for (Long id : path.getConnectionsByID()) {
                 Element connectionElement = doc.createElement("connection");
-                connectionElement.setAttribute("id", Long.toString(id));
+                connectionElement.setAttribute("id", Long.toString(idRemapping.getNewConnectionId(id)));
                 pathElement.appendChild(connectionElement);
             }
             return pathElement;
@@ -328,12 +337,13 @@ public class ConfigurationWriter {
         Element generateDestinationElement() {
             GeoPosition destinationPos = ((UserMote) mote).getDestination();
             Element destination = doc.createElement("destination");
-            destination.setAttribute("id", Long.toString(graph.getClosestWayPoint(destinationPos)));
+            destination.setAttribute("id", Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(destinationPos))));
             return destination;
         }
 
         void addUserMoteDetails(Element element) {
-            List.of(generateIsActiveElement(), generateDestinationElement()).forEach(element::appendChild);
+            List.of(generateIsActiveElement(), generateDestinationElement())
+                .forEach(element::appendChild);
         }
 
         @Override

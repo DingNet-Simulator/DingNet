@@ -73,7 +73,6 @@ public class InputProfilesReader {
                     int moteNumber = Integer.parseInt(XMLHelper.readChild(moteElement, "moteNumber"));
                     double activationProbability = Double.parseDouble(XMLHelper.readChild(moteElement, "activityProbability"));
 
-                    // TODO make sure the '-1' is correct here
                     moteProbabilities.put(moteNumber - 1, activationProbability);
                 }
 

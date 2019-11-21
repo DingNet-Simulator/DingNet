@@ -17,21 +17,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 public class ConfigurationReader {
-
-    private static Map<Long, Long> IDMappingWayPoints = new HashMap<>();
-    private static Map<Long, Long> IDMappingConnections = new HashMap<>();
-
-    private static Map<Long, GeoPosition> wayPoints = new HashMap<>();
-    private static Map<Long, Connection> connections = new HashMap<>();
+    private static IdRemapping idRemapping = new IdRemapping();
 
     public static void loadConfiguration(File file, Simulation simulation) {
-        IDMappingWayPoints.clear();
-        IDMappingConnections.clear();
-        wayPoints.clear();
-        connections.clear();
+        idRemapping.reset();
 
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
@@ -87,9 +81,6 @@ public class ConfigurationReader {
 
             Element wayPointsElement = (Element) configuration.getElementsByTagName("wayPoints").item(0);
 
-            // Remapping of the waypoint IDs to start from 1
-            long currentIDWayPoint = 1;
-
             for (int i = 0; i < wayPointsElement.getElementsByTagName("wayPoint").getLength(); i++) {
                 Element waypoint = (Element) wayPointsElement.getElementsByTagName("wayPoint").item(i);
 
@@ -97,10 +88,7 @@ public class ConfigurationReader {
                 double wayPointLongitude = Double.parseDouble(waypoint.getTextContent().split(",")[1]);
 
                 long ID = Long.parseLong(waypoint.getAttribute("id"));
-                IDMappingWayPoints.put(ID, currentIDWayPoint);
-                currentIDWayPoint++;
-
-                wayPoints.put(IDMappingWayPoints.get(ID), new GeoPosition(wayPointLatitude, wayPointLongitude));
+                idRemapping.addWayPoint(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
             }
 
 
@@ -108,9 +96,6 @@ public class ConfigurationReader {
             // ---------------
             //   Connections
             // ---------------
-
-            // Remapping of the connection IDs to start from 1
-            long currentIDConnection = 1;
 
             if (configuration.getElementsByTagName("connections").getLength() != 0) {
                 Element connectionsElement = (Element) configuration.getElementsByTagName("connections").item(0);
@@ -121,20 +106,15 @@ public class ConfigurationReader {
                     Element connectionNode = (Element) con.item(i);
 
                     long ID = Long.parseLong(connectionNode.getAttribute("id"));
-                    IDMappingConnections.put(ID, currentIDConnection);
-                    currentIDConnection++;
-
-                    connections.put(
-                        IDMappingConnections.get(ID),
-                        new Connection(
-                            IDMappingWayPoints.get(Long.parseLong(connectionNode.getAttribute("src"))),
-                            IDMappingWayPoints.get(Long.parseLong(connectionNode.getAttribute("dst")))
-                        )
-                    );
+                    idRemapping.addConnection(ID, new Connection(
+                        idRemapping.getNewWayPointId(Long.parseLong(connectionNode.getAttribute("src"))),
+                        idRemapping.getNewWayPointId(Long.parseLong(connectionNode.getAttribute("dst")))
+                    ));
                 }
             }
 
-            simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones, wayPoints, connections));
+            simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones,
+                idRemapping.getWayPoints(), idRemapping.getConnections()));
 
             Environment environment = simulation.getEnvironment();
 
@@ -198,7 +178,7 @@ public class ConfigurationReader {
         Pair<Integer, Integer> getMapCoordinates() {
             Element location = (Element) node.getElementsByTagName("location").item(0);
             Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
-            GeoPosition position = wayPoints.get(IDMappingWayPoints.get(Long.parseLong(waypoint.getAttribute("id"))));
+            GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(waypoint.getAttribute("id")));
             return MapHelper.toMapCoordinate(position, environment.getMapOrigin());
         }
 
@@ -234,13 +214,12 @@ public class ConfigurationReader {
             Element pathElement = (Element) node.getElementsByTagName("path").item(0);
             for (int i = 0; i < pathElement.getElementsByTagName("connection").getLength(); i++) {
                 Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(i);
-                long connectionId = IDMappingConnections.get(Long.parseLong(connectionElement.getAttribute("id")));
+                Connection connection = idRemapping.getConnectionWithOriginalId(Long.parseLong(connectionElement.getAttribute("id")));
 
-                path.addPosition(wayPoints.get(connections.get(connectionId).getFrom()));
-
+                path.addPosition(idRemapping.getWayPointWithNewId(connection.getFrom()));
                 if (i == pathElement.getElementsByTagName("connection").getLength() - 1) {
                     // Add the last destination
-                    path.addPosition(wayPoints.get(connections.get(connectionId).getTo()));
+                    path.addPosition(idRemapping.getWayPointWithNewId(connection.getTo()));
                 }
             }
             return path;
@@ -320,7 +299,7 @@ public class ConfigurationReader {
         GeoPosition getDestination() {
             Element destinationElement = (Element) node.getElementsByTagName("destination").item(0);
             long wayPointId =  Long.parseLong(destinationElement.getAttribute("id"));
-            return wayPoints.get(IDMappingWayPoints.get(wayPointId));
+            return idRemapping.getWayPointWithOriginalId(wayPointId);
         }
 
         @Override
