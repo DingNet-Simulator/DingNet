@@ -42,6 +42,7 @@ public class NewMoteGUI {
     private JCheckBox isActiveCheckBox;
     private JLabel destinationLabel;
     private JComboBox<Long> destinationComboBox;
+    private JButton chooseDestinationButton;
     private Environment environment;
 
     private Random random = new Random();
@@ -52,7 +53,7 @@ public class NewMoteGUI {
     private final double DISTANCE_THRESHOLD_NEW_WAYPOINT = 0.05;
 
 
-    public NewMoteGUI(Environment environment, GeoPosition geoPosition, JFrame frame, ConfigureMotePanel parent) {
+    public NewMoteGUI(Environment environment, GeoPosition geoPosition, JFrame frame, ConfigureMotePanel parent, MainGUI mainGUI) {
         this.environment = environment;
 
         xPosSpinner.setModel(new SpinnerNumberModel(environment.toMapXCoordinate(geoPosition), 0, environment.getMaxXpos(), 1));
@@ -97,28 +98,45 @@ public class NewMoteGUI {
 
         isUserMoteCheckBox.addChangeListener(evt -> {
             if (isUserMoteCheckBox.isSelected()) {
-                isActiveCheckBox.setEnabled(true);
-                destinationLabel.setEnabled(true);
-
+                setEnabledUserMoteComponents(true);
                 initializeDestinationComboBox();
             } else {
-                isActiveCheckBox.setEnabled(false);
+                setEnabledUserMoteComponents(false);
                 isActiveCheckBox.setSelected(false);
-                destinationLabel.setEnabled(false);
-                destinationComboBox.setEnabled(false);
             }
+        });
+        chooseDestinationButton.addActionListener(e -> {
+            // Open a new window where the destination waypoint can be selected
+            JFrame frameDestination = new JFrame("Choose destination waypoint");
+            DestinationGUI destinationGUI = new DestinationGUI(frameDestination, mainGUI, waypointId -> {
+                for (int i = 0; i < destinationComboBox.getItemCount(); i++) {
+                    if (destinationComboBox.getModel().getElementAt(i).equals(waypointId)) {
+                        destinationComboBox.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            });
+            frameDestination.setContentPane(destinationGUI.getMainPanel());
+            frameDestination.setMinimumSize(destinationGUI.getMainPanel().getMinimumSize());
+            frameDestination.setPreferredSize(destinationGUI.getMainPanel().getPreferredSize());
+            frameDestination.setVisible(true);
         });
     }
 
     private void initializeDestinationComboBox() {
-        destinationComboBox.setEnabled(true);
-
         Long[] wayPointIds = GraphStructure.getInstance().getWayPoints().keySet().toArray(Long[]::new);
         destinationComboBox.setModel(new DefaultComboBoxModel<>(wayPointIds));
     }
 
     private void generateNewEUID() {
         EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+    }
+
+    private void setEnabledUserMoteComponents(boolean state) {
+        isActiveCheckBox.setEnabled(state);
+        destinationLabel.setEnabled(state);
+        chooseDestinationButton.setEnabled(state);
+        destinationComboBox.setEnabled(state);
     }
 
 
@@ -317,6 +335,10 @@ public class NewMoteGUI {
         mainPanel.add(spacer5, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 5), null, 0, false));
         final Spacer spacer6 = new Spacer();
         mainPanel.add(spacer6, new GridConstraints(13, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 10), null, 0, false));
+        chooseDestinationButton = new JButton();
+        chooseDestinationButton.setEnabled(false);
+        chooseDestinationButton.setText("Choose on map");
+        mainPanel.add(chooseDestinationButton, new GridConstraints(12, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

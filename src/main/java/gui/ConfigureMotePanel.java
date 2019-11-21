@@ -5,18 +5,9 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import gui.configuration.AbstractConfigurePanel;
-import gui.mapviewer.MotePainter;
-import gui.mapviewer.MoteWayPoint;
-import gui.mapviewer.NumberPainter;
 import gui.util.CompoundPainterBuilder;
-import gui.util.GUISettings;
-import gui.util.GUIUtil;
 import iot.networkentity.Mote;
-import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.painter.CompoundPainter;
-import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.Waypoint;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,9 +15,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class ConfigureMotePanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
@@ -76,7 +64,7 @@ public class ConfigureMotePanel extends AbstractConfigurePanel {
                     int yDistance = environment.toMapYCoordinate(geo) - mote.getYPosInt();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Mote settings");
-                        MoteGUI moteGUI = new MoteGUI(mote, frame);
+                        MoteGUI moteGUI = new MoteGUI(mote, frame, mainGUI);
                         frame.setContentPane(moteGUI.getMainPanel());
                         frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
                         frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
@@ -94,7 +82,7 @@ public class ConfigureMotePanel extends AbstractConfigurePanel {
 
                 if (!exists) {
                     JFrame frame = new JFrame("New mote");
-                    NewMoteGUI newMoteGUI = new NewMoteGUI(environment, geo, frame, panel);
+                    NewMoteGUI newMoteGUI = new NewMoteGUI(environment, geo, frame, panel, mainGUI);
                     frame.setMinimumSize(newMoteGUI.getMainPanel().getMinimumSize());
                     frame.setPreferredSize(newMoteGUI.getMainPanel().getPreferredSize());
                     frame.setContentPane(newMoteGUI.getMainPanel());

@@ -847,7 +847,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             int index = this.getClickedIndex();
 
             JFrame frame = new JFrame("Mote settings");
-            MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame);
+            MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame, MainGUI.this);
             frame.setContentPane(moteGUI.getMainPanel());
             frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
             frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());

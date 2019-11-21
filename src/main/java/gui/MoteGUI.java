@@ -34,9 +34,10 @@ public class MoteGUI {
     private JCheckBox isActiveCheckBox;
     private JLabel destinationLabel;
     private JComboBox<Long> destinationComboBox;
+    private JButton chooseDestinationButton;
     private Mote mote;
 
-    public MoteGUI(Mote mote, JFrame frame) {
+    public MoteGUI(Mote mote, JFrame frame, MainGUI mainGUI) {
         this.mote = mote;
 
         moteNumberLabel.setText(Integer.toString(mote.getEnvironment().getMotes().indexOf(mote) + 1));
@@ -103,6 +104,22 @@ public class MoteGUI {
             frame.dispose();
         });
 
+        chooseDestinationButton.addActionListener(e -> {
+            // Open a new window where the destination waypoint can be selected
+            JFrame frameDestination = new JFrame("Choose destination waypoint");
+            DestinationGUI destinationGUI = new DestinationGUI(frameDestination, mainGUI, waypointId -> {
+                for (int i = 0; i < destinationComboBox.getItemCount(); i++) {
+                    if (destinationComboBox.getModel().getElementAt(i).equals(waypointId)) {
+                        destinationComboBox.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            });
+            frameDestination.setContentPane(destinationGUI.getMainPanel());
+            frameDestination.setMinimumSize(destinationGUI.getMainPanel().getMinimumSize());
+            frameDestination.setPreferredSize(destinationGUI.getMainPanel().getPreferredSize());
+            frameDestination.setVisible(true);
+        });
     }
 
     private void initializeDestinationComboBox() {
@@ -242,6 +259,9 @@ public class MoteGUI {
         destinationLabel.setText("Destination (waypoint ID)");
         destinationLabel.setVisible(true);
         mainPanel.add(destinationLabel, new GridConstraints(8, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        chooseDestinationButton = new JButton();
+        chooseDestinationButton.setText("Choose on map");
+        mainPanel.add(chooseDestinationButton, new GridConstraints(8, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
