@@ -52,16 +52,12 @@ public class MoteGUI {
         updateLatLonFields();
 
         if (mote instanceof UserMote) {
-            isActiveCheckBox.setVisible(true);
-            destinationLabel.setVisible(true);
-            destinationComboBox.setVisible(true);
+            this.setVisibleUserMoteComponents(true);
 
             isActiveCheckBox.setSelected(((UserMote) mote).isActive());
             initializeDestinationComboBox();
         } else {
-            isActiveCheckBox.setVisible(false);
-            destinationLabel.setVisible(false);
-            destinationComboBox.setVisible(false);
+            this.setVisibleUserMoteComponents(false);
         }
         sensorSpinner.setModel(new DefaultComboBoxModel<>(MoteSensor.values()));
 
@@ -123,14 +119,20 @@ public class MoteGUI {
     }
 
     private void initializeDestinationComboBox() {
-        destinationComboBox.setEnabled(true);
-
         UserMote userMote = (UserMote) this.mote;
         long currentDestinationID = GraphStructure.getInstance().getClosestWayPoint(userMote.getDestination());
 
         List<Long> wayPointIds = new ArrayList<>(GraphStructure.getInstance().getWayPoints().keySet());
         destinationComboBox.setModel(new DefaultComboBoxModel<>(wayPointIds.toArray(Long[]::new)));
         destinationComboBox.setSelectedIndex(wayPointIds.indexOf(currentDestinationID));
+    }
+
+
+    private void setVisibleUserMoteComponents(boolean state) {
+        isActiveCheckBox.setVisible(state);
+        destinationLabel.setVisible(state);
+        chooseDestinationButton.setVisible(state);
+        destinationComboBox.setVisible(state);
     }
 
     public JPanel getMainPanel() {
