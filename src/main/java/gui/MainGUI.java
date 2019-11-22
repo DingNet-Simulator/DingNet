@@ -781,8 +781,16 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             int returnVal = fc.showSaveDialog(mainPanel);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
+                JFrame frame = new JFrame("Saving configuration");
+                LoadingGUI loadingGUI = new LoadingGUI();
+                frame.setContentPane(loadingGUI.getMainPanel());
+                frame.setMinimumSize(new Dimension(300, 300));
+                frame.setVisible(true);
+
                 file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
                 simulationRunner.saveConfigurationToFile(file);
+
+                frame.dispose();
             }
         }
     }
