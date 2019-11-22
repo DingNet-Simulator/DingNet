@@ -7,7 +7,6 @@ import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.cache.FileBasedLocalCache;
-import org.jxmapviewer.input.CenterMapListener;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.viewer.DefaultTileFactory;
@@ -49,7 +48,6 @@ public abstract class AbstractConfigurePanel implements Refreshable {
         mapViewer.addMouseListener(mia);
         mapViewer.addMouseMotionListener(mia);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
-        mapViewer.addMouseListener(new CenterMapListener(mapViewer));
 
         mapViewer.setTileFactory(tileFactory);
         tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
