@@ -96,7 +96,9 @@ public class GlobalClock {
         var triggersToFire = triggers.get(getTime());
         if (triggersToFire != null) {
             //Here you have to leave the normal 'for' because you can remove element from the list during the iteration
-            for (Trigger trigger : triggersToFire) {
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < triggersToFire.size(); i++) {
+                var trigger = triggersToFire.get(i);
                 LocalTime newTime = trigger.getCallback().get();
                 if (newTime.isAfter(getTime())) {
                     addTrigger(newTime, trigger);
