@@ -11,13 +11,11 @@ import iot.networkcommunication.api.Sender;
 import iot.networkcommunication.impl.ReceiverWaitPacket;
 import iot.networkcommunication.impl.SenderNoWaitPacket;
 import util.Converter;
-import util.ListHelper;
 import util.Pair;
 import util.Statistics;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +40,7 @@ public abstract class NetworkEntity implements Serializable {
     private double yPos = 0.0;
 
 
-    final Pair<Double, Double> initialPosition;
+    protected Pair<Double, Double> initialPosition;
 
     // A map of the environment the entity is placed in.
     private Environment environment;
@@ -280,6 +278,14 @@ public abstract class NetworkEntity implements Serializable {
     public void setPos(double xPos, double yPos) {
         setXPos(xPos);
         setYPos(yPos);
+    }
+
+
+    public void updateInitialPosition(Pair<Integer, Integer> position) {
+        if (this.initialPosition.getLeft() == this.xPos && this.initialPosition.getRight() == this.yPos) {
+            this.setPos(position.getLeft(), position.getRight());
+        }
+        this.initialPosition = new Pair<>(position.getLeft().doubleValue(), position.getRight().doubleValue());
     }
 
 

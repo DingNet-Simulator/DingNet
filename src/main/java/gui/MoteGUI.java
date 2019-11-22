@@ -167,7 +167,12 @@ public class MoteGUI {
 
 
     private void updateSourcePosition(GeoPosition pos) {
-        this.source = pos;
+        if (newPositionRadioButton.isSelected()) {
+            this.source = pos;
+        } else {
+            GraphStructure graph = GraphStructure.getInstance();
+            this.source = graph.getWayPoint(graph.getClosestWayPoint(pos));
+        }
 
         // Update the labels for the x/y positions and lat/lon accordingly
         GUIUtil.updateLabelCoordinateLat(latPositionLabel, pos.getLatitude());
@@ -273,8 +278,7 @@ public class MoteGUI {
     private void updateMote(Mote mote, boolean isUserMote) {
         Pair<Integer, Integer> position = handleChosenStartingPosition();
 
-        mote.setXPos(position.getLeft());
-        mote.setYPos(position.getRight());
+        mote.updateInitialPosition(position);
 
         mote.setSF((int) SFSpinner.getValue());
         mote.setTransmissionPower((int) powerSpinner.getValue());
