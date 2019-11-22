@@ -29,7 +29,10 @@ import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
@@ -39,7 +42,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class MainGUI extends JFrame implements SimulationUpdateListener {
+public class MainGUI extends JFrame implements SimulationUpdateListener, Refreshable {
     private JPanel map;
     private JPanel console;
     private JPanel mainPanel;
@@ -847,17 +850,12 @@ public class MainGUI extends JFrame implements SimulationUpdateListener {
             int index = this.getClickedIndex();
 
             JFrame frame = new JFrame("Mote settings");
-            MoteGUI moteGUI = new MoteGUI(simulationRunner.getEnvironment().getMotes().get(index - 1), frame, MainGUI.this);
+            Mote mote = simulationRunner.getEnvironment().getMotes().get(index - 1);
+            MoteGUI moteGUI = new MoteGUI(getEnvironment(), mote.getPosInt(), frame, MainGUI.this, MainGUI.this, mote);
             frame.setContentPane(moteGUI.getMainPanel());
             frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
             frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
             frame.setVisible(true);
-            frame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    refresh();
-                }
-            });
         }
     }
 
