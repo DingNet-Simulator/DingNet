@@ -3,7 +3,6 @@ package gui.util;
 import gui.mapviewer.LinePainter;
 import gui.mapviewer.MoteWayPoint;
 import iot.Environment;
-import iot.networkentity.Gateway;
 import iot.networkentity.UserMote;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -75,7 +74,16 @@ public class GUIUtil {
         field.setText(coordinateToString(value, alt1, alt2));
     }
 
-    public static void updateLabelCoordinate(JLabel label, double value, String alt1, String alt2) {
+
+    public static void updateLabelCoordinateLat(JLabel label, double value) {
+        updateLabelCoordinate(label, value, "E", "W");
+    }
+
+    public static void updateLabelCoordinateLon(JLabel label, double value) {
+        updateLabelCoordinate(label, value, "N", "S");
+    }
+
+    private static void updateLabelCoordinate(JLabel label, double value, String alt1, String alt2) {
         label.setText(coordinateToString(value, alt1, alt2));
     }
 

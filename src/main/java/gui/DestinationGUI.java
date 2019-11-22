@@ -7,22 +7,18 @@ import gui.configuration.AbstractConfigurePanel;
 import gui.util.CompoundPainterBuilder;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
-import util.MapHelper;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class DestinationGUI extends AbstractConfigurePanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
 
-    public DestinationGUI(JFrame frame, MainGUI mainGUI, Consumer<Long> callBack) {
+    public DestinationGUI(JFrame frame, MainGUI mainGUI, Consumer<GeoPosition> callBack) {
         super(mainGUI, 5);
         loadMap(false);
 
@@ -32,18 +28,7 @@ public class DestinationGUI extends AbstractConfigurePanel {
                 Point p = mouseEvent.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
 
-                // Get the closest waypoint, and return it to the callee (i.e. use the consumer)
-                GraphStructure graph = GraphStructure.getInstance();
-
-                // Calculate the distances to the closest wayPoints
-                Map<Long, Double> distances = new HashMap<>();
-                graph.getWayPoints().forEach((k, v) -> distances.put(k, MapHelper.distance(v, geo)));
-                var closestWayPoint = distances.entrySet().stream()
-                    .min(Comparator.comparing(Map.Entry::getValue))
-                    .map(Map.Entry::getKey)
-                    .orElse(-1L);
-
-                callBack.accept(closestWayPoint);
+                callBack.accept(geo);
                 frame.dispose();
             }
 

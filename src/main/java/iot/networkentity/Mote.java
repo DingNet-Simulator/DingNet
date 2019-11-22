@@ -57,7 +57,7 @@ public class Mote extends NetworkEntity {
     private static final int DEFAULT_START_SENDING_OFFSET = 1;
     private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
     // time to await before send the first packet (in seconds)
-    private final int startSendingOffset;
+    private int startSendingOffset;
     // period to define how many seconds the mote has to send a packet (in seconds)
     private int periodSendingPacket;
     private static final long DEFAULT_APPLICATION_EUI = 1;
@@ -91,7 +91,7 @@ public class Mote extends NetworkEntity {
     @Raw
     public Mote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower,
                 int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
-                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset){
+                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
@@ -120,7 +120,7 @@ public class Mote extends NetworkEntity {
      */
     @Raw
     public Mote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower,
-                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed){
+                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed) {
         this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
@@ -165,7 +165,7 @@ public class Mote extends NetworkEntity {
     /**
      * a function for the OTAA protocol.
      */
-    public void OverTheAirActivation(){
+    public void OverTheAirActivation() {
     }
 
     /**
@@ -251,7 +251,7 @@ public class Mote extends NetworkEntity {
      * @param data The data to send in the message
      * @param macCommands the MAC commands to include in the message.
      */
-    public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands){
+    public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands) {
         sendToGateWay(composePacket(data, macCommands));
     }
 
@@ -259,7 +259,7 @@ public class Mote extends NetworkEntity {
      * A function for sending a packet to the gateways.
      * @param packet the packet to send
      */
-    public void sendToGateWay(LoraWanPacket packet){
+    public void sendToGateWay(LoraWanPacket packet) {
         // Send the packet if either:
         //  - It is the first packet ever sent
         //  - It is a heartbeat message
@@ -307,7 +307,7 @@ public class Mote extends NetworkEntity {
      * @return The energy level of the mote.
      */
     @Basic
-    public int getEnergyLevel(){
+    public int getEnergyLevel() {
         return this.energyLevel;
     }
 
@@ -352,9 +352,14 @@ public class Mote extends NetworkEntity {
      * @return the start offset of the mote in seconds.
      */
     @Basic
-    public int getStartMovementOffset(){
+    public int getStartMovementOffset() {
         return this.startMovementOffset;
     }
+
+    public void setStartMovementOffset(int offset) {
+        this.startMovementOffset = offset;
+    }
+
 
     /**
      *
@@ -364,12 +369,20 @@ public class Mote extends NetworkEntity {
         return startSendingOffset;
     }
 
+    public void setStartSendingOffset(int offset) {
+        this.startSendingOffset = offset;
+    }
+
     /**
      *
      * @return period to define how many seconds the mote has to send a packet (in seconds)
      */
     public int getPeriodSendingPacket() {
         return periodSendingPacket;
+    }
+
+    public void setPeriodSendingPacket(int period) {
+        this.periodSendingPacket = period;
     }
 
     protected short incrementFrameCounter() {return frameCounter++;}
