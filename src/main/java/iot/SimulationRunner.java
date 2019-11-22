@@ -31,10 +31,12 @@ public class SimulationRunner {
     private static SimulationRunner instance = null;
 
     private List<InputProfile> inputProfiles;
-    private Simulation simulation;
     private List<GenericFeedbackLoop> algorithms;
-    private List<MoteProbe> moteProbe;
     private QualityOfService QoS;
+
+    private Simulation simulation;
+    private List<MoteProbe> moteProbe;
+
     private RoutingApplication routingApplication;
     private PollutionMonitor pollutionMonitor;
     private NetworkServer networkServer;
@@ -147,14 +149,12 @@ public class SimulationRunner {
         simulation.setupSingleRun(startFresh);
 
         this.setupSimulationRunner();
-        routingApplication.clean();
     }
 
     public void setupTimedRun() {
         simulation.setupTimedRun();
 
         this.setupSimulationRunner();
-        routingApplication.clean();
     }
 
     /**
@@ -163,6 +163,7 @@ public class SimulationRunner {
     private void setupSimulationRunner() {
         // Remove previous pollution measurements
         PollutionGrid.getInstance().clean();
+        routingApplication.clean();
 
         // Reset received transmissions in the networkServer
         this.networkServer.reset();

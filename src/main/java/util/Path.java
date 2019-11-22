@@ -12,7 +12,9 @@ public class Path implements Iterable<GeoPosition> {
     private GraphStructure graphStructure;
 
 
-    public Path() { this(new ArrayList<>()); }
+    public Path() {
+        this(new ArrayList<>());
+    }
 
     public Path(List<GeoPosition> points) {
         this.points = new LinkedList<>(points);

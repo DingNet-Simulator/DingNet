@@ -53,16 +53,18 @@ public class Mote extends NetworkEntity {
 
     //TODO add comments and constructor for these parameters
     //both in seconds
-
     private static final int DEFAULT_START_SENDING_OFFSET = 1;
     private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
+
     // time to await before send the first packet (in seconds)
     private int startSendingOffset;
+
     // period to define how many seconds the mote has to send a packet (in seconds)
     private int periodSendingPacket;
+
     private static final long DEFAULT_APPLICATION_EUI = 1;
 
-    // application identifier
+    // default application identifier
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
     private ReceivedPacketStrategy receivedPacketStrategy;
 
@@ -385,9 +387,13 @@ public class Mote extends NetworkEntity {
         this.periodSendingPacket = period;
     }
 
-    protected short incrementFrameCounter() {return frameCounter++;}
+    protected short incrementFrameCounter() {
+        return frameCounter++;
+    }
 
-    public short getFrameCounter() {return frameCounter;}
+    public short getFrameCounter() {
+        return frameCounter;
+    }
 
     public boolean isArrivedToDestination() {
         if (path.isEmpty()) {

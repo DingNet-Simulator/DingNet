@@ -38,12 +38,12 @@ public class Environment implements Serializable {
     /**
      * A list containing all motes currently active on the map.
      */
-    private LinkedList<Mote> motes = new LinkedList<>();
+    private List<Mote> motes = new LinkedList<>();
 
     /**
      * A list containing all gateways currently active on the map.
      */
-    private LinkedList<Gateway> gateways = new LinkedList<>();
+    private List<Gateway> gateways = new LinkedList<>();
 
     /**
      * The actual map containing the characteristics of the environment.
@@ -206,7 +206,7 @@ public class Environment implements Serializable {
      * @return A list with all the motes on the map.
      */
     @Basic
-    public LinkedList<Mote> getMotes() {
+    public List<Mote> getMotes() {
         return motes;
     }
 
@@ -255,8 +255,7 @@ public class Environment implements Serializable {
     public Characteristic getCharacteristic(int xPos, int yPos) {
         if (isValidXpos(xPos) && isValidYpos(yPos)) {
             return characteristics[xPos][yPos];
-        }
-        else {
+        } else {
             return null;
         }
     }

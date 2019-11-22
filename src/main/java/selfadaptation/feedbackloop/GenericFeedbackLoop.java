@@ -49,7 +49,7 @@ public abstract class GenericFeedbackLoop {
     /**
      * A method to deactivate the feedback loop.
      */
-    public void stop(){
+    public void stop() {
         this.active = false;
     }
 
@@ -65,8 +65,8 @@ public abstract class GenericFeedbackLoop {
      * A constructor generating an adaptationApproach with a given name.
      * @param name The name of the approach.
      */
-    public GenericFeedbackLoop(String name){
-        this.name =name;
+    public GenericFeedbackLoop(String name) {
+        this.name = name;
         this.active = false;
     }
 

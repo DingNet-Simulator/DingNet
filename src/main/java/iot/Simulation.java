@@ -143,7 +143,7 @@ public class Simulation {
      * Then it performs a pseudo-random choice and sets the mote to active/inactive for the next run, based on that probability.
      */
     private void setupMotesActivationStatus() {
-        LinkedList<Mote> motes = this.environment.getMotes();
+        List<Mote> motes = this.environment.getMotes();
         Set<Integer> moteProbabilities = this.inputProfile.getProbabilitiesForMotesKeys();
         for (int i = 0; i < motes.size(); i++) {
             Mote mote = motes.get(i);

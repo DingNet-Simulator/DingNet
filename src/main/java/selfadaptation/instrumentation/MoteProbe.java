@@ -2,7 +2,6 @@ package selfadaptation.instrumentation;
 
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
-import iot.networkentity.NetworkEntity;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
 
 /**
@@ -17,7 +16,7 @@ public class MoteProbe {
     /**
      * Constructs a MoteProbe with no FeedBackLoops using it.
      */
-    public MoteProbe(){
+    public MoteProbe() {
 
     }
 
@@ -33,7 +32,7 @@ public class MoteProbe {
      * Sets a GenericFeedbackLoop using the probe.
      * @param genericFeedbackLoop The FeedbackLoop to set.
      */
-    public void setGenericFeedbackLoop(GenericFeedbackLoop genericFeedbackLoop){
+    public void setGenericFeedbackLoop(GenericFeedbackLoop genericFeedbackLoop) {
         this.genericFeedbackLoop =genericFeedbackLoop;
     }
 
@@ -42,7 +41,7 @@ public class MoteProbe {
      * @param mote The mote to generate the graph of.
      * @return the spreading factor of the mote
      */
-    public int getSpreadingFactor(NetworkEntity mote) {
+    public int getSpreadingFactor(Mote mote) {
         return mote.getSF();
     }
 
@@ -51,7 +50,7 @@ public class MoteProbe {
      * @param gateway
      * @param devEUI
      */
-    public void trigger(Gateway gateway, long devEUI){
+    public void trigger(Gateway gateway, long devEUI) {
         gateway.getEnvironment().getMotes().stream()
             .filter(m -> m.getEUI() == devEUI && getGenericFeedbackLoop().isActive())
             .reduce((a, b) -> b)

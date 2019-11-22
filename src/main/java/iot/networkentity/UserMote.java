@@ -27,7 +27,9 @@ public class UserMote extends Mote {
     private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
     private boolean alreadyRequested;
 
-    UserMote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
+    UserMote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF,
+             List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed,
+             int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
         super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
         this.destination = destination;
 

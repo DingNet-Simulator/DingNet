@@ -15,13 +15,13 @@ public enum MacCommand {
     /**
     The amount of bytes the command needs.
      */
-    private final Integer length;
+    private final int length;
 
-    MacCommand(Integer length){
+    MacCommand(int length){
         this.length = length;
     }
     @Basic
-    public Integer getLength(){
+    public int getLength(){
         return length;
     }
 }

@@ -164,10 +164,10 @@ public abstract class NetworkEntity implements Serializable {
      * @param packet the packets with MAC commands
      */
     public void handleMacCommands(LoraWanPacket packet) {
-        LinkedList<Byte> payload = new LinkedList<>(Arrays.asList(Converter.toObjectType(packet.getPayload())));
-        LinkedList<Byte> variables = new LinkedList<>();
-        for(MacCommand command : packet.getMacCommands()) {
-            for(Integer i = 0; i<command.getLength(); i++) {
+        List<Byte> payload = new LinkedList<>(Arrays.asList(Converter.toObjectType(packet.getPayload())));
+        List<Byte> variables = new LinkedList<>();
+        for (MacCommand command : packet.getMacCommands()) {
+            for (int i = 0; i < command.getLength(); i++) {
                 variables.add(payload.get(i));
             }
             payload.removeAll(variables);
@@ -201,8 +201,6 @@ public abstract class NetworkEntity implements Serializable {
                 case RXTimingSetupReq:
                 case RejoinParamSetupAns:
                 case RejoinParamSetupReq:
-
-
             }
         }
     }

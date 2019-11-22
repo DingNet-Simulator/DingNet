@@ -10,6 +10,9 @@ import util.EnvironmentHelper;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * A class representing the distance based adaptation approach.
  */
@@ -18,13 +21,23 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
      * A HashMap representing the buffers for the approach.
      */
     @Model
-    private HashMap<Mote,LinkedList<Double>> reliableDistanceGatewayBuffers;
+    private Map<Mote, List<Double>> reliableDistanceGatewayBuffers;
+
+
+    /**
+     * A map to keep track of which gateway has already sent the packet.
+     */
+    @Model
+    private FeedbackLoopGatewayBuffer gatewayBuffer;
+
+
+
     /**
      * Returns the algorithm buffers.
      * @return The algorithm buffers.
      */
     @Model
-    private HashMap<Mote,LinkedList<Double>> getReliableDistanceGatewayBuffers(){
+    private Map<Mote, List<Double>> getReliableDistanceGatewayBuffers() {
         return this.reliableDistanceGatewayBuffers;
     }
 
@@ -34,15 +47,14 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
      * @param reliableDistanceGatewayBuffer The buffer to put in the buffers.
      */
     @Model
-    private void putReliableDistanceGatewayBuffers(Mote mote, LinkedList<Double> reliableDistanceGatewayBuffer){
+    private void putReliableDistanceGatewayBuffers(Mote mote, List<Double> reliableDistanceGatewayBuffer) {
         this.reliableDistanceGatewayBuffers.put(mote,reliableDistanceGatewayBuffer);
     }
 
     /**
      * Constructs a distance based approach.
      */
-    public ReliableEfficientDistanceGateway(){
-
+    public ReliableEfficientDistanceGateway() {
         super("Distance-based");
         gatewayBuffer = new FeedbackLoopGatewayBuffer();
         reliableDistanceGatewayBuffers = new HashMap<>();
@@ -57,13 +69,7 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
         return gatewayBuffer;
     }
 
-    /**
-     * A map to keep track of which gateway has already sent the packet.
-     */
-    @Model
-    private FeedbackLoopGatewayBuffer gatewayBuffer;
-
-    public void adapt(Mote mote, Gateway dataGateway){
+    public void adapt(Mote mote, Gateway dataGateway) {
         /**
          First we check if we have received the message already from all gateways.
          */
@@ -72,14 +78,14 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
             /**
              * Check for the signal which has travelled the shortest distance.
              */
-            LinkedList<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
+            List<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
             var env = mote.getEnvironment();
-            double shortestDistance = Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.getFirst().getReceiver()).getYPosInt()-receivedSignals.getFirst().getYPos(),2)+
-                    Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.getFirst().getReceiver()).getXPosInt()-receivedSignals.getFirst().getXPos(),2));
+            double shortestDistance = Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.get(0).getReceiver()).getYPosInt()-receivedSignals.get(0).getYPos(),2)+
+                    Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.get(0).getReceiver()).getXPosInt()-receivedSignals.get(0).getXPos(),2));
 
-            for (LoraTransmission transmission: receivedSignals){
-                if(shortestDistance>Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
-                        Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2))){
+            for (LoraTransmission transmission: receivedSignals) {
+                if (shortestDistance>Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
+                        Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2))) {
                     shortestDistance = Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
                             Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2));
                 }
@@ -91,8 +97,8 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
              * If the buffer has an entry for the current mote, the new the distance to the nearest gateway is added to it,
              * else a new buffer is created and added to which we can add the the distance to the nearest gateway.
              */
-            LinkedList<Double> reliableDistanceGatewayBuffer;
-            if(!getReliableDistanceGatewayBuffers().keySet().contains(mote)) {
+            List<Double> reliableDistanceGatewayBuffer;
+            if(!getReliableDistanceGatewayBuffers().containsKey(mote)) {
                 putReliableDistanceGatewayBuffers(mote, new LinkedList<>());
             }
             reliableDistanceGatewayBuffer = getReliableDistanceGatewayBuffers().get(mote);
@@ -106,7 +112,7 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
                  * The average is taken of the 4 entries.
                  */
                 double average = 0;
-                for (Double distance : getReliableDistanceGatewayBuffers().get(mote)) {
+                for (double distance : getReliableDistanceGatewayBuffers().get(mote)) {
                     average += distance;
                 }
                 average = average / 4;

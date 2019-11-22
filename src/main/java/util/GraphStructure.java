@@ -123,7 +123,7 @@ public class GraphStructure {
      * @param pos The location.
      * @return The ID of the closest waypoint, or a runtime exception in case no waypoints are present.
      */
-    public Long getClosestWayPoint(GeoPosition pos) {
+    public long getClosestWayPoint(GeoPosition pos) {
         return this.getClosestWayPointWithDistance(pos).getLeft();
     }
 

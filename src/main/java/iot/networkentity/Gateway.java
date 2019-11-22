@@ -13,13 +13,14 @@ import iot.strategy.response.gateway.SendPacketImmediately;
 import selfadaptation.instrumentation.MoteProbe;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *  A class representing a gateway in the network.
  */
 public class Gateway extends NetworkEntity {
 
-    private LinkedList<MoteProbe> subscribedMoteProbes;
+    private List<MoteProbe> subscribedMoteProbes;
     private final MqttClientBasicApi mqttClient;
     private final ResponseStrategy responseStrategy;
 
@@ -57,7 +58,7 @@ public class Gateway extends NetworkEntity {
      * Returns the subscribed MoteProbes.
      * @return The subscribed MoteProbes.
      */
-    public LinkedList<MoteProbe> getSubscribedMoteProbes() {
+    public List<MoteProbe> getSubscribedMoteProbes() {
         return subscribedMoteProbes;
     }
 

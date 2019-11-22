@@ -86,7 +86,7 @@ public class LoraTransmission implements Serializable{
         this.arrived = false;
         this.collided = false;
 
-        if(isValidTransmissionPower(transmissionPower)) {
+        if (isValidTransmissionPower(transmissionPower)) {
             this.transmissionPower = transmissionPower;
 
         }
