@@ -53,7 +53,7 @@ public class IAQDataGeneratorSingleton implements SensorDataGenerator {
         defaultLevel = config.get(IAQSensorConfigSpec.defaultLevel);
         timeUnit = config.get(IAQSensorConfigSpec.timeUnit);
         map = config.get(IAQSensorConfigSpec.cells).stream().collect(Collectors.groupingBy(Cell::getCellNumber));
-        map.forEach((e, v) -> v.sort((c1, c2) -> Double.compare(c2.getFromTime(), c1.getFromTime())));
+        map.forEach((e, v) -> v.sort((c1, c2) -> Double.compare(c1.getFromTime(), c2.getFromTime())));
     }
 
     public static IAQDataGeneratorSingleton getInstance() {
