@@ -66,6 +66,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
 
                 float airQuality = (float) pollutionGrid.getPollutionLevel(middle).getPollutionFactor();
                 g.setColor(this.getColor(airQuality));
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, GUISettings.TRANSPARENCY_POLLUTIONGRID));
                 g.fill(new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                     Math.abs(topLeft.getX() - bottomRight.getX()), Math.abs(topLeft.getY() - bottomRight.getY())));
             }
@@ -76,13 +77,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
 
 
     private Color getColor(float airQuality) {
-        if (airQuality <= 0.2) {
-            return new Color(0f, .3f - airQuality, 0f, GUISettings.TRANSPARENCY_POLLUTIONGRID);
-        } else if (airQuality <= 0.5) {
-            return new Color(.3f + airQuality, .1f + airQuality, 0f, GUISettings.TRANSPARENCY_POLLUTIONGRID);
-        } else {
-            return new Color(airQuality, 0f, 0f, GUISettings.TRANSPARENCY_POLLUTIONGRID);
-        }
-
+        float[] hsbVals = Color.RGBtoHSB((int) (255 * airQuality), (int) (255 * (1 - airQuality)), 0, null);
+        return Color.getHSBColor(hsbVals[0], hsbVals[1], hsbVals[2]);
     }
 }
