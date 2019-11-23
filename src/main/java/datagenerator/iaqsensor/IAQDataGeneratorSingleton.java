@@ -53,7 +53,7 @@ public class IAQDataGeneratorSingleton implements SensorDataGenerator {
         defaultLevel = config.get(IAQSensorConfigSpec.defaultLevel);
         timeUnit = config.get(IAQSensorConfigSpec.timeUnit);
         map = config.get(IAQSensorConfigSpec.cells).stream().collect(Collectors.groupingBy(Cell::getCellNumber));
-        map.forEach((e, v) -> v.sort((c1, c2) -> Double.compare(c1.getFromTime(), c2.getFromTime())));
+        map.forEach((e, v) -> v.sort((c1, c2) -> Double.compare(c2.getFromTime(), c1.getFromTime())));
     }
 
     public static IAQDataGeneratorSingleton getInstance() {
@@ -87,6 +87,14 @@ public class IAQDataGeneratorSingleton implements SensorDataGenerator {
     public double nonStaticDataGeneration(double x, double y){
         return 0.0;
     }
+
+    // Debugging function
+    public int calcSquare(int x, int y) {
+        int moteRow = (height - y) / (height/row);
+        int moteCol = x/ (width/columns);
+        return moteRow * columns + moteCol;
+    }
+
 
     @Override
     public void reset() {
