@@ -859,7 +859,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
             JFrame frame = new JFrame("Mote settings");
             Mote mote = simulationRunner.getEnvironment().getMotes().get(index - 1);
-            MoteGUI moteGUI = new MoteGUI(getEnvironment(), mote.getPosInt(), frame, MainGUI.this, MainGUI.this, mote);
+            MoteGUI moteGUI = new MoteGUI(getEnvironment(), mote.getOriginalPosInt(), frame, MainGUI.this, MainGUI.this, mote);
             frame.setContentPane(moteGUI.getMainPanel());
             frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
             frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());

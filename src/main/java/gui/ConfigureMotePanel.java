@@ -64,7 +64,7 @@ public class ConfigureMotePanel extends AbstractConfigurePanel {
                     int yDistance = environment.toMapYCoordinate(geo) - mote.getYPosInt();
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Mote settings");
-                        MoteGUI moteGUI = new MoteGUI(environment, mote.getPosInt(), frame, panel, mainGUI, mote);
+                        MoteGUI moteGUI = new MoteGUI(environment, mote.getOriginalPosInt(), frame, panel, mainGUI, mote);
                         frame.setContentPane(moteGUI.getMainPanel());
                         frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
                         frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
