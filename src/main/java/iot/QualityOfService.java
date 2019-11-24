@@ -2,26 +2,25 @@ package iot;
 
 import selfadaptation.adaptationgoals.AdaptationGoal;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * A class representing a requested Quality Of Service.
  */
 public class QualityOfService {
+
+    private Map<String, AdaptationGoal> adaptationGoals;
+
+
     /**
      * Construct a Quality Of Service with given adaptationGoals
      * @param adaptationGoals the adaptation goals of the Quality Of Service.
      */
-
-    public QualityOfService(HashMap<String,AdaptationGoal> adaptationGoals){
+    public QualityOfService(Map<String, AdaptationGoal> adaptationGoals) {
         this.adaptationGoals = adaptationGoals;
     }
 
-    /**
-     * The adaptation goals in the quality of service.
-     */
-    private HashMap<String,AdaptationGoal> adaptationGoals;
 
     /**
      * Returns the AdaptationGoal with the given name.
@@ -32,7 +31,7 @@ public class QualityOfService {
         return adaptationGoals.get(name);
     }
 
-    public Set<String> getNames(){
+    public Set<String> getNames() {
         return adaptationGoals.keySet();
     }
 
