@@ -1,7 +1,6 @@
 package iot;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import datagenerator.GPSDataGenerator;
 import datagenerator.SensorDataGenerator;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -9,6 +8,7 @@ import iot.networkentity.MoteSensor;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
 import util.TimeHelper;
 
+import java.lang.ref.WeakReference;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Predicate;
@@ -26,7 +26,7 @@ public class Simulation {
     /**
      * The Environment used in th simulation.
      */
-    private Environment environment;
+    private WeakReference<Environment> environment;
     /**
      * The GenericFeedbackLoop used in the simulation.
      */
@@ -46,20 +46,6 @@ public class Simulation {
     // endregion
 
     // region constructors
-    /**
-     * Constructs a simulation  with a given InputProfile, Environment, GenericFeedbackLoop and GUI.
-     * @param inputProfile The InputProfile to use.
-     * @param environment The Environment to use.
-     * @param approach The GenericFeedbackLoop to use.
-     */
-    public Simulation(InputProfile inputProfile, Environment environment, GenericFeedbackLoop approach){
-        this.environment = environment;
-        this.inputProfile = inputProfile;
-        this.approach = approach;
-        this.continueSimulation = null;
-        this.wayPointMap = new HashMap<>();
-        this.timeMap = new HashMap<>();
-    }
 
     public Simulation() {}
 
@@ -73,14 +59,14 @@ public class Simulation {
      */
     @Basic
     public Environment getEnvironment() {
-        return environment;
+        return environment.get();
     }
     /**
      * Sets the Environment used in th simulation.
      * @param environment  The Environment to use in the simulation.
      */
     @Basic
-    public void setEnvironment(Environment environment) {
+    public void setEnvironment(WeakReference<Environment> environment) {
         this.environment = environment;
     }
 
@@ -143,7 +129,7 @@ public class Simulation {
      * Then it performs a pseudo-random choice and sets the mote to active/inactive for the next run, based on that probability.
      */
     private void setupMotesActivationStatus() {
-        List<Mote> motes = this.environment.getMotes();
+        List<Mote> motes = this.getEnvironment().getMotes();
         Set<Integer> moteProbabilities = this.inputProfile.getProbabilitiesForMotesKeys();
         for (int i = 0; i < motes.size(); i++) {
             Mote mote = motes.get(i);
@@ -159,7 +145,7 @@ public class Simulation {
      * check that do all motes arrive at their destination
      */
     private boolean areAllMotesAtDestination() {
-        return this.environment.getMotes().stream()
+        return this.getEnvironment().getMotes().stream()
             .allMatch(m -> !m.isEnabled() || m.isArrivedToDestination());
     }
 
@@ -168,27 +154,28 @@ public class Simulation {
      * Simulate a single step in the simulator.
      */
     void simulateStep() {
-        this.environment.getMotes().stream()
+        //noinspection SimplifyStreamApiCallChains
+        this.getEnvironment().getMotes().stream()
             .filter(Mote::isEnabled)
             .map(mote -> { mote.consumePackets(); return mote;}) //DON'T replace with peek because the filtered mote after this line will not do the consume packet
             .filter(mote -> mote.getPath().getWayPoints().size() > wayPointMap.get(mote))
             .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
-                TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
-            .filter(mote -> TimeHelper.nanoToMili(this.environment.getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
+                TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
+            .filter(mote -> TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
             .forEach(mote -> {
-                timeMap.put(mote, this.environment.getClock().getTime());
-                if (!this.environment.toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPosInt())) {
-                    this.environment.moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
+                timeMap.put(mote, this.getEnvironment().getClock().getTime());
+                if (!this.getEnvironment().getMapHelper().toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPosInt())) {
+                    this.getEnvironment().moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
                 } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
             });
-        this.environment.getClock().tick(1);
+        this.getEnvironment().getClock().tick(1);
     }
 
 
 
 
     boolean isFinished() {
-        return !this.continueSimulation.test(this.environment);
+        return !this.continueSimulation.test(this.getEnvironment());
     }
 
 
@@ -198,33 +185,28 @@ public class Simulation {
 
         setupMotesActivationStatus();
 
-        this.environment.getGateways().forEach(Gateway::reset);
+        this.getEnvironment().getGateways().forEach(Gateway::reset);
 
-        this.environment.getMotes().forEach(mote -> {
+        this.getEnvironment().getMotes().forEach(mote -> {
             // Reset all the sensors of the mote
             mote.getSensors().stream()
                 .map(MoteSensor::getSensorDataGenerator)
                 .forEach(SensorDataGenerator::reset);
 
-            mote.getSensors().stream()
-                .map(MoteSensor::getSensorDataGenerator)
-                .filter(s -> s instanceof GPSDataGenerator)
-                .forEach(s -> ((GPSDataGenerator) s).setOrigin(environment.getMapOrigin()));
-
             // Initialize the mote (e.g. reset starting position)
             mote.reset();
 
-            timeMap.put(mote, this.environment.getClock().getTime());
+            timeMap.put(mote, this.getEnvironment().getClock().getTime());
             wayPointMap.put(mote,0);
 
             // Add initial triggers to the clock for mote data transmissions (transmit sensor readings)
-            environment.getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
+            this.getEnvironment().getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
                 mote.sendToGateWay(
                     mote.getSensors().stream()
-                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), this.environment.getClock().getTime()).stream())
+                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), this.getEnvironment().getClock().getTime()).stream())
                         .toArray(Byte[]::new),
                     new HashMap<>());
-                return environment.getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
+                return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
             });
         });
 
@@ -233,16 +215,16 @@ public class Simulation {
 
     void setupSingleRun(boolean shouldResetHistory) {
         if (shouldResetHistory) {
-            this.environment.resetHistory();
+            this.getEnvironment().resetHistory();
         }
 
         this.setupSimulation((env) -> !areAllMotesAtDestination());
     }
 
     void setupTimedRun() {
-        this.environment.resetHistory();
+        this.getEnvironment().resetHistory();
 
-        var finalTime = environment.getClock().getTime()
+        var finalTime = this.getEnvironment().getClock().getTime()
             .plus(inputProfile.getSimulationDuration(), inputProfile.getTimeUnit());
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }

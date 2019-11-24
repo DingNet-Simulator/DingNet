@@ -2,6 +2,7 @@ package iot.networkcommunication.impl;
 
 import iot.Characteristic;
 import iot.Environment;
+import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
@@ -32,9 +33,9 @@ public class SenderNoWaitPacket implements Sender {
      */
     private final Random random = new Random();
 
-    public SenderNoWaitPacket(NetworkEntity sender, Environment env) {
+    public SenderNoWaitPacket(NetworkEntity sender) {
         reset();
-        this.env = env;
+        this.env = SimulationRunner.getInstance().getEnvironment();
         this.sender = sender;
     }
 

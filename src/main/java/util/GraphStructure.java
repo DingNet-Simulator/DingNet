@@ -7,8 +7,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class GraphStructure {
-    private static GraphStructure instance = null;
-
     private Map<Long, GeoPosition> wayPoints;
     private Map<Long, Connection> connections;
 
@@ -16,7 +14,11 @@ public class GraphStructure {
     private long newConnectionID;
 
 
-    private GraphStructure(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
+    public GraphStructure() {
+        init(new HashMap<>(), new HashMap<>());
+    }
+
+    public GraphStructure(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         init(wayPoints, connections);
     }
 
@@ -30,34 +32,6 @@ public class GraphStructure {
         newConnectionID = connections.keySet().stream()
             .max(Long::compare)
             .orElse(0L) + 1;
-    }
-
-
-    public static GraphStructure getInstance() {
-        if (!isInitialized()) {
-            throw new IllegalStateException("GraphStructure not initialized yet before calling 'getInstance'.");
-        }
-        return instance;
-    }
-
-
-    public static GraphStructure initialize(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
-        if (isInitialized()) {
-            throw new UnsupportedOperationException("GraphStructure has already been initialized.");
-        }
-
-        instance = new GraphStructure(wayPoints, connections);
-        return instance;
-    }
-
-
-    public static boolean isInitialized() {
-        return instance != null;
-    }
-
-    public GraphStructure reInitialize(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
-        this.init(wayPoints, connections);
-        return instance;
     }
 
 

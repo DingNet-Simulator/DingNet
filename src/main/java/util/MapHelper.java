@@ -3,44 +3,45 @@ package util;
 import org.jxmapviewer.viewer.GeoPosition;
 
 public class MapHelper {
+    private GeoPosition origin;
+
+    public MapHelper(GeoPosition origin) {
+        this.origin = origin;
+    }
 
     /**
      * Converts a GeoPostion to an x-coordinate on the map.
      * @param geoPosition the GeoPosition to convert.
-     * @param mapOrigin the coordinates of the point [0,0] on the map.
      * @return The x-coordinate on the map of the GeoPosition.
      */
-    public static int toMapXCoordinate(GeoPosition geoPosition, GeoPosition mapOrigin) {
-        return (int) Math.round(1000 * distance(mapOrigin, new GeoPosition(mapOrigin.getLatitude(), geoPosition.getLongitude())));
+    public int toMapXCoordinate(GeoPosition geoPosition) {
+        return (int) Math.round(1000 * distance(this.origin, new GeoPosition(this.origin.getLatitude(), geoPosition.getLongitude())));
     }
 
     /**
      * Converts a GeoPostion to an y-coordinate on the map.
      * @param geoPosition the GeoPosition to convert.
-     * @param mapOrigin the coordinates of the point [0,0] on the map.
      * @return The y-coordinate on the map of the GeoPosition.
      */
-    public static int toMapYCoordinate(GeoPosition geoPosition, GeoPosition mapOrigin) {
-        return (int) Math.round(1000 * distance(mapOrigin, new GeoPosition(geoPosition.getLatitude(), mapOrigin.getLongitude())));
+    public int toMapYCoordinate(GeoPosition geoPosition) {
+        return (int) Math.round(1000 * distance(this.origin, new GeoPosition(geoPosition.getLatitude(), this.origin.getLongitude())));
     }
 
     /**
      * Converts a GeoPosition to an coordinate on the map.
      * @param geoPosition the GeoPosition to convert.
-     * @param mapOrigin the coordinates of the point [0,0] on the map.
      * @return The coordinate on the map of the GeoPosition.
      */
-    public static Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition, GeoPosition mapOrigin) {
-        return new Pair<>(toMapXCoordinate(geoPosition, mapOrigin), toMapYCoordinate(geoPosition, mapOrigin));
+    public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition) {
+        return new Pair<>(toMapXCoordinate(geoPosition), toMapYCoordinate(geoPosition));
     }
 
     /**
      * A function to calculate the longitude from a given x-coordinate on the map.
      * @param x  The x-coordinate of the entity.
-     * @param mapOrigin the coordinates of the point [0,0] on the map.
      * @return The longitude of the given x-coordinate
      */
-    public static double toLongitude(int x, GeoPosition mapOrigin) {
+    public double toLongitude(int x) {
         double longitude;
         if (x > 0) {
             longitude = x;
@@ -49,13 +50,13 @@ public class MapHelper {
             longitude = longitude / (60 * 1.1515);
             longitude = Math.toRadians(longitude);
             longitude = Math.cos(longitude);
-            longitude = longitude - Math.sin(Math.toRadians(mapOrigin.getLatitude())) * Math.sin(Math.toRadians(mapOrigin.getLatitude()));
-            longitude = longitude / (Math.cos(Math.toRadians(mapOrigin.getLatitude())) * Math.cos(Math.toRadians(mapOrigin.getLatitude())));
+            longitude = longitude - Math.sin(Math.toRadians(this.origin.getLatitude())) * Math.sin(Math.toRadians(this.origin.getLatitude()));
+            longitude = longitude / (Math.cos(Math.toRadians(this.origin.getLatitude())) * Math.cos(Math.toRadians(this.origin.getLatitude())));
             longitude = Math.acos(longitude);
             longitude = Math.toDegrees(longitude);
-            longitude = longitude + mapOrigin.getLongitude();
+            longitude = longitude + this.origin.getLongitude();
         } else {
-            longitude = mapOrigin.getLongitude();
+            longitude = this.origin.getLongitude();
         }
         return longitude;
     }
@@ -63,25 +64,24 @@ public class MapHelper {
     /**
      * A function to calculate the latitude from a given y-coordinate on the map.
      * @param y  The y-coordinate of the entity.
-     * @param mapOrigin the coordinates of the point [0,0] on the map.
      * @return The latitude of the given y-coordinate.
      */
-    public static double toLatitude(int y, GeoPosition mapOrigin) {
+    public double toLatitude(int y) {
         double latitude = y;
         latitude = latitude / 1000 ;
         latitude = latitude / 1.609344;
         latitude = latitude / (60 * 1.1515);
-        latitude = latitude + mapOrigin.getLatitude();
+        latitude = latitude + this.origin.getLatitude();
         return latitude;
 
     }
 
-    public static GeoPosition toGeoPosition(Pair<Integer, Integer> coords, GeoPosition mapOrigin) {
-        return toGeoPosition(coords.getLeft(), coords.getRight(), mapOrigin);
+    public GeoPosition toGeoPosition(Pair<Integer, Integer> coords) {
+        return toGeoPosition(coords.getLeft(), coords.getRight());
     }
 
-    public static GeoPosition toGeoPosition(int x, int y, GeoPosition mapOrigin) {
-        return new GeoPosition(toLatitude(y, mapOrigin), toLongitude(x, mapOrigin));
+    public GeoPosition toGeoPosition(int x, int y) {
+        return new GeoPosition(toLatitude(y), toLongitude(x));
     }
 
     /**

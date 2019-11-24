@@ -5,15 +5,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import gui.configuration.AbstractConfigurePanel;
-import gui.mapviewer.NumberPainter;
-import gui.mapviewer.WayPointPainter;
 import gui.util.CompoundPainterBuilder;
-import gui.util.GUISettings;
-import gui.util.GUIUtil;
-import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.painter.CompoundPainter;
-import org.jxmapviewer.painter.Painter;
-import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
 import util.MapHelper;
@@ -22,9 +14,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.List;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConfigureWayPointsPanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
@@ -64,7 +56,7 @@ public class ConfigureWayPointsPanel extends AbstractConfigurePanel {
 
     protected void loadMap(boolean isRefresh) {
         mapViewer.setOverlayPainter(new CompoundPainterBuilder()
-            .withWaypoints(GraphStructure.getInstance(), true)
+            .withWaypoints(mainGUI.getEnvironment().getGraph(), true)
             .withBorders(environment)
             .build()
         );
@@ -95,7 +87,7 @@ public class ConfigureWayPointsPanel extends AbstractConfigurePanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
-                GraphStructure graph = GraphStructure.getInstance();
+                GraphStructure graph = mainGUI.getEnvironment().getGraph();
 
                 if (ConfigureWayPointsPanel.this.mode == Mode.ADD) {
                     graph.addWayPoint(geo);

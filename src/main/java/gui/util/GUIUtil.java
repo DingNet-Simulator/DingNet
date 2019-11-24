@@ -5,7 +5,6 @@ import gui.mapviewer.MoteWayPoint;
 import iot.Environment;
 import iot.networkentity.UserMote;
 import org.jxmapviewer.viewer.DefaultWaypoint;
-import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.Waypoint;
 import util.MapHelper;
 
@@ -19,13 +18,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class GUIUtil {
-    public static List<LinePainter> getBorderPainters(int maxX, int maxY, GeoPosition origin) {
+    public static List<LinePainter> getBorderPainters(int maxX, int maxY, Environment environment) {
         List<LinePainter> painters = new ArrayList<>();
+        MapHelper mapHelper = environment.getMapHelper();
 
-        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(0, 0, origin), MapHelper.toGeoPosition(0, maxY, origin))));
-        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(0, 0, origin), MapHelper.toGeoPosition(maxX, 0, origin))));
-        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(maxX, 0, origin), MapHelper.toGeoPosition(maxX, maxY, origin))));
-        painters.add(new LinePainter(List.of(MapHelper.toGeoPosition(0, maxY, origin), MapHelper.toGeoPosition(maxX, maxY, origin))));
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(0, maxY))));
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(maxX, 0))));
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(maxX, 0), mapHelper.toGeoPosition(maxX, maxY))));
+        painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, maxY), mapHelper.toGeoPosition(maxX, maxY))));
 
         return painters;
     }
@@ -36,7 +36,7 @@ public class GUIUtil {
 
         var wraps = motes.stream()
             .map(m -> {
-                var pos = MapHelper.toGeoPosition(m.getPosInt(), environment.getMapOrigin());
+                var pos = environment.getMapHelper().toGeoPosition(m.getPosInt());
                 if (m instanceof UserMote) {
                     return new MoteWayPoint(pos, true, ((UserMote)m).isActive());
                 }
@@ -54,7 +54,7 @@ public class GUIUtil {
         var gateways = environment.getGateways();
 
         IntStream.range(0, gateways.size())
-            .forEach(i -> map.put(new DefaultWaypoint(MapHelper.toGeoPosition(gateways.get(i).getPosInt(), environment.getMapOrigin())), i+1));
+            .forEach(i -> map.put(new DefaultWaypoint(environment.getMapHelper().toGeoPosition(gateways.get(i).getPosInt())), i+1));
 
         return map;
     }

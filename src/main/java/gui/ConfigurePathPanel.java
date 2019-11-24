@@ -4,15 +4,12 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import gui.configuration.AbstractConfigurePanel;
-import gui.mapviewer.*;
+import gui.mapviewer.LinePainter;
 import gui.util.CompoundPainterBuilder;
-import gui.util.GUISettings;
-import gui.util.GUIUtil;
 import iot.networkentity.Mote;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;
-import org.jxmapviewer.painter.Painter;
-import org.jxmapviewer.viewer.*;
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Connection;
 import util.GraphStructure;
 import util.MapHelper;
@@ -47,7 +44,7 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
     ConfigurePathPanel(MainGUI mainGUI) {
         super(mainGUI);
         mapViewer.addMouseListener(new MapMouseAdapter());
-        graph = GraphStructure.getInstance();
+        graph = mainGUI.getEnvironment().getGraph();
 
         currentWayPoints = new LinkedList<>();
         saveTrackButton.setEnabled(false);
@@ -105,13 +102,14 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
 
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
+                MapHelper mapHelper = environment.getMapHelper();
 
                 if (currentWayPoints.size() == 0) {
                     // No mote has been selected yet -> find the nearest mote
                     Map<Mote, Double> moteDistances = new HashMap<>();
 
                     for (Mote mote : environment.getMotes()) {
-                        double distance = MapHelper.distance(geo, MapHelper.toGeoPosition(mote.getPosInt(), environment.getMapOrigin()));
+                        double distance = MapHelper.distance(geo, mapHelper.toGeoPosition(mote.getPosInt()));
                         moteDistances.put(mote, distance);
                     }
 
@@ -122,7 +120,7 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
                     if (nearest != null) {
                         currentMote = nearest.getKey();
                         loadMap(true);
-                        GeoPosition motePosition = MapHelper.toGeoPosition(currentMote.getPosInt(), environment.getMapOrigin());
+                        GeoPosition motePosition = mapHelper.toGeoPosition(currentMote.getPosInt());
                         long wayPointID = graph.getClosestWayPoint(motePosition);
                         currentWayPoints.add(wayPointID);
                     }

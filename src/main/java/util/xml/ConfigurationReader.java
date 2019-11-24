@@ -2,14 +2,13 @@ package util.xml;
 
 import iot.Characteristic;
 import iot.Environment;
-import iot.Simulation;
+import iot.SimulationRunner;
 import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import util.Connection;
-import util.MapHelper;
 import util.Pair;
 import util.Path;
 
@@ -24,7 +23,7 @@ import java.util.Optional;
 public class ConfigurationReader {
     private static IdRemapping idRemapping = new IdRemapping();
 
-    public static void loadConfiguration(File file, Simulation simulation) {
+    public static void loadConfiguration(File file, SimulationRunner simulationRunner) {
         idRemapping.reset();
 
         try {
@@ -113,10 +112,10 @@ public class ConfigurationReader {
                 }
             }
 
-            simulation.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones,
+            simulationRunner.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones,
                 idRemapping.getWayPoints(), idRemapping.getConnections()));
 
-            Environment environment = simulation.getEnvironment();
+            Environment environment = simulationRunner.getEnvironment();
 
             // ---------------
             //      Motes
@@ -150,7 +149,7 @@ public class ConfigurationReader {
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(gatewayNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(gatewayNode, "spreadingFactor"));
-                environment.addGateway(new Gateway(devEUI, xPos, yPos, environment, transmissionPower, spreadingFactor));
+                environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor));
             }
         } catch (ParserConfigurationException | SAXException | IOException e1) {
             e1.printStackTrace();
@@ -179,7 +178,7 @@ public class ConfigurationReader {
             Element location = (Element) node.getElementsByTagName("location").item(0);
             Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
             GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(waypoint.getAttribute("id")));
-            return MapHelper.toMapCoordinate(position, environment.getMapOrigin());
+            return environment.getMapHelper().toMapCoordinate(position);
         }
 
         int getTransmissionPower() {
@@ -257,7 +256,6 @@ public class ConfigurationReader {
                     getDevEUI(),
                     getMapCoordinates().getLeft(),
                     getMapCoordinates().getRight(),
-                    environment,
                     getTransmissionPower(),
                     getSpreadingFactor(),
                     getMoteSensors(),
@@ -273,7 +271,6 @@ public class ConfigurationReader {
                     getDevEUI(),
                     getMapCoordinates().getLeft(),
                     getMapCoordinates().getRight(),
-                    environment,
                     getTransmissionPower(),
                     getSpreadingFactor(),
                     getMoteSensors(),
@@ -308,7 +305,6 @@ public class ConfigurationReader {
                 getDevEUI(),
                 getMapCoordinates().getLeft(),
                 getMapCoordinates().getRight(),
-                environment,
                 getTransmissionPower(),
                 getSpreadingFactor(),
                 getMoteSensors(),

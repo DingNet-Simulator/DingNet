@@ -45,24 +45,22 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
         // Can decide to be more fine grained later on
         final int DIVISION = GUISettings.POLLUTION_GRID_SQUARES;
         TileFactory factory = map.getTileFactory();
+        MapHelper mapHelper = environment.getMapHelper();
 
         for (int i = 0; i < DIVISION; i++) {
             for (int j = 0; j < DIVISION; j++) {
                 // The starting position of the square is specified by the point in the upper left corner
-                Point2D topLeft = factory.geoToPixel(MapHelper.toGeoPosition(
+                Point2D topLeft = factory.geoToPixel(mapHelper.toGeoPosition(
                     Math.round(i * ((float) maxX / DIVISION)),
-                    Math.round((j+1) * ((float) maxY / DIVISION)),
-                    environment.getMapOrigin()
+                    Math.round((j+1) * ((float) maxY / DIVISION))
                 ), map.getZoom());
-                Point2D bottomRight = factory.geoToPixel(MapHelper.toGeoPosition(
+                Point2D bottomRight = factory.geoToPixel(mapHelper.toGeoPosition(
                     Math.round((i+1) * ((float) maxX / DIVISION)),
-                    Math.round(j * ((float) maxY / DIVISION)),
-                    environment.getMapOrigin()
+                    Math.round(j * ((float) maxY / DIVISION))
                 ), map.getZoom());
-                GeoPosition middle = MapHelper.toGeoPosition(
+                GeoPosition middle = mapHelper.toGeoPosition(
                     (int) ((i+.5) * maxX / DIVISION),
-                    (int) ((j+.5) * maxY / DIVISION),
-                    environment.getMapOrigin());
+                    (int) ((j+.5) * maxY / DIVISION));
 
                 float airQuality = (float) pollutionGrid.getPollutionLevel(middle).getPollutionFactor();
                 g.setColor(this.getColor(airQuality));

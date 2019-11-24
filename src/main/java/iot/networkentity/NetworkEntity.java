@@ -5,6 +5,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
 import iot.Environment;
+import iot.SimulationRunner;
 import iot.lora.*;
 import iot.networkcommunication.api.Receiver;
 import iot.networkcommunication.api.Sender;
@@ -42,8 +43,6 @@ public abstract class NetworkEntity implements Serializable {
 
     protected Pair<Double, Double> initialPosition;
 
-    // A map of the environment the entity is placed in.
-    private Environment environment;
 
     // The transmission power of the entity.
     private int transmissionPower;
@@ -65,7 +64,6 @@ public abstract class NetworkEntity implements Serializable {
      *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
      * @param xPos  The x-coordinate of the entity on the map.
      * @param yPos  The y-coordinate of the entity on the map.
-     * @param environment   The map of the environment.
      * @param transmissionPower   The transmission power of the entity.
      * @param SF    The spreading factor of the entity.
      * @param transmissionPowerThreshold The threshold for discriminating different transmissions.
@@ -78,15 +76,9 @@ public abstract class NetworkEntity implements Serializable {
      *
      */
     @Raw
-    NetworkEntity(long EUI, double xPos, double yPos, Environment environment, int transmissionPower, int SF,
-                  double transmissionPowerThreshold) {
-        this.environment = environment;
-        if (environment.isValidXpos(xPos)) {
-            this.xPos = xPos;
-        }
-        if (environment.isValidYpos(yPos)) {
-            this.yPos = yPos;
-        }
+    NetworkEntity(long EUI, double xPos, double yPos, int transmissionPower, int SF, double transmissionPowerThreshold) {
+        this.xPos = xPos;
+        this.yPos = yPos;
         this.initialPosition = new Pair<>(xPos, yPos);
 
         this.transmissionPower = isValidTransmissionPower(transmissionPower) ? transmissionPower : 0;
@@ -98,8 +90,8 @@ public abstract class NetworkEntity implements Serializable {
         this.transmissionPowerThreshold = transmissionPowerThreshold;
         this.EUI = EUI;
         enabled = true;
-        receiver = new ReceiverWaitPacket(this, getEnvironment().getClock(), transmissionPowerThreshold).setConsumerPacket(this::receive);
-        sender = new SenderNoWaitPacket(this, getEnvironment())
+        receiver = new ReceiverWaitPacket(this, transmissionPowerThreshold).setConsumerPacket(this::receive);
+        sender = new SenderNoWaitPacket(this)
             .setRegionalParameter(regionalParameters.stream().filter(r -> r.getSpreadingFactor() == this.SF).findFirst().orElseThrow())
             .setTransmissionPower(transmissionPower);
     }
@@ -110,16 +102,6 @@ public abstract class NetworkEntity implements Serializable {
      */
     public Double getTransmissionPowerThreshold() {
         return transmissionPowerThreshold;
-    }
-
-    /**
-     *
-     * @return The environment of the entity.
-     */
-    @Basic
-    @Raw
-    public Environment getEnvironment() {
-        return environment;
     }
 
     /**
@@ -232,7 +214,8 @@ public abstract class NetworkEntity implements Serializable {
      */
     @Basic
     public void setXPos(double xPos) {
-        if (environment.isValidXpos(xPos)) {
+        // TODO is this check necessary?
+        if (SimulationRunner.getInstance().getEnvironment().isValidXpos(xPos)) {
             this.xPos = xPos;
         }
     }
@@ -260,7 +243,7 @@ public abstract class NetworkEntity implements Serializable {
      */
     @Basic
     public void setYPos(double yPos) {
-        if (environment.isValidYpos(yPos)) {
+        if (SimulationRunner.getInstance().getEnvironment().isValidYpos(yPos)) {
             this.yPos = yPos;
         }
     }
@@ -320,19 +303,28 @@ public abstract class NetworkEntity implements Serializable {
         }
     }
 
+
+
+    protected Environment getEnvironment() {
+        return SimulationRunner.getInstance().getEnvironment();
+    }
+
+
     /**
      * A method which sends a message to all gateways in the environment
      * @param message The message to send.
      */
     protected void send(LoraWanPacket message) {
-        var recs = Stream.concat(getEnvironment().getGateways().stream(), getEnvironment().getMotes().stream())
+        Environment environment = this.getEnvironment();
+
+        var recs = Stream.concat(environment.getGateways().stream(), environment.getMotes().stream())
             .filter(ne -> filterLoraSend(ne, message))
             .map(NetworkEntity::getReceiver)
             .collect(Collectors.toSet());
         sender.send(message, recs)
             .ifPresent(t -> {
                 Statistics statistics = Statistics.getInstance();
-                statistics.addPowerSettingEntry(this.getEUI(), getEnvironment().getClock().getTime().toSecondOfDay(), getTransmissionPower());
+                statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toSecondOfDay(), getTransmissionPower());
                 statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
                 statistics.addSentTransmissionsEntry(this.getEUI(), t);
             });

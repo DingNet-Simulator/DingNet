@@ -6,7 +6,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import gui.configuration.AbstractConfigurePanel;
 import gui.mapviewer.CharacteristicPainter;
 import gui.mapviewer.LinePainter;
-import gui.util.GUISettings;
 import iot.Characteristic;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;
@@ -84,8 +83,8 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
 
             for (int j = 0; j <= amountOfSquares; j++) {
                 rowPoints.add(new GeoPosition(
-                    environment.toLatitude((int) Math.round(j * ((double) environment.getMaxYpos()) / amountOfSquares)),
-                    environment.toLongitude((int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares)))
+                    environment.getMapHelper().toLatitude((int) Math.round(j * ((double) environment.getMaxYpos()) / amountOfSquares)),
+                    environment.getMapHelper().toLongitude((int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares)))
                 );
             }
             points.add(rowPoints);
@@ -116,8 +115,8 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
 
         for (GeoPosition geoPosition : centerPoints) {
             Characteristic ch = environment.getCharacteristic(
-                environment.toMapXCoordinate(geoPosition),
-                environment.toMapYCoordinate(geoPosition)
+                environment.getMapHelper().toMapXCoordinate(geoPosition),
+                environment.getMapHelper().toMapYCoordinate(geoPosition)
             );
             painters.add(new CharacteristicPainter(geoPosition, ch.getColor()));
         }
@@ -210,8 +209,8 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
-                int xPos = environment.toMapXCoordinate(geo);
-                int yPos = environment.toMapYCoordinate(geo);
+                int xPos = environment.getMapHelper().toMapXCoordinate(geo);
+                int yPos = environment.getMapHelper().toMapYCoordinate(geo);
                 int i = 0;
                 while (xPos > 1) {
                     xPos -= environment.getMaxXpos() / amountOfSquares;

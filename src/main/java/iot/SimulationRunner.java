@@ -21,6 +21,7 @@ import util.Pair;
 import util.xml.*;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -35,6 +36,7 @@ public class SimulationRunner {
     private QualityOfService QoS;
 
     private Simulation simulation;
+    private Environment environment;
     private List<MoteProbe> moteProbe;
 
     private RoutingApplication routingApplication;
@@ -93,13 +95,14 @@ public class SimulationRunner {
         }
 
         networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
+        environment = null;
     }
 
 
     // region getters/setters
 
     public Environment getEnvironment() {
-        return simulation.getEnvironment();
+        return this.environment;
     }
 
     public List<InputProfile> getInputProfiles() {
@@ -130,6 +133,10 @@ public class SimulationRunner {
             .orElseThrow(() -> new RuntimeException(String.format("Could not load approach with name %s", name)));
 
         simulation.setApproach(selectedAlgorithm);
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public void updateQoS(QualityOfService QoS) {
@@ -220,7 +227,7 @@ public class SimulationRunner {
                 fn.accept(new Pair<>(i+1, nrOfRuns));
 
                 if (i != nrOfRuns - 1) {
-                    getEnvironment().addRun();
+                    this.getEnvironment().addRun();
                     setupSingleRun(false);
                 }
             }
@@ -243,7 +250,8 @@ public class SimulationRunner {
     public void loadConfigurationFromFile(File file) {
         this.cleanupSimulation();
 
-        ConfigurationReader.loadConfiguration(file, simulation);
+        ConfigurationReader.loadConfiguration(file, this);
+        simulation.setEnvironment(new WeakReference<>(this.getEnvironment()));
 
         for (Gateway gateway : simulation.getEnvironment().getGateways()) {
             for (int i = 0; i < algorithms.size(); i++) {
@@ -256,7 +264,7 @@ public class SimulationRunner {
 
 
     public void saveConfigurationToFile(File file) {
-        ConfigurationWriter.saveConfigurationToFile(file, simulation);
+        ConfigurationWriter.saveConfigurationToFile(file, this);
     }
 
 
@@ -277,13 +285,13 @@ public class SimulationRunner {
             this.routingApplication.destruct();
         }
 
-//        this.networkServer.reset();
         this.networkServer.reconnect();
+        this.environment = null;
     }
 
     private void setupApplications() {
         this.pollutionMonitor = new PollutionMonitor(this.getEnvironment());
-        this.routingApplication = new RoutingApplication(new AStarRouter());
+        this.routingApplication = new RoutingApplication(new AStarRouter(), getEnvironment().getGraph());
     }
 
     // endregion

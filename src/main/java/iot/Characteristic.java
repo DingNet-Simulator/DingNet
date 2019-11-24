@@ -10,7 +10,9 @@ import java.awt.*;
  */
 public enum Characteristic {
 
-    Forest(3,1000,1.5, new Color(0,102,0)), City(1,1000,2,new Color(51,153,255)),Plain(2,1000,1.5,new Color(255,153,0));
+    Forest(3, 1000, 1.5, new Color(0, 102, 0)),
+    City(1, 1000, 2, new Color(51, 153, 255)),
+    Plain(2, 1000, 1.5, new Color(255, 153, 0));
     /**
      * An integer representing the path loss exponent in a certain position.
      */

@@ -7,6 +7,7 @@ import gui.util.GUIUtil;
 import iot.Environment;
 import iot.networkentity.Gateway;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.MapHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,9 +31,10 @@ public class NewGatewayGUI {
 
     public NewGatewayGUI(Environment environment, GeoPosition geoPosition, JFrame frame, ConfigureGatewayPanel parent) {
         this.environment = environment;
+        MapHelper mapHelper = environment.getMapHelper();
 
-        xPosSpinner.setModel(new SpinnerNumberModel(environment.toMapXCoordinate(geoPosition), 0, environment.getMaxXpos(), 1));
-        yPosSpinner.setModel(new SpinnerNumberModel(environment.toMapYCoordinate(geoPosition), 0, environment.getMaxYpos(), 1));
+        xPosSpinner.setModel(new SpinnerNumberModel(mapHelper.toMapXCoordinate(geoPosition), 0, environment.getMaxXpos(), 1));
+        yPosSpinner.setModel(new SpinnerNumberModel(mapHelper.toMapYCoordinate(geoPosition), 0, environment.getMaxYpos(), 1));
         powerSpinner.setModel(new SpinnerNumberModel(14, -3, 14, 1));
         SFSpinner.setModel(new SpinnerNumberModel(12, 1, 12, 1));
         generateNewEUID();
@@ -41,7 +43,7 @@ public class NewGatewayGUI {
         saveButton.addActionListener(e -> {
             environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()),
                 (int) xPosSpinner.getValue(), (int) yPosSpinner.getValue(),
-                environment, (int) powerSpinner.getValue(), (int) SFSpinner.getValue()));
+                (int) powerSpinner.getValue(), (int) SFSpinner.getValue()));
             parent.refresh();
             frame.dispose();
         });
@@ -62,11 +64,11 @@ public class NewGatewayGUI {
     }
 
     private void updateLatField() {
-        GUIUtil.updateTextFieldCoordinate(LongitudeTextField, environment.toLongitude((int) xPosSpinner.getValue()), "E", "W");
+        GUIUtil.updateTextFieldCoordinate(LongitudeTextField, environment.getMapHelper().toLongitude((int) xPosSpinner.getValue()), "E", "W");
     }
 
     private void updateLonField() {
-        GUIUtil.updateTextFieldCoordinate(LatitudeTextField, environment.toLatitude((int) yPosSpinner.getValue()), "N", "S");
+        GUIUtil.updateTextFieldCoordinate(LatitudeTextField, environment.getMapHelper().toLatitude((int) yPosSpinner.getValue()), "N", "S");
     }
 
     public JPanel getMainPanel() {

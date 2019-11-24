@@ -1,5 +1,6 @@
 package util;
 
+import iot.SimulationRunner;
 import org.jetbrains.annotations.NotNull;
 import org.jxmapviewer.viewer.GeoPosition;
 
@@ -18,7 +19,7 @@ public class Path implements Iterable<GeoPosition> {
 
     public Path(List<GeoPosition> points) {
         this.points = new LinkedList<>(points);
-        this.graphStructure = GraphStructure.getInstance();
+        this.graphStructure = SimulationRunner.getInstance().getEnvironment().getGraph();
     }
 
     public List<GeoPosition> getWayPoints() {

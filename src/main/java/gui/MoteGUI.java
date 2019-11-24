@@ -13,7 +13,6 @@ import iot.networkentity.MoteSensor;
 import iot.networkentity.UserMote;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
-import util.MapHelper;
 import util.Pair;
 import util.Path;
 
@@ -58,7 +57,7 @@ public class MoteGUI {
     private Mote mote;
 
     public MoteGUI(Environment environment, Pair<Integer, Integer> pos, JFrame frame, Refreshable parent, MainGUI mainGUI, Mote mote) {
-        this(environment, MapHelper.toGeoPosition(pos, environment.getMapOrigin()), frame, parent, mainGUI, mote);
+        this(environment, environment.getMapHelper().toGeoPosition(pos), frame, parent, mainGUI, mote);
     }
 
     public MoteGUI(Environment environment, GeoPosition geoPosition, JFrame frame, Refreshable parent, MainGUI mainGUI) {
@@ -124,7 +123,7 @@ public class MoteGUI {
 
         chooseDestinationButton.addActionListener(e ->
                 spawnMapFrame(selectedPosition ->
-                    destinationWaypointLabel.setText(Long.toUnsignedString(GraphStructure.getInstance().getClosestWayPoint(selectedPosition))))
+                    destinationWaypointLabel.setText(Long.toUnsignedString(environment.getGraph().getClosestWayPoint(selectedPosition))))
         );
 
         generateEUIButton.addActionListener(e -> this.EUItextField.setText(generateNewEUIString()));
@@ -170,7 +169,7 @@ public class MoteGUI {
         if (newPositionRadioButton.isSelected()) {
             this.source = pos;
         } else {
-            GraphStructure graph = GraphStructure.getInstance();
+            GraphStructure graph = this.environment.getGraph();
             this.source = graph.getWayPoint(graph.getClosestWayPoint(pos));
         }
 
@@ -178,8 +177,8 @@ public class MoteGUI {
         GUIUtil.updateLabelCoordinateLat(latPositionLabel, pos.getLatitude());
         GUIUtil.updateLabelCoordinateLon(lonPositionLabel, pos.getLongitude());
 
-        xPositionLabel.setText(String.format("x: %d", environment.toMapXCoordinate(pos)));
-        yPositionLabel.setText(String.format("y: %d", environment.toMapYCoordinate(pos)));
+        xPositionLabel.setText(String.format("x: %d", environment.getMapHelper().toMapXCoordinate(pos)));
+        yPositionLabel.setText(String.format("y: %d", environment.getMapHelper().toMapYCoordinate(pos)));
     }
 
     private void updateUserMoteFields(boolean isNewMote) {
@@ -192,7 +191,7 @@ public class MoteGUI {
                 isActiveCheckBox.setSelected(false);
             } else {
                 UserMote userMote = (UserMote) mote;
-                long destinationWayPointId = GraphStructure.getInstance().getClosestWayPoint(userMote.getDestination());
+                long destinationWayPointId = environment.getGraph().getClosestWayPoint(userMote.getDestination());
 
                 destinationWaypointLabel.setText(Long.toUnsignedString(destinationWayPointId));
                 isActiveCheckBox.setSelected(userMote.isActive());
@@ -237,9 +236,9 @@ public class MoteGUI {
     private Pair<Integer, Integer> handleChosenStartingPosition() {
         if (newPositionRadioButton.isSelected()) {
             // Add a new waypoint to the graph
-            GraphStructure.getInstance().addWayPoint(source);
+            environment.getGraph().addWayPoint(source);
         }
-        return MapHelper.toMapCoordinate(source, environment.getMapOrigin());
+        return environment.getMapHelper().toMapCoordinate(source);
     }
 
 
@@ -248,7 +247,7 @@ public class MoteGUI {
 
         // TODO Energy level? Add field as well?
         environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(), position.getRight(),
-                environment, (int) powerSpinner.getValue(),
+                (int) powerSpinner.getValue(),
                 (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(),
                 (double) movementSpeedSpinner.getValue(),
                 (int) offsetMovementSpinner.getValue(), (int) periodSpinner.getValue(),
@@ -256,7 +255,7 @@ public class MoteGUI {
     }
 
     private void addUserMote() {
-        GraphStructure graph = GraphStructure.getInstance();
+        GraphStructure graph = environment.getGraph();
         Pair<Integer, Integer> position = handleChosenStartingPosition();
 
         // if no destination waypoint is set, default to the starting waypoint on which the mote is located
@@ -266,7 +265,7 @@ public class MoteGUI {
 
         // TODO Energy level? Add field as well?
         UserMote userMote = MoteFactory.createUserMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(),
-                position.getRight(), environment, (int) powerSpinner.getValue(),
+                position.getRight(), (int) powerSpinner.getValue(),
                 (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(),
                 (double) movementSpeedSpinner.getValue(),
                 (int) offsetMovementSpinner.getValue(), (int) periodSpinner.getValue(),
@@ -299,7 +298,7 @@ public class MoteGUI {
 
             // Destination label cannot be empty, since the usermote has to have had a destination already
             long index = Long.parseUnsignedLong(destinationWaypointLabel.getText());
-            userMote.setDestination(GraphStructure.getInstance().getWayPoint(index));
+            userMote.setDestination(environment.getGraph().getWayPoint(index));
         }
     }
 

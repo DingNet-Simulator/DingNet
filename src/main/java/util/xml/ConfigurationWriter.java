@@ -1,7 +1,7 @@
 package util.xml;
 
 import iot.Environment;
-import iot.Simulation;
+import iot.SimulationRunner;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
@@ -11,7 +11,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import util.Connection;
 import util.GraphStructure;
-import util.MapHelper;
 import util.Path;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,13 +27,13 @@ public class ConfigurationWriter {
     private static IdRemapping idRemapping = new IdRemapping();
 
 
-    public static void saveConfigurationToFile(File file, Simulation simulation) {
+    public static void saveConfigurationToFile(File file, SimulationRunner simulationRunner) {
         idRemapping.reset();
 
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Environment environment = simulation.getEnvironment();
-            GraphStructure graph = GraphStructure.getInstance();
+            Environment environment = simulationRunner.getEnvironment();
+            GraphStructure graph = environment.getGraph();
 
             // root element
             Element rootElement = doc.createElement("configuration");
@@ -224,7 +223,7 @@ public class ConfigurationWriter {
         MoteWriter(Document doc, Mote mote, Environment environment) {
             this.doc = doc;
             this.mote = mote;
-            this.graph = GraphStructure.getInstance();
+            this.graph = environment.getGraph();
             this.environment = environment;
         }
 
@@ -238,7 +237,7 @@ public class ConfigurationWriter {
             Element location = doc.createElement("location");
             Element wayPoint = doc.createElement("waypoint");
 
-            GeoPosition position = MapHelper.toGeoPosition(mote.getOriginalPosInt(), environment.getMapOrigin());
+            GeoPosition position = environment.getMapHelper().toGeoPosition(mote.getOriginalPosInt());
             wayPoint.setAttribute("id", Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(position))));
             location.appendChild(wayPoint);
 

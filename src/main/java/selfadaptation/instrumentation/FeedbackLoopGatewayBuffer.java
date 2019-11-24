@@ -1,5 +1,6 @@
 package selfadaptation.instrumentation;
 
+import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -21,7 +22,8 @@ public class FeedbackLoopGatewayBuffer {
 
     public void add(Mote mote, Gateway gateway) {
         // FIXME this needs looking into, not sure how this is used in the actual simulation
-        var transmissions = Statistics.getInstance().getReceivedTransmissions(gateway.getEUI(), gateway.getEnvironment().getNumberOfRuns() - 1);
+        var environment = SimulationRunner.getInstance().getEnvironment();
+        var transmissions = Statistics.getInstance().getReceivedTransmissions(gateway.getEUI(), environment.getNumberOfRuns() - 1);
 
         if(gatewayBuffer.containsKey(mote)) {
             boolean contains = false;

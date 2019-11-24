@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import gui.util.GUIUtil;
+import iot.Environment;
 import iot.networkentity.Gateway;
 
 import javax.swing.*;
@@ -21,12 +22,12 @@ public class GatewayGUI extends JFrame {
     private JLabel xCoordinateLabel;
     private JLabel gatewayNumberLabel;
 
-    public GatewayGUI(Gateway gateway) {
-        gatewayNumberLabel.setText(Integer.toString(gateway.getEnvironment().getGateways().indexOf(gateway) + 1));
+    public GatewayGUI(Gateway gateway, Environment environment) {
+        gatewayNumberLabel.setText(Integer.toString(environment.getGateways().indexOf(gateway) + 1));
         EUIDText.setText(Long.toUnsignedString(gateway.getEUI()));
 
-        GUIUtil.updateLabelCoordinateLon(longitudeLabel, gateway.getEnvironment().toLongitude(gateway.getXPosInt()));
-        GUIUtil.updateLabelCoordinateLat(latitudeLabel, gateway.getEnvironment().toLatitude(gateway.getYPosInt()));
+        GUIUtil.updateLabelCoordinateLon(longitudeLabel, environment.getMapHelper().toLongitude(gateway.getXPosInt()));
+        GUIUtil.updateLabelCoordinateLat(latitudeLabel, environment.getMapHelper().toLatitude(gateway.getYPosInt()));
 
         xCoordinateLabel.setText(Integer.toString(gateway.getXPosInt()));
         yCoordinateLabel.setText(Integer.toString(gateway.getYPosInt()));

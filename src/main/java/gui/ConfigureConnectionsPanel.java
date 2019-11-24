@@ -8,11 +8,8 @@ import gui.configuration.AbstractConfigurePanel;
 import gui.mapviewer.LinePainter;
 import gui.mapviewer.WayPointPainter;
 import gui.util.CompoundPainterBuilder;
-import gui.util.GUISettings;
-import gui.util.GUIUtil;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;
-import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Connection;
@@ -75,10 +72,11 @@ public class ConfigureConnectionsPanel extends AbstractConfigurePanel {
     }
 
     protected void loadMap(boolean isRefresh) {
+        GraphStructure graph = mainGUI.getEnvironment().getGraph();
         painter = new CompoundPainterBuilder()
             .withBorders(environment)
-            .withWaypoints(GraphStructure.getInstance(), false)
-            .withConnections(GraphStructure.getInstance())
+            .withWaypoints(graph, false)
+            .withConnections(graph)
             .build();
 
         mapViewer.setOverlayPainter(painter);
@@ -116,7 +114,7 @@ public class ConfigureConnectionsPanel extends AbstractConfigurePanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
-                GraphStructure graph = GraphStructure.getInstance();
+                GraphStructure graph = mainGUI.getEnvironment().getGraph();
 
                 // Calculate the distances to the closest wayPoints
                 Map<Long, Double> distances = new HashMap<>();

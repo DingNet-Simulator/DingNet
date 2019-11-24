@@ -4,7 +4,10 @@ import be.kuleuven.cs.som.annotate.Basic;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.*;
+import util.Connection;
+import util.GraphStructure;
+import util.MapHelper;
+import util.Statistics;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -15,8 +18,6 @@ import java.util.Map;
  * A class representing a map of the environment.
  */
 public class Environment implements Serializable {
-
-    //? Should this class be Singleton?
 
     private static final long serialVersionUID = 1L;
 
@@ -66,6 +67,10 @@ public class Environment implements Serializable {
     private GlobalClock clock;
 
 
+    GraphStructure graph;
+    MapHelper mapHelper;
+
+
     /**
      * A constructor generating a new environment with a given map with characteristics.
      * @param characteristics   The map with the characteristics of the current environment.
@@ -94,12 +99,8 @@ public class Environment implements Serializable {
         this.origin = mapOrigin;
         this.clock = new GlobalClock();
 
-        if (GraphStructure.isInitialized()) {
-            // Reinitialize the graph structure if a configuration has already been loaded in previously
-            GraphStructure.getInstance().reInitialize(wayPoints, connections);
-        } else {
-            GraphStructure.initialize(wayPoints, connections);
-        }
+        this.graph = new GraphStructure(wayPoints, connections);
+        this.mapHelper = new MapHelper(this.origin);
 
         numberOfRuns = 1;
     }
@@ -140,6 +141,15 @@ public class Environment implements Serializable {
      */
     public void setNumberOfZones(int numberOfZones) {
         this.numberOfZones = numberOfZones;
+    }
+
+
+    public GraphStructure getGraph() {
+        return this.graph;
+    }
+
+    public MapHelper getMapHelper() {
+        return this.mapHelper;
     }
 
 
@@ -196,9 +206,8 @@ public class Environment implements Serializable {
      */
     @Basic
     public void addGateway(Gateway gateway) {
-        if (gateway.getEnvironment() == this) {
-            gateways.add(gateway);
-        }
+        // TODO check if coordinates are within valid bounds (although... is this really necessary?)
+        gateways.add(gateway);
     }
 
     /**
@@ -217,9 +226,8 @@ public class Environment implements Serializable {
      */
     @Basic
     public void addMote(Mote mote) {
-        if (mote.getEnvironment() == this) {
-            motes.add(mote);
-        }
+        // TODO check if coordinates are within valid bounds (although... is this really necessary?)
+        motes.add(mote);
     }
 
     /**
@@ -282,33 +290,11 @@ public class Environment implements Serializable {
      * @return The geoPosition of the center of the map.
      */
     public GeoPosition getMapCenter() {
-        return new GeoPosition(toLatitude(getMaxYpos()/2),toLongitude(getMaxXpos()/2));
+        return new GeoPosition(mapHelper.toLatitude(getMaxYpos() / 2),
+            mapHelper.toLongitude(getMaxXpos() / 2));
     }
 
-    /**
-     * A function to calculate the longitude from a given x-coordinate on the map.
-     * @param xPos  The x-coordinate of the entity.
-     * @return The longitude of the given x-coordinate
-     */
-    public double toLongitude(int xPos) {
-        return MapHelper.toLongitude(xPos, this.origin);
-    }
 
-    /**
-     * A function to calculate the latitude from a given y-coordinate on the map.
-     * @param yPos  The y-coordinate of the entity.
-     * @return The latitude of the given y-coordinate.
-     */
-    public double toLatitude(int yPos) {
-        return MapHelper.toLatitude(yPos, this.origin);
-    }
-
-    /**
-     * A function for calculating distances from geographical positions.
-     */
-    public static double distance(double lat1, double lon1, double lat2, double lon2) {
-        return MapHelper.distance(new GeoPosition(lat1, lon1), new GeoPosition(lat2, lon2));
-    }
 
     /**
      * A function that moves a mote to a geoposition 1 step and returns true if the mote has moved.
@@ -316,8 +302,8 @@ public class Environment implements Serializable {
      * @param destination The position to move towards.
      */
     public void moveMote(Mote mote, GeoPosition destination) {
-        double xPosDest = toMapXCoordinate(destination);
-        double yPosDest = toMapYCoordinate(destination);
+        double xPosDest = this.mapHelper.toMapXCoordinate(destination);
+        double yPosDest = this.mapHelper.toMapYCoordinate(destination);
         double xPosMote = mote.getXPosDouble();
         double yPosMote = mote.getYPosDouble();
 
@@ -334,28 +320,7 @@ public class Environment implements Serializable {
         }
     }
 
-    /**
-     * Converts a GeoPostion to an x-coordinate on the map.
-     * @param geoPosition the GeoPosition to convert.
-     * @return The x-coordinate on the map of the GeoPosition.
-     */
-    public int toMapXCoordinate(GeoPosition geoPosition) {
-        //? in computing distance just using the longitude of the geoposition. Why?
-        return MapHelper.toMapXCoordinate(geoPosition, this.origin);
-    }
-    /**
-     * Converts a GeoPostion to an y-coordinate on the map.
-     * @param geoPosition the GeoPosition to convert.
-     * @return The y-coordinate on the map of the GeoPosition.
-     */
-    public int toMapYCoordinate(GeoPosition geoPosition) {
-        //? in computing distance just using the longitude of the geoposition. Why?
-        return MapHelper.toMapYCoordinate(geoPosition, this.origin);
-    }
 
-    public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition) {
-        return MapHelper.toMapCoordinate(geoPosition, this.origin);
-    }
     /**
      * reset all entities in the configuration.
      */

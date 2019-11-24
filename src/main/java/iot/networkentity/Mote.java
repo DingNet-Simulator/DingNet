@@ -3,13 +3,12 @@ package iot.networkentity;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
-import iot.Environment;
+import iot.GlobalClock;
 import iot.lora.*;
 import iot.strategy.consume.ConsumePacketStrategy;
 import iot.strategy.store.MaintainLastPacket;
 import iot.strategy.store.ReceivedPacketStrategy;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.MapHelper;
 import util.Path;
 
 import java.util.*;
@@ -79,7 +78,6 @@ public class Mote extends NetworkEntity {
      * @param DevEUI The device's unique identifier
      * @param xPos  The x-coordinate of the node.
      * @param yPos  The y-coordinate of the node.
-     * @param environment   The environment of the node.
      * @param SF    The spreading factor of the node.
      * @param transmissionPower The transmitting power of the node.
      * @param moteSensors The mote sensors for this mote.
@@ -91,10 +89,10 @@ public class Mote extends NetworkEntity {
      * @param startSendingOffset time to await before send the first packet (in seconds)
      */
     @Raw
-    public Mote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower,
+    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
                 int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
                 double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset) {
-        super(DevEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
+        super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
         this.path = path;
@@ -112,7 +110,6 @@ public class Mote extends NetworkEntity {
      * @param DevEUI The device's unique identifier
      * @param xPos  The x-coordinate of the node.
      * @param yPos  The y-coordinate of the node.
-     * @param environment   The environment of the node.
      * @param SF    The spreading factor of the node.
      * @param transmissionPower The transmitting power of the node.
      * @param moteSensors The mote sensors for this mote.
@@ -121,9 +118,9 @@ public class Mote extends NetworkEntity {
      * @param movementSpeed The movement speed of this mote.
      */
     @Raw
-    public Mote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower,
+    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
                 int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed) {
-        this(DevEUI,xPos,yPos, environment,transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
+        this(DevEUI,xPos,yPos, transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
     }
 
@@ -138,7 +135,8 @@ public class Mote extends NetworkEntity {
         var packet = transmission.getContent();
         //if is a message sent to from a gateway to this mote
         if (canReceive && getEUI() == packet.getReceiverEUI() &&
-            getEnvironment().getGateways().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
+            this.getEnvironment().getGateways().stream()
+                .anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
             canReceive = false;
             receivedPacketStrategy.addReceivedMessage(packet);
         }
@@ -228,11 +226,13 @@ public class Mote extends NetworkEntity {
     }
 
     private void resetKeepAliveTrigger(int offset) {
+        GlobalClock clock = this.getEnvironment().getClock();
+
         if (keepAliveTriggerId != -1L) {
-            getEnvironment().getClock().removeTrigger(keepAliveTriggerId);
+            clock.removeTrigger(keepAliveTriggerId);
         }
-        keepAliveTriggerId = getEnvironment().getClock().addTriggerOneShot(
-            getEnvironment().getClock().getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
+        keepAliveTriggerId = clock.addTriggerOneShot(
+            clock.getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
             () -> {
                 byte[] payload;
                 if (lastPacketSent == null) {
@@ -400,7 +400,7 @@ public class Mote extends NetworkEntity {
             return true;
         }
         //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
-        return MapHelper.toMapCoordinate(path.getDestination().get(), getEnvironment().getMapOrigin())
-            .equals(getPosInt());
+        return this.getEnvironment().getMapHelper()
+            .toMapCoordinate(path.getDestination().get()).equals(getPosInt());
     }
 }

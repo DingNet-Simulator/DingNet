@@ -1,7 +1,7 @@
 package iot.networkentity;
 
 
-import iot.Environment;
+import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.mqtt.MQTTClientFactory;
@@ -29,12 +29,11 @@ public class Gateway extends NetworkEntity {
      * @param gatewayEUI        gateway identifier.
      * @param xPos              The x-coordinate of the gateway on the map.
      * @param yPos              The y-coordinate of the gateway on the map.
-     * @param environment       The map of the environment.
      * @param transmissionPower The transmission power of the gateway.
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
-    public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF) {
-        this(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, new SendPacketImmediately());
+    public Gateway(long gatewayEUI, int xPos, int yPos, int transmissionPower, int SF) {
+        this(gatewayEUI, xPos, yPos, transmissionPower, SF, new SendPacketImmediately());
     }
 
     /**
@@ -42,13 +41,12 @@ public class Gateway extends NetworkEntity {
      * @param gatewayEUI        gateway identifier.
      * @param xPos              The x-coordinate of the gateway on the map.
      * @param yPos              The y-coordinate of the gateway on the map.
-     * @param environment       The map of the environment.
      * @param transmissionPower The transmission power of the gateway.
      * @param responseStrategy  strategy to enable response to mote
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
-    public Gateway(long gatewayEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF, ResponseStrategy responseStrategy) {
-        super(gatewayEUI, xPos, yPos, environment, transmissionPower, SF, 1.0);
+    public Gateway(long gatewayEUI, int xPos, int yPos, int transmissionPower, int SF, ResponseStrategy responseStrategy) {
+        super(gatewayEUI, xPos, yPos, transmissionPower, SF, 1.0);
         subscribedMoteProbes = new LinkedList<>();
         mqttClient = MQTTClientFactory.getSingletonInstance();
         this.responseStrategy = responseStrategy.init(this);
@@ -76,7 +74,8 @@ public class Gateway extends NetworkEntity {
     protected void OnReceive(LoraTransmission transmission) {
         var packet = transmission.getContent();
         //manage the message only if it is of a mote
-        if (getEnvironment().getMotes().stream().anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
+        if (SimulationRunner.getInstance().getEnvironment().getMotes().stream()
+            .anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
             var message = new TransmissionWrapper(transmission);
             mqttClient.publish(Topics.getGatewayToNetServer(packet.getReceiverEUI(), getEUI(), packet.getSenderEUI()), message);
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {

@@ -2,6 +2,7 @@ package selfadaptation.feedbackloop;
 
 
 import be.kuleuven.cs.som.annotate.Model;
+import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -79,7 +80,7 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
              * Check for the signal which has travelled the shortest distance.
              */
             List<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
-            var env = mote.getEnvironment();
+            var env = SimulationRunner.getInstance().getEnvironment();
             double shortestDistance = Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.get(0).getReceiver()).getYPosInt()-receivedSignals.get(0).getYPos(),2)+
                     Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.get(0).getReceiver()).getXPosInt()-receivedSignals.get(0).getXPos(),2));
 

@@ -58,11 +58,11 @@ public class ConfigureGatewayPanel extends AbstractConfigurePanel {
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
                 boolean exists = false;
                 for (Gateway gateway : environment.getGateways()) {
-                    int xDistance = Math.abs(environment.toMapXCoordinate(geo) - gateway.getXPosInt());
-                    int yDistance = environment.toMapYCoordinate(geo) - gateway.getYPosInt();
+                    int xDistance = Math.abs(environment.getMapHelper().toMapXCoordinate(geo) - gateway.getXPosInt());
+                    int yDistance = Math.abs(environment.getMapHelper().toMapYCoordinate(geo) - gateway.getYPosInt());
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Gateway settings");
-                        GatewayGUI gatewayGUI = new GatewayGUI(gateway);
+                        GatewayGUI gatewayGUI = new GatewayGUI(gateway, environment);
                         frame.setContentPane(gatewayGUI.getMainPanel());
                         frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
                         frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());

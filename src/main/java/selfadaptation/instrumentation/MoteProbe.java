@@ -1,5 +1,6 @@
 package selfadaptation.instrumentation;
 
+import iot.SimulationRunner;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
@@ -51,7 +52,7 @@ public class MoteProbe {
      * @param devEUI
      */
     public void trigger(Gateway gateway, long devEUI) {
-        gateway.getEnvironment().getMotes().stream()
+        SimulationRunner.getInstance().getEnvironment().getMotes().stream()
             .filter(m -> m.getEUI() == devEUI && getGenericFeedbackLoop().isActive())
             .reduce((a, b) -> b)
             .ifPresent(m -> getGenericFeedbackLoop().adapt(m, gateway));

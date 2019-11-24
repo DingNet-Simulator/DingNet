@@ -2,6 +2,7 @@ package iot.networkentity;
 
 import datagenerator.SensorDataGenerator;
 import iot.Environment;
+import iot.GlobalClock;
 import iot.lora.BasicFrameHeader;
 import iot.lora.LoraWanPacket;
 import iot.lora.MacCommand;
@@ -27,10 +28,10 @@ public class UserMote extends Mote {
     private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
     private boolean alreadyRequested;
 
-    UserMote(long DevEUI, int xPos, int yPos, Environment environment, int transmissionPower, int SF,
+    UserMote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
              List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed,
              int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
-        super(DevEUI, xPos, yPos, environment, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
+        super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
         this.destination = destination;
 
         this.initialize();
@@ -38,11 +39,13 @@ public class UserMote extends Mote {
 
     @Override
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand, Byte[]> macCommands) {
-        if (isActive() && !alreadyRequested && whenAskPath.isBefore(getEnvironment().getClock().getTime())) {
+        GlobalClock clock = this.getEnvironment().getClock();
+
+        if (isActive() && !alreadyRequested && whenAskPath.isBefore(clock.getTime())) {
             alreadyRequested = true;
             byte[] payload= new byte[17];
             payload[0] = MessageType.REQUEST_PATH.getCode();
-            System.arraycopy(getGPSSensor().generateData(getPosInt(), getEnvironment().getClock().getTime()), 0, payload, 1, 8);
+            System.arraycopy(getGPSSensor().generateData(getPosInt(), clock.getTime()), 0, payload, 1, 8);
             System.arraycopy(Converter.toByteArray(destination), 0, payload, 9, 8);
             return new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
                 new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));
@@ -53,6 +56,9 @@ public class UserMote extends Mote {
     @Override
     public void setPos(double xPos, double yPos) {
         super.setPos(xPos, yPos);
+
+        Environment environment = this.getEnvironment();
+
         if (isActive()) {
             if (getPath().isEmpty()) {
                 throw new IllegalStateException("I don't have any path to follow...I can't move:(");
@@ -60,12 +66,11 @@ public class UserMote extends Mote {
             var path = getPath();
             var wayPoints = path.getWayPoints();
             //if I don't the path to the destination and I am at the penultimate position of the path
-            var center = getEnvironment().getMapOrigin();
 
             if (path.getDestination().isPresent() &&    //at least the path has one point
                 MapHelper.distance(path.getDestination().get(), destination) > DISTANCE_THRESHOLD_ROUNDING_ERROR &&
                 wayPoints.size() > 1 &&
-                MapHelper.toMapCoordinate(wayPoints.get(wayPoints.size()-2), center).equals(getPosInt())) {
+                environment.getMapHelper().toMapCoordinate(wayPoints.get(wayPoints.size()-2)).equals(getPosInt())) {
                 //require new part of path
                 askNewPartOfPath();
             }
@@ -82,7 +87,7 @@ public class UserMote extends Mote {
         sendToGateWay(new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
             new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>()));
 
-        var clock = getEnvironment().getClock();
+        var clock = this.getEnvironment().getClock();
         var oldDestination = getPath().getDestination();
         clock.addTriggerOneShot(clock.getTime().plusSeconds(30), () -> {
             if (oldDestination.equals(getPath().getDestination())) {
@@ -101,7 +106,7 @@ public class UserMote extends Mote {
 
     public void setActive(boolean active) {
         if (active) {
-            getEnvironment().getMotes().stream()
+            this.getEnvironment().getMotes().stream()
                 .filter(m -> m instanceof UserMote)
                 .map(m -> (UserMote)m)
                 .forEach(m -> {
@@ -127,7 +132,7 @@ public class UserMote extends Mote {
 
     @Override
     public boolean isArrivedToDestination() {
-        return this.getPosInt().equals(MapHelper.toMapCoordinate(destination, getEnvironment().getMapOrigin()));
+        return this.getPosInt().equals(this.getEnvironment().getMapHelper().toMapCoordinate(destination));
     }
 
 
@@ -135,7 +140,7 @@ public class UserMote extends Mote {
     protected void initialize() {
         super.initialize();
 
-        setPath(new Path(List.of(MapHelper.toGeoPosition(this.getPosInt(), getEnvironment().getMapOrigin()))));
+        setPath(new Path(List.of(this.getEnvironment().getMapHelper().toGeoPosition(this.getPosInt()))));
         this.alreadyRequested = false;
         consumePacketStrategies.add(new ReplacePath());
     }

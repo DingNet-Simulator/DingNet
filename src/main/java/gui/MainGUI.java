@@ -350,8 +350,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             textArea.append(String.format("Gateway %d:\n", environment.getGateways().indexOf(gateway) + 1));
             textArea.append(String.format("EUID: %d\n", gateway.getEUI()));
 
-            double latitude = environment.toLatitude(gateway.getYPosInt());
-            double longitude = environment.toLongitude(gateway.getXPosInt());
+            double latitude = environment.getMapHelper().toLatitude(gateway.getYPosInt());
+            double longitude = environment.getMapHelper().toLongitude(gateway.getXPosInt());
             textArea.append(String.format("%s%s, %s%s",
                 MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecond(latitude),
                 MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecond(longitude)));
@@ -369,8 +369,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             textArea.append(String.format("Mote %d:\n", environment.getMotes().indexOf(mote) + 1));
             textArea.append(String.format("EUID: %d\n", mote.getEUI()));
 
-            double latitude = environment.toLatitude(mote.getYPosInt());
-            double longitude = environment.toLongitude(mote.getXPosInt());
+            double latitude = environment.getMapHelper().toLatitude(mote.getYPosInt());
+            double longitude = environment.getMapHelper().toLongitude(mote.getXPosInt());
             textArea.append(String.format("%s%s, %s%s",
                 MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecond(latitude),
                 MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecond(longitude)));
@@ -505,11 +505,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         Mote mote = simulationRunner.getEnvironment().getMotes().get(moteIndex);
 
-        updateGraph.accept(receivedPowerGraph, ChartGenerator.generateReceivedPowerGraphForMotes(mote, run));
+        updateGraph.accept(receivedPowerGraph, ChartGenerator.generateReceivedPowerGraphForMotes(mote, run, this.getEnvironment()));
         updateGraph.accept(usedEnergyGraph, ChartGenerator.generateUsedEnergyGraph(mote, run));
         updateGraph.accept(powerSettingGraph, ChartGenerator.generatePowerSettingGraph(mote, run));
         updateGraph.accept(spreadingFactorGraph, ChartGenerator.generateSpreadingFactorGraph(mote, run));
-        updateGraph.accept(distanceToGatewayGraph, ChartGenerator.generateDistanceToGatewayGraph(mote, run));
+        updateGraph.accept(distanceToGatewayGraph, ChartGenerator.generateDistanceToGatewayGraph(mote, run, this.getEnvironment()));
 
         this.updateGeneralResultsMote(mote, run);
     }
@@ -519,7 +519,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         BiConsumer<JPanel, Function<Mote, ChartPanel>> updateGraph = (p, f) -> {
             p.removeAll();
-            p.add(f.apply(simulationRunner.getEnvironment().getMotes().get(index)));
+            p.add(f.apply(this.getEnvironment().getMotes().get(index)));
             p.repaint();
             p.revalidate();
         };
@@ -874,8 +874,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             String text = jTextArea.getText();
             int index = Integer.parseInt(text.substring(8, text.indexOf(":")));
             if (e.getClickCount() == 2) {
+                Environment environment = MainGUI.this.getEnvironment();
                 JFrame frame = new JFrame("Gateway settings");
-                GatewayGUI gatewayGUI = new GatewayGUI(simulationRunner.getEnvironment().getGateways().get(index - 1));
+                GatewayGUI gatewayGUI = new GatewayGUI(environment.getGateways().get(index - 1), environment);
                 frame.setContentPane(gatewayGUI.getMainPanel());
                 frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
                 frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());
@@ -900,7 +901,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         this.packetsSent = 0;
 
         Statistics statistics = Statistics.getInstance();
-        Environment environment = mote.getEnvironment();
+        Environment environment = simulationRunner.getEnvironment();
 
         environment.getGateways().forEach(gw ->
             statistics.getAllReceivedTransmissions(gw.getEUI(), run).stream()

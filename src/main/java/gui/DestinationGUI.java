@@ -17,9 +17,11 @@ import java.util.function.Consumer;
 public class DestinationGUI extends AbstractConfigurePanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
+    private GraphStructure graph;
 
     public DestinationGUI(JFrame frame, MainGUI mainGUI, Consumer<GeoPosition> callBack) {
         super(mainGUI, 5);
+        this.graph = mainGUI.getEnvironment().getGraph();
         loadMap(false);
 
         mapViewer.addMouseListener(new MouseListener() {
@@ -58,7 +60,7 @@ public class DestinationGUI extends AbstractConfigurePanel {
     protected void loadMap(boolean refresh) {
         mapViewer.setOverlayPainter(new CompoundPainterBuilder()
             .withBorders(environment)
-            .withWaypoints(GraphStructure.getInstance(), false)
+            .withWaypoints(this.graph, false)
             .build()
         );
 

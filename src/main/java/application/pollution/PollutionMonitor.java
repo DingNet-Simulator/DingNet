@@ -8,7 +8,6 @@ import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.MoteSensor;
 import util.Converter;
-import util.MapHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +56,7 @@ public class PollutionMonitor extends Application {
 
         // Retrieve the position of the mote
         // TODO is this position even correct when getting it at this point? Has it changed since the transmission of the data?
-        var position = MapHelper.toGeoPosition(mote.getPosInt(), environment.getMapOrigin());
+        var position = this.environment.getMapHelper().toGeoPosition(mote.getPosInt());
 
         // Retrieve the individual sensor readings
         Map<MoteSensor, Byte[]> sensorData = this.retrieveSensorData(mote, body);

@@ -22,11 +22,11 @@ public class RoutingApplication extends Application {
     private GraphStructure graph;
     private PathFinder pathFinder;
 
-    public RoutingApplication(PathFinder pathFinder) {
+    public RoutingApplication(PathFinder pathFinder, GraphStructure graph) {
         super(List.of(Topics.getNetServerToApp("+", "+")));
         this.routes = new HashMap<>();
         this.lastPositions = new HashMap<>();
-        this.graph = GraphStructure.getInstance();
+        this.graph = graph;
         this.pathFinder = pathFinder;
     }
 
