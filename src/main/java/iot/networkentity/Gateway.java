@@ -50,7 +50,7 @@ public class Gateway extends NetworkEntity {
         super(gatewayEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
         subscribedMoteProbes = new LinkedList<>();
         mqttClient = MQTTClientFactory.getSingletonInstance();
-        this.responseStrategy = responseStrategy.init(this);
+        this.responseStrategy = responseStrategy.init(this, environment);
     }
 
     /**

@@ -1,7 +1,7 @@
 package iot.strategy.response.gateway;
 
 
-import iot.SimulationRunner;
+import iot.Environment;
 import iot.lora.LoraWanPacket;
 import iot.mqtt.LoraWanPacketWrapper;
 import iot.mqtt.Topics;
@@ -16,17 +16,19 @@ import java.util.Optional;
 public class SendPacketImmediately implements ResponseStrategy {
 
     private Gateway gateway;
+    private Environment environment;
 
     @Override
-    public ResponseStrategy init(Gateway gateway) {
+    public ResponseStrategy init(Gateway gateway, Environment environment) {
         this.gateway = gateway;
+        this.environment = environment;
         //subscribe to all mote topic
         subscribeToMotesTopic();
         return this;
     }
 
     private void subscribeToMotesTopic() {
-        SimulationRunner.getInstance().getEnvironment().getMotes().stream()
+        environment.getMotes().stream()
             .map(m -> new Pair<>(m.getApplicationEUI(), m.getEUI()))
             .forEach(m -> gateway.getMqttClient().subscribe(
                 this,

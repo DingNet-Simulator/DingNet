@@ -1,5 +1,6 @@
 package iot.strategy.response.gateway;
 
+import iot.Environment;
 import iot.lora.LoraWanPacket;
 import iot.networkentity.Gateway;
 
@@ -15,7 +16,7 @@ public interface ResponseStrategy {
      * @param gateway the instance of the gateway
      * @return this
      */
-    ResponseStrategy init(Gateway gateway);
+    ResponseStrategy init(Gateway gateway, Environment environment);
 
     /**
      *

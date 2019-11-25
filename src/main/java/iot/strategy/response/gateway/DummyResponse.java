@@ -1,6 +1,7 @@
 package iot.strategy.response.gateway;
 
 
+import iot.Environment;
 import iot.lora.LoraWanPacket;
 import iot.networkentity.Gateway;
 
@@ -16,7 +17,7 @@ public class DummyResponse implements ResponseStrategy {
     private int count = 0;
 
     @Override
-    public ResponseStrategy init(Gateway gateway) {
+    public ResponseStrategy init(Gateway gateway, Environment environment) {
         this.gateway = gateway;
         return this;
     }
