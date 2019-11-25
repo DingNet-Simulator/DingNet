@@ -1,11 +1,12 @@
 package iot.strategy.store;
 
-
-
 import iot.lora.LoraWanPacket;
 
 import java.util.Optional;
 
+/**
+ * Strategy to discard all the packet arrived
+ */
 public class IgnoreAllMessage implements ReceivedPacketStrategy {
 
     @Override
@@ -22,5 +23,5 @@ public class IgnoreAllMessage implements ReceivedPacketStrategy {
     }
 
     @Override
-    public void clear() {}
+    public void reset() {}
 }

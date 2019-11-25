@@ -3,6 +3,9 @@ package iot.mqtt;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+/**
+ * Class of utils to manage all the mqtt topics
+ */
 public class Topics {
 
     private final static String UPSTREAM_SUFFIX = "/rx";
@@ -73,14 +76,29 @@ public class Topics {
             .toString();
     }
 
+    /**
+     *
+     * @param topic
+     * @return the mote id inside the topic
+     */
     public static long getMote(String topic) {
         return getId(MOTE_ID, topic);
     }
 
+    /**
+     *
+     * @param topic
+     * @return the gateway id inside the topic
+     */
     public static long getGateway(String topic) {
         return getId(GATEWAY_ID, topic);
     }
 
+    /**
+     *
+     * @param topic
+     * @return the application id inside the topic
+     */
     public static long getApp(String topic) {
         return getId(APPLICATION_ID, topic);
     }

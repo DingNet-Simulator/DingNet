@@ -35,6 +35,11 @@ public class NetworkServer {
         frameCounter = 0;
     }
 
+    /**
+     * Setter to set the strategy to use to choose the {@link Gateway} to send a packet to a {@link Mote}
+     * @param strategy
+     * @return
+     */
     public NetworkServer setChooseGatewayStrategy(BinaryOperator<Map.Entry<Long, LoraTransmission>> strategy) {
         chooseGatewayStrategy = strategy;
         return this;

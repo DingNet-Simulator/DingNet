@@ -8,7 +8,10 @@ import util.Converter;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ReplacePath implements ConsumePacketStrategy {
+/**
+ * Add the new positions from the packet payload to the mote path
+ */
+public class AddPositionToPath implements ConsumePacketStrategy {
 
     private final static int BYTES_FOR_COORDINATE = Float.BYTES;
     private final static int BYTES_FOR_GEO_COORDINATE = BYTES_FOR_COORDINATE * 2;

@@ -6,6 +6,9 @@ import util.Path;
 
 import java.util.List;
 
+/**
+ * Factory different kind of {@link Mote}
+ */
 public class MoteFactory {
 
     public static Mote createMote(long devEUI, int xPos, int yPos, int transmissionPower,

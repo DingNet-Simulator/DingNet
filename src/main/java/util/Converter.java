@@ -4,6 +4,9 @@ import org.jxmapviewer.viewer.GeoPosition;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Util class for common non basic conversion
+ */
 public class Converter {
 
     static public byte[] toRowType(Byte[] data) {

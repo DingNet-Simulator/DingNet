@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+/**
+ * Mock implementation of a mqtt client
+ */
 public class MqttMock implements MqttClientBasicApi {
 
     private Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
@@ -32,18 +35,13 @@ public class MqttMock implements MqttClientBasicApi {
         broker.publish(topic, message);
     }
 
-    /**
-     * Subscribe to all the topic that start with topicFilter
-     * @param topicFilter
-     * @param messageListener
-     */
     @Override
-    public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
+    public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageConsumer) {
         if (!subscribed.containsKey(topicFilter)) {
             broker.subscribe(this, topicFilter);
             subscribed.put(topicFilter, new LinkedList<>());
         }
-        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(subscriber, messageListener, classMessage));
+        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(subscriber, messageConsumer, classMessage));
     }
 
     @Override
@@ -55,6 +53,12 @@ public class MqttMock implements MqttClientBasicApi {
         }
     }
 
+    /**
+     * method to deliver a message to the mqtt client (used from {@link MqttBrokerMock})
+     * @param filter the topic filter that had matched the message topic
+     * @param topic the message topic
+     * @param message the message
+     */
     public void dispatch(String filter, String topic, MqttMessageType message) {
         if (subscribed.containsKey(filter)) {
             subscribed.get(filter).forEach(c -> c.accept(topic, message));

@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Strategy to reply with the last packet received on the Mqtt topic
+ */
 public class SendNewestPacket implements ResponseStrategy {
 
     //map <appEUI, devEUI> -> buffered packet

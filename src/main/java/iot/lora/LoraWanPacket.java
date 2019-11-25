@@ -12,7 +12,7 @@ public class LoraWanPacket implements Serializable {
     /**
      * The payload of a packet.
      */
-    private final byte[] payload;//TODO change to row type
+    private final byte[] payload;
     /**
      * if the packet has low data rate optimization.
      */
@@ -42,6 +42,9 @@ public class LoraWanPacket implements Serializable {
      */
     private final long senderEUI;
 
+    /**
+     * header of he packet
+     */
     private final FrameHeader header;
 
     //region constructor
@@ -93,12 +96,22 @@ public class LoraWanPacket implements Serializable {
         this(senderEUI, designatedReceiverEUI, payload, new BasicFrameHeader(), false, 8, 0.8, macCommands);
     }
 
+    /**
+     * Create an empty packet
+     * @param senderEUI the sender
+     * @param designatedReceiverEUI the receiver
+     * @return the packet
+     */
     public static LoraWanPacket createEmptyPacket(long senderEUI, long designatedReceiverEUI) {
         return new LoraWanPacket(senderEUI, designatedReceiverEUI, new byte[0], new LinkedList<>());
     }
 
     //endregion
 
+    /**
+     *
+     * @return the header of the packet
+     */
     public FrameHeader getFrameHeader() {
         return header;
     }

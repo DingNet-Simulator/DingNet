@@ -1,5 +1,8 @@
 package iot.lora;
 
+/**
+ * Enum to encode the type of a message sent by a device
+ */
 public enum MessageType {
 
     SENSOR_VALUE(0),

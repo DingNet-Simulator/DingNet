@@ -6,6 +6,9 @@ import util.Converter;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * MqttMessage that represent a message from an {@link application.Application} to the {@link iot.networkentity.NetworkServer}
+ */
 public class BasicMqttMessage implements MqttMessageType {
 
     private final List<Byte> data;

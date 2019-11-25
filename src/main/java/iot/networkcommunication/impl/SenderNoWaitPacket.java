@@ -40,7 +40,7 @@ public class SenderNoWaitPacket implements Sender {
 
 
     @Override
-    public Optional<LoraTransmission> send(@NotNull LoraWanPacket packet, @NotNull Set<Receiver> receiver) {
+    public Optional<LoraTransmission> send(@NotNull LoraWanPacket packet, @NotNull Set<Receiver> receivers) {
         if (!isTransmitting) {
             var payloadSize = packet.getPayload().length + packet.getFrameHeader().getFOpts().length;
             if (regionalParameter.getMaximumPayloadSize() < payloadSize) {
@@ -48,7 +48,7 @@ public class SenderNoWaitPacket implements Sender {
                     "but max size allowed with this regional parameter is: " + regionalParameter.getMaximumPayloadSize());
             }
             var timeOnAir = computeTimeOnAir(packet);
-            var stream = receiver.stream()
+            var stream = receivers.stream()
                 .map(r -> new Pair<>(r,
                     new LoraTransmission(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
                         regionalParameter, timeOnAir, env.getClock().getTime(), packet)))
@@ -96,6 +96,12 @@ public class SenderNoWaitPacket implements Sender {
         return tPayload + tPreamble;
     }
 
+    /**
+     * Moves a transmission to a given position, while adapting the transmission power.
+     * @param pos the position of the receiver
+     * @param transmissionPower the initial transmission power
+     * @return
+     */
     private double moveTo(Pair<Integer, Integer> pos, double transmissionPower) {
         return moveTo(pos.getLeft(), pos.getRight(), transmissionPower);
     }
@@ -104,6 +110,7 @@ public class SenderNoWaitPacket implements Sender {
      * Moves a transmission to a given position, while adapting the transmission power.
      * @param xPos  The x-coordinate of the destination.
      * @param yPos  The y-coordinate of the destination.
+     * @param transmissionPower the initial transmission power
      * @return the transmission
      */
     private double moveTo(int xPos, int yPos, double transmissionPower) {

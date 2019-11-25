@@ -1,10 +1,12 @@
 package iot.strategy.store;
 
-
 import iot.lora.LoraWanPacket;
 
 import java.util.Optional;
 
+/**
+ * Strategy to maintain the newest packet according to the frame counter of the {@link iot.lora.FrameHeader}
+ */
 public class MaintainLastPacket implements ReceivedPacketStrategy {
 
     private int lastPacketReceived = -1;
@@ -31,7 +33,7 @@ public class MaintainLastPacket implements ReceivedPacketStrategy {
     }
 
     @Override
-    public void clear() {
+    public void reset() {
         this.lastPacketReceived = -1;
         this.packet = null;
     }

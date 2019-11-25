@@ -48,6 +48,9 @@ public class LoraTransmission implements Serializable{
      */
     private final LoraWanPacket content;
 
+    /**
+     * Set of parameter used by the {@link iot.networkentity.NetworkEntity} to send this transmission
+     */
     private final RegionalParameter regionalParameter;
 
     /**
@@ -60,8 +63,15 @@ public class LoraTransmission implements Serializable{
      */
     private final double timeOnAir;
 
+    /**
+     * true if the transmission is arrived to destination, false otherwise
+     */
     private boolean arrived;
 
+
+    /**
+     * true if the transmission is collided to another one, false otherwise
+     */
     private boolean collided;
     //endregion
 
@@ -182,10 +192,18 @@ public class LoraTransmission implements Serializable{
         return regionalParameter.getSpreadingFactor();
     }
 
+    /**
+     *
+     * @return true if the transmission is arrived to destination, false otherwise
+     */
     public boolean isArrived() {
         return arrived;
     }
 
+    /**
+     * set the transmission as arrived to destination
+     * @return this
+     */
     public LoraTransmission setArrived() {
         if (isArrived()) {
             throw new IllegalStateException("the transmission is already arrived, you can't modify again this property");
@@ -194,10 +212,18 @@ public class LoraTransmission implements Serializable{
         return this;
     }
 
+    /**
+     *
+     * @return true if the transmission is collided with another one, false otherwise
+     */
     public boolean isCollided() {
         return collided;
     }
 
+    /**
+     * set the transmission as collided with another one
+     * @return this
+     */
     public LoraTransmission setCollided() {
         if (isArrived()) {
             new IllegalStateException("the transmission is already arrived, you can't modify this property").printStackTrace();

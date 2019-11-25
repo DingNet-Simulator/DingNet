@@ -2,7 +2,6 @@ package iot.networkcommunication.impl;
 
 import iot.GlobalClock;
 import iot.lora.LoraTransmission;
-import iot.lora.LoraWanPacket;
 import iot.networkcommunication.api.Receiver;
 import iot.networkentity.NetworkEntity;
 import util.Pair;
@@ -76,11 +75,6 @@ public class ReceiverWaitPacket implements Receiver {
     @Override
     public Pair<Integer, Integer> getReceiverPositionAsInt() {
         return receiver.getPosInt();
-    }
-
-    @Override
-    public LoraWanPacket getPacket() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -10,6 +10,9 @@ import util.Pair;
 
 import java.util.Optional;
 
+/**
+ * Strategy to send immediately a packet after received it on mqtt topic
+ */
 public class SendPacketImmediately implements ResponseStrategy {
 
     private Gateway gateway;
