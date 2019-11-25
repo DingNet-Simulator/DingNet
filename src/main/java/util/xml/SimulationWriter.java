@@ -7,7 +7,6 @@ import iot.networkentity.Mote;
 import iot.networkentity.NetworkEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import util.EnvironmentHelper;
 import util.Statistics;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -81,7 +80,7 @@ public class SimulationWriter {
             Element receivedTransmissionElement = doc.createElement("receivedTransmission");
             Element sender = doc.createElement("sender");
 
-            var senderEntity = EnvironmentHelper.getNetworkEntityById(env, transmission.getSender());
+            var senderEntity = env.getNetworkEntityById(transmission.getSender());
             if (senderEntity instanceof Mote) {
                 Mote mote = (Mote) senderEntity;
                 int moteId = env.getMotes().indexOf(mote);

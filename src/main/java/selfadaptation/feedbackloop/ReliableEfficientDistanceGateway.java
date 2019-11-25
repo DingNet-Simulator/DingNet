@@ -7,7 +7,6 @@ import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import selfadaptation.instrumentation.FeedbackLoopGatewayBuffer;
-import util.EnvironmentHelper;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -81,14 +80,14 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
              */
             List<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
             var env = SimulationRunner.getInstance().getEnvironment();
-            double shortestDistance = Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.get(0).getReceiver()).getYPosInt()-receivedSignals.get(0).getYPos(),2)+
-                    Math.pow(EnvironmentHelper.getNetworkEntityById(env, receivedSignals.get(0).getReceiver()).getXPosInt()-receivedSignals.get(0).getXPos(),2));
+            double shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getYPosInt()-receivedSignals.get(0).getYPos(),2)+
+                    Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getXPosInt()-receivedSignals.get(0).getXPos(),2));
 
             for (LoraTransmission transmission: receivedSignals) {
-                if (shortestDistance>Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
-                        Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2))) {
-                    shortestDistance = Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
-                            Math.pow(EnvironmentHelper.getNetworkEntityById(env, transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2));
+                if (shortestDistance>Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
+                        Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2))) {
+                    shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
+                            Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2));
                 }
             }
 

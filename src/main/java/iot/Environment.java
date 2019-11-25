@@ -3,6 +3,7 @@ package iot;
 import be.kuleuven.cs.som.annotate.Basic;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
+import iot.networkentity.NetworkEntity;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Connection;
 import util.GraphStructure;
@@ -13,6 +14,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * A class representing a map of the environment.
@@ -228,6 +230,20 @@ public class Environment implements Serializable {
     public void addMote(Mote mote) {
         // TODO check if coordinates are within valid bounds (although... is this really necessary?)
         motes.add(mote);
+    }
+
+
+    /**
+     * Retrieve the {@link iot.networkentity.NetworkEntity} with the required Id.
+     * @param id The Id of the required entity.
+     * @return The entity with the given Id.
+     * @throws java.util.NoSuchElementException if no entity is present with the given Id.
+     */
+    public NetworkEntity getNetworkEntityById(long id) {
+        return Stream.concat(this.getMotes().stream(), this.getGateways().stream())
+            .filter(ne -> ne.getEUI() == id)
+            .findFirst()
+            .orElseThrow();
     }
 
     /**

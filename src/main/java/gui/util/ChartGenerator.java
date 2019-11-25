@@ -30,7 +30,6 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactory;
-import util.EnvironmentHelper;
 import util.Pair;
 import util.Statistics;
 
@@ -67,11 +66,11 @@ public class ChartGenerator {
                 if (transmission.getSender() == mote.getEUI()) {
                     if (!transmission.isCollided())
                         transmissionsMote.getLast().add(
-                            new Pair<>(EnvironmentHelper.getNetworkEntityById(environment, transmission.getReceiver()),
+                            new Pair<>(environment.getNetworkEntityById(transmission.getReceiver()),
                                 new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
                     else {
                         transmissionsMote.getLast().add(
-                            new Pair<>(EnvironmentHelper.getNetworkEntityById(environment, transmission.getReceiver()),
+                            new Pair<>(environment.getNetworkEntityById(transmission.getReceiver()),
                                 new Pair<>(transmission.getDepartureTime().toSecondOfDay(), (double) 20)));
                     }
                 }
@@ -231,14 +230,14 @@ public class ChartGenerator {
         XYSeriesCollection dataDistanceToGateway = new XYSeriesCollection();
 
         for (LinkedList<LoraTransmission> list : transmissionsMote) {
-            NetworkEntity receiver = EnvironmentHelper.getNetworkEntityById(environment, list.get(0).getReceiver());
+            NetworkEntity receiver = environment.getNetworkEntityById(list.get(0).getReceiver());
 
             //noinspection SuspiciousMethodCalls Here we know for certain that the receiver is a gateway (packets are only sent to gateways)
             XYSeries series = new XYSeries("gateway " + (environment.getGateways().indexOf(receiver) + 1));
             int i = 0;
             for (LoraTransmission transmission : list) {
-                series.add(i, (Number) Math.sqrt(Math.pow(EnvironmentHelper.getNetworkEntityById(environment, transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
-                    Math.pow(EnvironmentHelper.getNetworkEntityById(environment, transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2)));
+                series.add(i, (Number) Math.sqrt(Math.pow(environment.getNetworkEntityById(transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
+                    Math.pow(environment.getNetworkEntityById(transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2)));
                 i = i + 1;
             }
             dataDistanceToGateway.addSeries(series);

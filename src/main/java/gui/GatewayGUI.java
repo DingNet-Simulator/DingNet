@@ -34,7 +34,7 @@ public class GatewayGUI extends JFrame {
         powerSettingLabel.setText(Integer.toString(gateway.getTransmissionPower()));
         SFLabel.setText(Integer.toString(gateway.getSF()));
 
-        TPthresholdText.setText(gateway.getTransmissionPowerThreshold().toString());
+        TPthresholdText.setText(Double.toString(gateway.getTransmissionPowerThreshold()));
     }
 
     public JPanel getMainPanel() {
