@@ -51,7 +51,7 @@
             <movementSpeed>1.0</movementSpeed>
             <startMovementOffset>0</startMovementOffset>
             <periodSendingPacket>30</periodSendingPacket>
-            <startSendingOffset>1</startSendingOffset>
+            <startSendingOffset>2</startSendingOffset>
             <sensors>
                 <sensor SensorType="IAQ"/>
             </sensors>
@@ -69,6 +69,99 @@
             <startMovementOffset>0</startMovementOffset>
             <periodSendingPacket>30</periodSendingPacket>
             <startSendingOffset>13</startSendingOffset>
+            <sensors>
+                <sensor SensorType="IAQ"/>
+            </sensors>
+            <path/>
+        </mote>
+        <mote>
+            <devEUI>14084896803802132140</devEUI>
+            <location>
+                <waypoint id="620"/>
+            </location>
+            <transmissionPower>14</transmissionPower>
+            <spreadingFactor>12</spreadingFactor>
+            <energyLevel>20</energyLevel>
+            <movementSpeed>3.0</movementSpeed>
+            <startMovementOffset>0</startMovementOffset>
+            <periodSendingPacket>30</periodSendingPacket>
+            <startSendingOffset>3</startSendingOffset>
+            <sensors>
+                <sensor SensorType="IAQ"/>
+            </sensors>
+            <path>
+                <connection id="742"/>
+                <connection id="1611"/>
+                <connection id="1615"/>
+                <connection id="1614"/>
+                <connection id="499"/>
+                <connection id="500"/>
+                <connection id="496"/>
+                <connection id="497"/>
+                <connection id="379"/>
+                <connection id="361"/>
+                <connection id="491"/>
+                <connection id="1381"/>
+                <connection id="1247"/>
+                <connection id="1244"/>
+                <connection id="79"/>
+                <connection id="969"/>
+                <connection id="1121"/>
+                <connection id="229"/>
+                <connection id="1123"/>
+                <connection id="1122"/>
+                <connection id="1109"/>
+                <connection id="217"/>
+                <connection id="1071"/>
+                <connection id="1069"/>
+                <connection id="1067"/>
+                <connection id="1068"/>
+                <connection id="194"/>
+                <connection id="1087"/>
+                <connection id="308"/>
+                <connection id="309"/>
+                <connection id="310"/>
+                <connection id="311"/>
+                <connection id="272"/>
+                <connection id="273"/>
+                <connection id="274"/>
+                <connection id="275"/>
+                <connection id="276"/>
+                <connection id="31"/>
+                <connection id="140"/>
+                <connection id="141"/>
+                <connection id="142"/>
+                <connection id="32"/>
+                <connection id="34"/>
+                <connection id="35"/>
+                <connection id="36"/>
+                <connection id="348"/>
+                <connection id="347"/>
+                <connection id="349"/>
+                <connection id="1255"/>
+                <connection id="366"/>
+                <connection id="1263"/>
+                <connection id="1262"/>
+                <connection id="1280"/>
+                <connection id="1294"/>
+                <connection id="1293"/>
+                <connection id="1292"/>
+                <connection id="1786"/>
+                <connection id="392"/>
+            </path>
+        </mote>
+        <mote>
+            <devEUI>4971753318158117358</devEUI>
+            <location>
+                <waypoint id="152"/>
+            </location>
+            <transmissionPower>14</transmissionPower>
+            <spreadingFactor>10</spreadingFactor>
+            <energyLevel>20</energyLevel>
+            <movementSpeed>1.0</movementSpeed>
+            <startMovementOffset>0</startMovementOffset>
+            <periodSendingPacket>30</periodSendingPacket>
+            <startSendingOffset>20</startSendingOffset>
             <sensors>
                 <sensor SensorType="IAQ"/>
             </sensors>
@@ -112,6 +205,25 @@
             <userMoteState>false</userMoteState>
             <destination id="1"/>
         </userMote>
+        <userMote>
+            <devEUI>15869578781173100217</devEUI>
+            <location>
+                <waypoint id="301"/>
+            </location>
+            <transmissionPower>14</transmissionPower>
+            <spreadingFactor>12</spreadingFactor>
+            <energyLevel>20</energyLevel>
+            <movementSpeed>1.0</movementSpeed>
+            <startMovementOffset>0</startMovementOffset>
+            <periodSendingPacket>30</periodSendingPacket>
+            <startSendingOffset>9</startSendingOffset>
+            <sensors>
+                <sensor SensorType="GPS"/>
+            </sensors>
+            <path/>
+            <userMoteState>false</userMoteState>
+            <destination id="188"/>
+        </userMote>
     </motes>
     <gateways>
         <gateway>
@@ -122,6 +234,15 @@
             </location>
             <transmissionPower>14</transmissionPower>
             <spreadingFactor>12</spreadingFactor>
+        </gateway>
+        <gateway>
+            <devEUI>14606357054910126426</devEUI>
+            <location>
+                <xPos>1494</xPos>
+                <yPos>1985</yPos>
+            </location>
+            <transmissionPower>14</transmissionPower>
+            <spreadingFactor>11</spreadingFactor>
         </gateway>
     </gateways>
     <wayPoints>
@@ -820,6 +941,7 @@
         <wayPoint id="693">50.87390973021213,4.7141218185424805</wayPoint>
         <wayPoint id="694">50.87364907647472,4.713993072509766</wayPoint>
         <wayPoint id="695">50.87345612406781,4.714078903198242</wayPoint>
+        <wayPoint id="696">50.88325844968715,4.688512086868286</wayPoint>
     </wayPoints>
     <connections>
         <connection dst="4" id="1" src="3"/>
@@ -2607,5 +2729,7 @@
         <connection dst="555" id="1783" src="557"/>
         <connection dst="558" id="1784" src="557"/>
         <connection dst="556" id="1785" src="557"/>
+        <connection dst="303" id="1786" src="281"/>
+        <connection dst="281" id="1787" src="303"/>
     </connections>
 </configuration>
