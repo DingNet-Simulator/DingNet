@@ -1,5 +1,6 @@
 package gui.mapviewer;
 
+import gui.util.GUISettings;
 import gui.util.ImageLoader;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
@@ -12,19 +13,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Paints waypoints on the JXMapViewer. This is an
- * instance of Painter that only can draw on to JXMapViewers.
- * @param <W> the waypoint type
- * @author rbair
- */
+
 public class GatewayPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Set<W> waypoints = new HashSet<>();
     private BufferedImage img;
 
 
     public GatewayPainter() {
-        setAntialiasing(true);
+        setAntialiasing(GUISettings.USE_ANTIALIASING);
         setCacheable(false);
         img = ImageLoader.IMAGE_GATEWAY;
     }

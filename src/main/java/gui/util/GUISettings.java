@@ -2,6 +2,9 @@ package gui.util;
 
 import java.awt.*;
 
+/**
+ * Class used to store GUI specific settings
+ */
 public class GUISettings {
     // TODO: provide a configuration file specifically for the GUI in the future
 

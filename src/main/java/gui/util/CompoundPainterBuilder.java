@@ -21,6 +21,11 @@ import java.util.stream.Collectors;
 public class CompoundPainterBuilder {
     private List<Painter<JXMapViewer>> painters = new ArrayList<>();
 
+    /**
+     * Include painters for motes in the builder.
+     * @param environment The environment in which the motes are stored.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withMotes(Environment environment) {
         Map<MoteWayPoint, Integer> motes = GUIUtil.getMoteMap(environment);
 
@@ -29,6 +34,11 @@ public class CompoundPainterBuilder {
         return this;
     }
 
+    /**
+     * Include painters for gateways in the builder.
+     * @param environment The environment in which the gateways are stored.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withGateways(Environment environment) {
         Map<Waypoint, Integer> gateways = GUIUtil.getGatewayMap(environment);
 
@@ -37,6 +47,12 @@ public class CompoundPainterBuilder {
         return this;
     }
 
+    /**
+     * Include painters for all waypoints in the builder.
+     * @param graph The graph which stores all the waypoints.
+     * @param includeNumbers Boolean indicating if the Ids of the waypoints should also be painted.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withWaypoints(GraphStructure graph, boolean includeNumbers) {
         var waypoints = graph.getWayPoints();
 
@@ -54,6 +70,11 @@ public class CompoundPainterBuilder {
         return this;
     }
 
+    /**
+     * Include painters for all connections in the builder.
+     * @param graph The graph which contains all the connections.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withConnections(GraphStructure graph) {
         Color lineColor = GUISettings.CONNECTION_LINE_COLOR;
         int lineSize = GUISettings.CONNECTION_LINE_SIZE;
@@ -62,11 +83,21 @@ public class CompoundPainterBuilder {
         return this;
     }
 
+    /**
+     * Include painters for the borders of the environment in the builder.
+     * @param environment The environment which has a bounded x and y value.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withBorders(Environment environment) {
-        painters.addAll(GUIUtil.getBorderPainters(environment.getMaxXpos(), environment.getMaxYpos(), environment));
+        painters.addAll(GUIUtil.getBorderPainters(environment));
         return this;
     }
 
+    /**
+     * Include painters for the paths of the motes in the builder.
+     * @param environment The environment which contains all the motes.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withMotePaths(Environment environment) {
         Color lineColor = GUISettings.MOTE_PATH_LINE_COLOR;
         int lineSize = GUISettings.MOTE_PATH_LINE_SIZE;
@@ -75,11 +106,23 @@ public class CompoundPainterBuilder {
         return this;
     }
 
+    /**
+     * Include a painter of a pollution grid in the builder.
+     * @param environment The environment to which the pollution grid belongs.
+     * @param pollutionGrid The pollution grid which should be painted.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withPollutionGrid(Environment environment, PollutionGrid pollutionGrid) {
         painters.add(new PollutionGridPainter(environment, pollutionGrid));
         return this;
     }
 
+    /**
+     * Include a painter for the stored routing path (at {@code routingApplication}) for the currently active user mote (if present)
+     * @param environment The environment which contains the user mote.
+     * @param routingApplication The routing application which stores the user mote's path.
+     * @return The current object.
+     */
     public CompoundPainterBuilder withRoutingPath(Environment environment, RoutingApplication routingApplication) {
         Color lineColor = GUISettings.ROUTING_PATH_LINE_COLOR;
         int lineSize = GUISettings.ROUTING_PATH_LINE_SIZE;
@@ -93,6 +136,10 @@ public class CompoundPainterBuilder {
     }
 
 
+    /**
+     * Build a {@link CompoundPainter} which has all the painters added to this builder.
+     * @return A {@link CompoundPainter} with all the specified painters.
+     */
     public CompoundPainter<JXMapViewer> build() {
         return new CompoundPainter<>(painters);
     }

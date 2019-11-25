@@ -1,8 +1,6 @@
-package gui.configuration;
+package gui.util;
 
 import gui.MainGUI;
-import gui.util.GUISettings;
-import gui.util.Refreshable;
 import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
@@ -17,6 +15,9 @@ import javax.swing.event.MouseInputListener;
 import java.awt.event.MouseListener;
 import java.io.File;
 
+/**
+ * An abstract class used as a base class for configuration related GUI panels
+ */
 public abstract class AbstractConfigurePanel implements Refreshable {
     protected MainGUI mainGUI;
     protected Environment environment;
@@ -59,5 +60,6 @@ public abstract class AbstractConfigurePanel implements Refreshable {
     }
 
     protected abstract void loadMap(boolean refresh);
+
     public abstract JPanel getMainPanel();
 }

@@ -92,7 +92,7 @@ public abstract class NetworkEntity implements Serializable {
      * Returns the transmission power threshold.
      * @return The transmission power threshold.
      */
-    public Double getTransmissionPowerThreshold() {
+    public double getTransmissionPowerThreshold() {
         return transmissionPowerThreshold;
     }
 

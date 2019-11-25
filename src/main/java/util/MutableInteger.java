@@ -1,5 +1,9 @@
 package util;
 
+
+/**
+ * Class used to store an Integer object that is mutable after creation.
+ */
 public class MutableInteger {
     private int value;
 

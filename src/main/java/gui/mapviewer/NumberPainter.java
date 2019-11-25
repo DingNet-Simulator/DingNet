@@ -3,7 +3,6 @@ package gui.mapviewer;
 import gui.util.GUISettings;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
-import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.Waypoint;
 
 import java.awt.*;
@@ -16,12 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Paints waypoints on the JXMapViewer. This is an
- * instance of Painter that only can draw on to JXMapViewers.
- * @param <W> the waypoint type
- * @author rbair
- */
+
 public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Map<W,Integer> waypoints = new HashMap<>();
     private Type type;
@@ -30,7 +24,7 @@ public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapView
     public NumberPainter(Type type) {
         this.type = type;
 
-        setAntialiasing(true);
+        setAntialiasing(GUISettings.USE_ANTIALIASING);
         setCacheable(false);
     }
 

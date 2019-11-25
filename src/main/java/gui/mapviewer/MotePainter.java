@@ -1,5 +1,6 @@
 package gui.mapviewer;
 
+import gui.util.GUISettings;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 
@@ -19,7 +20,7 @@ public class MotePainter<W extends MoteWayPoint> extends AbstractPainter<JXMapVi
     private Set<W> waypoints = new HashSet<>();
 
     public MotePainter() {
-        setAntialiasing(true);
+        setAntialiasing(GUISettings.USE_ANTIALIASING);
         setCacheable(false);
     }
 

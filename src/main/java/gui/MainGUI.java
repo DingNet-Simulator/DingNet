@@ -164,9 +164,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         saveConfigurationButton.setEnabled(false);
 
 
-        // ===========================================
-        // Action listeners for the buttons in the GUI
-        // ===========================================
+        // ==============================================
+        // Action listeners for the components in the GUI
+        // ==============================================
 
         configureButton.addActionListener(new ConfigureActionListener(this));
         moteCharacteristicsButton.addActionListener(new MoteSelectActionListener(this));
@@ -267,6 +267,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         return simulationRunner.getEnvironment();
     }
 
+    /**
+     * Update the progress bar of a total run.
+     * @param progress The progress so far (left: current index, right: total amount of runs).
+     */
     private void setProgressTotalRun(Pair<Integer, Integer> progress) {
         totalRunProgressBar.setMinimum(0);
         totalRunProgressBar.setMaximum(progress.getRight());
@@ -326,6 +330,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     // region Update labels/profiles/...
 
+    /**
+     * Load all the algorithms from the simulation runner in the corresponding GUI component.
+     */
     private void loadAlgorithms() {
         var algorithms = simulationRunner.getAlgorithms();
 
@@ -337,6 +344,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         adaptationComboBox.setModel(adaptationComboBoxModel);
     }
 
+    /**
+     * Update the legend next to the map with entries of gateways and motes.
+     * @param environment The environment in which the gateways/motes are located.
+     */
     private void updateEntries(Environment environment) {
         entitesPanel.removeAll();
         GridBagConstraints constraints = new GridBagConstraints();
@@ -386,6 +397,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     }
 
 
+    /**
+     * Update the GUI component which shows the input profiles.
+     */
     private void updateInputProfiles() {
         InputProfilePanel.removeAll();
         GridBagConstraints constraints = new GridBagConstraints();
@@ -430,6 +444,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         InputProfilePanel.revalidate();
     }
 
+    /**
+     * Update the GUI component which shows the adaptation goals.
+     */
     private void updateAdaptationGoals() {
         QualityOfService QoS = simulationRunner.getQoS();
 
@@ -443,6 +460,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     // region Map drawing
 
+    /**
+     * Load the open street map, together with all the painters for motes/gateways/...
+     * @param refresh If false, initialize the map viewer to the center of the map with a default zoom level.
+     */
     private void loadMap(boolean refresh) {
         Environment environment = simulationRunner.getEnvironment();
 
@@ -471,12 +492,18 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     }
 
 
+    /**
+     * Refresh the map, as well as the legend with motes and gateways.
+     */
     public void refresh() {
         refreshMap();
         updateEntries(simulationRunner.getEnvironment());
 
     }
 
+    /**
+     * Refresh the map.
+     */
     private void refreshMap() {
         loadMap(true);
     }
@@ -488,7 +515,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     /**
      * Sets the graphs of the corresponding characteristics of a given mote of a given run.
-     *
      * @param moteIndex The index of the mote.
      * @param run       The number of the run.
      */

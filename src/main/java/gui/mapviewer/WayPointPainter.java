@@ -16,7 +16,6 @@ import java.util.Set;
  * Paints waypoints on the JXMapViewer. This is an
  * instance of Painter that only can draw on to JXMapViewers.
  * @param <W> the waypoint type
- * @author rbair
  */
 public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
     private Set<W> waypoints;
@@ -27,7 +26,7 @@ public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapVi
     }
 
     public WayPointPainter(Color color) {
-        setAntialiasing(true);
+        setAntialiasing(GUISettings.USE_ANTIALIASING);
         setCacheable(false);
 
         this.img = new BufferedImage(12, 12, BufferedImage.TYPE_INT_ARGB);
@@ -42,7 +41,6 @@ public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapVi
 
     /**
      * Gets the current set of waypoints to paint
-     *
      * @return a typed Set of Waypoints
      */
     public Set<W> getWaypoints() {
@@ -51,12 +49,10 @@ public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapVi
 
     /**
      * Sets the current set of waypoints to paint
-     *
      * @param waypoints the new Set of Waypoints to use
      */
     public WayPointPainter<W> setWaypoints(Set<W> waypoints) {
         this.waypoints = waypoints;
-
         return this;
     }
 

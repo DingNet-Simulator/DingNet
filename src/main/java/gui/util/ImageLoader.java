@@ -7,6 +7,10 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+
+/**
+ * Class used to load GUI images.
+ */
 public class ImageLoader {
     public static final BufferedImage IMAGE_MOTE;
     public static final BufferedImage IMAGE_USERMOTE_ACTIVE;

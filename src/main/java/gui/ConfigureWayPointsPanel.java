@@ -4,7 +4,7 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import gui.configuration.AbstractConfigurePanel;
+import gui.util.AbstractConfigurePanel;
 import gui.util.CompoundPainterBuilder;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;

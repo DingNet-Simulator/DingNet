@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 public class PollutionGrid {
     // FIXME synchronized is necessary here, otherwise concurrent modification exceptions are thrown
     //  (even though the GUI updating should happen synchronously with invokeAndWait)
+
+    // The pollution measurements: for each device, the most recent measurement (location + pollution level) is stored
     private Map<Long, Pair<GeoPosition, PollutionLevel>> pollutionMeasurements;
 
 
@@ -20,6 +22,12 @@ public class PollutionGrid {
     }
 
 
+    /**
+     * Add a measurement to the pollution grid
+     * @param deviceEUI The device from which the measurement originated.
+     * @param position The position at which the measurement was taken.
+     * @param level The pollution level measured by the device in the given position.
+     */
     public void addMeasurement(long deviceEUI, GeoPosition position, PollutionLevel level) {
         synchronized (this) {
             this.pollutionMeasurements.put(deviceEUI, new Pair<>(position, level));
@@ -51,6 +59,9 @@ public class PollutionGrid {
         }
     }
 
+    /**
+     * Removes all stored pollution measurements.
+     */
     public void clean() {
         pollutionMeasurements = new HashMap<>();
     }

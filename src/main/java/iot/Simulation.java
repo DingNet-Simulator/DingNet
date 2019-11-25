@@ -142,7 +142,8 @@ public class Simulation {
     }
 
     /**
-     * check that do all motes arrive at their destination
+     * Check if all motes have arrived at their destination.
+     * @return True if the motes are at their destinations.
      */
     private boolean areAllMotesAtDestination() {
         return this.getEnvironment().getMotes().stream()
@@ -153,7 +154,7 @@ public class Simulation {
     /**
      * Simulate a single step in the simulator.
      */
-    void simulateStep() {
+    public void simulateStep() {
         //noinspection SimplifyStreamApiCallChains
         this.getEnvironment().getMotes().stream()
             .filter(Mote::isEnabled)
@@ -174,7 +175,7 @@ public class Simulation {
 
 
 
-    boolean isFinished() {
+    public boolean isFinished() {
         return !this.continueSimulation.test(this.getEnvironment());
     }
 

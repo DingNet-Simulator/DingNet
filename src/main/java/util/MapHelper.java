@@ -10,7 +10,7 @@ public class MapHelper {
     }
 
     /**
-     * Converts a GeoPostion to an x-coordinate on the map.
+     * Converts a GeoPosition to an x-coordinate on the map.
      * @param geoPosition the GeoPosition to convert.
      * @return The x-coordinate on the map of the GeoPosition.
      */
@@ -19,7 +19,7 @@ public class MapHelper {
     }
 
     /**
-     * Converts a GeoPostion to an y-coordinate on the map.
+     * Converts a GeoPosition to a y-coordinate on the map.
      * @param geoPosition the GeoPosition to convert.
      * @return The y-coordinate on the map of the GeoPosition.
      */
@@ -38,7 +38,7 @@ public class MapHelper {
 
     /**
      * A function to calculate the longitude from a given x-coordinate on the map.
-     * @param x  The x-coordinate of the entity.
+     * @param x The x-coordinate of the entity.
      * @return The longitude of the given x-coordinate
      */
     public double toLongitude(int x) {
@@ -63,7 +63,7 @@ public class MapHelper {
 
     /**
      * A function to calculate the latitude from a given y-coordinate on the map.
-     * @param y  The y-coordinate of the entity.
+     * @param y The y-coordinate of the entity.
      * @return The latitude of the given y-coordinate.
      */
     public double toLatitude(int y) {
@@ -76,19 +76,30 @@ public class MapHelper {
 
     }
 
+    /**
+     * Convert a given position in x/y coordinates to a GeoPosition.
+     * @param coords The x and y coordinates to be converted.
+     * @return The GeoPosition which corresponds with {@code coords}.
+     */
     public GeoPosition toGeoPosition(Pair<Integer, Integer> coords) {
         return toGeoPosition(coords.getLeft(), coords.getRight());
     }
 
+    /**
+     * Convert a given position in x/y coordinates to a GeoPosition.
+     * @param x The x coordinate to be converted.
+     * @param y The y coordinate to be converted.
+     * @return The GeoPosition which corresponds with coordinates {@code x} and {@code y}.
+     */
     public GeoPosition toGeoPosition(int x, int y) {
         return new GeoPosition(toLatitude(y), toLongitude(x));
     }
 
     /**
      * Calculate the distance (in km) between two geo coordinates.
-     * @param pos1 position 1
-     * @param pos2 position 2
-     * @return The distance between the two positions in km.
+     * @param pos1 The first position.
+     * @param pos2 The second position.
+     * @return The distance between the two positions, expressed in km.
      */
     public static double distance(GeoPosition pos1, GeoPosition pos2) {
         double lat1 = pos1.getLatitude(), lon1 = pos1.getLongitude();
@@ -108,11 +119,22 @@ public class MapHelper {
         }
     }
 
+    /**
+     * Calculate the mean position between two given positions.
+     * @param pos1 The first position.
+     * @param pos2 The second position.
+     * @return The mean position between {@code pos1} and {@code pos2}.
+     */
     public static GeoPosition meanPosition(GeoPosition pos1, GeoPosition pos2) {
         return new GeoPosition((pos1.getLatitude() + pos2.getLatitude()) / 2,
             (pos1.getLongitude() + pos2.getLongitude()) / 2);
     }
 
+    /**
+     * Convert a geo coordinate to a notation in degrees, minutes and seconds.
+     * @param latOrLong The geo coordinate.
+     * @return The geo coordinate converted to degrees, minutes and seconds.
+     */
     public static DegreesMinutesSeconds toDegreeMinuteSecond(double latOrLong) {
         int degrees = (int) Math.round(Math.floor(latOrLong));
         int minutes = (int) Math.round(Math.floor((latOrLong - degrees) * 60));
@@ -122,7 +144,7 @@ public class MapHelper {
 
     /**
      * This function return "N" and "S" for latitude input and "E" and "W" for longitude input
-     * base on their value
+     * based on their value
      * @param axis could have two values "lat" or "long"
      */
     public static String getDirectionSign(double val, String axis) {
@@ -136,6 +158,9 @@ public class MapHelper {
     }
 
 
+    /**
+     * Class which represents a geo coordinate in degrees, minutes and seconds.
+     */
     public static class DegreesMinutesSeconds {
         int degrees;
         int minutes;

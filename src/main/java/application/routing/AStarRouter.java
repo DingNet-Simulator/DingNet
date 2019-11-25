@@ -9,17 +9,24 @@ import util.GraphStructure;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+/**
+ * An class which implements the A* routing algorithm, assuming the used heuristic is consistent.
+ */
 public class AStarRouter implements PathFinder {
 
     // The maximum amount of distance the closest waypoint should be to a given GeoPosition (in km)
     @SuppressWarnings("FieldCanBeLocal")
     private final double DISTANCE_THRESHOLD_POSITIONS = 0.05;
 
+    // The heuristic used in the A* algorithm
     private RoutingHeuristic heuristic;
+
 
     public AStarRouter(RoutingHeuristic heuristic) {
         this.heuristic = heuristic;
     }
+
 
     @Override
     public List<GeoPosition> retrievePath(GraphStructure graph, GeoPosition begin, GeoPosition end) {
@@ -96,7 +103,7 @@ public class AStarRouter implements PathFinder {
 
     /**
      * Class used in the priority queue, providing an order for the A* algorithm based on the
-     * accumulated heuristic values for the evaluated path
+     * accumulated heuristic values for the evaluated path.
      */
     private static class FringeEntry implements Comparable<FringeEntry> {
         List<Long> connections;

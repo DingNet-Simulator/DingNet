@@ -5,7 +5,12 @@ import org.jxmapviewer.viewer.GeoPosition;
 
 import java.util.*;
 
+
+/**
+ * Class which represents a path of a mote.
+ */
 public class Path implements Iterable<GeoPosition> {
+    // A list with waypoints of the path
     private List<GeoPosition> points;
 
     // The Graph which contains all the waypoints and connections
@@ -40,8 +45,33 @@ public class Path implements Iterable<GeoPosition> {
     }
 
 
+    /**
+     * Check if the path contains any waypoints.
+     * @return True if no waypoints are present in the path.
+     */
+    public boolean isEmpty() {
+        return points.isEmpty();
+    }
 
-    // NOTE: The following functions are only used during setup/saving of the configuration, not at runtime
+
+    /**
+     * Get the first position in the path, if present.
+     * @return Either the first position of the path if present, otherwise an empty Optional.
+     */
+    public Optional<GeoPosition> getSource() {
+        return isEmpty() ? Optional.empty() : Optional.of(points.get(0));
+    }
+
+    /**
+     * Get the last position in the path, if present.
+     * @return Either the last position of the path if present, otherwise an empty Optional.
+     */
+    public Optional<GeoPosition> getDestination() {
+        return isEmpty() ? Optional.empty() : Optional.of(points.get(points.size()-1));
+    }
+
+
+
 
     /**
      * Add a waypoint at the end of this path.
@@ -52,14 +82,22 @@ public class Path implements Iterable<GeoPosition> {
     }
 
 
+    /**
+     * Add a list of waypoints to the path
+     * @param points A list of GeoPositions to be added.
+     */
     public void addPositions(@NotNull List<GeoPosition> points) {
         this.points.addAll(points);
     }
 
 
+
+
+    // NOTE: The following functions are only used during setup/saving of the configuration, not at runtime
+
     /**
      * Retrieve the used connections in this path.
-     * @return A list of connection ids of the connections in this path.
+     * @return A list of connection Ids of the connections in this path.
      */
     public List<Long> getConnectionsByID() {
         var connectionsMap = graphStructure.getConnections();
@@ -83,8 +121,8 @@ public class Path implements Iterable<GeoPosition> {
 
 
     /**
-     * Remove all the waypoints in the path from the given waypoint (including this waypoint itself).
-     * @param waypointId The id of the waypoint from which the path should be shortened.
+     * Remove all the waypoints in the path from the given waypoint (including the given waypoint itself).
+     * @param waypointId The Id of the waypoint from which the path should be shortened.
      */
     public void shortenPathFromWayPoint(long waypointId) {
         int index = 0;
@@ -102,7 +140,7 @@ public class Path implements Iterable<GeoPosition> {
 
     /**
      * Remove waypoints in the path from the given connection (including waypoints in this connection).
-     * @param connectionId The id of the connection.
+     * @param connectionId The Id of the connection.
      */
     public void shortenPathFromConnection(long connectionId) {
         var connection = graphStructure.getConnection(connectionId);
@@ -117,17 +155,5 @@ public class Path implements Iterable<GeoPosition> {
         }
 
         this.points = this.points.subList(0, index);
-    }
-
-    public boolean isEmpty() {
-        return points.isEmpty();
-    }
-
-    public Optional<GeoPosition> getSource() {
-        return isEmpty() ? Optional.empty() : Optional.of(points.get(0));
-    }
-
-    public Optional<GeoPosition> getDestination() {
-        return isEmpty() ? Optional.empty() : Optional.of(points.get(points.size()-1));
     }
 }

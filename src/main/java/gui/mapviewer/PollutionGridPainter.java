@@ -74,6 +74,11 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
     }
 
 
+    /**
+     * Get a color according to the given airQuality
+     * @param airQuality The air quality in question (1 being good, 0 being bad).
+     * @return A color between green and red representing the air quality.
+     */
     private Color getColor(float airQuality) {
         float[] hsbVals = Color.RGBtoHSB((int) (255 * airQuality), (int) (255 * (1 - airQuality)), 0, null);
         return Color.getHSBColor(hsbVals[0], hsbVals[1], hsbVals[2]);

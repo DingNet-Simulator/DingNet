@@ -35,12 +35,19 @@ public class GraphStructure {
     }
 
 
-
-
+    /**
+     * Add a waypoint to the graph.
+     * @param pos The waypoint.
+     */
     public void addWayPoint(GeoPosition pos) {
         this.addWayPoint(this.newWayPointID, pos);
     }
 
+    /**
+     * Add a connection to the graph.
+     * @param connection The connection.
+     * @throws IllegalArgumentException if the source and destination of the connection is the same waypoint.
+     */
     public void addConnection(Connection connection) {
         if (connection.getTo() == connection.getFrom()) {
             throw new IllegalArgumentException(String.format("Cannot have circular connections (Waypoint %d -> Waypoint %d).",
@@ -52,9 +59,9 @@ public class GraphStructure {
 
     /**
      * Add a waypoint to the graph.
-     * @param id The id of the new waypoint.
-     * @param position The waypoint itself
-     * @throws IllegalStateException if a waypoint already exists with the given id.
+     * @param id The Id of the new waypoint.
+     * @param position The waypoint itself.
+     * @throws IllegalStateException if a waypoint already exists with the given Id.
      */
     private void addWayPoint(long id, GeoPosition position) {
         if (wayPoints.containsKey(id)) {
@@ -70,9 +77,9 @@ public class GraphStructure {
 
     /**
      * Add a connection to the graph.
-     * @param id The id of the new connection.
+     * @param id The Id of the new connection.
      * @param connection The connection itself.
-     * @throws IllegalStateException if a connection already exists with the given id.
+     * @throws IllegalStateException if a connection already exists with the given Id.
      */
     private void addConnection(long id, Connection connection) {
         if (connections.containsKey(id)) {
@@ -91,50 +98,7 @@ public class GraphStructure {
 
 
 
-
-    /**
-     * Gets the ID of the closest waypoint to a given location.
-     * @param pos The location.
-     * @return The ID of the closest waypoint, or a runtime exception in case no waypoints are present.
-     */
-    public long getClosestWayPoint(GeoPosition pos) {
-        return this.getClosestWayPointWithDistance(pos).getLeft();
-    }
-
-    /**
-     * Get the closest waypoint to a given location, if the closest waypoint is withing a specified range of that location.
-     * @param pos The location.
-     * @param range The maximum range between the closest waypoint and the position (expressed in km).
-     * @return The closest waypoint ID if it is within the specified range, otherwise an empty Optional.
-     */
-    public Optional<Long> getClosestWayPointWithinRange(GeoPosition pos, double range) {
-        var wp = this.getClosestWayPointWithDistance(pos);
-        if (wp.getRight() <= range) {
-            return Optional.of(wp.getLeft());
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Get the closest waypoint to a given location, including the distance between the waypoint and the location.
-     * @param pos The location.
-     * @return A pair of the waypoint id and the distance (in km) to it.
-     */
-    private Pair<Long, Double> getClosestWayPointWithDistance(GeoPosition pos) {
-        assert !wayPoints.isEmpty();
-
-        Map<Long, Double> distances = new HashMap<>();
-
-        for (var me : wayPoints.entrySet()) {
-            distances.put(me.getKey(), MapHelper.distance(me.getValue(), pos));
-        }
-
-        return distances.entrySet().stream()
-            .min(Comparator.comparing(Map.Entry::getValue))
-            .map(o -> new Pair<>(o.getKey(), o.getValue()))
-            .orElseThrow();
-    }
-
+    // region Basic getters/setters
 
     public GeoPosition getWayPoint(long wayPointId) {
         return wayPoints.get(wayPointId);
@@ -154,6 +118,56 @@ public class GraphStructure {
         return connections;
     }
 
+    // endregion
+
+
+
+
+    /**
+     * Gets the Id of the closest waypoint to a given location.
+     * @param pos The location.
+     * @return The Id of the closest waypoint, or a runtime exception in case no waypoints are present.
+     * @throws IllegalStateException if no waypoints are present in the graph.
+     */
+    public long getClosestWayPoint(GeoPosition pos) {
+        return this.getClosestWayPointWithDistance(pos).getLeft();
+    }
+
+    /**
+     * Get the closest waypoint to a given location, if the closest waypoint is withing a specified range of that location.
+     * @param pos The location.
+     * @param range The maximum range between the closest waypoint and the position (expressed in km).
+     * @return The closest waypoint Id if it is within the specified range, otherwise an empty Optional.
+     * @throws IllegalStateException if no waypoints are present in the graph.
+     */
+    public Optional<Long> getClosestWayPointWithinRange(GeoPosition pos, double range) {
+        var wp = this.getClosestWayPointWithDistance(pos);
+        if (wp.getRight() <= range) {
+            return Optional.of(wp.getLeft());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Get the closest waypoint to a given location, including the distance between the waypoint and the location.
+     * @param pos The location.
+     * @return A pair of the waypoint Id and the distance (in km) to it.
+     * @throws IllegalStateException if no waypoints are present in the graph.
+     */
+    private Pair<Long, Double> getClosestWayPointWithDistance(GeoPosition pos) {
+        Map<Long, Double> distances = new HashMap<>();
+
+        for (var me : wayPoints.entrySet()) {
+            distances.put(me.getKey(), MapHelper.distance(me.getValue(), pos));
+        }
+
+        return distances.entrySet().stream()
+            .min(Comparator.comparing(Map.Entry::getValue))
+            .map(o -> new Pair<>(o.getKey(), o.getValue()))
+            .orElseThrow(IllegalStateException::new);
+    }
+
+
 
     /**
      * Retrieve a list of connections which have the given waypoint as source.
@@ -168,9 +182,9 @@ public class GraphStructure {
 
 
     /**
-     * Retrieve a list of connection ids which have the given waypoint as source.
-     * @param wayPointId The waypion at which the connections start.
-     * @return A list of connection ids which all start at {@code wayPointId}.
+     * Retrieve a list of connection Ids which have the given waypoint as source.
+     * @param wayPointId The waypiont at which the connections start.
+     * @return A list of connection Ids which all start at {@code wayPointId}.
      */
     public List<Long> getOutgoingConnectionsById(long wayPointId) {
         return connections.entrySet().stream()
@@ -181,35 +195,32 @@ public class GraphStructure {
 
     /**
      * Check whether a connection exists between 2 waypoints.
-     * @param fromWayPointId The source waypoint id.
-     * @param toWayPointId The destination waypoint id.
+     * @param fromWayPointId The source waypoint Id.
+     * @param toWayPointId The destination waypoint Id.
      * @return True if a connection exists.
      */
     public boolean connectionExists(long fromWayPointId, long toWayPointId) {
-        return getConnection(fromWayPointId, toWayPointId) != null;
+        return getConnection(fromWayPointId, toWayPointId).isPresent();
     }
 
 
     /**
-     * Get the connection which starts and ends at the given waypoint ids.
-     * @param fromWayPointId The waypoint id at which the connection starts.
-     * @param toWayPointId The waypoint id at which the connection ends.
-     * @return Either the connection which has the right source and destination, or {@code null} if no such connection exists.
+     * Get the connection which starts and ends at the given waypoint Ids.
+     * @param fromWayPointId The waypoint Id at which the connection starts.
+     * @param toWayPointId The waypoint Id at which the connection ends.
+     * @return Either the connection which has the right source and destination, or an empty Optional if no such connection exists.
      */
-    private Connection getConnection(long fromWayPointId, long toWayPointId) {
-        for (var conn : connections.values()) {
-            if (conn.getFrom() == fromWayPointId && conn.getTo() == toWayPointId) {
-                return conn;
-            }
-        }
-        return null;
+    private Optional<Connection> getConnection(long fromWayPointId, long toWayPointId) {
+        return connections.values().stream()
+            .filter(c -> c.getFrom() == fromWayPointId && c.getTo() == toWayPointId)
+            .findFirst();
     }
 
 
     /**
      * Delete a waypoint in the graph.
      * Note: this also shortens the paths of motes which make use of this waypoint.
-     * @param wayPointId The id of the waypoint to be deleted.
+     * @param wayPointId The Id of the waypoint to be deleted.
      * @param environment The environment of the simulation.
      */
     public void deleteWayPoint(long wayPointId, Environment environment) {
@@ -231,8 +242,8 @@ public class GraphStructure {
     /**
      * Delete a connection which starts at {@code fromWayPointId} and ends at {@code toWayPointId}.
      * Note: this also shortens the paths of motes which make use of this connection.
-     * @param fromWayPointId The waypoint id at which the connection starts.
-     * @param toWayPointId The waypoint id at which the connection ends.
+     * @param fromWayPointId The waypoint Id at which the connection starts.
+     * @param toWayPointId The waypoint Id at which the connection ends.
      * @param environment The environment of the simulation.
      */
     public void deleteConnection(long fromWayPointId, long toWayPointId, Environment environment) {
@@ -249,5 +260,4 @@ public class GraphStructure {
         environment.removeConnectionFromMotes(possibleConnections.get(0));
         connections.remove(possibleConnections.get(0));
     }
-
 }

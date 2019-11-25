@@ -19,6 +19,7 @@ import selfadaptation.instrumentation.MoteEffector;
 import selfadaptation.instrumentation.MoteProbe;
 import util.MutableInteger;
 import util.Pair;
+import util.Statistics;
 import util.xml.*;
 
 import java.io.File;
@@ -159,12 +160,19 @@ public class SimulationRunner {
         this.setupSingleRun(true);
     }
 
+    /**
+     * Set the simulator up for a single (regular) run.
+     * @param startFresh If true: reset the history stored in the {@link Statistics} class.
+     */
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
 
         this.setupSimulationRunner();
     }
 
+    /**
+     * Set the simulator up for a single timed run.
+     */
     public void setupTimedRun() {
         simulation.setupTimedRun();
 
@@ -172,7 +180,7 @@ public class SimulationRunner {
     }
 
     /**
-     * Setup of applications/servers/clients before each run
+     * Setup of applications/servers/clients before each run.
      */
     private void setupSimulationRunner() {
         // Remove previous pollution measurements
@@ -188,10 +196,19 @@ public class SimulationRunner {
 
     // region simulations
 
+    /**
+     * Check if the simulation has finished, based on the ending condition.
+     * @return True if the simulation has finished.
+     */
     private boolean isSimulationFinished() {
         return simulation.isFinished();
     }
 
+    /**
+     * Simulate a whole run, until the simulation is finished.
+     * @param updateFrequency The frequency of callback updates to the {@code listener} (expressed in once every x simulation steps).
+     * @param listener The listener which receives the callbacks every x simulation steps.
+     */
     public void simulate(MutableInteger updateFrequency, SimulationUpdateListener listener) {
         new Thread(() -> {
             long simulationStep = 0;
@@ -216,6 +233,10 @@ public class SimulationRunner {
         this.totalRun(o -> {});
     }
 
+    /**
+     * Simulate (and keep track of) multiple runs with the simulator.
+     * @param fn A callback function which is invoked after every executed single run.
+     */
     public void totalRun(@NotNull Consumer<Pair<Integer, Integer>> fn) {
         int nrOfRuns = simulation.getInputProfile()
             .orElseThrow(() -> new IllegalStateException("No input profile selected before running the simulation"))
@@ -254,6 +275,10 @@ public class SimulationRunner {
         return InputProfilesReader.readInputProfiles();
     }
 
+    /**
+     * Load a configuration from a provided xml file.
+     * @param file The file with the configuration.
+     */
     public void loadConfigurationFromFile(File file) {
         this.cleanupSimulation();
 
@@ -270,6 +295,10 @@ public class SimulationRunner {
     }
 
 
+    /**
+     * Save a configuration to a file.
+     * @param file The file to save to.
+     */
     public void saveConfigurationToFile(File file) {
         ConfigurationWriter.saveConfigurationToFile(file, this);
     }
@@ -281,8 +310,8 @@ public class SimulationRunner {
 
 
     /**
-     * Method which is called when a new configuration will be opened,
-     * provides manual cleanup for old applications/servers/clients/...
+     * Method which is called when a new configuration will be opened.
+     * Provides manual cleanup for old applications/servers/clients/...
      */
     private void cleanupSimulation() {
         if (this.pollutionMonitor != null) {
@@ -296,6 +325,9 @@ public class SimulationRunner {
         this.environment = null;
     }
 
+    /**
+     * Initialize all applications used in the simulation.
+     */
     private void setupApplications() {
         this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
         this.routingApplication = new RoutingApplication(

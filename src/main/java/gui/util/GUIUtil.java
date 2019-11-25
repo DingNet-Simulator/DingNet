@@ -17,10 +17,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Utility class for GUI related operations.
+ */
 public class GUIUtil {
-    public static List<LinePainter> getBorderPainters(int maxX, int maxY, Environment environment) {
+
+    /**
+     * Generate a list of painters which paint the borders, based on the max x and y coordinates possible.
+     * @param environment The environment which is bounded by a maximum x and y coordinate.
+     * @return A list of painters which paint the borders of the {@code environment}.
+     */
+    public static List<LinePainter> getBorderPainters(Environment environment) {
         List<LinePainter> painters = new ArrayList<>();
         MapHelper mapHelper = environment.getMapHelper();
+        int maxX = environment.getMaxXpos();
+        int maxY = environment.getMaxYpos();
 
         painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(0, maxY))));
         painters.add(new LinePainter(List.of(mapHelper.toGeoPosition(0, 0), mapHelper.toGeoPosition(maxX, 0))));
@@ -30,6 +41,11 @@ public class GUIUtil {
         return painters;
     }
 
+    /**
+     * Retrieve a map of mote waypoints to their visualization Ids.
+     * @param environment The environment storing all the motes.
+     * @return A map of mote waypoints (containing the mote positions) to their respective visualization Id.
+     */
     public static Map<MoteWayPoint, Integer> getMoteMap(Environment environment) {
         Map<MoteWayPoint, Integer> map = new HashMap<>();
         var motes = environment.getMotes();
@@ -49,6 +65,11 @@ public class GUIUtil {
         return map;
     }
 
+    /**
+     * Retrieve a map of gateway waypoints to their visualization Ids.
+     * @param environment The environment storing all the gateways.
+     * @return A map of gateway waypoints (containing the gateway positions) to their respective visualization Id.
+     */
     public static Map<Waypoint, Integer> getGatewayMap(Environment environment) {
         Map<Waypoint, Integer> map = new HashMap<>();
         var gateways = environment.getGateways();
@@ -59,6 +80,12 @@ public class GUIUtil {
         return map;
     }
 
+    /**
+     * Retrieve an output file based on a given input file, which might not have the given extension yet.
+     * @param givenFile The file to be (possible) converted.
+     * @param extension The extension which the output file should have.
+     * @return An output file which has the required extension.
+     */
     public static File getOutputFile(File givenFile, String extension) {
         String name = givenFile.getName();
 
@@ -69,6 +96,7 @@ public class GUIUtil {
             return new File(givenFile.getPath());
         }
     }
+
 
     public static void updateTextFieldCoordinate(JTextField field, double value, String alt1, String alt2) {
         field.setText(coordinateToString(value, alt1, alt2));
@@ -87,6 +115,13 @@ public class GUIUtil {
         label.setText(coordinateToString(value, alt1, alt2));
     }
 
+    /**
+     * Convert a geo coordinate value to a representing string.
+     * @param value The coordinate value.
+     * @param alt1 The default direction (e.g. N).
+     * @param alt2 The alternative direction (e.g. S).
+     * @return A String which includes the geo coordinate.
+     */
     private static String coordinateToString(double value, String alt1, String alt2) {
         // TODO clean up magic numbers
         int degrees = (int) Math.floor(value);

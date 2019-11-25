@@ -16,8 +16,9 @@ import java.util.stream.Collectors;
 
 public class PollutionMonitor extends Application {
 
+    // The pollution grid which keeps the measurements.
     private PollutionGrid pollutionGrid;
-    // TODO alternative way of retrieving the mote position? Store explicitly in header?
+    // The environment in which the pollution monitor operates
     private Environment environment;
 
 
@@ -29,6 +30,11 @@ public class PollutionMonitor extends Application {
     }
 
 
+    /**
+     * Determine the pollution level from a byte array, solely using the data from an IAQ sensor.
+     * @param sensorData The considered data.
+     * @return A pollution level according to the IAQ sensor reading (or 0.0 if no IAQ sensor data is present).
+     */
     private double determinePollutionLevelFromIAQData(Map<MoteSensor, Byte[]> sensorData) {
         // NOTE: only consider IAQ sensors for now
         return sensorData.entrySet().stream()
@@ -40,10 +46,14 @@ public class PollutionMonitor extends Application {
             .orElse(0.0);
     }
 
+    /**
+     * Handle a LoRa packet by extracting the measurements from it and adding them to the pollution grid.
+     * @param message The message to be handled.
+     */
     private void handleSensorData(LoraWanPacket message) {
         // Filter out the first byte
         var body = Arrays.stream(Converter.toObjectType(message.getPayload()))
-            .skip(1)
+            .skip(1) // Skip the first byte since this indicates the message type
             .collect(Collectors.toList());
         if (body.isEmpty()) {
             return;
