@@ -62,12 +62,13 @@ public abstract class NetworkEntity implements Serializable {
     private Environment environment;
 
     /**
-     *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
+     *  A constructor generating a Network with a given x-position, y-position, spreading factor, transmission power (threshold) and environment.
      * @param xPos  The x-coordinate of the entity on the map.
      * @param yPos  The y-coordinate of the entity on the map.
      * @param transmissionPower   The transmission power of the entity.
      * @param SF    The spreading factor of the entity.
      * @param transmissionPowerThreshold The threshold for discriminating different transmissions.
+     * @param environment The environment to which the entity belongs.
      */
     @Raw
     NetworkEntity(long EUI, double xPos, double yPos, int transmissionPower, int SF, double transmissionPowerThreshold, Environment environment) {
