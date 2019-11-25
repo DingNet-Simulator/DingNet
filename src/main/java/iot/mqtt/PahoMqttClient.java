@@ -17,6 +17,9 @@ import java.util.function.BiConsumer;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
+/**
+ * Mqtt client for a real mqtt server. This implementation use the library Paho
+ */
 public class PahoMqttClient implements MqttClientBasicApi{
 
     private MqttClient mqttClient;
@@ -103,7 +106,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
     }
 
     @Override
-    public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageListener) {
+    public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageConsumer) {
         if (!subscribed.containsKey(topicFilter)) {
             subscribed.put(topicFilter, new LinkedList<>());
             try {
@@ -112,7 +115,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
                 e.printStackTrace();
             }
         }
-        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(subscriber, messageListener, classMessage));
+        subscribed.get(topicFilter).add(new MqttMessageConsumer<T>(subscriber, messageConsumer, classMessage));
     }
 
     @Override

@@ -86,6 +86,10 @@ public class Gateway extends NetworkEntity {
         }
     }
 
+    /**
+     * Method to send a packet to a device
+     * @param packet the packet to send
+     */
     public void sendToDevice(LoraWanPacket packet) { send(packet);}
 
     @Override

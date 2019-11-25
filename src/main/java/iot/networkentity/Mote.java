@@ -22,6 +22,13 @@ public class Mote extends NetworkEntity {
 
     //region field
 
+    //both in seconds
+    private static final int DEFAULT_START_SENDING_OFFSET = 1;
+    private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
+    // default application identifier
+    private static final long DEFAULT_APPLICATION_EUI = 1;
+
+
     // A List of MoteSensors representing all sensors on the mote.
     @Model
     private List<MoteSensor> moteSensors;
@@ -45,16 +52,13 @@ public class Mote extends NetworkEntity {
     // The last used frameCounter used when transmitting lora messages
     private short frameCounter;
 
+    // True if the mote can receive a new packet or it has to wait to send a new one before
     protected boolean canReceive;
 
+    //id of the trigger to send the keep alive message
     private long keepAliveTriggerId;
 
     private LoraWanPacket lastPacketSent;
-
-    //TODO add comments and constructor for these parameters
-    //both in seconds
-    private static final int DEFAULT_START_SENDING_OFFSET = 1;
-    private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
 
     // time to await before send the first packet (in seconds)
     private int startSendingOffset;
@@ -62,10 +66,8 @@ public class Mote extends NetworkEntity {
     // period to define how many seconds the mote has to send a packet (in seconds)
     private int periodSendingPacket;
 
-    private static final long DEFAULT_APPLICATION_EUI = 1;
-
-    // default application identifier
     private long applicationEUI = DEFAULT_APPLICATION_EUI;
+
     private ReceivedPacketStrategy receivedPacketStrategy;
 
     protected List<ConsumePacketStrategy> consumePacketStrategies;

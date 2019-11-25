@@ -58,7 +58,11 @@ public abstract class NetworkEntity implements Serializable {
     private boolean enabled;
 
     private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
+
+    // strategy to send a LoRa packet
     private Sender sender;
+
+    // strategy to receive a LoRa packet
     private Receiver receiver;
 
     /**
@@ -69,13 +73,6 @@ public abstract class NetworkEntity implements Serializable {
      * @param transmissionPower   The transmission power of the entity.
      * @param SF    The spreading factor of the entity.
      * @param transmissionPowerThreshold The threshold for discriminating different transmissions.
-     * @Post    If the x-coordinate was valid, it is set.
-     * @Post    If the x-coordinate was not valid, it is set to 0.
-     * @Post    If the y-coordinate was valid, it is set.
-     * @Post    If the y-coordinate was not valid, it is set to 0.
-     * @Post    If the transmission power was valid, it is set.
-     * @Post    If the transmission power was not valid, it is set to 0.
-     *
      */
     @Raw
     NetworkEntity(long EUI, double xPos, double yPos, Environment environment, int transmissionPower, int SF,
@@ -237,8 +234,6 @@ public abstract class NetworkEntity implements Serializable {
         }
     }
 
-
-
     /**
      *  Returns The y-coordinate of the entity.
      * @return The y-coordinate of the entity.
@@ -278,14 +273,12 @@ public abstract class NetworkEntity implements Serializable {
         setYPos(yPos);
     }
 
-
     public void updateInitialPosition(Pair<Integer, Integer> position) {
         if (this.initialPosition.getLeft() == this.xPos && this.initialPosition.getRight() == this.yPos) {
             this.setPos(position.getLeft(), position.getRight());
         }
         this.initialPosition = new Pair<>(position.getLeft().doubleValue(), position.getRight().doubleValue());
     }
-
 
     /**
      * Checks if a given Spreading factor is valid

@@ -3,6 +3,9 @@ package iot.lora;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+/**
+ * Basic implementation of {@link FrameHeader}
+ */
 public class BasicFrameHeader implements FrameHeader {
 
     private static final int SOURCE_ADDRESS_LENGTH = 4;
@@ -55,7 +58,9 @@ public class BasicFrameHeader implements FrameHeader {
 
     @Override
     public byte[] getFCnt() {
-        return new byte[0];
+        var data = new byte[Short.BYTES];
+        ByteBuffer.wrap(data).putShort(getFCntAsShort());
+        return data;
     }
 
     @Override
@@ -65,7 +70,7 @@ public class BasicFrameHeader implements FrameHeader {
 
     @Override
     public byte[] getFOpts() {
-        return new byte[0];
+        return FOpts;
     }
 
     @Override

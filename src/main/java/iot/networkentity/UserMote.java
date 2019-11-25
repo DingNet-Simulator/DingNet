@@ -6,7 +6,7 @@ import iot.lora.BasicFrameHeader;
 import iot.lora.LoraWanPacket;
 import iot.lora.MacCommand;
 import iot.lora.MessageType;
-import iot.strategy.consume.ReplacePath;
+import iot.strategy.consume.AddPositionToPath;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.MapHelper;
@@ -22,6 +22,7 @@ public class UserMote extends Mote {
     // Distance in km
     public static final double DISTANCE_THRESHOLD_ROUNDING_ERROR = 0.001;
 
+    // the user mote can ask for a path only if this property is true
     private boolean isActive = false;
     private GeoPosition destination;
     private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
@@ -99,6 +100,10 @@ public class UserMote extends Mote {
         return isActive;
     }
 
+    /**
+     * Setting active a userMote means also set not active all this other userMote
+     * @param active true to set active, false otherwise
+     */
     public void setActive(boolean active) {
         if (active) {
             getEnvironment().getMotes().stream()
@@ -137,6 +142,6 @@ public class UserMote extends Mote {
 
         setPath(new Path(List.of(MapHelper.toGeoPosition(this.getPosInt(), getEnvironment().getMapOrigin()))));
         this.alreadyRequested = false;
-        consumePacketStrategies.add(new ReplacePath());
+        consumePacketStrategies.add(new AddPositionToPath());
     }
 }

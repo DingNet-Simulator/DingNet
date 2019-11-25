@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Mock that represent a mqtt broker
+ */
 public class MqttBrokerMock {
 
     private static final String WILDCARD_SINGLE_LEVEL = "+";
@@ -18,6 +21,10 @@ public class MqttBrokerMock {
 
     private static MqttBrokerMock ourInstance = new MqttBrokerMock();
 
+    /**
+     *
+     * @return the singleton instance
+     */
     public static MqttBrokerMock getInstance() {
         return ourInstance;
     }
@@ -26,6 +33,10 @@ public class MqttBrokerMock {
         clientSubscribed = new HashMap<>();
     }
 
+    /**
+     * Method to connect a {@link MqttMock} to this broker
+     * @param instance the client
+     */
     public void connect(MqttMock instance) {
         if (clientSubscribed.containsKey(instance)) {
             throw new IllegalStateException();
@@ -33,6 +44,10 @@ public class MqttBrokerMock {
         clientSubscribed.put(instance, new LinkedList<>());
     }
 
+    /**
+     * Method to disconnect a {@link MqttMock} to this broker
+     * @param instance the client
+     */
     public void disconnect(MqttMock instance) {
         if (!clientSubscribed.containsKey(instance)) {
             throw new IllegalStateException();
@@ -40,6 +55,11 @@ public class MqttBrokerMock {
         clientSubscribed.remove(instance);
     }
 
+    /**
+     * method to publish a message
+     * @param topic the topic of the message
+     * @param message the message to publish
+     */
     public void publish(String topic, MqttMessageType message) {
         clientSubscribed.entrySet().stream()
             .map(e -> new Pair<>(e.getKey(), e.getValue()
@@ -49,6 +69,11 @@ public class MqttBrokerMock {
             .forEach(e-> e.getRight().forEach(t -> e.getLeft().dispatch(t, topic, message)));
     }
 
+    /**
+     * method to subscribe a {@link MqttMock} to a topic
+     * @param instance the client
+     * @param topicFilter the topic with possible wildcard
+     */
     public void subscribe(MqttMock instance, String topicFilter) {
         if (!clientSubscribed.containsKey(instance)) {
             throw new IllegalStateException();
@@ -56,6 +81,11 @@ public class MqttBrokerMock {
         clientSubscribed.get(instance).add(topicFilter);
     }
 
+    /**
+     * method to unsubscribe a {@link MqttMock} to a previous subscribed topic
+     * @param instance the client
+     * @param topicFilter the topic previous subscribed
+     */
     public void unsubscribe(MqttMock instance, String topicFilter) {
         if (!clientSubscribed.containsKey(instance)) {
             throw new IllegalStateException();

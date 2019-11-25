@@ -7,6 +7,9 @@ import iot.networkentity.Gateway;
 import java.util.LinkedList;
 import java.util.Optional;
 
+/**
+ * Strategy to send a dummy a packet every 50 packet received
+ */
 public class DummyResponse implements ResponseStrategy {
 
     private Gateway gateway;

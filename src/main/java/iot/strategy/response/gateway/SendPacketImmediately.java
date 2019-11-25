@@ -1,6 +1,5 @@
 package iot.strategy.response.gateway;
 
-
 import iot.lora.LoraWanPacket;
 import iot.mqtt.LoraWanPacketWrapper;
 import iot.mqtt.Topics;
@@ -9,6 +8,9 @@ import util.Pair;
 
 import java.util.Optional;
 
+/**
+ * Strategy to send immediately a packet after received it on mqtt topic
+ */
 public class SendPacketImmediately implements ResponseStrategy {
 
     private Gateway gateway;

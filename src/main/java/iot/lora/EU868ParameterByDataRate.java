@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Set of regional parameter valid in Europe. Class of parameter: EU868
+ */
 public enum EU868ParameterByDataRate implements RegionalParameter {
 
     DATA_RATE_0(0, 12, 125, 250, 59),
