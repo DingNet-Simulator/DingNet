@@ -6,14 +6,11 @@ import iot.Environment;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.strategy.response.gateway.DummyResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.*;
+import util.Connection;
+import util.Path;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,20 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class TestEnvironment {
 
     private Mote generateDummyMote(Environment environment, long id) {
-        return new Mote(id, 0, 0, environment, 20, 12, new ArrayList<>(), 10000, new Path(), 1, 1, 1, 1);
+        return new Mote(id, 0, 0, 20, 12, new ArrayList<>(), 10000, new Path(environment.getGraph()), 1, 1, 1, 1, environment);
     }
 
     private Gateway generateDummyGateway(Environment environment, long id) {
-        return new Gateway(id, 0, 0, environment, 20, 12, new DummyResponse());
+        return new Gateway(id, 0, 0, 20, 12, new DummyResponse(), environment);
     }
 
-    @BeforeEach
-    void init() throws IllegalAccessException, NoSuchFieldException {
-        // The environment constructor initializes the GraphStructure instance -> destruct each test
-        Field instanceGraph = GraphStructure.class.getDeclaredField("instance");
-        instanceGraph.setAccessible(true);
-        instanceGraph.set(null, null);
-    }
 
     @Test
     void happyDay() {
@@ -60,10 +50,10 @@ class TestEnvironment {
         Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(5, 5), 1,
             new HashMap<>(Map.of(1L, new GeoPosition(6,6), 3L, new GeoPosition(10,5))), new HashMap<>(Map.of(4L, new Connection(1L, 3L))));
 
-        assertTrue(GraphStructure.getInstance().connectionExists(1L, 3L));
-        assertEquals(GraphStructure.getInstance().getWayPoint(1L), new GeoPosition(6,6));
-        assertNull(GraphStructure.getInstance().getWayPoint(2L));
-        assertEquals(GraphStructure.getInstance().getWayPoint(3L), new GeoPosition(10, 5));
+        assertTrue(environment.getGraph().connectionExists(1L, 3L));
+        assertEquals(environment.getGraph().getWayPoint(1L), new GeoPosition(6,6));
+        assertNull(environment.getGraph().getWayPoint(2L));
+        assertEquals(environment.getGraph().getWayPoint(3L), new GeoPosition(10, 5));
     }
 
     @Test
@@ -135,20 +125,20 @@ class TestEnvironment {
     }
 
     @Test
-    void addMoteGatewayFail() {
+    void addMoteGatewayMultipleEnv() {
         Environment environment1 = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
         Environment environment2 = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
 
-        Gateway gw = generateDummyGateway(environment1, 1);
-        Mote mote = generateDummyMote(environment1, 908);
+        Gateway gw = generateDummyGateway(environment2, 1);
+        Mote mote = generateDummyMote(environment2, 908);
 
         environment2.addMote(mote);
         environment2.addGateway(gw);
 
         assertTrue(environment1.getMotes().isEmpty());
-        assertTrue(environment2.getMotes().isEmpty());
+        assertFalse(environment2.getMotes().isEmpty());
         assertTrue(environment1.getGateways().isEmpty());
-        assertTrue(environment2.getGateways().isEmpty());
+        assertFalse(environment2.getGateways().isEmpty());
     }
 
     @Test
@@ -156,13 +146,13 @@ class TestEnvironment {
         GeoPosition origin = new GeoPosition(0,0);
         Environment environment = new Environment(new Characteristic[600][600], origin, 1, new HashMap<>(), new HashMap<>());
 
-        GeoPosition destination1 = MapHelper.toGeoPosition(200, 500, origin);
-        GeoPosition destination2 = MapHelper.toGeoPosition(300, 400, origin);
-        Path path = new Path();
+        GeoPosition destination1 = environment.getMapHelper().toGeoPosition(200, 500);
+        GeoPosition destination2 = environment.getMapHelper().toGeoPosition(300, 400);
+        Path path = new Path(environment.getGraph());
         path.addPosition(destination1);
         path.addPosition(destination2);
 
-        Mote mote = new Mote(1, 200, 200, environment, 20, 12, List.of(), 10000, path, 1, 0, 1, 0);
+        Mote mote = new Mote(1, 200, 200, 20, 12, List.of(), 10000, path, 1, 0, 1, 0, environment);
 
         environment.addMote(mote);
 

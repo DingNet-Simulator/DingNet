@@ -1,12 +1,10 @@
 package unit;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Connection;
 import util.GraphStructure;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,16 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TestGraph {
 
-    @BeforeEach
-    void init() throws NoSuchFieldException, IllegalAccessException {
-        Field instance = GraphStructure.class.getDeclaredField("instance");
-        instance.setAccessible(true);
-        instance.set(null, null);
-    }
-
     @Test
     void addWayPoint() {
-        GraphStructure graph = GraphStructure.initialize(new HashMap<>(), new HashMap<>());
+        GraphStructure graph = new GraphStructure();
 
         graph.addWayPoint(new GeoPosition(1, 1));
         graph.addWayPoint(new GeoPosition(2, 2));
@@ -37,7 +28,8 @@ class TestGraph {
 
     @Test
     void addConnection() {
-        GraphStructure graph = GraphStructure.initialize(new HashMap<>(), new HashMap<>());
+        GraphStructure graph = new GraphStructure();
+
 
         graph.addWayPoint(new GeoPosition(1, 1));
         graph.addWayPoint(new GeoPosition(2, 2));
@@ -54,7 +46,8 @@ class TestGraph {
 
     @Test
     void addConnectionFail1() {
-        GraphStructure graph = GraphStructure.initialize(new HashMap<>(), new HashMap<>());
+        GraphStructure graph = new GraphStructure();
+
 
         graph.addWayPoint(new GeoPosition(1, 1));
         graph.addWayPoint(new GeoPosition(2, 2));
@@ -65,7 +58,8 @@ class TestGraph {
 
     @Test
     void addConnectionFail2() {
-        GraphStructure graph = GraphStructure.initialize(new HashMap<>(), new HashMap<>());
+        GraphStructure graph = new GraphStructure();
+
 
         graph.addWayPoint(new GeoPosition(1, 1));
         graph.addWayPoint(new GeoPosition(2, 2));
@@ -83,7 +77,7 @@ class TestGraph {
         wayPoints.put(1L, new GeoPosition(50,50));
         wayPoints.put(5L, new GeoPosition(5,5));
 
-        GraphStructure graph = GraphStructure.initialize(wayPoints, new HashMap<>());
+        GraphStructure graph = new GraphStructure(wayPoints, new HashMap<>());
 
         assertEquals(graph.getWayPoint(1L), new GeoPosition(50,50));
         assertEquals(graph.getWayPoint(5L), new GeoPosition(5,5));
@@ -103,7 +97,7 @@ class TestGraph {
         wayPoints.put(3L, new GeoPosition(35, 35));
         wayPoints.put(4L, new GeoPosition(48, 48));
 
-        GraphStructure graph = GraphStructure.initialize(wayPoints, new HashMap<>());
+        GraphStructure graph = new GraphStructure(wayPoints, new HashMap<>());
 
         assertEquals(graph.getClosestWayPoint(new GeoPosition(51,51)), 1L);
         assertEquals(graph.getClosestWayPoint(new GeoPosition(15,5)), 2L);
@@ -126,7 +120,7 @@ class TestGraph {
         connections.put(4L, new Connection(4L, 1L));
         connections.put(5L, new Connection(3L, 4L));
 
-        GraphStructure graph = GraphStructure.initialize(wayPoints, connections);
+        GraphStructure graph = new GraphStructure(wayPoints, connections);
 
         List<Connection> toCheck = graph.getOutgoingConnections(1L);
         assertFalse(toCheck.isEmpty());

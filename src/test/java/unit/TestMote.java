@@ -1,16 +1,13 @@
 package unit;
+
 import iot.Characteristic;
 import iot.Environment;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.GraphStructure;
-import util.MapHelper;
 import util.Path;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,19 +15,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestMote {
-    @BeforeAll
-    static void init() throws NoSuchFieldException, IllegalAccessException {
-        Field instance = GraphStructure.class.getDeclaredField("instance");
-        instance.setAccessible(true);
-        instance.set(null, null);
-
-        GraphStructure.initialize(new HashMap<>(), new HashMap<>());
-    }
 
     @Test
     void happyDay() {
         Environment environment = new Environment(new Characteristic[200][200], new GeoPosition(10, 10), 1, new HashMap<>(), new HashMap<>());
-        Mote mote = new Mote(1L, 10, 10, environment, 10, 12, new ArrayList<>(), 20, new Path(), 1);
+        Mote mote = new Mote(1L, 10, 10, 10, 12, new ArrayList<>(), 20, new Path(environment.getGraph()), 1, environment);
 
         assertEquals(mote.getEUI(), 1);
         assertEquals(mote.getEnergyLevel(), 20);
@@ -44,13 +33,13 @@ class TestMote {
     @Test
     void setters() {
         Environment environment = new Environment(new Characteristic[200][200], new GeoPosition(10, 10), 1, new HashMap<>(), new HashMap<>());
-        Mote mote = new Mote(10L, 150, 150, environment, 8, 12, new ArrayList<>(), 100, new Path(), 5);
+        Mote mote = new Mote(10L, 150, 150, 8, 12, new ArrayList<>(), 100, new Path(environment.getGraph()), 5, environment);
 
         // Maybe move this to some separate test for networkentity
         assertEquals(mote.getSF(), 12);
         mote.setSF(8);
         assertEquals(mote.getSF(), 8);
-        mote.setSF(20);
+        assertThrows(IllegalArgumentException.class, () -> mote.setSF(20));
         assertEquals(mote.getSF(), 8);
 
         assertEquals(mote.getMovementSpeed(), 5);

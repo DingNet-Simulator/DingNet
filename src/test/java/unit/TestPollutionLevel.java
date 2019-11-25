@@ -19,13 +19,9 @@ class TestPollutionLevel {
 
     @Test
     void rainyDay() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            PollutionLevel level = new PollutionLevel(4.5);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new PollutionLevel(4.5));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            PollutionLevel level = new PollutionLevel(-1.0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new PollutionLevel(-1.0));
     }
 
     @Test
