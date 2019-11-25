@@ -5,6 +5,7 @@ import application.pollution.PollutionMonitor;
 import application.routing.AStarRouter;
 import application.routing.RoutingApplication;
 import application.routing.heuristic.SimplePollutionHeuristic;
+import gui.MainGUI;
 import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -267,8 +268,14 @@ public class SimulationRunner {
 
     // region loading/saving/cleanup
 
-    void updateInputProfilesFile() {
-        InputProfilesWriter.updateInputProfilesFile(inputProfiles);
+    public void updateInputProfilesFile() {
+        File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        file = new File(file.getParent() + "/inputProfiles/inputProfile.xml");
+        updateInputProfilesFile(file);
+    }
+
+    public void updateInputProfilesFile(File file) {
+        InputProfilesWriter.updateInputProfilesFile(inputProfiles, file);
     }
 
     private List<InputProfile> loadInputProfiles() {

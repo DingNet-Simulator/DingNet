@@ -1,6 +1,5 @@
 package util.xml;
 
-import gui.MainGUI;
 import iot.InputProfile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,15 +16,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 
 public class InputProfilesWriter {
-    public static void updateInputProfilesFile(List<InputProfile> inputProfiles) {
+    public static void updateInputProfilesFile(List<InputProfile> inputProfiles, File file) {
         try {
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-            file = new File(file.getParent() + "/inputProfiles/inputProfile.xml");
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
 
             Element inputProfilesElement = doc.getDocumentElement();
@@ -47,7 +43,7 @@ public class InputProfilesWriter {
             StreamResult result = new StreamResult(file);
             transformer.transform(source, result);
 
-        } catch (URISyntaxException | ParserConfigurationException | IOException | SAXException | TransformerException e) {
+        } catch (ParserConfigurationException | IOException | SAXException | TransformerException e) {
             e.printStackTrace();
         }
 
