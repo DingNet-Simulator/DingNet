@@ -2,7 +2,6 @@ package application.routing;
 
 import application.routing.heuristic.RoutingHeuristic;
 import application.routing.heuristic.RoutingHeuristic.HeuristicEntry;
-import application.routing.heuristic.SimplePollutionHeuristic;
 import org.jetbrains.annotations.NotNull;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
@@ -18,8 +17,8 @@ public class AStarRouter implements PathFinder {
 
     private RoutingHeuristic heuristic;
 
-    public AStarRouter() {
-        this.heuristic = new SimplePollutionHeuristic();
+    public AStarRouter(RoutingHeuristic heuristic) {
+        this.heuristic = heuristic;
     }
 
     @Override
