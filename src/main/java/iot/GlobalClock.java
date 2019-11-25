@@ -19,9 +19,9 @@ public class GlobalClock {
      */
     private LocalTime time;
 
-    private HashMap<LocalTime, List<Trigger>> triggers;
+    private Map<LocalTime, List<Trigger>> triggers;
 
-    public GlobalClock(){
+    public GlobalClock() {
         time = LocalTime.of(0,0);
         triggers = new HashMap<>();
     }
@@ -40,8 +40,8 @@ public class GlobalClock {
      * @post Increases the time with a given amount of milliseconds.
      */
     public void tick(long milliSeconds) {
-        for(long i = milliSeconds; i>0; i--){
-            this.time= this.time.plus(1, ChronoUnit.MILLIS);
+        for (long i = milliSeconds; i > 0; i--) {
+            this.time = this.time.plus(1, ChronoUnit.MILLIS);
             fireTrigger();
         }
     }
@@ -51,33 +51,32 @@ public class GlobalClock {
      * @post time is set to 0
      * @post all events are removed
      */
-    public void reset(){
-        this.time =  LocalTime.of(0,0);
+    public void reset() {
+        this.time = LocalTime.of(0,0);
         triggers = new HashMap<>();
     }
 
-    public Boolean containsTriggers (LocalTime time){
+    public boolean containsTriggers(LocalTime time) {
         return triggers.containsKey(time);
     }
 
-    public long addTrigger(LocalTime time,Supplier<LocalTime> trigger){
+    public long addTrigger(LocalTime time, Supplier<LocalTime> trigger) {
         var trig = new Trigger(trigger);
         addTrigger(TimeHelper.roundToMilli(time), trig);
         return trig.getUid();
     }
 
-    public long addTriggerOneShot(LocalTime time, Runnable trigger){
+    public long addTriggerOneShot(LocalTime time, Runnable trigger) {
         return addTrigger(time, () -> {
             trigger.run();
             return LocalTime.of(0,0);
         });
     }
 
-    private void addTrigger(LocalTime time,Trigger trigger) {
-        if(containsTriggers(time)){
+    private void addTrigger(LocalTime time, Trigger trigger) {
+        if (containsTriggers(time)) {
             triggers.get(time).add(0,trigger);
-        }
-        else {
+        } else {
             List<Trigger> newTriggers = new ArrayList<>(List.of(trigger));
             triggers.put(time,newTriggers);
         }

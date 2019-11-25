@@ -248,10 +248,10 @@ public class MoteGUI {
         // TODO Energy level? Add field as well?
         environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(), position.getRight(),
                 (int) powerSpinner.getValue(),
-                (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(),
+                (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(environment.getGraph()),
                 (double) movementSpeedSpinner.getValue(),
                 (int) offsetMovementSpinner.getValue(), (int) periodSpinner.getValue(),
-                (int) offsetSendingSpinner.getValue()));
+                (int) offsetSendingSpinner.getValue(), environment));
     }
 
     private void addUserMote() {
@@ -266,10 +266,10 @@ public class MoteGUI {
         // TODO Energy level? Add field as well?
         UserMote userMote = MoteFactory.createUserMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(),
                 position.getRight(), (int) powerSpinner.getValue(),
-                (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(),
+                (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(environment.getGraph()),
                 (double) movementSpeedSpinner.getValue(),
                 (int) offsetMovementSpinner.getValue(), (int) periodSpinner.getValue(),
-                (int) offsetSendingSpinner.getValue(), graph.getWayPoint(selectedDestinationIndex));
+                (int) offsetSendingSpinner.getValue(), graph.getWayPoint(selectedDestinationIndex), environment);
         userMote.setActive(isActiveCheckBox.isSelected());
         environment.addMote(userMote);
     }

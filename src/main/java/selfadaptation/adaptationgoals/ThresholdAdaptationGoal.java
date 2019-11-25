@@ -13,7 +13,7 @@ public class ThresholdAdaptationGoal extends AdaptationGoal {
      * A constructor generating a ThresholdAdaptationGoal with given threshold.
      * @param threshold
      */
-    public ThresholdAdaptationGoal(double threshold){
+    public ThresholdAdaptationGoal(double threshold) {
         this.threshold = threshold;
     }
 

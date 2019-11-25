@@ -75,7 +75,7 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
          First we check if we have received the message already from all gateways.
          */
         getGatewayBuffer().add(mote,dataGateway);
-        if(getGatewayBuffer().hasReceivedAllSignals(mote)) {
+        if (getGatewayBuffer().hasReceivedAllSignals(mote)) {
             /**
              * Check for the signal which has travelled the shortest distance.
              */
@@ -99,7 +99,7 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
              * else a new buffer is created and added to which we can add the the distance to the nearest gateway.
              */
             List<Double> reliableDistanceGatewayBuffer;
-            if(!getReliableDistanceGatewayBuffers().containsKey(mote)) {
+            if (!getReliableDistanceGatewayBuffers().containsKey(mote)) {
                 putReliableDistanceGatewayBuffers(mote, new LinkedList<>());
             }
             reliableDistanceGatewayBuffer = getReliableDistanceGatewayBuffers().get(mote);

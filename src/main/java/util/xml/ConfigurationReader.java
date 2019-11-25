@@ -149,7 +149,7 @@ public class ConfigurationReader {
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(gatewayNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(gatewayNode, "spreadingFactor"));
-                environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor));
+                environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor, environment));
             }
         } catch (ParserConfigurationException | SAXException | IOException e1) {
             e1.printStackTrace();
@@ -209,7 +209,7 @@ public class ConfigurationReader {
         }
 
         Path getPath() {
-            Path path = new Path();
+            Path path = new Path(environment.getGraph());
             Element pathElement = (Element) node.getElementsByTagName("path").item(0);
             for (int i = 0; i < pathElement.getElementsByTagName("connection").getLength(); i++) {
                 Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(i);
@@ -264,7 +264,8 @@ public class ConfigurationReader {
                     getMovementSpeed(),
                     startMovementOffset.get(),
                     periodSendingPacket.get(),
-                    startSendingOffset.get()
+                    startSendingOffset.get(),
+                    environment
                 );
             } else {
                 mote = MoteFactory.createMote(
@@ -276,7 +277,8 @@ public class ConfigurationReader {
                     getMoteSensors(),
                     getEnergyLevel(),
                     getPath(),
-                    getMovementSpeed()
+                    getMovementSpeed(),
+                    environment
                 );
             }
             return mote;
@@ -314,7 +316,8 @@ public class ConfigurationReader {
                 getStartMovementOffset().get(), // Intentional
                 getPeriodSendingPacket().get(), // Intentional
                 getStartSendingOffset().get(),  // Intentional
-                getDestination()
+                getDestination(),
+                environment
             );
             userMote.setActive(isActive());
             return userMote;

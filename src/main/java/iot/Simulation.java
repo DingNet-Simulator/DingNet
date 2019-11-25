@@ -92,7 +92,7 @@ public class Simulation {
      * @return The GenericFeedbackLoop used in the simulation.
      */
     @Basic
-    public GenericFeedbackLoop getAdaptationAlgorithm(){
+    public GenericFeedbackLoop getAdaptationAlgorithm() {
         return approach;
     }
     /**
@@ -100,7 +100,7 @@ public class Simulation {
      * @param approach  The GenericFeedbackLoop to use in the simulation.
      */
     @Basic
-    public void setAdaptationAlgorithm(GenericFeedbackLoop approach){
+    public void setAdaptationAlgorithm(GenericFeedbackLoop approach) {
         this.approach = approach;
     }
 

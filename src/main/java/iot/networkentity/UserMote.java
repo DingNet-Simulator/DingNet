@@ -30,8 +30,8 @@ public class UserMote extends Mote {
 
     UserMote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
              List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed,
-             int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination) {
-        super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset);
+             int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination, Environment environment) {
+        super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset, environment);
         this.destination = destination;
 
         this.initialize();
@@ -140,7 +140,8 @@ public class UserMote extends Mote {
     protected void initialize() {
         super.initialize();
 
-        setPath(new Path(List.of(this.getEnvironment().getMapHelper().toGeoPosition(this.getPosInt()))));
+        setPath(new Path(List.of(this.getEnvironment().getMapHelper().toGeoPosition(this.getPosInt())),
+            this.getEnvironment().getGraph()));
         this.alreadyRequested = false;
         consumePacketStrategies.add(new ReplacePath());
     }

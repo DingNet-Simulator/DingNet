@@ -1,7 +1,6 @@
 package iot.networkcommunication.impl;
 
 import iot.GlobalClock;
-import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.networkcommunication.api.Receiver;
@@ -28,10 +27,10 @@ public class ReceiverWaitPacket implements Receiver {
 
     private final NetworkEntity receiver;
 
-    public ReceiverWaitPacket(NetworkEntity receiver, double transmissionPowerThreshold) {
+    public ReceiverWaitPacket(NetworkEntity receiver, double transmissionPowerThreshold, GlobalClock clock) {
         this.transmissionPowerThreshold = transmissionPowerThreshold;
         this.receiver = receiver;
-        this.clock = SimulationRunner.getInstance().getEnvironment().getClock();
+        this.clock = clock;
     }
 
     @Override

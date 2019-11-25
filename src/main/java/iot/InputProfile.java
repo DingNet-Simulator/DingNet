@@ -172,7 +172,7 @@ public class InputProfile {
      * @return The probability for the mote.
      */
     public double getProbabilityForMote(int moteNumber) {
-        if(probabilitiesForMotes.get(moteNumber) != null)
+        if (probabilitiesForMotes.get(moteNumber) != null)
             return probabilitiesForMotes.get(moteNumber);
         else{
             return 0.0;
@@ -203,7 +203,7 @@ public class InputProfile {
      * @return The probability for the gateway.
      */
     public double getProbabilityForGateway(int gatewayNumber) {
-        if(probabilitiesForGateways.get(gatewayNumber) != null)
+        if (probabilitiesForGateways.get(gatewayNumber) != null)
             return probabilitiesForGateways.get(gatewayNumber);
         else{
             return 0.0;
@@ -235,7 +235,7 @@ public class InputProfile {
      */
     public double getRegionProbability(int regionNumber) {
 
-        if(regionProbabilities.get(regionNumber) != null)
+        if (regionProbabilities.get(regionNumber) != null)
             return regionProbabilities.get(regionNumber);
         else{
             return 0.0;
@@ -309,7 +309,7 @@ public class InputProfile {
      */
     private void updateFile() {
         Document doc = getXmlSource();
-        for(int i =0 ; i<doc.getChildNodes().getLength();) {
+        for (int i =0 ; i<doc.getChildNodes().getLength();) {
             doc.removeChild(doc.getChildNodes().item(0));
         }
         Element inputProfileElement = doc.createElement("inputProfile");

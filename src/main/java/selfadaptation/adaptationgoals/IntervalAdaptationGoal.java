@@ -25,7 +25,7 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
      * @param lowerBoundary The lower boundary of the goal.
      * @param upperBoundary The upper boundary of the goal.
      */
-    public IntervalAdaptationGoal(double lowerBoundary, double upperBoundary){
+    public IntervalAdaptationGoal(double lowerBoundary, double upperBoundary) {
         this.lowerBoundary = lowerBoundary;
         this.upperBoundary = upperBoundary;
     }

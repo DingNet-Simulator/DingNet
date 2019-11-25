@@ -93,7 +93,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
     public void publish(String topic, MqttMessageType message) {
         var msg = new MqttMessage(gson.toJson(message).getBytes(US_ASCII));
         try {
-            if(!mqttClient.isConnected()) {
+            if (!mqttClient.isConnected()) {
                 connect();
             }
             mqttClient.publish(topic, msg);

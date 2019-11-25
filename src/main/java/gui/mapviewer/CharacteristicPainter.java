@@ -13,7 +13,7 @@ public class CharacteristicPainter implements Painter<JXMapViewer> {
     private GeoPosition position;
     private Color color;
 
-    public CharacteristicPainter(GeoPosition position, Color color){
+    public CharacteristicPainter(GeoPosition position, Color color) {
         this.position = position;
         this.color = color;
 

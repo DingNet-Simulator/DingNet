@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+// TODO also keep instance of pollutiongrid in SimulationRunner (similar to environment)
+//  -> remove need for singleton
 public class PollutionGrid {
     // TODO do we assume static motes here? otherwise this becomes more difficult
     //  -> i.e., including some notion of time, and making sure old measurements are dropped after a while

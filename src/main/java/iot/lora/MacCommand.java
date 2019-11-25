@@ -17,11 +17,11 @@ public enum MacCommand {
      */
     private final int length;
 
-    MacCommand(int length){
+    MacCommand(int length) {
         this.length = length;
     }
     @Basic
-    public int getLength(){
+    public int getLength() {
         return length;
     }
 }

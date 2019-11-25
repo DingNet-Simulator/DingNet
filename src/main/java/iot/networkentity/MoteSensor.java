@@ -27,15 +27,15 @@ public enum MoteSensor {
         this.sensorDataGenerator = sensorDataGenerator;
     }
 
-    public byte[] getValue(int xpos, int ypos, LocalTime time){
+    public byte[] getValue(int xpos, int ypos, LocalTime time) {
         return sensorDataGenerator.generateData(xpos,ypos,time);
     }
 
-    public double getValue(double xpos, double ypos){
+    public double getValue(double xpos, double ypos) {
         return sensorDataGenerator.nonStaticDataGeneration(xpos,ypos);
     }
 
-    public List<Byte> getValueAsList(int xpos, int ypos, LocalTime time){
+    public List<Byte> getValueAsList(int xpos, int ypos, LocalTime time) {
         var tmp = sensorDataGenerator.generateData(xpos, ypos, time);
         var ret = new LinkedList<Byte>();
         for (byte b : tmp) {
@@ -44,11 +44,11 @@ public enum MoteSensor {
         return ret;
     }
 
-    public byte[] getValue(Pair<Integer, Integer> pos, LocalTime time){
+    public byte[] getValue(Pair<Integer, Integer> pos, LocalTime time) {
         return getValue(pos.getLeft(), pos.getRight(), time);
     }
 
-    public List<Byte> getValueAsList(Pair<Integer, Integer> pos, LocalTime time){
+    public List<Byte> getValueAsList(Pair<Integer, Integer> pos, LocalTime time) {
         return getValueAsList(pos.getLeft(), pos.getRight(), time);
     }
 

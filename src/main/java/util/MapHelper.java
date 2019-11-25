@@ -128,7 +128,7 @@ public class MapHelper {
     public static String getDirectionSign(double val, String axis) {
         if (axis.equals("lat")) {
             return (Math.signum(val) == 1) ? "N " : "S ";
-        } else if(axis.equals("long")) {
+        } else if (axis.equals("long")) {
             return Math.signum(val) == 1 ? "E " : "W ";
         } else {
             throw new IllegalArgumentException("The value of axis must be one of 'lat' or 'long'");

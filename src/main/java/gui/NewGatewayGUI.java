@@ -43,7 +43,8 @@ public class NewGatewayGUI {
         saveButton.addActionListener(e -> {
             environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()),
                 (int) xPosSpinner.getValue(), (int) yPosSpinner.getValue(),
-                (int) powerSpinner.getValue(), (int) SFSpinner.getValue()));
+                (int) powerSpinner.getValue(), (int) SFSpinner.getValue(),
+                environment));
             parent.refresh();
             frame.dispose();
         });

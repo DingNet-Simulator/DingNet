@@ -25,7 +25,7 @@ public class FeedbackLoopGatewayBuffer {
         var environment = SimulationRunner.getInstance().getEnvironment();
         var transmissions = Statistics.getInstance().getReceivedTransmissions(gateway.getEUI(), environment.getNumberOfRuns() - 1);
 
-        if(gatewayBuffer.containsKey(mote)) {
+        if (gatewayBuffer.containsKey(mote)) {
             boolean contains = false;
             for (Pair<Gateway, LoraTransmission> pair : ListHelper.getLast(gatewayBuffer.get(mote))) {
                 if (pair.getLeft() == gateway) {

@@ -193,7 +193,7 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
     private class MapSaveTrackActionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            Path path = new Path();
+            Path path = new Path(graph);
 
             currentWayPoints.forEach(o -> path.addPosition(graph.getWayPoint(o)));
 

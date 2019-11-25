@@ -5,7 +5,6 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
 import iot.Environment;
-import iot.SimulationRunner;
 import iot.lora.*;
 import iot.networkcommunication.api.Receiver;
 import iot.networkcommunication.api.Sender;
@@ -37,18 +36,14 @@ public abstract class NetworkEntity implements Serializable {
     // NOTE: The x and y coordinates below (in double format) are NOT geo coordinates
     //       Rather, they represent the (x,y) coordinates of the grid of the environment (specified in configuration files)
     // FIXME: adjust the simulator to completely use geographical coordinates
-    private double xPos = 0.0;
-    private double yPos = 0.0;
-
+    private double xPos;
+    private double yPos;
 
     protected Pair<Double, Double> initialPosition;
 
 
     // The transmission power of the entity.
     private int transmissionPower;
-
-    // The spreading factor setting of the node.
-    private int SF = 12;
 
     // The levels of power in between which it can discriminate.
     private final double transmissionPowerThreshold;
@@ -59,6 +54,8 @@ public abstract class NetworkEntity implements Serializable {
     private final List<RegionalParameter> regionalParameters = EU868ParameterByDataRate.valuesAsList();
     private Sender sender;
     private Receiver receiver;
+
+    private Environment environment;
 
     /**
      *  A constructor generating a Network with a given x-position, y-position, environment and transmission power.
@@ -76,23 +73,21 @@ public abstract class NetworkEntity implements Serializable {
      *
      */
     @Raw
-    NetworkEntity(long EUI, double xPos, double yPos, int transmissionPower, int SF, double transmissionPowerThreshold) {
+    NetworkEntity(long EUI, double xPos, double yPos, int transmissionPower, int SF, double transmissionPowerThreshold, Environment environment) {
         this.xPos = xPos;
         this.yPos = yPos;
         this.initialPosition = new Pair<>(xPos, yPos);
 
         this.transmissionPower = isValidTransmissionPower(transmissionPower) ? transmissionPower : 0;
 
-        if (isValidSF(SF)) {
-            this.SF = SF;
-        }
-
         this.transmissionPowerThreshold = transmissionPowerThreshold;
         this.EUI = EUI;
+        this.environment = environment;
+
         enabled = true;
-        receiver = new ReceiverWaitPacket(this, transmissionPowerThreshold).setConsumerPacket(this::receive);
-        sender = new SenderNoWaitPacket(this)
-            .setRegionalParameter(regionalParameters.stream().filter(r -> r.getSpreadingFactor() == this.SF).findFirst().orElseThrow())
+        receiver = new ReceiverWaitPacket(this, transmissionPowerThreshold, environment.getClock()).setConsumerPacket(this::receive);
+        sender = new SenderNoWaitPacket(this, environment)
+            .setRegionalParameter(regionalParameters.stream().filter(r -> r.getSpreadingFactor() == SF).findFirst().orElseThrow())
             .setTransmissionPower(transmissionPower);
     }
 
@@ -194,10 +189,7 @@ public abstract class NetworkEntity implements Serializable {
     protected abstract void OnReceive(LoraTransmission transmission);
 
 
-    /**
-     *  Returns The x-coordinate of the entity.
-     * @return The x-coordinate of the entity.
-     */
+
     @Basic
     @Raw
     public int getXPosInt() {
@@ -208,24 +200,13 @@ public abstract class NetworkEntity implements Serializable {
         return xPos;
     }
 
-    /**
-     * Checks if a new x-coordinate is valid and then sets that coordinate.
-     * @param xPos The new x-coordinate.
-     */
     @Basic
     public void setXPos(double xPos) {
-        // TODO is this check necessary?
-        if (SimulationRunner.getInstance().getEnvironment().isValidXpos(xPos)) {
-            this.xPos = xPos;
-        }
+        this.xPos = xPos;
     }
 
 
 
-    /**
-     *  Returns The y-coordinate of the entity.
-     * @return The y-coordinate of the entity.
-     */
     @Basic
     @Raw
     public int getYPosInt() {
@@ -236,17 +217,12 @@ public abstract class NetworkEntity implements Serializable {
         return yPos;
     }
 
-    /**
-     * Checks if a new y-coordinate is valid and then sets that coordinate.
-     * @param yPos The new y-coordinate.
-     * @Post    If the new y-coordinate is valid, the new coordinate is set.
-     */
     @Basic
     public void setYPos(double yPos) {
-        if (SimulationRunner.getInstance().getEnvironment().isValidYpos(yPos)) {
-            this.yPos = yPos;
-        }
+        this.yPos = yPos;
     }
+
+
 
     public Pair<Integer, Integer> getPosInt() {
         return new Pair<>(getXPosInt(), getYPosInt());
@@ -271,23 +247,13 @@ public abstract class NetworkEntity implements Serializable {
 
 
     /**
-     * Checks if a given Spreading factor is valid
-     * @param SF The spreading factor to check.
-     * @return  If the spreading factor is valid
-     */
-    @Immutable
-    private static boolean isValidSF(int SF) {
-        return SF >= 7 && SF <= 12;
-    }
-
-    /**
      *  Returns The spreading factor.
      * @return The spreading factor.
      */
     @Basic
     @Raw
     public int getSF() {
-        return SF;
+        return this.sender.getRegionalParameter().getSpreadingFactor();
     }
 
     /**
@@ -295,18 +261,15 @@ public abstract class NetworkEntity implements Serializable {
      * @param SF the spreading factor to set.
      */
     public void setSF(int SF) {
-        if (isValidSF(SF)) {
-            this.SF = SF;
-            this.sender.setRegionalParameter(regionalParameters.stream().filter(r -> r.getSpreadingFactor() == this.SF)
-                .findFirst()
-                .orElseThrow());
-        }
+        this.sender.setRegionalParameter(regionalParameters.stream().filter(r -> r.getSpreadingFactor() == SF)
+            .findFirst()
+            .orElseThrow(IllegalArgumentException::new));
     }
 
 
 
     protected Environment getEnvironment() {
-        return SimulationRunner.getInstance().getEnvironment();
+        return this.environment;
     }
 
 

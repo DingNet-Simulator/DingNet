@@ -2,7 +2,6 @@ package iot.networkcommunication.impl;
 
 import iot.Characteristic;
 import iot.Environment;
-import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
@@ -33,9 +32,9 @@ public class SenderNoWaitPacket implements Sender {
      */
     private final Random random = new Random();
 
-    public SenderNoWaitPacket(NetworkEntity sender) {
+    public SenderNoWaitPacket(NetworkEntity sender, Environment environment) {
         reset();
-        this.env = SimulationRunner.getInstance().getEnvironment();
+        this.env = environment;
         this.sender = sender;
     }
 
@@ -107,24 +106,24 @@ public class SenderNoWaitPacket implements Sender {
      * @param yPos  The y-coordinate of the destination.
      * @return the transmission
      */
-    private double moveTo(int xPos, int yPos, double transmissionPower){
+    private double moveTo(int xPos, int yPos, double transmissionPower) {
         int xDist = Math.abs(xPos - sender.getXPosInt());
         int yDist = Math.abs(yPos - sender.getYPosInt());
         int xDir;
         int yDir;
         Characteristic characteristic = env.getCharacteristic(xPos, yPos);
 
-        while (getTransmissionPower() > -300 && xDist + yDist > 0){
+        while (transmissionPower > -300 && xDist + yDist > 0) {
             xDist = Math.abs(xPos - sender.getXPosInt());
             yDist = Math.abs(yPos - sender.getYPosInt());
             xDir = Integer.signum(xPos - sender.getXPosInt());
             yDir = Integer.signum(yPos - sender.getYPosInt());
             characteristic = env.getCharacteristic(xPos, yPos);
 
-            if(xDist + yDist > 1){
-                if(xDist >  2*yDist || yDist >  2*xDist){
+            if (xDist + yDist > 1) {
+                if (xDist >  2*yDist || yDist >  2*xDist) {
                     transmissionPower = transmissionPower - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1));
-                    if(xDist >  2*yDist) {
+                    if (xDist >  2*yDist) {
                         xPos = xPos - xDir;
                     }
                     else{
@@ -138,8 +137,8 @@ public class SenderNoWaitPacket implements Sender {
                 }
             }
 
-            else if (xDist + yDist == 1){
-                if(xDist >  yDist){
+            else if (xDist + yDist == 1) {
+                if (xDist >  yDist) {
                     xPos = xPos - xDir;
                 }
                 else {

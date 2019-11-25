@@ -67,8 +67,8 @@ public class Environment implements Serializable {
     private GlobalClock clock;
 
 
-    GraphStructure graph;
-    MapHelper mapHelper;
+    private GraphStructure graph;
+    private MapHelper mapHelper;
 
 
     /**

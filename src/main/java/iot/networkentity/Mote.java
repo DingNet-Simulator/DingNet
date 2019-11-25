@@ -3,6 +3,7 @@ package iot.networkentity;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
+import iot.Environment;
 import iot.GlobalClock;
 import iot.lora.*;
 import iot.strategy.consume.ConsumePacketStrategy;
@@ -91,8 +92,8 @@ public class Mote extends NetworkEntity {
     @Raw
     public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
                 int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
-                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset) {
-        super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0);
+                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
+        super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
         OverTheAirActivation();
         this.moteSensors = moteSensors;
         this.path = path;
@@ -118,10 +119,10 @@ public class Mote extends NetworkEntity {
      * @param movementSpeed The movement speed of this mote.
      */
     @Raw
-    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
-                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed) {
+    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
+                List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, Environment environment) {
         this(DevEUI,xPos,yPos, transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
-            Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET);
+            Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET, environment);
     }
 
 

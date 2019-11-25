@@ -13,7 +13,7 @@ public class SensorDataPainter implements Painter<JXMapViewer> {
     private GeoPosition position;
     private Paint color;
 
-    public SensorDataPainter(GeoPosition position, Paint color){
+    public SensorDataPainter(GeoPosition position, Paint color) {
         this.position = position;
         this.color = color;
 

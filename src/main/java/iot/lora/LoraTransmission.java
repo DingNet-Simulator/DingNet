@@ -159,7 +159,7 @@ public class LoraTransmission implements Serializable{
      */
     @Model
     private void setTransmissionPower(double transmissionPower) {
-        if (isValidTransmissionPower(transmissionPower)){
+        if (isValidTransmissionPower(transmissionPower)) {
             this.transmissionPower = transmissionPower;
         }
         else

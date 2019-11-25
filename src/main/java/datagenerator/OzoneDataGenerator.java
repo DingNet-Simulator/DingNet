@@ -38,11 +38,11 @@ public class OzoneDataGenerator implements SensorDataGenerator {
      * @param time The time of the measurement.
      * @return A measurement of ozone at the given position and time.
      */
-    public byte[] generateData(int x, int y, LocalTime time){
+    public byte[] generateData(int x, int y, LocalTime time) {
         double result = OzoneDataGenerator.generateData(x,  y);
         return new byte[]{(byte)Math.floorMod((int) Math.round(result),255)};
     }
-    public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time){
+    public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time) {
         return this.generateData(pos.getLeft(), pos.getRight(), time);
     }
 }

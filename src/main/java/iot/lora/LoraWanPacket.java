@@ -58,7 +58,7 @@ public class LoraWanPacket implements Serializable {
      * @param macCommands
      */
     public LoraWanPacket(long senderEUI, long designatedReceiverEUI, byte[] payload, FrameHeader header, boolean lowDataRateOptimization,
-                         int amountOfPreambleSymbols, double codingRate, List<MacCommand> macCommands){
+                         int amountOfPreambleSymbols, double codingRate, List<MacCommand> macCommands) {
         this.senderEUI = senderEUI;
         this.designatedReceiverEUI = designatedReceiverEUI;
         this.amountOfPreambleSymbols = amountOfPreambleSymbols;
@@ -78,7 +78,7 @@ public class LoraWanPacket implements Serializable {
      * @param header
      * @param macCommands
      */
-    public LoraWanPacket(long senderEUI, long designatedReceiverEUI, byte[] payload, FrameHeader header, List<MacCommand> macCommands){
+    public LoraWanPacket(long senderEUI, long designatedReceiverEUI, byte[] payload, FrameHeader header, List<MacCommand> macCommands) {
         this(senderEUI, designatedReceiverEUI, payload, header,false,8,0.8,macCommands);
     }
 
@@ -107,7 +107,7 @@ public class LoraWanPacket implements Serializable {
      * Returns the MAC commands
      * @return the MAC commands.
      */
-    public List<MacCommand> getMacCommands(){
+    public List<MacCommand> getMacCommands() {
         return macCommands;
     }
 
@@ -171,7 +171,7 @@ public class LoraWanPacket implements Serializable {
      * Returns the length in symbols.
      * @return the length in symbols.
      */
-    public int getLength(){
+    public int getLength() {
         return length;
     }
 

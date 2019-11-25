@@ -147,7 +147,7 @@ public class Statistics {
     public List<Double> getUsedEnergy(long networkEntity, int run) {
         List<Double> usedEnergy = new LinkedList<>();
         int i= 0;
-        for(LoraTransmission transmission: getSentTransmissions(networkEntity, run)) {
+        for (LoraTransmission transmission: getSentTransmissions(networkEntity, run)) {
             usedEnergy.add(Math.pow(10,((double)getPowerSettingHistory(networkEntity, run).get(i).getRight())/10)*transmission.getTimeOnAir()/1000);
             i++;
         }
