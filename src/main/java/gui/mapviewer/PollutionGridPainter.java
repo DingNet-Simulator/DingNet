@@ -18,11 +18,11 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
     private Environment environment;
 
 
-    public PollutionGridPainter(Environment environment) {
+    public PollutionGridPainter(Environment environment, PollutionGrid pollutionGrid) {
         this.setAntialiasing(GUISettings.USE_ANTIALIASING);
         this.setCacheable(true);
 
-        this.pollutionGrid = PollutionGrid.getInstance();
+        this.pollutionGrid = pollutionGrid;
         this.environment = environment;
     }
 

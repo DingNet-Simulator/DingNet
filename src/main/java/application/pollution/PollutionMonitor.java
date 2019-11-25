@@ -21,15 +21,15 @@ public class PollutionMonitor extends Application {
     private Environment environment;
 
 
-    public PollutionMonitor(Environment environment) {
+    public PollutionMonitor(Environment environment, PollutionGrid pollutionGrid) {
         super(List.of(Topics.getNetServerToApp("+", "+")));
 
-        this.pollutionGrid = PollutionGrid.getInstance();
+        this.pollutionGrid = pollutionGrid;
         this.environment = environment;
     }
 
 
-    private double determinePollutionLevel(Map<MoteSensor, Byte[]> sensorData) {
+    private double determinePollutionLevelFromIAQData(Map<MoteSensor, Byte[]> sensorData) {
         // NOTE: only consider IAQ sensors for now
         return sensorData.entrySet().stream()
             .filter(me -> me.getKey().equals(MoteSensor.IAQ))
@@ -67,7 +67,7 @@ public class PollutionMonitor extends Application {
             return;
         }
 
-        this.pollutionGrid.addMeasurement(message.getSenderEUI(), position, new PollutionLevel(this.determinePollutionLevel(sensorData)));
+        this.pollutionGrid.addMeasurement(message.getSenderEUI(), position, new PollutionLevel(this.determinePollutionLevelFromIAQData(sensorData)));
     }
 
     @Override

@@ -5,8 +5,11 @@ import util.Pair;
 import java.util.Comparator;
 import java.util.List;
 
+
+/**
+ * Class used to track the pollution level, specified by a value in the range [0,1] (good to bad respectively)
+ */
 public class PollutionLevel {
-    // Indicates the air quality on a scale of 0 (good) to 1 (bad)
     private double level;
 
     public PollutionLevel(double level) {
@@ -20,21 +23,27 @@ public class PollutionLevel {
         return level;
     }
 
-    /**
-     * Calculates the medium pollution level based on the provided air quality measurements
-     * and their distance to the desired position.
-     * @param measurements A list of air quality measurements and their distances to the desired position.
-     * @return A pollution level for the position.
-     */
+
     public static PollutionLevel getMediumPollution(List<Pair<Double, PollutionLevel>> measurements) {
+        return getMediumPollution(measurements, 1);
+    }
+
+        /**
+         * Calculates the medium pollution level based on the provided air quality measurements
+         * and their distance to the position in question.
+         * @param measurements A list of air quality measurements and their distances to the desired position.
+         * @param amtPoints The amount of measurement points that are used to calculate the mean pollution.
+         * @return A pollution level for the position.
+         */
+    public static PollutionLevel getMediumPollution(List<Pair<Double, PollutionLevel>> measurements, int amtPoints) {
         if (measurements.isEmpty()) {
             // In case no measurements are present yet, choose a default value of 0
             return new PollutionLevel(0);
         }
 
         measurements.sort(Comparator.comparing(Pair::getLeft));
-        if (measurements.size() > 1) {
-            measurements = measurements.subList(0, 1);
+        if (measurements.size() > amtPoints) {
+            measurements = measurements.subList(0, amtPoints);
         }
 
         /*

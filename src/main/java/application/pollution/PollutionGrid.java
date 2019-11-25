@@ -9,25 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// TODO also keep instance of pollutiongrid in SimulationRunner (similar to environment)
-//  -> remove need for singleton
 public class PollutionGrid {
-    // TODO do we assume static motes here? otherwise this becomes more difficult
-    //  -> i.e., including some notion of time, and making sure old measurements are dropped after a while
     // FIXME synchronized is necessary here, otherwise concurrent modification exceptions are thrown
     //  (even though the GUI updating should happen synchronously with invokeAndWait)
     private Map<Long, Pair<GeoPosition, PollutionLevel>> pollutionMeasurements;
 
-    private static PollutionGrid instance;
 
-    public static PollutionGrid getInstance() {
-        if (instance == null) {
-            instance = new PollutionGrid();
-        }
-        return instance;
-    }
-
-    private PollutionGrid() {
+    public PollutionGrid() {
         pollutionMeasurements = new HashMap<>();
     }
 

@@ -1,5 +1,6 @@
 package gui.util;
 
+import application.pollution.PollutionGrid;
 import application.routing.RoutingApplication;
 import gui.mapviewer.*;
 import iot.Environment;
@@ -74,8 +75,8 @@ public class CompoundPainterBuilder {
         return this;
     }
 
-    public CompoundPainterBuilder withPollutionGrid(Environment environment) {
-        painters.add(new PollutionGridPainter(environment));
+    public CompoundPainterBuilder withPollutionGrid(Environment environment, PollutionGrid pollutionGrid) {
+        painters.add(new PollutionGridPainter(environment, pollutionGrid));
         return this;
     }
 

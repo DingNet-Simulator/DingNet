@@ -2,26 +2,16 @@ package unit;
 
 import application.pollution.PollutionGrid;
 import application.pollution.PollutionLevel;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
-
-import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class TestPollutionGrid {
-    @BeforeEach
-    void init() throws NoSuchFieldException, IllegalAccessException {
-        Field instance = PollutionGrid.class.getDeclaredField("instance");
-        instance.setAccessible(true);
-        instance.set(null, null);
-    }
-
     @Test
     void addMeasurements() {
-        PollutionGrid grid = PollutionGrid.getInstance();
+        PollutionGrid grid = new PollutionGrid();
 
         grid.addMeasurement(1L, new GeoPosition(5, 5), new PollutionLevel(0.5));
         assertEquals(grid.getPollutionLevel(new GeoPosition(5, 5)).getPollutionFactor(), 0.5);
@@ -33,7 +23,7 @@ class TestPollutionGrid {
 
     @Test
     void noMeasurements() {
-        PollutionGrid grid = PollutionGrid.getInstance();
+        PollutionGrid grid = new PollutionGrid();
 
         assertEquals(grid.getPollutionLevel(new GeoPosition(5,5)).getPollutionFactor(), 0.0);
         assertEquals(grid.getPollutionLevel(new GeoPosition(50,50)).getPollutionFactor(), 0.0);

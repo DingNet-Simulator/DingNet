@@ -4,6 +4,7 @@ import application.pollution.PollutionGrid;
 import application.pollution.PollutionMonitor;
 import application.routing.AStarRouter;
 import application.routing.RoutingApplication;
+import application.routing.heuristic.SimplePollutionHeuristic;
 import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -38,6 +39,7 @@ public class SimulationRunner {
     private Simulation simulation;
     private Environment environment;
     private List<MoteProbe> moteProbe;
+    private PollutionGrid pollutionGrid;
 
     private RoutingApplication routingApplication;
     private PollutionMonitor pollutionMonitor;
@@ -95,6 +97,7 @@ public class SimulationRunner {
         }
 
         networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
+        pollutionGrid = new PollutionGrid();
         environment = null;
     }
 
@@ -123,6 +126,10 @@ public class SimulationRunner {
 
     public RoutingApplication getRoutingApplication() {
         return routingApplication;
+    }
+
+    public final PollutionGrid getPollutionGrid() {
+        return pollutionGrid;
     }
 
 
@@ -169,7 +176,7 @@ public class SimulationRunner {
      */
     private void setupSimulationRunner() {
         // Remove previous pollution measurements
-        PollutionGrid.getInstance().clean();
+        pollutionGrid.clean();
         routingApplication.clean();
 
         // Reset received transmissions in the networkServer
@@ -290,8 +297,10 @@ public class SimulationRunner {
     }
 
     private void setupApplications() {
-        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment());
-        this.routingApplication = new RoutingApplication(new AStarRouter(), getEnvironment().getGraph());
+        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
+        this.routingApplication = new RoutingApplication(
+            new AStarRouter(new SimplePollutionHeuristic(pollutionGrid)), getEnvironment().getGraph()
+        );
     }
 
     // endregion
