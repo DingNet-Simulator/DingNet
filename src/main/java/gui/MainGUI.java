@@ -20,10 +20,7 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
-import util.MapHelper;
-import util.MutableInteger;
-import util.Pair;
-import util.Statistics;
+import util.*;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -124,10 +121,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         SwingUtilities.invokeLater(() -> {
             mapViewer.setTileFactory(tileFactory);
-            tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
+            tileFactory.setThreadPoolSize(SettingsPropertiesReader.getInstance().getThreadPoolSize());
 
-            if (GUISettings.USE_MAP_CACHING) {
-                File cache = new File(GUISettings.PATH_CACHE_TILEFACTORY);
+            if (SettingsPropertiesReader.getInstance().useMapCaching()) {
+                File cache = new File(SettingsPropertiesReader.getInstance().getTileFactoryCachePath());
                 tileFactory.setLocalCache(new FileBasedLocalCache(cache, false));
             }
 
@@ -142,7 +139,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             gui.loadAlgorithms();
             frame.setVisible(true);
 
-            if (GUISettings.START_FULL_SCREEN) {
+            if (SettingsPropertiesReader.getInstance().startFullScreen()) {
                 frame.setExtendedState(Frame.MAXIMIZED_BOTH);
             }
         });
@@ -151,7 +148,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     public MainGUI(SimulationRunner simulationRunner) {
         this.simulationRunner = simulationRunner;
-        this.simulationSpeed = new MutableInteger(GUISettings.BASE_VISUALIZATION_SPEED);
+        this.simulationSpeed = new MutableInteger(SettingsPropertiesReader.getInstance().getBaseVisualizationSpeed());
 
         updateInputProfiles();
         updateAdaptationGoals();
@@ -256,7 +253,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         });
 
         speedSlider.addChangeListener(
-            e -> this.simulationSpeed.setValue(GUISettings.BASE_VISUALIZATION_SPEED * speedSlider.getValue())
+            e -> this.simulationSpeed.setValue(SettingsPropertiesReader.getInstance().getBaseVisualizationSpeed() * speedSlider.getValue())
         );
     }
 

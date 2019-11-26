@@ -1,5 +1,7 @@
 package gui.util;
 
+import util.SettingsPropertiesReader;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -22,14 +24,16 @@ public class ImageLoader {
     public static final Image IMAGE_EDIT_ICON;
 
     static {
-        IMAGE_MOTE = loadNetworkEntityImage(GUISettings.PATH_MOTE_IMAGE);
-        IMAGE_USERMOTE_ACTIVE = loadNetworkEntityImage(GUISettings.PATH_USERMOTE_ACTIVE_IMAGE);
-        IMAGE_USERMOTE_INACTIVE = loadNetworkEntityImage(GUISettings.PATH_USERMOTE_INACTIVE_IMAGE);
-        IMAGE_GATEWAY = loadNetworkEntityImage(GUISettings.PATH_GATEWAY_IMAGE);
+        SettingsPropertiesReader reader = SettingsPropertiesReader.getInstance();
 
-        IMAGE_CIRCLE_SELECTED = loadInputProfileImage(GUISettings.PATH_CIRCLE_SELECTED);
-        IMAGE_CIRCLE_UNSELECTED = loadInputProfileImage(GUISettings.PATH_CIRCLE_UNSELECTED);
-        IMAGE_EDIT_ICON = loadInputProfileImage(GUISettings.PATH_EDIT_ICON);
+        IMAGE_MOTE = loadNetworkEntityImage(reader.getMoteImagePath());
+        IMAGE_USERMOTE_ACTIVE = loadNetworkEntityImage(reader.getActiveUsermoteImagePath());
+        IMAGE_USERMOTE_INACTIVE = loadNetworkEntityImage(reader.getInactiveUsermoteImagePath());
+        IMAGE_GATEWAY = loadNetworkEntityImage(reader.getGatewayImagePath());
+
+        IMAGE_CIRCLE_SELECTED = loadInputProfileImage(reader.getSelectedCircleImagePath());
+        IMAGE_CIRCLE_UNSELECTED = loadInputProfileImage(reader.getUnselectedCircleImagePath());
+        IMAGE_EDIT_ICON = loadInputProfileImage(reader.getEditIconImagePath());
     }
 
     private static BufferedImage loadNetworkEntityImage(String path) {
