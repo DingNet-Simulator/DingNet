@@ -13,10 +13,6 @@ public class IAQSensorConfigSpec {
 
     public static final RequiredItem<Integer> columns = new RequiredItem<>(SPEC, "columns") {};
 
-    public static final RequiredItem<Integer> width = new RequiredItem<>(SPEC, "width") {};
-
-    public static final RequiredItem<Integer> height = new RequiredItem<>(SPEC, "height") {};
-
     public static final RequiredItem<AirQualityLevel> defaultLevel = new RequiredItem<>(SPEC, "defaultLevel") {};
 
     public static final RequiredItem<TimeUnit> timeUnit= new RequiredItem<>(SPEC, "timeUnit") {};
