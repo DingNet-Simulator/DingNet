@@ -1,13 +1,13 @@
 package gui.mapviewer;
 
 import application.pollution.PollutionGrid;
-import gui.util.GUISettings;
 import iot.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactory;
 import util.MapHelper;
+import util.SettingsPropertiesReader;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -19,7 +19,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
 
 
     public PollutionGridPainter(Environment environment, PollutionGrid pollutionGrid) {
-        this.setAntialiasing(GUISettings.USE_ANTIALIASING);
+        this.setAntialiasing(SettingsPropertiesReader.getInstance().useGUIAntialiasing());
         this.setCacheable(true);
 
         this.pollutionGrid = pollutionGrid;
@@ -35,7 +35,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
         Rectangle rect = map.getViewportBounds();
         g.translate(-rect.x, -rect.y);
 
-        if (GUISettings.USE_ANTIALIASING) {
+        if (SettingsPropertiesReader.getInstance().useGUIAntialiasing()) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
 
@@ -43,7 +43,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
         int maxY = environment.getMaxYpos() + 1;
 
         // Can decide to be more fine grained later on
-        final int DIVISION = GUISettings.POLLUTION_GRID_SQUARES;
+        final int DIVISION = SettingsPropertiesReader.getInstance().getPollutionGridSquares();
         TileFactory factory = map.getTileFactory();
         MapHelper mapHelper = environment.getMapHelper();
 
@@ -64,7 +64,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
 
                 float airQuality = (float) pollutionGrid.getPollutionLevel(middle).getPollutionFactor();
                 g.setColor(this.getColor(airQuality));
-                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, GUISettings.TRANSPARENCY_POLLUTIONGRID));
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, SettingsPropertiesReader.getInstance().getPollutionGridTransparency()));
                 g.fill(new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
                     Math.abs(topLeft.getX() - bottomRight.getX()), Math.abs(topLeft.getY() - bottomRight.getY())));
             }
