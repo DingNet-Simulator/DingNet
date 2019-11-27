@@ -4,10 +4,9 @@ import iot.mqtt.MQTTClientFactory;
 
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class SettingsPropertiesReader {
 
@@ -19,8 +18,10 @@ public class SettingsPropertiesReader {
     private SettingsPropertiesReader() {
         properties = new Properties();
 
-        // TODO adjust so that the simulator saves the last used settings file, and tries to reload this file at startup
-        this.loadDefaultSettings();
+        getLastUsedSettingsProfile().ifPresentOrElse(
+            s -> loadSettings(Paths.get(Constants.PATH_CUSTOM_SETTINGS, s).toString()),
+            this::loadDefaultSettings
+        );
 
         // Make the standard DingNet cache directory if it does not exist yet
         File dingNetCache = new File(Constants.PATH_DINGNET_CACHE);
@@ -243,6 +244,40 @@ public class SettingsPropertiesReader {
         }
 
         return customSettingsFilenames;
+    }
+
+    public static Optional<String> getLastUsedSettingsProfile() {
+        Properties cacheProperties = new Properties();
+
+        if (new File(Constants.DINGNET_CACHE_FILE).exists()) {
+            try {
+                cacheProperties.load(new FileInputStream(Constants.DINGNET_CACHE_FILE));
+                var lastUsed = cacheProperties.getProperty("settings.lastUsed");
+
+                if (lastUsed != null && new File(Paths.get(Constants.PATH_CUSTOM_SETTINGS, lastUsed.trim()).toString()).exists()) {
+                    return Optional.of(lastUsed.trim());
+                }
+
+            } catch (IOException ignored) {}
+        }
+        return Optional.empty();
+    }
+
+    public static void updateLastUsedSettingsProfile(String profile) {
+        // Create the file if it doesn't exist yet
+        File file = new File(Constants.DINGNET_CACHE_FILE);
+        Properties cacheProperties = new Properties();
+
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            } else {
+                cacheProperties.load(new FileInputStream(Constants.DINGNET_CACHE_FILE));
+            }
+
+            cacheProperties.put("settings.lastUsed", profile);
+            cacheProperties.store(new FileOutputStream(Constants.DINGNET_CACHE_FILE), "");
+        } catch (IOException ignored) {}
     }
 
     // endregion

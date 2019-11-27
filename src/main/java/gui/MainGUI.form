@@ -102,7 +102,7 @@
             <constraints/>
             <properties/>
           </component>
-          <component id="39795" class="javax.swing.JButton" binding="SettingsButton">
+          <component id="39795" class="javax.swing.JButton" binding="settingsButton">
             <constraints/>
             <properties>
               <text value="Settings"/>

@@ -96,7 +96,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private JSplitPane statisticsSplitPane;
     private JPanel inputProfilePanel;
     private JPanel statisticsPanel;
-    private JButton SettingsButton;
+    private JButton settingsButton;
     private JComboBox<String> settingsProfilesComboBox;
 
     private static JXMapViewer mapViewer = new JXMapViewer();
@@ -152,6 +152,15 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         updateInputProfiles();
         updateAdaptationGoals();
         updateSettingsProfiles();
+        SettingsPropertiesReader.getLastUsedSettingsProfile().ifPresent(s -> {
+            var model = settingsProfilesComboBox.getModel();
+            for (int i = 0; i < model.getSize(); i++) {
+                if (model.getElementAt(i).equals(s.replace(".properties", ""))) {
+                    settingsProfilesComboBox.setSelectedIndex(i);
+                    // In the constructor of the settings reader, the settings have already been loaded.
+                }
+            }
+        });
 
         resultsButton.setEnabled(false);
         editColBoundButton.setEnabled(false);
@@ -226,6 +235,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
                 SettingsPropertiesReader.getInstance().loadSettings(
                     Paths.get(Constants.PATH_CUSTOM_SETTINGS, chosenProfile + ".properties").toString()
                 );
+                SettingsPropertiesReader.updateLastUsedSettingsProfile(chosenProfile + ".properties");
 
                 // Check if a configuration has already been loaded (i.e., an environment has been constructed)
                 if (this.simulationRunner.getEnvironment() != null) {
@@ -271,8 +281,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             e -> this.simulationSpeed.setValue(SettingsPropertiesReader.getInstance().getBaseVisualizationSpeed() * speedSlider.getValue())
         );
 
-        SettingsButton.addActionListener(e -> {
-            // TODO store the currently selected profile (and reload afterwards)
+        settingsButton.addActionListener(e -> {
             String currentSettingsProfile = (String) settingsProfilesComboBox.getSelectedItem();
 
             JFrame frame = new JFrame("Edit settings");
@@ -1082,9 +1091,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         configurationToolBar.add(settingsProfilesComboBox);
         final JToolBar.Separator toolBar$Separator6 = new JToolBar.Separator();
         configurationToolBar.add(toolBar$Separator6);
-        SettingsButton = new JButton();
-        SettingsButton.setText("Settings");
-        configurationToolBar.add(SettingsButton);
+        settingsButton = new JButton();
+        settingsButton.setText("Settings");
+        configurationToolBar.add(settingsButton);
         final JToolBar.Separator toolBar$Separator7 = new JToolBar.Separator();
         configurationToolBar.add(toolBar$Separator7);
         mainWindowSplitPane = new JSplitPane();
