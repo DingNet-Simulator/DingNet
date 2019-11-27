@@ -1,5 +1,7 @@
 package datagenerator.rangedsensor.abstractimpl;
 
+import com.uchuhimo.konf.BaseConfig;
+import com.uchuhimo.konf.Config;
 import datagenerator.SensorDataGenerator;
 import datagenerator.rangedsensor.api.Cell;
 import datagenerator.rangedsensor.api.RangeSensor;
@@ -11,6 +13,7 @@ import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -33,10 +36,20 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     protected TimeUnit timeUnit;
     protected Map<Integer, List<Cell>> map;
 
-    public RangeDataGenerator() {
+    public RangeDataGenerator(AbstractSensorConfigSpec<?,?> sensorConfig) {
         width = Environment.getMapWidth();
         height = Environment.getMapHeight();
+        Config config = new BaseConfig();
+        config.addSpec(sensorConfig.SPEC);
+        config = config.from().toml.inputStream(this.getClass().getResourceAsStream(getConfigFilePath()));
+        row = config.get(sensorConfig.row);
+        defaultLevel = config.get(sensorConfig.defaultLevel);
+        timeUnit = config.get(sensorConfig.timeUnit);
+        map = config.get(sensorConfig.cells).stream().collect(Collectors.groupingBy(Cell::getCellNumber));
+        map.forEach((e, v) -> v.sort((c1, c2) -> Double.compare(c2.getFromTime(), c1.getFromTime())));
     }
+
+    protected abstract String getConfigFilePath();
 
     @Override
     public byte[] generateData(int x, int y, LocalTime time) {

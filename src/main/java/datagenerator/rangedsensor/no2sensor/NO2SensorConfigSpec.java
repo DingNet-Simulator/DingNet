@@ -1,22 +1,19 @@
 package datagenerator.rangedsensor.no2sensor;
 
-import com.uchuhimo.konf.ConfigSpec;
 import com.uchuhimo.konf.RequiredItem;
-import datagenerator.rangedsensor.api.TimeUnit;
+import datagenerator.rangedsensor.abstractimpl.AbstractSensorConfigSpec;
 
 import java.util.List;
 
-public class NO2SensorConfigSpec {
+public class NO2SensorConfigSpec extends AbstractSensorConfigSpec<NO2Level, NO2Cell> {
 
-    public static final ConfigSpec SPEC = new ConfigSpec("PM10Sensor");
+    @Override
+    protected RequiredItem<NO2Level> getDefaultLevelItem() {
+        return new RequiredItem<>(SPEC, "defaultLevel") {};
+    }
 
-    public static final RequiredItem<Integer> row = new RequiredItem<>(SPEC, "row") {};
-
-    public static final RequiredItem<Integer> columns = new RequiredItem<>(SPEC, "columns") {};
-
-    public static final RequiredItem<NO2Level> defaultLevel = new RequiredItem<>(SPEC, "defaultLevel") {};
-
-    public static final RequiredItem<TimeUnit> timeUnit= new RequiredItem<>(SPEC, "timeUnit") {};
-
-    public static final RequiredItem<List<NO2Cell>> cells = new RequiredItem<>(SPEC, "cell") {};
+    @Override
+    protected RequiredItem<List<NO2Cell>> getCellsItem() {
+        return new RequiredItem<>(SPEC, "cell") {};
+    }
 }

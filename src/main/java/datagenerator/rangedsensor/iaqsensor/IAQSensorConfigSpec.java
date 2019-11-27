@@ -1,24 +1,19 @@
 package datagenerator.rangedsensor.iaqsensor;
 
-import com.uchuhimo.konf.ConfigSpec;
 import com.uchuhimo.konf.RequiredItem;
-import datagenerator.rangedsensor.api.TimeUnit;
+import datagenerator.rangedsensor.abstractimpl.AbstractSensorConfigSpec;
 
 import java.util.List;
 
-public class IAQSensorConfigSpec {
+public class IAQSensorConfigSpec extends AbstractSensorConfigSpec<AirQualityLevel, IAQCell> {
 
-    public static final ConfigSpec SPEC = new ConfigSpec("IAQSensor");
+    @Override
+    protected RequiredItem<AirQualityLevel> getDefaultLevelItem() {
+        return new RequiredItem<>(SPEC, "defaultLevel") {};
+    }
 
-    public static final RequiredItem<Integer> row = new RequiredItem<>(SPEC, "row") {};
-
-    public static final RequiredItem<Integer> columns = new RequiredItem<>(SPEC, "columns") {};
-
-    public static final RequiredItem<AirQualityLevel> defaultLevel = new RequiredItem<>(SPEC, "defaultLevel") {};
-
-    public static final RequiredItem<TimeUnit> timeUnit= new RequiredItem<>(SPEC, "timeUnit") {};
-
-    public static final RequiredItem<List<IAQCell>> cells = new RequiredItem<>(SPEC, "cell") {};
-
-
+    @Override
+    protected RequiredItem<List<IAQCell>> getCellsItem() {
+        return new RequiredItem<>(SPEC, "cell") {};
+    }
 }
