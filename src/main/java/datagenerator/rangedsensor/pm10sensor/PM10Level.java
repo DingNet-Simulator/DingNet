@@ -2,6 +2,8 @@ package datagenerator.rangedsensor.pm10sensor;
 
 import datagenerator.rangedsensor.api.RangeSensor;
 
+import java.util.Random;
+
 public enum PM10Level implements RangeSensor {
 
     VERY_LOW(0, 25),
@@ -12,6 +14,7 @@ public enum PM10Level implements RangeSensor {
 
     private final int lowerBound;
     private final int upperBound;
+    private final Random random = new Random(1);
 
     PM10Level(int lowerBound, int upperBound) {
         this.lowerBound = lowerBound;
@@ -26,5 +29,10 @@ public enum PM10Level implements RangeSensor {
     @Override
     public int getUpperBound() {
         return upperBound;
+    }
+
+    @Override
+    public byte[] getValue() {
+        return new byte[] { (byte) (getLowerBound() + random.nextInt(getUpperBound()-getLowerBound()))};
     }
 }

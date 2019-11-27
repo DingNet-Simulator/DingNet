@@ -5,8 +5,5 @@ public interface RangeSensor {
 
     int getUpperBound();
 
-    //TODO
-    default byte[] getValue() {
-        return new byte[] {0};
-    }
+    byte[] getValue();
 }
