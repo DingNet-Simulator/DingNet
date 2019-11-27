@@ -70,7 +70,14 @@ public class Path implements Iterable<GeoPosition> {
         return isEmpty() ? Optional.empty() : Optional.of(points.get(points.size()-1));
     }
 
-
+    public Optional<GeoPosition> getNextPoint(GeoPosition actualPoint) {
+        var points = getWayPoints();
+        points = points.subList(points.indexOf(actualPoint) + 1, points.size());
+        if (!points.isEmpty() && MapHelper.equalsGeoPosition(actualPoint, points.get(0))) {
+            return Optional.of(points.get(0));
+        }
+        return Optional.empty();
+    }
 
 
     /**

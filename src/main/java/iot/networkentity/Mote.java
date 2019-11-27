@@ -10,7 +10,6 @@ import iot.strategy.consume.ConsumePacketStrategy;
 import iot.strategy.store.MaintainLastPacket;
 import iot.strategy.store.ReceivedPacketStrategy;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.MapHelper;
 import util.Path;
 
 import java.util.*;
@@ -218,13 +217,9 @@ public class Mote extends NetworkEntity {
         super.setPos(xPos, yPos);
 
         if (!getPath().isEmpty()) {
-            var newPos = getEnvironment().getMapHelper().toGeoPosition(getPosInt());
-            var points = getPath().getWayPoints();
-            points = points.subList(points.indexOf(getGraphPosition()) + 1, points.size());
-            if (!points.isEmpty() &&
-                MapHelper.distance(newPos, points.get(0)) <= DISTANCE_THRESHOLD_ROUNDING_ERROR) {
-                graphPosition = points.get(0);
-            }
+            getPath()
+                .getNextPoint(getEnvironment().getMapHelper().toGeoPosition(getPosInt()))
+                .ifPresent(p -> graphPosition = p);
         }
     }
 
