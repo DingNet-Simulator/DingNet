@@ -1,4 +1,4 @@
-package datagenerator.iaqsensor;
+package datagenerator.rangedsensor.api;
 
 public enum TimeUnit {
 
