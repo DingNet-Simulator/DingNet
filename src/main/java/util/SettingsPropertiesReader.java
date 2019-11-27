@@ -4,7 +4,6 @@ import iot.mqtt.MQTTClientFactory;
 
 import java.awt.*;
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,13 +20,7 @@ public class SettingsPropertiesReader {
         properties = new Properties();
 
         // TODO adjust so that the simulator saves the last used settings file, and tries to reload this file at startup
-        String customFilePath = Paths.get(Constants.PATH_CUSTOM_SETTINGS, "custom_settings.properties").toString();
-        File customSettingsFile = new File(customFilePath);
-        if (customSettingsFile.exists()) {
-            this.loadSettings(customFilePath);
-        } else {
-            this.loadDefaultSettings();
-        }
+        this.loadDefaultSettings();
 
         // Make the standard DingNet cache directory if it does not exist yet
         File dingNetCache = new File(Constants.PATH_DINGNET_CACHE);
