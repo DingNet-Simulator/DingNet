@@ -3,18 +3,11 @@ package util;
 import iot.mqtt.MQTTClientFactory;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Path;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.Properties;
 
 public class SettingsPropertiesReader {
-    private static Path DINGNET_CACHE_PATH = Paths.get(System.getProperty("user.home"), ".DingNet");
-    private static Path PATH_TO_CUSTOM_SETTINGS = Paths.get(DINGNET_CACHE_PATH.toString(), "settings");
-
-    private static String DEFAULT_SETTINGS_FILE = "/settings/default.properties";
 
     private static SettingsPropertiesReader instance;
 
@@ -24,24 +17,17 @@ public class SettingsPropertiesReader {
     private SettingsPropertiesReader() {
         properties = new Properties();
 
-        String customFilePath = Paths.get(PATH_TO_CUSTOM_SETTINGS.toString(), "custom_settings.properties").toString();
+        // TODO adjust so that the simulator saves the last used settings file, and tries to reload this file at startup
+        String customFilePath = Paths.get(Constants.PATH_CUSTOM_SETTINGS, "custom_settings.properties").toString();
         File customSettingsFile = new File(customFilePath);
         if (customSettingsFile.exists()) {
-            try {
-                properties.load(new FileInputStream(customSettingsFile));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.loadSettings(customFilePath);
         } else {
-            try {
-                properties.load(SettingsPropertiesReader.class.getResourceAsStream(DEFAULT_SETTINGS_FILE));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.loadDefaultSettings();
         }
 
         // Make the standard DingNet cache directory if it does not exist yet
-        File dingNetCache = new File(DINGNET_CACHE_PATH.toUri());
+        File dingNetCache = new File(Constants.PATH_DINGNET_CACHE);
         if (!dingNetCache.exists()) {
             dingNetCache.mkdir();
         }
@@ -54,6 +40,26 @@ public class SettingsPropertiesReader {
             }
         }
 
+    }
+
+    public void loadDefaultSettings() {
+        this.loadSettings(SettingsPropertiesReader.class.getResourceAsStream(Constants.DEFAULT_SETTINGS_FILE));
+    }
+
+    public void loadSettings(String fileLocation) {
+        try {
+            loadSettings(new FileInputStream(fileLocation));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadSettings(InputStream stream) {
+        try {
+            properties.load(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static SettingsPropertiesReader getInstance() {
@@ -85,7 +91,7 @@ public class SettingsPropertiesReader {
         return properties.getProperty("gui.UseMapCaching").trim().toLowerCase().equals("true");
     }
 
-    public boolean startFullScreen() {
+    public boolean shouldStartFullScreen() {
         return properties.getProperty("gui.StartFullScreen").trim().toLowerCase().equals("true");
     }
 
@@ -203,6 +209,20 @@ public class SettingsPropertiesReader {
         return new Color(Integer.parseInt(colorValues[0].trim()),
             Integer.parseInt(colorValues[1].trim()),
             Integer.parseInt(colorValues[2].trim()));
+    }
+
+    public void updateProperty(String property, String value) {
+        properties.put(property, value);
+    }
+
+    public void store(File file) {
+        try {
+            var fileStream = new FileOutputStream(file);
+            properties.store(fileStream, "");
+            fileStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // endregion
