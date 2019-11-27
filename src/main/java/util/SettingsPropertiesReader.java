@@ -28,6 +28,11 @@ public class SettingsPropertiesReader {
             dingNetCache.mkdir();
         }
 
+        File settingsProfiles = new File(Constants.PATH_CUSTOM_SETTINGS);
+        if (!settingsProfiles.exists()) {
+            settingsProfiles.mkdir();
+        }
+
         // Make sure the GUI map cache directory also exists (if used in this simulation)
         if (this.useMapCaching()) {
             File mapCache = new File(this.getTileFactoryCachePath());
