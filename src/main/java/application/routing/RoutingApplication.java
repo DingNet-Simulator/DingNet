@@ -143,7 +143,8 @@ public class RoutingApplication extends Application {
                     }
                 }
 
-                if (currentRoute.size() < AMOUNT_OF_POSITIONS_SENT) {
+                // If only 2 (or 1) positions left, the user mote could already be travelling over the connection to the destination
+                if (currentRoute.size() <= 2) {
                     return;
                 }
 
