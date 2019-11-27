@@ -20,6 +20,9 @@ public class ReplacePath extends AddPositionToPath {
             return;
         }
         if (motePath.getWayPoints().size() == 1 && MapHelper.equalsGeoPosition(motePath.getWayPoints().get(0), path.get(0))) {
+            // Do NOT override the first position (slightly different due to floating point conversions
+            path.remove(0);
+            path.add(0, motePath.getWayPoints().get(0));
             motePath.setPath(path);
             return;
         }
@@ -27,7 +30,7 @@ public class ReplacePath extends AddPositionToPath {
         if (nextPos.isPresent() && MapHelper.equalsGeoPosition(nextPos.get(), path.get(0))) {
             var newPath = motePath.getWayPoints()
                 .stream()
-                .limit(motePath.getWayPoints().indexOf(nextPos.get()) - 1)
+                .limit(motePath.getWayPoints().indexOf(nextPos.get()))
                 .collect(Collectors.toList());
             newPath.addAll(path);
             motePath.setPath(newPath);

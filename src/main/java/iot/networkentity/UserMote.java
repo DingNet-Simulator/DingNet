@@ -104,6 +104,9 @@ public class UserMote extends Mote {
 
         setPath(new Path(List.of(this.getEnvironment().getMapHelper().toGeoPosition(this.getPosInt())),
             this.getEnvironment().getGraph()));
+        // noinspection OptionalGetWithoutIsPresent
+        this.graphPosition = getPath().getSource().get();
+
         this.alreadyRequested = false;
         consumePacketStrategies.add(new ReplacePath());
     }

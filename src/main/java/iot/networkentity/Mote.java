@@ -10,6 +10,7 @@ import iot.strategy.consume.ConsumePacketStrategy;
 import iot.strategy.store.MaintainLastPacket;
 import iot.strategy.store.ReceivedPacketStrategy;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.MapHelper;
 import util.Path;
 
 import java.util.*;
@@ -39,7 +40,7 @@ public class Mote extends NetworkEntity {
     @Model
     private Path path;
 
-    private GeoPosition graphPosition;
+    protected GeoPosition graphPosition;
 
     // An integer representing the energy level of the mote.
     @Model
@@ -217,9 +218,14 @@ public class Mote extends NetworkEntity {
         super.setPos(xPos, yPos);
 
         if (!getPath().isEmpty()) {
-            getPath()
-                .getNextPoint(getEnvironment().getMapHelper().toGeoPosition(getPosInt()))
-                .ifPresent(p -> graphPosition = p);
+            var actualPoint = getEnvironment().getMapHelper().toGeoPosition(getPosInt());
+
+            getPath().getNextPoint(graphPosition)
+                .ifPresent(p -> {
+                    if (MapHelper.equalsGeoPosition(actualPoint, p)) {
+                        graphPosition = p;
+                    }
+                });
         }
     }
 
