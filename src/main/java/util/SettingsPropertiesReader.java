@@ -5,6 +5,9 @@ import iot.mqtt.MQTTClientFactory;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class SettingsPropertiesReader {
@@ -223,6 +226,25 @@ public class SettingsPropertiesReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<String> getCustomSettingsFiles() {
+        List<String> customSettingsFilenames = new ArrayList<>();
+
+        File customSettingsDir = new File(Constants.PATH_CUSTOM_SETTINGS);
+
+        if (customSettingsDir.exists() && customSettingsDir.isDirectory()) {
+            // Check the filenames and put the in the list
+            File[] files = customSettingsDir.listFiles();
+            if (files != null) {
+                Arrays.sort(files);
+                for (File settingsFile : files) {
+                    customSettingsFilenames.add(settingsFile.getName());
+                }
+            }
+        }
+
+        return customSettingsFilenames;
     }
 
     // endregion

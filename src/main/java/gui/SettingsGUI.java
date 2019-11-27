@@ -12,8 +12,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.*;
+import java.util.Properties;
 import java.util.function.Supplier;
 
 public class SettingsGUI {
@@ -94,21 +96,7 @@ public class SettingsGUI {
     }
 
     private void loadCustomSettings() {
-        // TODO put directory string in some "Constants" class
-        customSettingsFilenames = new ArrayList<>();
-
-        File customSettingsDir = new File(Constants.PATH_CUSTOM_SETTINGS);
-
-        if (customSettingsDir.exists() && customSettingsDir.isDirectory()) {
-            // Check the filenames and put the in the list
-            File[] files = customSettingsDir.listFiles();
-            if (files != null) {
-                Arrays.sort(files);
-                for (File settingsFile : files) {
-                    customSettingsFilenames.add(settingsFile.getName());
-                }
-            }
-        }
+        customSettingsFilenames = SettingsPropertiesReader.getCustomSettingsFiles();
 
         updateGUISettingsList();
     }
@@ -300,6 +288,10 @@ public class SettingsGUI {
                 ).toString())
             );
         });
+    }
+
+    public List<String> getSettingsProfiles() {
+        return customSettingsFilenames;
     }
 
 

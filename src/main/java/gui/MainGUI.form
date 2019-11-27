@@ -14,7 +14,7 @@
       <toolbar id="5e0b1" binding="configurationToolBar">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="-1" height="20"/>
+            <preferred-size width="-1" height="30"/>
           </grid>
         </constraints>
         <properties>
@@ -88,9 +88,30 @@
               <text value="About"/>
             </properties>
           </component>
-          <hspacer id="bd08d">
+          <hspacer id="d3c03">
             <constraints/>
           </hspacer>
+          <component id="46e36" class="javax.swing.JComboBox" binding="settingsProfilesComboBox">
+            <constraints/>
+            <properties>
+              <minimumSize width="30" height="15"/>
+              <preferredSize width="30" height="15"/>
+            </properties>
+          </component>
+          <component id="de7c" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties/>
+          </component>
+          <component id="39795" class="javax.swing.JButton" binding="SettingsButton">
+            <constraints/>
+            <properties>
+              <text value="Settings"/>
+            </properties>
+          </component>
+          <component id="7b65" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties/>
+          </component>
         </children>
       </toolbar>
       <splitpane id="a237f" binding="mainWindowSplitPane">
@@ -239,7 +260,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <dividerLocation value="450"/>
+                  <dividerLocation value="465"/>
                 </properties>
                 <border type="none"/>
                 <children>
