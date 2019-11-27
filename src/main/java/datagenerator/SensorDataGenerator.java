@@ -19,5 +19,13 @@ public interface SensorDataGenerator {
     byte[] generateData(Pair<Integer, Integer> pos, LocalTime time);
     double nonStaticDataGeneration(double x, double y);
 
+    /**
+     *
+     * @return number of byte generated from the sensor
+     */
+    default int getAmountOfData() {
+        return 1;
+    }
+
     void reset();
 }

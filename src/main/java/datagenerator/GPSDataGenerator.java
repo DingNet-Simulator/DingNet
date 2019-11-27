@@ -26,6 +26,11 @@ public class GPSDataGenerator implements SensorDataGenerator {
     }
 
     @Override
+    public int getAmountOfData() {
+        return Float.BYTES * 2;
+    }
+
+    @Override
     public void reset() {
 
     }
