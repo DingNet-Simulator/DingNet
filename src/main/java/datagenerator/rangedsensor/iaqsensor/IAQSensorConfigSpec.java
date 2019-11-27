@@ -1,7 +1,8 @@
-package datagenerator.iaqsensor;
+package datagenerator.rangedsensor.iaqsensor;
 
 import com.uchuhimo.konf.ConfigSpec;
 import com.uchuhimo.konf.RequiredItem;
+import datagenerator.rangedsensor.api.TimeUnit;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class IAQSensorConfigSpec {
 
     public static final RequiredItem<TimeUnit> timeUnit= new RequiredItem<>(SPEC, "timeUnit") {};
 
-    public static final RequiredItem<List<Cell>> cells = new RequiredItem<>(SPEC, "cell") {};
+    public static final RequiredItem<List<IAQCell>> cells = new RequiredItem<>(SPEC, "cell") {};
 
 
 }
