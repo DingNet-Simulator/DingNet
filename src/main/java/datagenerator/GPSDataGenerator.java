@@ -1,8 +1,7 @@
 package datagenerator;
 
-import iot.SimulationRunner;
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
-import util.MapHelper;
 import util.Pair;
 
 import java.time.LocalTime;
@@ -12,13 +11,13 @@ public class GPSDataGenerator implements SensorDataGenerator {
     public GPSDataGenerator() {}
 
     @Override
-    public byte[] generateData(int x, int y, LocalTime time) {
-        MapHelper mapHelper = SimulationRunner.getInstance().getEnvironment().getMapHelper();
-        return Converter.toByteArray(mapHelper.toGeoPosition(x, y));
+    public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
+        return Converter.toByteArray(graphPosition);
     }
 
-    public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time) {
-        return this.generateData(pos.getLeft(), pos.getRight(), time);
+    @Override
+    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
+        return this.generateData(pos.getLeft(), pos.getRight(), graphPosition, time);
     }
 
     public double nonStaticDataGeneration(double x, double y) {

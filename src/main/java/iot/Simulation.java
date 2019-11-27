@@ -204,7 +204,7 @@ public class Simulation {
             this.getEnvironment().getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
                 mote.sendToGateWay(
                     mote.getSensors().stream()
-                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), this.getEnvironment().getClock().getTime()).stream())
+                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), mote.getGraphPosition(), this.getEnvironment().getClock().getTime()).stream())
                         .toArray(Byte[]::new),
                     new HashMap<>());
                 return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
