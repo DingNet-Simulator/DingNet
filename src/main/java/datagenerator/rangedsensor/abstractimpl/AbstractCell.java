@@ -8,11 +8,13 @@ public abstract class AbstractCell implements Cell {
     private final double fromTime;
     private final RangeSensor level;
 
-    public AbstractCell(int cellNumber, double fromTime, RangeSensor level) {
+    public AbstractCell(int cellNumber, double fromTime, String levelName) {
         this.cellNumber = cellNumber;
         this.fromTime = fromTime;
-        this.level = level;
+        this.level = deserializeRangeSensor(levelName);
     }
+
+    protected abstract RangeSensor deserializeRangeSensor(String levelName);
 
     @Override
     public int getCellNumber() {
