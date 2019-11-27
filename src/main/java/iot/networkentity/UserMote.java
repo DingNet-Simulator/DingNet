@@ -7,7 +7,7 @@ import iot.lora.BasicFrameHeader;
 import iot.lora.LoraWanPacket;
 import iot.lora.MacCommand;
 import iot.lora.MessageType;
-import iot.strategy.consume.AddPositionToPath;
+import iot.strategy.consume.ReplacePath;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.Path;
@@ -105,6 +105,6 @@ public class UserMote extends Mote {
         setPath(new Path(List.of(this.getEnvironment().getMapHelper().toGeoPosition(this.getPosInt())),
             this.getEnvironment().getGraph()));
         this.alreadyRequested = false;
-        consumePacketStrategies.add(new AddPositionToPath());
+        consumePacketStrategies.add(new ReplacePath());
     }
 }
