@@ -1,7 +1,8 @@
 package iot.networkentity;
 
 import datagenerator.*;
-import datagenerator.iaqsensor.IAQDataGeneratorSingleton;
+import datagenerator.rangedsensor.iaqsensor.IAQDataGeneratorSingleton;
+import datagenerator.rangedsensor.pm10sensor.PM10DataGeneratorSingleton;
 import util.Pair;
 
 import java.time.LocalTime;
@@ -18,7 +19,8 @@ public enum MoteSensor {
     CARBON_DIOXIDE(new CarbonDioxideDataGenerator(), 1),
     PARTICULATE_MATTER(new ParticulateMatterDataGenerator(), 1),
     GPS(new GPSDataGenerator(),8),
-    IAQ(IAQDataGeneratorSingleton.getInstance(), 1);
+    IAQ(IAQDataGeneratorSingleton.getInstance(), 1),
+    PM10(PM10DataGeneratorSingleton.getInstance(), 1);
 
 
     private final SensorDataGenerator sensorDataGenerator;
