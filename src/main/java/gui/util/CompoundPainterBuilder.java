@@ -11,7 +11,7 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.Waypoint;
 import util.GraphStructure;
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -77,8 +77,8 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withConnections(GraphStructure graph) {
-        Color lineColor = SettingsPropertiesReader.getInstance().getConnectionLineColor();
-        int lineSize = SettingsPropertiesReader.getInstance().getConnectionLineSize();
+        Color lineColor = SettingsReader.getInstance().getConnectionLineColor();
+        int lineSize = SettingsReader.getInstance().getConnectionLineSize();
 
         graph.getConnections().values().forEach(c -> painters.add(new LinePainter(List.of(graph.getWayPoint(c.getFrom()), graph.getWayPoint(c.getTo())), lineColor, lineSize)));
         return this;
@@ -100,8 +100,8 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withMotePaths(Environment environment) {
-        Color lineColor = SettingsPropertiesReader.getInstance().getMotePathLineColor();
-        int lineSize = SettingsPropertiesReader.getInstance().getMotePathLineSize();
+        Color lineColor = SettingsReader.getInstance().getMotePathLineColor();
+        int lineSize = SettingsReader.getInstance().getMotePathLineSize();
 
         environment.getMotes().forEach(m -> painters.add(new LinePainter(m.getPath().getWayPoints(), lineColor, lineSize)));
         return this;
@@ -125,8 +125,8 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withRoutingPath(Environment environment, RoutingApplication routingApplication) {
-        Color lineColor = SettingsPropertiesReader.getInstance().getRoutingPathLineColor();
-        int lineSize = SettingsPropertiesReader.getInstance().getRoutingPathLineSize();
+        Color lineColor = SettingsReader.getInstance().getRoutingPathLineColor();
+        int lineSize = SettingsReader.getInstance().getRoutingPathLineSize();
 
         // Optional painter of the complete path
         environment.getMotes().stream()

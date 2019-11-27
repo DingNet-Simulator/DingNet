@@ -8,14 +8,14 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 
-public class SettingsPropertiesReader {
+public class SettingsReader {
 
-    private static SettingsPropertiesReader instance;
+    private static SettingsReader instance;
 
     private Properties properties;
 
 
-    private SettingsPropertiesReader() {
+    private SettingsReader() {
         properties = new Properties();
 
         getLastUsedSettingsProfile().ifPresentOrElse(
@@ -45,7 +45,7 @@ public class SettingsPropertiesReader {
     }
 
     public void loadDefaultSettings() {
-        this.loadSettings(SettingsPropertiesReader.class.getResourceAsStream(Constants.DEFAULT_SETTINGS_FILE));
+        this.loadSettings(SettingsReader.class.getResourceAsStream(Constants.DEFAULT_SETTINGS_FILE));
     }
 
     public void loadSettings(String fileLocation) {
@@ -64,9 +64,9 @@ public class SettingsPropertiesReader {
         }
     }
 
-    public static SettingsPropertiesReader getInstance() {
+    public static SettingsReader getInstance() {
         if (instance == null) {
-            instance = new SettingsPropertiesReader();
+            instance = new SettingsReader();
         }
 
         return instance;

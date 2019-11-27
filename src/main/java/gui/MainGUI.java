@@ -120,10 +120,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         SwingUtilities.invokeLater(() -> {
             mapViewer.setTileFactory(tileFactory);
-            tileFactory.setThreadPoolSize(SettingsPropertiesReader.getInstance().getThreadPoolSize());
+            tileFactory.setThreadPoolSize(SettingsReader.getInstance().getThreadPoolSize());
 
-            if (SettingsPropertiesReader.getInstance().useMapCaching()) {
-                File cache = new File(SettingsPropertiesReader.getInstance().getTileFactoryCachePath());
+            if (SettingsReader.getInstance().useMapCaching()) {
+                File cache = new File(SettingsReader.getInstance().getTileFactoryCachePath());
                 tileFactory.setLocalCache(new FileBasedLocalCache(cache, false));
             }
 
@@ -138,7 +138,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             gui.loadAlgorithms();
             frame.setVisible(true);
 
-            if (SettingsPropertiesReader.getInstance().shouldStartFullScreen()) {
+            if (SettingsReader.getInstance().shouldStartFullScreen()) {
                 frame.setExtendedState(Frame.MAXIMIZED_BOTH);
             }
         });
@@ -147,12 +147,12 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     public MainGUI(SimulationRunner simulationRunner) {
         this.simulationRunner = simulationRunner;
-        this.simulationSpeed = new MutableInteger(SettingsPropertiesReader.getInstance().getBaseVisualizationSpeed());
+        this.simulationSpeed = new MutableInteger(SettingsReader.getInstance().getBaseVisualizationSpeed());
 
         updateInputProfiles();
         updateAdaptationGoals();
         updateSettingsProfiles();
-        SettingsPropertiesReader.getLastUsedSettingsProfile().ifPresent(s -> {
+        SettingsReader.getLastUsedSettingsProfile().ifPresent(s -> {
             var model = settingsProfilesComboBox.getModel();
             for (int i = 0; i < model.getSize(); i++) {
                 if (model.getElementAt(i).equals(s.replace(".properties", ""))) {
@@ -232,10 +232,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             String chosenProfile = (String) settingsProfilesComboBox.getSelectedItem();
 
             if (chosenProfile != null) {
-                SettingsPropertiesReader.getInstance().loadSettings(
+                SettingsReader.getInstance().loadSettings(
                     Paths.get(Constants.PATH_CUSTOM_SETTINGS, chosenProfile + ".properties").toString()
                 );
-                SettingsPropertiesReader.updateLastUsedSettingsProfile(chosenProfile + ".properties");
+                SettingsReader.updateLastUsedSettingsProfile(chosenProfile + ".properties");
 
                 // Check if a configuration has already been loaded (i.e., an environment has been constructed)
                 if (this.simulationRunner.getEnvironment() != null) {
@@ -278,7 +278,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         });
 
         speedSlider.addChangeListener(
-            e -> this.simulationSpeed.setValue(SettingsPropertiesReader.getInstance().getBaseVisualizationSpeed() * speedSlider.getValue())
+            e -> this.simulationSpeed.setValue(SettingsReader.getInstance().getBaseVisualizationSpeed() * speedSlider.getValue())
         );
 
         settingsButton.addActionListener(e -> {
@@ -299,10 +299,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             });
 
             if (currentSettingsProfile == null) {
-                SettingsPropertiesReader.getInstance().loadDefaultSettings();
+                SettingsReader.getInstance().loadDefaultSettings();
             } else {
                 // Reload the profile which was used before
-                SettingsPropertiesReader.getInstance().loadSettings(
+                SettingsReader.getInstance().loadSettings(
                     Paths.get(Constants.PATH_CUSTOM_SETTINGS, currentSettingsProfile + ".properties").toString()
                 );
             }
@@ -507,7 +507,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     private void updateSettingsProfiles() {
         // Check all the custom saved settings profiles
-        this.updateSettingsProfiles(SettingsPropertiesReader.getCustomSettingsFiles());
+        this.updateSettingsProfiles(SettingsReader.getCustomSettingsFiles());
     }
 
     private void updateSettingsProfiles(List<String> profiles) {

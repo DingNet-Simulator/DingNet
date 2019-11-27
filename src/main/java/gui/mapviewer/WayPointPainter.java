@@ -3,7 +3,7 @@ package gui.mapviewer;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.Waypoint;
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -22,11 +22,11 @@ public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapVi
     private BufferedImage img;
 
     public WayPointPainter() {
-        this(SettingsPropertiesReader.getInstance().getDefaultWaypointColor());
+        this(SettingsReader.getInstance().getDefaultWaypointColor());
     }
 
     public WayPointPainter(Color color) {
-        setAntialiasing(SettingsPropertiesReader.getInstance().useGUIAntialiasing());
+        setAntialiasing(SettingsReader.getInstance().useGUIAntialiasing());
         setCacheable(false);
 
         this.img = new BufferedImage(12, 12, BufferedImage.TYPE_INT_ARGB);

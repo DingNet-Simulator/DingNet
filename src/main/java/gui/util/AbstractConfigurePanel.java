@@ -9,7 +9,7 @@ import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.TileFactoryInfo;
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
@@ -36,8 +36,8 @@ public abstract class AbstractConfigurePanel implements Refreshable {
         this.mainGUI = mainGUI;
         this.environment = mainGUI.getEnvironment();
 
-        if (SettingsPropertiesReader.getInstance().useMapCaching()) {
-            File cache = new File(SettingsPropertiesReader.getInstance().getTileFactoryCachePath());
+        if (SettingsReader.getInstance().useMapCaching()) {
+            File cache = new File(SettingsReader.getInstance().getTileFactoryCachePath());
             tileFactory.setLocalCache(new FileBasedLocalCache(cache, false));
         }
 
@@ -52,7 +52,7 @@ public abstract class AbstractConfigurePanel implements Refreshable {
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
 
         mapViewer.setTileFactory(tileFactory);
-        tileFactory.setThreadPoolSize(SettingsPropertiesReader.getInstance().getThreadPoolSize());
+        tileFactory.setThreadPoolSize(SettingsReader.getInstance().getThreadPoolSize());
     }
 
     public void refresh() {

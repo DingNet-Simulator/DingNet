@@ -4,7 +4,7 @@ import gui.util.ImageLoader;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.Waypoint;
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -20,7 +20,7 @@ public class GatewayPainter<W extends Waypoint> extends AbstractPainter<JXMapVie
 
 
     public GatewayPainter() {
-        setAntialiasing(SettingsPropertiesReader.getInstance().useGUIAntialiasing());
+        setAntialiasing(SettingsReader.getInstance().useGUIAntialiasing());
         setCacheable(false);
         img = ImageLoader.IMAGE_GATEWAY;
     }

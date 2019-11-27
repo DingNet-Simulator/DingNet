@@ -2,7 +2,7 @@ package gui.mapviewer;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -20,7 +20,7 @@ public class MotePainter<W extends MoteWayPoint> extends AbstractPainter<JXMapVi
     private Set<W> waypoints = new HashSet<>();
 
     public MotePainter() {
-        setAntialiasing(SettingsPropertiesReader.getInstance().useGUIAntialiasing());
+        setAntialiasing(SettingsReader.getInstance().useGUIAntialiasing());
         setCacheable(false);
     }
 

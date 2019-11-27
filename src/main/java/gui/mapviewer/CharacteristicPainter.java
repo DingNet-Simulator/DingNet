@@ -3,7 +3,7 @@ package gui.mapviewer;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -27,7 +27,7 @@ public class CharacteristicPainter implements Painter<JXMapViewer> {
         Rectangle rect = jxMapViewer.getViewportBounds();
         g.translate(-rect.x, -rect.y);
 
-        if (SettingsPropertiesReader.getInstance().useGUIAntialiasing()) {
+        if (SettingsReader.getInstance().useGUIAntialiasing()) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
 

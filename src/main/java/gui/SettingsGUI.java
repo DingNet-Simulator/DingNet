@@ -4,7 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import iot.mqtt.MQTTClientFactory;
 import util.Constants;
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,7 +43,7 @@ public class SettingsGUI {
 
                 String selected = customSettingsFilenames.get(index);
                 String totalPath = Paths.get(Constants.PATH_CUSTOM_SETTINGS, selected).toString();
-                SettingsPropertiesReader.getInstance().loadSettings(totalPath);
+                SettingsReader.getInstance().loadSettings(totalPath);
 
                 updateSettingsPane();
             }
@@ -56,7 +56,7 @@ public class SettingsGUI {
             // Create a default settings file
             try {
                 Properties properties = new Properties();
-                properties.load(SettingsPropertiesReader.class.getResourceAsStream(Constants.DEFAULT_SETTINGS_FILE));
+                properties.load(SettingsReader.class.getResourceAsStream(Constants.DEFAULT_SETTINGS_FILE));
 
                 File newFile = new File(Paths.get(Constants.PATH_CUSTOM_SETTINGS, name + ".properties").toString());
 
@@ -96,7 +96,7 @@ public class SettingsGUI {
     }
 
     private void loadCustomSettings() {
-        customSettingsFilenames = SettingsPropertiesReader.getCustomSettingsFiles();
+        customSettingsFilenames = SettingsReader.getCustomSettingsFiles();
 
         updateGUISettingsList();
     }
@@ -111,7 +111,7 @@ public class SettingsGUI {
         clearSaveButtonListeners();
 
         settingsPanel.removeAll();
-        SettingsPropertiesReader instance = SettingsPropertiesReader.getInstance();
+        SettingsReader instance = SettingsReader.getInstance();
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -166,7 +166,7 @@ public class SettingsGUI {
         panel.add(label, BorderLayout.WEST);
         panel.add(spinner, BorderLayout.EAST);
 
-        saveButton.addActionListener(e -> SettingsPropertiesReader.getInstance()
+        saveButton.addActionListener(e -> SettingsReader.getInstance()
             .updateProperty(propertyName, Integer.toString((int) spinner.getValue())));
 
         return panel;
@@ -180,7 +180,7 @@ public class SettingsGUI {
         panel.add(label, BorderLayout.WEST);
         panel.add(checkBox, BorderLayout.EAST);
 
-        saveButton.addActionListener(e -> SettingsPropertiesReader.getInstance()
+        saveButton.addActionListener(e -> SettingsReader.getInstance()
             .updateProperty(propertyName, checkBox.isSelected() ? "true" : "false"));
 
         return panel;
@@ -198,7 +198,7 @@ public class SettingsGUI {
         panel.add(label, BorderLayout.WEST);
         panel.add(spinner, BorderLayout.EAST);
 
-        saveButton.addActionListener(e -> SettingsPropertiesReader.getInstance()
+        saveButton.addActionListener(e -> SettingsReader.getInstance()
             .updateProperty(propertyName, Float.toString(((Double) spinner.getValue()).floatValue())));
 
         return panel;
@@ -223,7 +223,7 @@ public class SettingsGUI {
         panel.add(comboBox, BorderLayout.EAST);
 
         // noinspection ConstantConditions
-        saveButton.addActionListener(e -> SettingsPropertiesReader.getInstance()
+        saveButton.addActionListener(e -> SettingsReader.getInstance()
             .updateProperty(propertyName, comboBox.getSelectedItem().toString()));
 
         return panel;
@@ -241,7 +241,7 @@ public class SettingsGUI {
         panel.add(label, BorderLayout.WEST);
         panel.add(textField, BorderLayout.EAST);
 
-        saveButton.addActionListener(e -> SettingsPropertiesReader.getInstance()
+        saveButton.addActionListener(e -> SettingsReader.getInstance()
             .updateProperty(propertyName, textField.getText()));
 
         return panel;
@@ -258,7 +258,7 @@ public class SettingsGUI {
         panel.add(label, BorderLayout.WEST);
         panel.add(textField, BorderLayout.EAST);
 
-        saveButton.addActionListener(e -> SettingsPropertiesReader.getInstance()
+        saveButton.addActionListener(e -> SettingsReader.getInstance()
             .updateProperty(propertyName, textField.getText()));
 
         return panel;
@@ -282,7 +282,7 @@ public class SettingsGUI {
             if (index == -1) {
                 return;
             }
-            SettingsPropertiesReader.getInstance().store(
+            SettingsReader.getInstance().store(
                 new File(Paths.get(Constants.PATH_CUSTOM_SETTINGS,
                     customSettingsFilenames.get(index)
                 ).toString())

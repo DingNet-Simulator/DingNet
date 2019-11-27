@@ -1,6 +1,6 @@
 package gui.util;
 
-import util.SettingsPropertiesReader;
+import util.SettingsReader;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -24,7 +24,7 @@ public class ImageLoader {
     public static final Image IMAGE_EDIT_ICON;
 
     static {
-        SettingsPropertiesReader reader = SettingsPropertiesReader.getInstance();
+        SettingsReader reader = SettingsReader.getInstance();
 
         IMAGE_MOTE = loadNetworkEntityImage(reader.getMoteImagePath());
         IMAGE_USERMOTE_ACTIVE = loadNetworkEntityImage(reader.getActiveUsermoteImagePath());
