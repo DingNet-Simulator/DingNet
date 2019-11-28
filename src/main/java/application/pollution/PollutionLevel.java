@@ -7,7 +7,7 @@ import java.util.List;
 
 
 /**
- * Class used to track the pollution level, specified by a value in the range [0,1] (good to bad respectively)
+ * Class used to track the pollution level, specified by a value in the range [0,125] (good to bad respectively)
  */
 public class PollutionLevel {
     // The pollution level
