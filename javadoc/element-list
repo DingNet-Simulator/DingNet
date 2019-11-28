@@ -3,7 +3,7 @@ application.pollution
 application.routing
 application.routing.heuristic
 datagenerator
-datagenerator.iaqsensor
+datagenerator.rangedsensor.iaqsensor
 gui
 gui.mapviewer
 gui.util

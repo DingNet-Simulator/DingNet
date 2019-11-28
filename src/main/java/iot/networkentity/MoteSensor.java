@@ -1,7 +1,9 @@
 package iot.networkentity;
 
 import datagenerator.*;
-import datagenerator.iaqsensor.IAQDataGeneratorSingleton;
+import datagenerator.rangedsensor.iaqsensor.IAQDataGeneratorSingleton;
+import datagenerator.rangedsensor.no2sensor.NO2DataGeneratorSingleton;
+import datagenerator.rangedsensor.pm10sensor.PM10DataGeneratorSingleton;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
@@ -14,20 +16,20 @@ import java.util.List;
  */
 public enum MoteSensor {
 
-    SOOT(new SootDataGenerator(), 1),
-    OZONE(new OzoneDataGenerator(), 1),
-    CARBON_DIOXIDE(new CarbonDioxideDataGenerator(), 1),
-    PARTICULATE_MATTER(new ParticulateMatterDataGenerator(), 1),
-    GPS(new GPSDataGenerator(),8),
-    IAQ(IAQDataGeneratorSingleton.getInstance(), 1);
+    SOOT(new SootDataGenerator()),
+    OZONE(new OzoneDataGenerator()),
+    CARBON_DIOXIDE(new CarbonDioxideDataGenerator()),
+    PARTICULATE_MATTER(new ParticulateMatterDataGenerator()),
+    GPS(new GPSDataGenerator()),
+    IAQ(IAQDataGeneratorSingleton.getInstance()),
+    PM10(PM10DataGeneratorSingleton.getInstance()),
+    NO2(NO2DataGeneratorSingleton.getInstance());
 
 
     private final SensorDataGenerator sensorDataGenerator;
-    private final int amountOfData;
 
-    MoteSensor(SensorDataGenerator sensorDataGenerator, int amountOfData) {
+    MoteSensor(SensorDataGenerator sensorDataGenerator) {
         this.sensorDataGenerator = sensorDataGenerator;
-        this.amountOfData = amountOfData;
     }
 
     public byte[] getValue(int xpos, int ypos, GeoPosition graphPosition, LocalTime time) {
@@ -60,6 +62,6 @@ public enum MoteSensor {
     }
 
     public int getAmountOfData() {
-        return amountOfData;
+        return getSensorDataGenerator().getAmountOfData();
     }
 }
