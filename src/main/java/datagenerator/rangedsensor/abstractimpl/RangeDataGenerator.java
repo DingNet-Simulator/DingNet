@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
  *      -------------
  */
 abstract public class RangeDataGenerator implements SensorDataGenerator {
-    //FIXME put all final
+
     protected static SensorDataGenerator instance;
-    protected int row;
-    protected int columns;
-    protected final int width;
-    protected final int height;
-    protected RangeSensor defaultLevel;
-    protected TimeUnit timeUnit;
-    protected Map<Integer, List<Cell>> map;
+    private final int row;
+    private final int columns;
+    private final int width;
+    private final int height;
+    private final RangeSensor defaultLevel;
+    private final TimeUnit timeUnit;
+    private final Map<Integer, List<Cell>> map;
 
     public RangeDataGenerator(AbstractSensorConfigSpec<?,?> sensorConfig) {
         width = Environment.getMapWidth();
@@ -44,6 +44,7 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
         config.addSpec(sensorConfig.SPEC);
         config = config.from().toml.inputStream(this.getClass().getResourceAsStream(getConfigFilePath()));
         row = config.get(sensorConfig.row);
+        columns = config.get(sensorConfig.columns);
         defaultLevel = config.get(sensorConfig.defaultLevel);
         timeUnit = config.get(sensorConfig.timeUnit);
         map = config.get(sensorConfig.cells).stream().collect(Collectors.groupingBy(Cell::getCellNumber));
