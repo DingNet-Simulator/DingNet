@@ -1,12 +1,12 @@
 package datagenerator.rangedsensor.abstractimpl;
 
 import datagenerator.rangedsensor.api.Cell;
-import datagenerator.rangedsensor.api.RangeSensor;
+import datagenerator.rangedsensor.api.RangeValue;
 
 public abstract class AbstractCell implements Cell {
     private final int cellNumber;
     private final double fromTime;
-    private final RangeSensor level;
+    private final RangeValue level;
 
     public AbstractCell(int cellNumber, double fromTime, String levelName) {
         this.cellNumber = cellNumber;
@@ -14,7 +14,7 @@ public abstract class AbstractCell implements Cell {
         this.level = deserializeRangeSensor(levelName);
     }
 
-    protected abstract RangeSensor deserializeRangeSensor(String levelName);
+    protected abstract RangeValue deserializeRangeSensor(String levelName);
 
     @Override
     public int getCellNumber() {
@@ -27,7 +27,7 @@ public abstract class AbstractCell implements Cell {
     }
 
     @Override
-    public RangeSensor getLevel() {
+    public RangeValue getLevel() {
         return level;
     }
 }

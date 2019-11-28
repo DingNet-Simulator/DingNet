@@ -1,10 +1,10 @@
 package datagenerator.rangedsensor.pm10sensor;
 
-import datagenerator.rangedsensor.api.RangeSensor;
+import datagenerator.rangedsensor.api.RangeValue;
 
 import java.util.Random;
 
-public enum PM10Level implements RangeSensor {
+public enum PM10Level implements RangeValue {
 
     VERY_LOW(0, 25),
     LOW(25, 50),

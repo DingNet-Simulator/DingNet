@@ -1,6 +1,6 @@
 package datagenerator.rangedsensor.api;
 
-public interface RangeSensor {
+public interface RangeValue {
     int getLowerBound();
 
     int getUpperBound();

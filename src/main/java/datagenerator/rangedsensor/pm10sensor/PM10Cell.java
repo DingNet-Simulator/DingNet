@@ -1,7 +1,7 @@
 package datagenerator.rangedsensor.pm10sensor;
 
 import datagenerator.rangedsensor.abstractimpl.AbstractCell;
-import datagenerator.rangedsensor.api.RangeSensor;
+import datagenerator.rangedsensor.api.RangeValue;
 
 import java.beans.ConstructorProperties;
 
@@ -13,7 +13,7 @@ public class PM10Cell extends AbstractCell {
     }
 
     @Override
-    protected RangeSensor deserializeRangeSensor(String levelName) {
+    protected RangeValue deserializeRangeSensor(String levelName) {
         return PM10Level.valueOf(levelName);
     }
 }

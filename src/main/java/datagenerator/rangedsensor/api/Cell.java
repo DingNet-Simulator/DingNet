@@ -5,5 +5,5 @@ public interface Cell {
 
     double getFromTime();
 
-    RangeSensor getLevel();
+    RangeValue getLevel();
 }

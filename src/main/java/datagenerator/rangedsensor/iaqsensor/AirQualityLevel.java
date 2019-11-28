@@ -1,10 +1,11 @@
 package datagenerator.rangedsensor.iaqsensor;
 
-import datagenerator.rangedsensor.api.RangeSensor;
+import datagenerator.rangedsensor.api.RangeValue;
 
+import java.util.Arrays;
 import java.util.Random;
 
-public enum AirQualityLevel implements RangeSensor {
+public enum AirQualityLevel implements RangeValue {
 
     GOOD(1, 0, 25),
     FAIR(2, 25, 50),
@@ -40,5 +41,17 @@ public enum AirQualityLevel implements RangeSensor {
     @Override
     public byte[] getValue() {
         return new byte[] { (byte) (getLowerBound() + random.nextInt(getUpperBound()-getLowerBound()))};
+    }
+
+    public static RangeValue getByValue(int value) {
+        return Arrays.stream(values())
+            .filter(v -> v.getLowerBound() <= value)
+            .filter(v -> value < v.getUpperBound())
+            .findFirst()
+            .orElseThrow();
+    }
+
+    public static byte getCodByValue(int value) {
+        return ((AirQualityLevel) getByValue(value)).getCod();
     }
 }

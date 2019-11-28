@@ -4,7 +4,7 @@ import com.uchuhimo.konf.BaseConfig;
 import com.uchuhimo.konf.Config;
 import datagenerator.SensorDataGenerator;
 import datagenerator.rangedsensor.api.Cell;
-import datagenerator.rangedsensor.api.RangeSensor;
+import datagenerator.rangedsensor.api.RangeValue;
 import datagenerator.rangedsensor.api.TimeUnit;
 import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -33,7 +33,7 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     private final int columns;
     private final int width;
     private final int height;
-    private final RangeSensor defaultLevel;
+    private final RangeValue defaultLevel;
     private final TimeUnit timeUnit;
     private final Map<Integer, List<Cell>> map;
 

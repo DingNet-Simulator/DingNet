@@ -1,7 +1,7 @@
 package datagenerator.rangedsensor.no2sensor;
 
 import datagenerator.rangedsensor.abstractimpl.AbstractCell;
-import datagenerator.rangedsensor.api.RangeSensor;
+import datagenerator.rangedsensor.api.RangeValue;
 
 import java.beans.ConstructorProperties;
 
@@ -13,7 +13,7 @@ public class NO2Cell extends AbstractCell {
     }
 
     @Override
-    protected RangeSensor deserializeRangeSensor(String levelName) {
+    protected RangeValue deserializeRangeSensor(String levelName) {
         return NO2Level.valueOf(levelName);
     }
 }

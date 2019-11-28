@@ -1,11 +1,11 @@
 package datagenerator.rangedsensor.no2sensor;
 
-import datagenerator.rangedsensor.api.RangeSensor;
+import datagenerator.rangedsensor.api.RangeValue;
 
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-public enum NO2Level implements RangeSensor {
+public enum NO2Level implements RangeValue {
 
     VERY_LOW(0, 50),
     LOW(50, 100),
