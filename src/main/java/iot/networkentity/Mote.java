@@ -207,7 +207,11 @@ public class Mote extends NetworkEntity {
         this.path.setPath(positions);
     }
 
-    public GeoPosition getPathPositionIndex() {
+    public int getPathPositionIndex() {
+        return pathPositionIndex;
+    }
+
+    public GeoPosition getPathPosition() {
         return pathPositionIndex == -1 ?
             getEnvironment().getMapHelper().toGeoPosition(initialPosition.getLeft().intValue(), initialPosition.getRight().intValue()) :
             getPath().getWayPoints().get(pathPositionIndex);

@@ -43,7 +43,7 @@ public class UserMote extends Mote {
                 alreadyRequested = true;
                 byte[] payload = new byte[17];
                 payload[0] = MessageType.REQUEST_PATH.getCode();
-                System.arraycopy(getGPSSensor().generateData(getPosInt(), getPathPositionIndex(), clock.getTime()), 0, payload, 1, 8);
+                System.arraycopy(getGPSSensor().generateData(getPosInt(), getPathPosition(), clock.getTime()), 0, payload, 1, 8);
                 System.arraycopy(Converter.toByteArray(destination), 0, payload, 9, 8);
                 return new LoraWanPacket(getEUI(), getApplicationEUI(), payload,
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>(macCommands.keySet()));

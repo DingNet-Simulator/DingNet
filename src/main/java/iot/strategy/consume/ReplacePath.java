@@ -26,7 +26,7 @@ public class ReplacePath extends AddPositionToPath {
             motePath.setPath(path);
             return;
         }
-        var nextPos = motePath.getNextPoint(mote.getPathPositionIndex());
+        var nextPos = motePath.getNextPoint(mote.getPathPosition());
         if (nextPos.isPresent() && MapHelper.equalsGeoPosition(nextPos.get(), path.get(0))) {
             var newPath = motePath.getWayPoints()
                 .stream()
@@ -37,7 +37,7 @@ public class ReplacePath extends AddPositionToPath {
             return;
         }
         var destPath = motePath.getDestination();
-        if (destPath.isPresent() && MapHelper.equalsGeoPosition(destPath.get(), mote.getPathPositionIndex())) {
+        if (destPath.isPresent() && MapHelper.equalsGeoPosition(destPath.get(), mote.getPathPosition())) {
             motePath.addPositions(path);
         }
     }
