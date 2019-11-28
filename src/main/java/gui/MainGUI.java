@@ -149,6 +149,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     public MainGUI(SimulationRunner simulationRunner) {
         this.simulationRunner = simulationRunner;
         this.simulationSpeed = new MutableInteger(SettingsReader.getInstance().getBaseVisualizationSpeed());
+        initializeDefaultInputProfile();
 
         updateInputProfiles();
         updateAdaptationGoals();
@@ -343,8 +344,14 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         this.totalRunButton.setEnabled(state);
     }
 
-    private boolean initializeDefaultInputProfile() {
-        return false;
+    private void initializeDefaultInputProfile() {
+        DingNetCache.getLastUsedInputProfile().ifPresent(profileName -> {
+            for (InputProfile profile : simulationRunner.getInputProfiles()) {
+                if (profile.getName().equals(profileName)) {
+                    selectedInputProfile = profile;
+                }
+            }
+        });
     }
 
     // endregion
@@ -751,6 +758,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
                 selectedInputProfile = null;
             } else {
                 selectedInputProfile = inputProfile;
+                DingNetCache.updateLastUsedInputProfile(inputProfile.getName());
             }
             updateInputProfiles();
             updateAdaptationGoals();
