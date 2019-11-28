@@ -153,7 +153,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         updateInputProfiles();
         updateAdaptationGoals();
         updateSettingsProfiles();
-        SettingsReader.getLastUsedSettingsProfile().ifPresent(s -> {
+        DingNetCache.getLastUsedSettingsProfile().ifPresent(s -> {
             var model = settingsProfilesComboBox.getModel();
             for (int i = 0; i < model.getSize(); i++) {
                 if (model.getElementAt(i).equals(s.replace(".properties", ""))) {
@@ -204,7 +204,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
                 SettingsReader.getInstance().loadSettings(
                     Paths.get(Constants.PATH_CUSTOM_SETTINGS, chosenProfile + ".properties").toString()
                 );
-                SettingsReader.updateLastUsedSettingsProfile(chosenProfile + ".properties");
+                DingNetCache.updateLastUsedSettingsProfile(chosenProfile + ".properties");
 
                 // Check if a configuration has already been loaded (i.e., an environment has been constructed)
                 if (this.simulationRunner.getEnvironment() != null) {

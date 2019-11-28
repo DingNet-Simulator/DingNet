@@ -5,8 +5,10 @@ import iot.mqtt.MQTTClientFactory;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
+import java.util.Properties;
 
 public class SettingsReader {
 
@@ -18,7 +20,7 @@ public class SettingsReader {
     private SettingsReader() {
         properties = new Properties();
 
-        getLastUsedSettingsProfile().ifPresentOrElse(
+        DingNetCache.getLastUsedSettingsProfile().ifPresentOrElse(
             s -> loadSettings(Paths.get(Constants.PATH_CUSTOM_SETTINGS, s).toString()),
             this::loadDefaultSettings
         );
@@ -244,40 +246,6 @@ public class SettingsReader {
         }
 
         return customSettingsFilenames;
-    }
-
-    public static Optional<String> getLastUsedSettingsProfile() {
-        Properties cacheProperties = new Properties();
-
-        if (new File(Constants.DINGNET_CACHE_FILE).exists()) {
-            try {
-                cacheProperties.load(new FileInputStream(Constants.DINGNET_CACHE_FILE));
-                var lastUsed = cacheProperties.getProperty("settings.lastUsed");
-
-                if (lastUsed != null && new File(Paths.get(Constants.PATH_CUSTOM_SETTINGS, lastUsed.trim()).toString()).exists()) {
-                    return Optional.of(lastUsed.trim());
-                }
-
-            } catch (IOException ignored) {}
-        }
-        return Optional.empty();
-    }
-
-    public static void updateLastUsedSettingsProfile(String profile) {
-        // Create the file if it doesn't exist yet
-        File file = new File(Constants.DINGNET_CACHE_FILE);
-        Properties cacheProperties = new Properties();
-
-        try {
-            if (!file.exists()) {
-                file.createNewFile();
-            } else {
-                cacheProperties.load(new FileInputStream(Constants.DINGNET_CACHE_FILE));
-            }
-
-            cacheProperties.put("settings.lastUsed", profile);
-            cacheProperties.store(new FileOutputStream(Constants.DINGNET_CACHE_FILE), "");
-        } catch (IOException ignored) {}
     }
 
     // endregion
