@@ -11,7 +11,7 @@ import util.MapHelper;
 public class SimplePollutionHeuristic implements RoutingHeuristic {
     // Factor which gives an indication of how much further the user would like to travel to avoid pollution
     // The higher this factor, the more likely the user will travel further
-    private final int USER_PREFERENCE_FACTOR = 1;
+    private final int USER_PREFERENCE_FACTOR = 10;
 
     private final PollutionGrid pollutionGrid;
 
