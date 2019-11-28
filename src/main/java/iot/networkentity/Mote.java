@@ -40,7 +40,7 @@ public class Mote extends NetworkEntity {
     @Model
     private Path path;
 
-    protected GeoPosition graphPosition;
+    protected int pathPositionIndex;
 
     // An integer representing the energy level of the mote.
     @Model
@@ -159,9 +159,7 @@ public class Mote extends NetworkEntity {
     protected void initialize() {
         this.setXPos(this.initialPosition.getLeft());
         this.setYPos(this.initialPosition.getRight());
-        this.graphPosition = getPath().isEmpty() ?
-            getEnvironment().getMapHelper().toGeoPosition(getPosInt()) :
-            getPath().getWayPoints().get(0);
+        this.pathPositionIndex = getPath().isEmpty() ? -1 : 0;
         this.frameCounter = 0;
         this.canReceive = false;
         this.keepAliveTriggerId = -1L;
@@ -209,24 +207,23 @@ public class Mote extends NetworkEntity {
         this.path.setPath(positions);
     }
 
-    public GeoPosition getGraphPosition() {
-        return graphPosition;
+    public GeoPosition getPathPositionIndex() {
+        return pathPositionIndex == -1 ?
+            getEnvironment().getMapHelper().toGeoPosition(initialPosition.getLeft().intValue(), initialPosition.getRight().intValue()) :
+            getPath().getWayPoints().get(pathPositionIndex);
     }
 
     @Override
     public void setPos(double xPos, double yPos) {
         super.setPos(xPos, yPos);
 
-        if (!getPath().isEmpty()) {
-            var actualPoint = getEnvironment().getMapHelper().toGeoPosition(getPosInt());
-
-            getPath().getNextPoint(graphPosition)
-                .ifPresent(p -> {
-                    if (MapHelper.equalsGeoPosition(actualPoint, p)) {
-                        graphPosition = p;
-                    }
-                });
-        }
+        getPath().getNextPoint(pathPositionIndex)
+            .ifPresent(p -> {
+                var actualPoint = getEnvironment().getMapHelper().toGeoPosition(getPosInt());
+                if (MapHelper.equalsGeoPosition(actualPoint, p)) {
+                    pathPositionIndex++;
+                }
+            });
     }
 
     /**

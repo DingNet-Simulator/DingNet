@@ -71,14 +71,12 @@ public class Path implements Iterable<GeoPosition> {
     }
 
     public Optional<GeoPosition> getNextPoint(GeoPosition actualPoint) {
-        var points = getWayPoints();
-        points = points.subList(points.indexOf(actualPoint) + 1, points.size());
-        if (!points.isEmpty()) {
-            return Optional.of(points.get(0));
-        }
-        return Optional.empty();
+        return getNextPoint(getWayPoints().indexOf(actualPoint));
     }
 
+    public Optional<GeoPosition> getNextPoint(int actualPointIndex) {
+        return getWayPoints().stream().skip(actualPointIndex+1).findFirst();
+    }
 
     /**
      * Add a waypoint at the end of this path.
