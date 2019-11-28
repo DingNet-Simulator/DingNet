@@ -81,6 +81,6 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
      */
     private Color getColor(float airQuality) {
         float[] hsbVals = Color.RGBtoHSB((int) (255 * airQuality), (int) (255 * (1 - airQuality)), 0, null);
-        return Color.getHSBColor(hsbVals[0], hsbVals[1], hsbVals[2]);
+        return Color.getHSBColor(hsbVals[0], hsbVals[1], hsbVals[2]).brighter().brighter();
     }
 }
