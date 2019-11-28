@@ -80,7 +80,7 @@ Mote --() SensorDataGenerator:uses
 
 Class Mote{
 - moteSensors : LinkedList<MoteSensor>
-- path : LinkedList<GeoPosition>
+- connection : LinkedList<GeoPosition>
 - energyLevel : Integer
 - samplingRate : Integer
 - numberOfRequests : Integer
@@ -89,11 +89,11 @@ Class Mote{
 - genericFeedBackLoop: GenericFeedBackLoop
 
 + <<constructor>> Mote(Long DevEUI, Integer xPos, Integer yPos, Configuration environment, Integer transmissionPower,
-  {method}Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path,
+  {method}Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> connection,
   Integer samplingRate, Double movementSpeed, Integer startOffset)
 
 + <<constructor>> Mote(Long DevEUI, Integer xPos, Integer yPos, Configuration environment, Integer transmissionPower,
- {method} Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> path,
+ {method} Integer SF, LinkedList<MoteSensor> moteSensors, Integer energyLevel, LinkedList<GeoPosition> connection,
  Integer samplingRate, Double movementSpeed)
 
 # OnReceive(Byte[] packet, Long senderEUI, Long designatedReceiver) : void
