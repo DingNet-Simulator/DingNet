@@ -14,8 +14,8 @@ public class PollutionLevel {
     private double level;
 
     public PollutionLevel(double level) {
-        if (level < 0 || level > 1) {
-            throw new IllegalArgumentException("The pollution level should be in the range [0,1]");
+        if (level < 0 || level > 125) {
+            throw new IllegalArgumentException("The pollution level should be in the range [0,125]");
         }
         this.level = level;
     }

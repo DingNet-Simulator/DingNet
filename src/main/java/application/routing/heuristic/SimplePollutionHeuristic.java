@@ -27,6 +27,6 @@ public class SimplePollutionHeuristic implements RoutingHeuristic {
                         (0.4 <= pollutionValue && pollutionValue < 0.6) ? 3 : 10;
 
         // The lower the pollution level, the better the heuristic
-        return factor * MapHelper.distance(begin, end);
+        return pollutionValue * MapHelper.distance(begin, end);
     }
 }
