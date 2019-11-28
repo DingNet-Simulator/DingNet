@@ -30,8 +30,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -106,6 +106,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     private SimulationRunner simulationRunner;
     private MutableInteger simulationSpeed;
+    private InputProfile selectedInputProfile;
 
     private MouseAdapter moteMouse = new MoteLegendMouseListener();
     private MouseAdapter gateWayMouse = new GatewayLegendMouseListener();
@@ -186,41 +187,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         regionButton.addActionListener(e -> this.setPollutionGraphs(simulationRunner.getEnvironment()));
 
-
-        singleRunButton.addActionListener(e -> {
-            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
-                showNoInputProfileSelectedError();
-                return;
-            }
-
-            this.setEnabledRunButtons(false);
-            simulationRunner.setupSingleRun();
-
-            simulationRunner.simulate(simulationSpeed, this);
-        });
-
-        timedRunButton.addActionListener(e -> {
-            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
-                showNoInputProfileSelectedError();
-                return;
-            }
-
-            this.setEnabledRunButtons(false);
-            simulationRunner.setupTimedRun();
-
-            simulationRunner.simulate(simulationSpeed, this);
-        });
-
-        totalRunButton.addActionListener(e -> {
-            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
-                showNoInputProfileSelectedError();
-                return;
-            }
-
-            this.setEnabledRunButtons(false);
-
-            simulationRunner.totalRun(this::setProgressTotalRun);
-        });
+        singleRunButton.addActionListener(e -> this.doRun(RunMode.Single));
+        timedRunButton.addActionListener(e -> this.doRun(RunMode.Timed));
+        totalRunButton.addActionListener(e -> this.doRun(RunMode.Multi));
 
 
         adaptationComboBox.addActionListener((ActionEvent e) -> {
@@ -374,6 +343,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         this.totalRunButton.setEnabled(state);
     }
 
+    private boolean initializeDefaultInputProfile() {
+        return false;
+    }
+
     // endregion
 
 
@@ -458,8 +431,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         constraints.weighty = 0;
         JPanel panel;
 
-        Optional<InputProfile> selectedInputProfile = simulationRunner.getSimulation().getInputProfile();
-
         for (InputProfile inputProfile : simulationRunner.getInputProfiles()) {
             panel = new JPanel(new BorderLayout());
             panel.setPreferredSize(new Dimension(InputProfilePanel.getWidth() - 10, 50));
@@ -471,7 +442,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             JPanel subPanel2 = new JPanel();
             subPanel2.setOpaque(false);
 
-            if (selectedInputProfile.isPresent() && inputProfile == selectedInputProfile.get()) {
+            if (inputProfile.equals(selectedInputProfile)) {
                 subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_SELECTED)));
             } else {
                 subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_UNSELECTED)));
@@ -491,6 +462,16 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         InputProfilePanel.add(panel, constraints);
         InputProfilePanel.repaint();
         InputProfilePanel.revalidate();
+
+
+        // Also update QoS buttons (if applicable)
+        Set<String> qualityNames = selectedInputProfile == null ?
+            new HashSet<>() :
+            selectedInputProfile.getQualityOfServiceProfile().getNames();
+
+        editRelComButton.setEnabled(qualityNames.contains("reliableCommunication"));
+        editEnConButton.setEnabled(qualityNames.contains("energyConsumption"));
+        editColBoundButton.setEnabled(qualityNames.contains("collisionBound"));
     }
 
     /**
@@ -741,6 +722,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            // TODO could this also work before opening a configuration?
             if (simulationRunner.getEnvironment() != null) {
                 JFrame frame = new JFrame("Edit input profile");
                 EditInputProfileGUI editInputProfileGUI =
@@ -765,31 +747,13 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (simulationRunner.getEnvironment() != null) {
-                Simulation simulation = simulationRunner.getSimulation();
-                Optional<InputProfile> currentProfile = simulation.getInputProfile();
-
-                if (currentProfile.isPresent() && inputProfile == currentProfile.get()) {
-                    simulation.setInputProfile(null);
-                    editRelComButton.setEnabled(false);
-                    editColBoundButton.setEnabled(false);
-                    editEnConButton.setEnabled(false);
-                } else {
-                    // Adjust the used inputprofile and QoS in the simulation
-                    simulation.setInputProfile(inputProfile);
-                    simulationRunner.updateQoS(inputProfile.getQualityOfServiceProfile());
-
-                    Set<String> qualityNames = inputProfile.getQualityOfServiceProfile().getNames();
-                    editRelComButton.setEnabled(qualityNames.contains("reliableCommunication"));
-                    editEnConButton.setEnabled(qualityNames.contains("energyConsumption"));
-                    editColBoundButton.setEnabled(qualityNames.contains("collisionBound"));
-                }
-                updateInputProfiles();
-                updateAdaptationGoals();
+            if (inputProfile.equals(selectedInputProfile)) {
+                selectedInputProfile = null;
             } else {
-                JOptionPane.showMessageDialog(null, "Load a configuration before selecting an input profile",
-                    "InfoBox: Select InputProfile", JOptionPane.INFORMATION_MESSAGE);
+                selectedInputProfile = inputProfile;
             }
+            updateInputProfiles();
+            updateAdaptationGoals();
         }
     }
 
@@ -1024,6 +988,36 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         }
         this.setEnabledRunButtons(true);
     }
+
+
+    private void doRun(RunMode type) {
+        if (this.selectedInputProfile == null) {
+            showNoInputProfileSelectedError();
+            return;
+        }
+
+        simulationRunner.getSimulation().setInputProfile(selectedInputProfile);
+        this.setEnabledRunButtons(false);
+        simulationRunner.updateQoS(selectedInputProfile.getQualityOfServiceProfile());
+
+        switch (type) {
+            case Single:
+                simulationRunner.setupSingleRun();
+                simulationRunner.simulate(this.simulationSpeed, this);
+                break;
+            case Timed:
+                simulationRunner.setupTimedRun();
+                simulationRunner.simulate(this.simulationSpeed, this);
+                break;
+            case Multi:
+                simulationRunner.totalRun(this::setProgressTotalRun);
+                break;
+        }
+    }
+
+    private enum RunMode {Single, Timed, Multi}
+
+    ;
 
     // endregion
 
