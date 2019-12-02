@@ -276,13 +276,13 @@ public class ConfigurationWriter {
 
         Element generatePeriodSendingPacketElement() {
             Element periodSendingPacket = doc.createElement("periodSendingPacket");
-            periodSendingPacket.appendChild(doc.createTextNode(""+mote.getPeriodSendingPacket()));
+            periodSendingPacket.appendChild(doc.createTextNode(Integer.toString(mote.getPeriodSendingPacket())));
             return periodSendingPacket;
         }
 
         Element generateStartSendingOffsetElement() {
             Element startSendingOffset = doc.createElement("startSendingOffset");
-            startSendingOffset.appendChild(doc.createTextNode(""+mote.getStartSendingOffset()));
+            startSendingOffset.appendChild(doc.createTextNode(Integer.toString(mote.getStartSendingOffset())));
             return startSendingOffset;
         }
 

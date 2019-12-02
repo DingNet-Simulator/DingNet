@@ -18,6 +18,6 @@ public class ListHelper {
         if (list.isEmpty()) {
             throw new NoSuchElementException();
         }
-        return list.get(list.size()-1);
+        return list.get(list.size() - 1);
     }
 }

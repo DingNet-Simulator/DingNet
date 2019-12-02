@@ -253,7 +253,7 @@ public class SimulationRunner {
                     this.simulation.simulateStep();
                 }
 
-                fn.accept(new Pair<>(i+1, nrOfRuns));
+                fn.accept(new Pair<>(i + 1, nrOfRuns));
 
                 if (i != nrOfRuns - 1) {
                     this.getEnvironment().addRun();

@@ -35,7 +35,7 @@ public enum NO2Level implements RangeValue {
     @Override
     public byte[] getValue() {
         var ret = new byte[2];
-        ByteBuffer.wrap(ret).putShort((short) (getLowerBound() + random.nextInt(getUpperBound()-getLowerBound())));
+        ByteBuffer.wrap(ret).putShort((short) (getLowerBound() + random.nextInt(getUpperBound() - getLowerBound())));
         return ret;
     }
 }

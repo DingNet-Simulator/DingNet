@@ -34,7 +34,7 @@ public class MapHelper {
      * @param geoPosition the GeoPosition to convert.
      * @return The coordinate on the map of the GeoPosition.
      */
-    public Pair<Integer,Integer> toMapCoordinate(GeoPosition geoPosition) {
+    public Pair<Integer, Integer> toMapCoordinate(GeoPosition geoPosition) {
         return new Pair<>(toMapXCoordinate(geoPosition), toMapYCoordinate(geoPosition));
     }
 

@@ -47,7 +47,7 @@ public class LinePainter implements Painter<JXMapViewer> {
 
         // do the drawing
         g.setColor(Color.BLACK);
-        g.setStroke(new BasicStroke(this.lineSize+1));
+        g.setStroke(new BasicStroke(this.lineSize + 1));
 
         drawRoute(g, map);
 

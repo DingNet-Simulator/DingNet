@@ -17,7 +17,7 @@ import java.util.Set;
 
 
 public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapViewer> {
-    private Map<W,Integer> waypoints = new HashMap<>();
+    private Map<W, Integer> waypoints = new HashMap<>();
     private Type type;
 
 

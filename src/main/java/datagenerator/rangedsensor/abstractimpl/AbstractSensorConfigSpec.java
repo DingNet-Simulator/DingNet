@@ -14,7 +14,7 @@ abstract public class AbstractSensorConfigSpec<RV extends RangeValue, C extends 
     public final RequiredItem<Integer> row = new RequiredItem<>(SPEC, "row") {};
     public final RequiredItem<Integer> columns = new RequiredItem<>(SPEC, "columns") {};
     public final RequiredItem<RV> defaultLevel = getDefaultLevelItem();
-    public final RequiredItem<TimeUnit> timeUnit= new RequiredItem<>(SPEC, "timeUnit") {};
+    public final RequiredItem<TimeUnit> timeUnit = new RequiredItem<>(SPEC, "timeUnit") {};
     public final RequiredItem<List<C>> cells = getCellsItem();
 
     abstract protected RequiredItem<RV> getDefaultLevelItem();

@@ -47,7 +47,7 @@ public class ReceiverWaitPacket implements Receiver {
             transmission.setCollided();
         }
         transmissions.add(transmission);
-        clock.addTriggerOneShot(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS),()->{
+        clock.addTriggerOneShot(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS), () -> {
             transmission.setArrived();
             consumerPacket.accept(transmission);
         });

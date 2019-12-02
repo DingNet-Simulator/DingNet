@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 /**
  * Mqtt client for a real mqtt server. This implementation use the library Paho
  */
-public class PahoMqttClient implements MqttClientBasicApi{
+public class PahoMqttClient implements MqttClientBasicApi {
 
     private MqttClient mqttClient;
     private Gson gson;
@@ -56,7 +56,7 @@ public class PahoMqttClient implements MqttClientBasicApi{
             header
                 .setSourceAddress(Base64.getDecoder().decode(((JsonObject) jsonElement).get("sourceAddress").getAsString()))
                 .setFCnt(((JsonObject) jsonElement).get("fCnt").getAsShort())
-                .setfCtrl(((JsonObject) jsonElement).get("fCtrl").getAsByte())
+                .setFCtrl(((JsonObject) jsonElement).get("fCtrl").getAsByte())
                 .setFOpts(Base64.getDecoder().decode(((JsonObject) jsonElement).get("fOpts").getAsString()));
             return header;
         });

@@ -7,7 +7,9 @@ import util.SettingsReader;
  */
 public class MQTTClientFactory {
 
-    public enum MqttClientType {PAHO, MOCK}
+    public enum MqttClientType {
+        PAHO, MOCK
+    }
     private static MqttClientType DEFAULT_INSTANCE_TYPE = SettingsReader.getInstance().getMQTTClientType();
     private static MqttClientBasicApi clientBasicApi;
 

@@ -30,7 +30,7 @@ public class CarbonDioxideDataGenerator implements SensorDataGenerator {
             return 85 - 17.5 + (x + y) / 200 + 0.1 * random.nextGaussian();
     }
     public double nonStaticDataGeneration(double x, double y) {
-        return ParticulateMatterDataGenerator.generateData(x,y);
+        return ParticulateMatterDataGenerator.generateData(x, y);
     }
     /**
      * A function generating senor data for carbon dioxide.
@@ -42,7 +42,7 @@ public class CarbonDioxideDataGenerator implements SensorDataGenerator {
     @Override
     public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
         double result = CarbonDioxideDataGenerator.generateData(x, y);
-        return new byte[]{(byte)Math.floorMod((int) Math.round(result),255)};
+        return new byte[]{(byte) Math.floorMod((int) Math.round(result), 255)};
     }
     @Override
     public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {

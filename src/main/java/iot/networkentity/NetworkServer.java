@@ -61,7 +61,7 @@ public class NetworkServer {
                 }
                 transmissionReceived.get(moteId).put(gatewayId, transmission);
                 //check if packet is duplicated (is not send to app)
-                if (historyMote.get(moteId).stream().noneMatch(t-> t.equals(transmission))) {
+                if (historyMote.get(moteId).stream().noneMatch(t -> t.equals(transmission))) {
                     mqttClient.publish(Topics.getNetServerToApp(transmission.getContent().getReceiverEUI(), moteId), msg);
                 }
                 historyMote.get(moteId).add(transmission);
@@ -79,7 +79,7 @@ public class NetworkServer {
                     var gatewayId = transmissionReceived.get(moteId)
                         .entrySet()
                         .stream()
-                        .reduce((e1, e2) -> chooseGatewayStrategy.apply(e1,e2))
+                        .reduce((e1, e2) -> chooseGatewayStrategy.apply(e1, e2))
                         .map(Map.Entry::getKey)
                         .orElseThrow(() -> new IllegalStateException("no gateway available for the mote: " + moteId));
                     //send to best gateway
@@ -91,7 +91,9 @@ public class NetworkServer {
             });
     }
 
-    private short incrementFrameCounter() {return frameCounter++;}
+    private short incrementFrameCounter() {
+        return frameCounter++;
+    }
 
     private Map.Entry<Long, LoraTransmission> chooseByTransmissionPower(
             Map.Entry<Long, LoraTransmission> e1,

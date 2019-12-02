@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * A class representing a sensor for particulate matter.
  */
-public class ParticulateMatterDataGenerator implements SensorDataGenerator{
+public class ParticulateMatterDataGenerator implements SensorDataGenerator {
 
     private static final int DEFAULT_SEED = 1;
     private static Random random = new Random(DEFAULT_SEED);
@@ -30,7 +30,7 @@ public class ParticulateMatterDataGenerator implements SensorDataGenerator{
     }
 
     public double nonStaticDataGeneration(double x, double y) {
-        return ParticulateMatterDataGenerator.generateData(x,y);
+        return ParticulateMatterDataGenerator.generateData(x, y);
     }
     /**
      * A function generating senor data for particulate matter.
@@ -42,7 +42,7 @@ public class ParticulateMatterDataGenerator implements SensorDataGenerator{
     @Override
     public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
         double result = ParticulateMatterDataGenerator.generateData(x, y);
-        return new byte[]{(byte)Math.floorMod((int) Math.round(result),255)};
+        return new byte[]{(byte) Math.floorMod((int) Math.round(result), 255)};
     }
     @Override
     public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {

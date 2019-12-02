@@ -15,7 +15,7 @@ public class Topics {
     private final static String APPLICATION_ID = "application";
 
     public static String getGatewayToNetServer(long applicationId, long gatewayId, long nodeId) {
-        return getGatewayToNetServer(""+applicationId, ""+gatewayId, ""+nodeId);
+        return getGatewayToNetServer("" + applicationId, "" + gatewayId, "" + nodeId);
     }
 
     public static String getGatewayToNetServer(String applicationId, String gatewayId, String nodeId) {
@@ -23,7 +23,7 @@ public class Topics {
     }
 
     public static String getNetServerToGateway(long applicationId, long gatewayId, long nodeId) {
-        return getNetServerToGateway(""+applicationId, ""+gatewayId, ""+nodeId);
+        return getNetServerToGateway("" + applicationId, "" + gatewayId, "" + nodeId);
     }
 
     public static String getNetServerToGateway(String applicationId, String gatewayId, String nodeId) {
@@ -31,7 +31,7 @@ public class Topics {
     }
 
     public static String getNetServerToApp(long applicationId, long nodeId) {
-        return getNetServerToApp(""+applicationId, ""+nodeId);
+        return getNetServerToApp("" + applicationId, "" + nodeId);
     }
 
     public static String getNetServerToApp(String applicationId, String nodeId) {
@@ -39,7 +39,7 @@ public class Topics {
     }
 
     public static String getAppToNetServer(long applicationId, long nodeId) {
-        return getAppToNetServer(""+applicationId, ""+nodeId);
+        return getAppToNetServer("" + applicationId, "" + nodeId);
     }
 
     public static String getAppToNetServer(String applicationId, String nodeId) {
@@ -106,9 +106,9 @@ public class Topics {
     private static long getId(String idName, String topic) {
         var list = Arrays.asList(topic.split("/"));
         var index = list.indexOf(idName);
-        if (index < 0 || index >= list.size()-1) {
+        if (index < 0 || index >= list.size() - 1) {
             throw new NoSuchElementException("required id not found: " + idName + " in the topic: " + topic);
         }
-        return Long.valueOf(list.get(index + 1));
+        return Long.parseLong(list.get(index + 1));
     }
 }

@@ -33,6 +33,6 @@ public enum PM10Level implements RangeValue {
 
     @Override
     public byte[] getValue() {
-        return new byte[] { (byte) (getLowerBound() + random.nextInt(getUpperBound()-getLowerBound()))};
+        return new byte[] { (byte) (getLowerBound() + random.nextInt(getUpperBound() - getLowerBound()))};
     }
 }

@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * A class representing a packet in the LoraWan simulation.
  */
-public class LoraTransmission implements Serializable{
+public class LoraTransmission implements Serializable {
 
     //region field
     private static final long serialVersionUID = 1L;
@@ -171,9 +171,9 @@ public class LoraTransmission implements Serializable{
     private void setTransmissionPower(double transmissionPower) {
         if (isValidTransmissionPower(transmissionPower)) {
             this.transmissionPower = transmissionPower;
-        }
-        else
+        } else {
             this.transmissionPower = 0.0;
+        }
     }
 
     /**

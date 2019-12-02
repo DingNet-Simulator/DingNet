@@ -45,7 +45,7 @@ public class FeedbackLoopGatewayBuffer {
 
             List<List<Pair<Gateway, LoraTransmission>>> buffers = new LinkedList<>();
             buffers.add(buffer);
-            gatewayBuffer.put(mote,buffers);
+            gatewayBuffer.put(mote, buffers);
         }
     }
 

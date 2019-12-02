@@ -67,7 +67,7 @@ public class Path implements Iterable<GeoPosition> {
      * @return Either the last position of the path if present, otherwise an empty Optional.
      */
     public Optional<GeoPosition> getDestination() {
-        return isEmpty() ? Optional.empty() : Optional.of(points.get(points.size()-1));
+        return isEmpty() ? Optional.empty() : Optional.of(points.get(points.size() - 1));
     }
 
     public Optional<GeoPosition> getNextPoint(GeoPosition actualPoint) {
@@ -75,7 +75,7 @@ public class Path implements Iterable<GeoPosition> {
     }
 
     public Optional<GeoPosition> getNextPoint(int actualPointIndex) {
-        return getWayPoints().stream().skip(actualPointIndex+1).findFirst();
+        return getWayPoints().stream().skip(actualPointIndex + 1).findFirst();
     }
 
     /**
@@ -113,7 +113,7 @@ public class Path implements Iterable<GeoPosition> {
 
             long connectionId = connectionsMap.entrySet().stream()
                 .filter(o -> o.getValue().getFrom() == graphStructure.getClosestWayPoint(points.get(index))
-                    && o.getValue().getTo() == graphStructure.getClosestWayPoint(points.get(index+1)))
+                    && o.getValue().getTo() == graphStructure.getClosestWayPoint(points.get(index + 1)))
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElseThrow();

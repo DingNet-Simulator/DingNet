@@ -33,6 +33,6 @@ public enum AirQualityLevel implements RangeValue {
 
     @Override
     public byte[] getValue() {
-        return new byte[] { (byte) (getLowerBound() + random.nextInt(getUpperBound()-getLowerBound()))};
+        return new byte[] { (byte) (getLowerBound() + random.nextInt(getUpperBound() - getLowerBound()))};
     }
 }
