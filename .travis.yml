@@ -1,6 +1,10 @@
 language: java
+
 sudo: false
+
 script: 
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean verify -Dcheckstyle.failBuild=true; fi'
   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn clean verify; fi'
 
+cache:
+  - $HOME/.m2
