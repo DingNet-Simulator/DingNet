@@ -265,17 +265,25 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
                 public void windowClosing(WindowEvent e) {
                     super.windowClosing(e);
                     updateSettingsProfiles(settingsGUI.getSettingsProfiles());
+
+                    if (currentSettingsProfile == null) {
+                        SettingsReader.getInstance().loadDefaultSettings();
+                    } else {
+                        // Reload the profile which was used before
+                        SettingsReader.getInstance().loadSettings(
+                            Paths.get(Constants.PATH_CUSTOM_SETTINGS, currentSettingsProfile + ".properties").toString()
+                        );
+
+                        // reselect the used setting
+                        for (int i = 0; i < settingsProfilesComboBox.getItemCount(); i++) {
+                            if (settingsProfilesComboBox.getItemAt(i).equals(currentSettingsProfile)) {
+                                settingsProfilesComboBox.setSelectedIndex(i);
+                                break;
+                            }
+                        }
+                    }
                 }
             });
-
-            if (currentSettingsProfile == null) {
-                SettingsReader.getInstance().loadDefaultSettings();
-            } else {
-                // Reload the profile which was used before
-                SettingsReader.getInstance().loadSettings(
-                    Paths.get(Constants.PATH_CUSTOM_SETTINGS, currentSettingsProfile + ".properties").toString()
-                );
-            }
         });
     }
 
