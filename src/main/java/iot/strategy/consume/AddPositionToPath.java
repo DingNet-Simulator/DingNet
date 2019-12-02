@@ -27,7 +27,7 @@ public class AddPositionToPath implements ConsumePacketStrategy {
         }
         var payload = packet.getPayload();
         final List<GeoPosition> path = new LinkedList<>();
-        for (int i = 0; i+ BYTES_FOR_GEO_COORDINATE <= payload.length; i+= BYTES_FOR_GEO_COORDINATE) {
+        for (int i = 0; i + BYTES_FOR_GEO_COORDINATE <= payload.length; i += BYTES_FOR_GEO_COORDINATE) {
             path.add(Converter.toGeoPosition(payload, i));
         }
         return path;

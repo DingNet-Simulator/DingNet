@@ -33,11 +33,11 @@ public enum MoteSensor {
     }
 
     public byte[] getValue(int xpos, int ypos, GeoPosition graphPosition, LocalTime time) {
-        return sensorDataGenerator.generateData(xpos,ypos, graphPosition, time);
+        return sensorDataGenerator.generateData(xpos, ypos, graphPosition, time);
     }
 
     public double getValue(double xpos, double ypos) {
-        return sensorDataGenerator.nonStaticDataGeneration(xpos,ypos);
+        return sensorDataGenerator.nonStaticDataGeneration(xpos, ypos);
     }
 
     public List<Byte> getValueAsList(int xpos, int ypos, GeoPosition graphPosition, LocalTime time) {

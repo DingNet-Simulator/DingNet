@@ -86,10 +86,10 @@ public class SenderNoWaitPacket implements Sender {
         */
         var sf = regionalParameter.getSpreadingFactor();
         var bandwidth = regionalParameter.getBandwidth();
-        var tSym = Math.pow(2,sf)/bandwidth;
-        var tPreamble = (packet.getAmountOfPreambleSymbols()+4.25) * tSym;
-        var payloadSymbNb = (8*packet.getPayload().length - 4*sf + (28+16) - 20*(packet.hasHeader()? 0: 1)) /
-            ((4*(sf - (packet.hasLowDataRateOptimization()?2:0))) *1.0);
+        var tSym = Math.pow(2, sf) / bandwidth;
+        var tPreamble = (packet.getAmountOfPreambleSymbols() + 4.25) * tSym;
+        var payloadSymbNb = (8 * packet.getPayload().length - 4 * sf + (28 + 16) - 20 * (packet.hasHeader() ? 0 : 1)) /
+            ((4 * (sf - (packet.hasLowDataRateOptimization() ? 2 : 0))) * 1.0);
         payloadSymbNb = Math.ceil(payloadSymbNb);
         payloadSymbNb = 8 + Math.max(payloadSymbNb, 0);
         var tPayload = payloadSymbNb * tSym;
@@ -128,27 +128,22 @@ public class SenderNoWaitPacket implements Sender {
             characteristic = env.getCharacteristic(xPos, yPos);
 
             if (xDist + yDist > 1) {
-                if (xDist >  2*yDist || yDist >  2*xDist) {
+                if (xDist >  2 * yDist || yDist >  2 * xDist) {
                     transmissionPower = transmissionPower - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1));
-                    if (xDist >  2*yDist) {
+                    if (xDist >  2 * yDist) {
                         xPos = xPos - xDir;
-                    }
-                    else{
+                    } else {
                         yPos = yPos - yDir;
                     }
-                }
-                else {
+                } else {
                     transmissionPower = transmissionPower - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - Math.sqrt(2)));
-                    xPos =xPos - xDir;
+                    xPos = xPos - xDir;
                     yPos = yPos - yDir;
                 }
-            }
-
-            else if (xDist + yDist == 1) {
+            } else if (xDist + yDist == 1) {
                 if (xDist >  yDist) {
                     xPos = xPos - xDir;
-                }
-                else {
+                } else {
                     yPos = yPos - yDir;
                 }
             }

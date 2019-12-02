@@ -82,7 +82,7 @@ public class LoraWanPacket implements Serializable {
      * @param macCommands
      */
     public LoraWanPacket(long senderEUI, long designatedReceiverEUI, byte[] payload, FrameHeader header, List<MacCommand> macCommands) {
-        this(senderEUI, designatedReceiverEUI, payload, header,false,8,0.8,macCommands);
+        this(senderEUI, designatedReceiverEUI, payload, header, false, 8, 0.8, macCommands);
     }
 
     /**

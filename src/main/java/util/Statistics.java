@@ -97,7 +97,7 @@ public class Statistics {
         return powerSettingHistory.get(networkEntity);
     }
 
-    public List<Pair<Integer,Integer>> getPowerSettingHistory(long networkEntity, int run) {
+    public List<Pair<Integer, Integer>> getPowerSettingHistory(long networkEntity, int run) {
         return getPowerSettingHistory(networkEntity).stream()
             .filter(o -> o.runNumber == run)
             .map(o -> new Pair<>(o.timeInSeconds, o.powerSetting))
@@ -146,9 +146,9 @@ public class Statistics {
 
     public List<Double> getUsedEnergy(long networkEntity, int run) {
         List<Double> usedEnergy = new LinkedList<>();
-        int i= 0;
+        int i = 0;
         for (LoraTransmission transmission: getSentTransmissions(networkEntity, run)) {
-            usedEnergy.add(Math.pow(10,((double)getPowerSettingHistory(networkEntity, run).get(i).getRight())/10)*transmission.getTimeOnAir()/1000);
+            usedEnergy.add(Math.pow(10, ((double)getPowerSettingHistory(networkEntity, run).get(i).getRight()) / 10) * transmission.getTimeOnAir() / 1000);
             i++;
         }
         return usedEnergy;

@@ -48,7 +48,7 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
      */
     @Model
     private void putReliableDistanceGatewayBuffers(Mote mote, List<Double> reliableDistanceGatewayBuffer) {
-        this.reliableDistanceGatewayBuffers.put(mote,reliableDistanceGatewayBuffer);
+        this.reliableDistanceGatewayBuffers.put(mote, reliableDistanceGatewayBuffer);
     }
 
     /**
@@ -73,21 +73,21 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
         /**
          First we check if we have received the message already from all gateways.
          */
-        getGatewayBuffer().add(mote,dataGateway);
+        getGatewayBuffer().add(mote, dataGateway);
         if (getGatewayBuffer().hasReceivedAllSignals(mote)) {
             /**
              * Check for the signal which has travelled the shortest distance.
              */
             List<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
             var env = SimulationRunner.getInstance().getEnvironment();
-            double shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getYPosInt()-receivedSignals.get(0).getYPos(),2)+
-                    Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getXPosInt()-receivedSignals.get(0).getXPos(),2));
+            double shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getYPosInt() - receivedSignals.get(0).getYPos(), 2) +
+                    Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getXPosInt() - receivedSignals.get(0).getXPos(), 2));
 
             for (LoraTransmission transmission: receivedSignals) {
-                if (shortestDistance>Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
-                        Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2))) {
-                    shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt()-transmission.getYPos(),2)+
-                            Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt()-transmission.getXPos(),2));
+                if (shortestDistance > Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
+                        Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2))) {
+                    shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
+                            Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2));
                 }
             }
 
@@ -103,7 +103,7 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
             }
             reliableDistanceGatewayBuffer = getReliableDistanceGatewayBuffers().get(mote);
             reliableDistanceGatewayBuffer.add(shortestDistance);
-            putReliableDistanceGatewayBuffers(mote,reliableDistanceGatewayBuffer);
+            putReliableDistanceGatewayBuffers(mote, reliableDistanceGatewayBuffer);
             /**
              * If the buffer for the mote has 4 entries, the algorithm can start making adjustments.
              */

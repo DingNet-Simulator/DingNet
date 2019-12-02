@@ -94,7 +94,7 @@ public class AStarRouter implements PathFinder {
             .collect(Collectors.toList());
 
         // Don't forget the final waypoint
-        long lastWaypointId = graph.getConnections().get(connectionIds.get(connectionIds.size()-1)).getTo();
+        long lastWaypointId = graph.getConnections().get(connectionIds.get(connectionIds.size() - 1)).getTo();
         points.add(graph.getWayPoint(lastWaypointId));
 
         return points;

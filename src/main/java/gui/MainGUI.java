@@ -1031,7 +1031,9 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         }
     }
 
-    private enum RunMode {Single, Timed, Multi}
+    private enum RunMode {
+        Single, Timed, Multi
+    }
 
     ;
 

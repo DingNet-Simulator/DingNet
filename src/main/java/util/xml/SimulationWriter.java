@@ -102,26 +102,26 @@ public class SimulationWriter {
 
             Element origin = doc.createElement("origin");
             Element xPos = doc.createElement("xPosition");
-            xPos.appendChild(doc.createTextNode(""+transmission.getXPos()));
+            xPos.appendChild(doc.createTextNode(Integer.toString(transmission.getXPos())));
             Element yPos = doc.createElement("yPosition");
-            yPos.appendChild(doc.createTextNode(""+transmission.getYPos()));
+            yPos.appendChild(doc.createTextNode(Integer.toString(transmission.getYPos())));
             origin.appendChild(xPos);
             origin.appendChild(yPos);
 
             Element contentSize = doc.createElement("contentSize");
-            contentSize.appendChild(doc.createTextNode(""+transmission.getContent().getLength()));
+            contentSize.appendChild(doc.createTextNode(Integer.toString(transmission.getContent().getLength())));
 
             Element departureTime = doc.createElement("departureTime");
             departureTime.appendChild(doc.createTextNode(transmission.getDepartureTime().toString()));
 
             Element timeOnAir = doc.createElement("timeOnAir");
-            timeOnAir.appendChild(doc.createTextNode(""+transmission.getTimeOnAir()));
+            timeOnAir.appendChild(doc.createTextNode(Double.toString(transmission.getTimeOnAir())));
 
             Element powerSetting = doc.createElement("powerSetting");
             powerSetting.appendChild(doc.createTextNode(statistics.getPowerSettingHistory(networkEntity.getEUI(), run).get(i).toString()));
 
             Element collision = doc.createElement("collision");
-            collision.appendChild(doc.createTextNode(""+transmission.isCollided()));
+            collision.appendChild(doc.createTextNode(Boolean.toString(transmission.isCollided())));
 
             receivedTransmissionElement.appendChild(sender);
             receivedTransmissionElement.appendChild(transmissionPower);

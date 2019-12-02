@@ -23,7 +23,7 @@ public interface FrameHeader {
      *
      * @return frame counter as byte array of size 2
      */
-    byte[] getFCnt();
+    byte[] getfCnt();
 
     /**
      *

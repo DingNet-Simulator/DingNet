@@ -11,8 +11,8 @@ public class BasicFrameHeader implements FrameHeader {
     private static final int SOURCE_ADDRESS_LENGTH = 4;
 
     private byte[] sourceAddress = new byte[SOURCE_ADDRESS_LENGTH];
-    private short FCnt = 0;
-    private byte[] FOpts = new byte[0];
+    private short fCnt = 0;
+    private byte[] fOpts = new byte[0];
     private byte fCtrl = -1;
 
 
@@ -27,21 +27,21 @@ public class BasicFrameHeader implements FrameHeader {
         return setSourceAddress(address);
     }
 
-    public BasicFrameHeader setFCnt(short FCnt) {
-        this.FCnt = FCnt;
+    public BasicFrameHeader setFCnt(short fCnt) {
+        this.fCnt = fCnt;
         return this;
     }
 
-    public BasicFrameHeader setFCnt(byte[] FCnt) {
-        return setFCnt(ByteBuffer.wrap(FCnt).getShort());
+    public BasicFrameHeader setFCnt(byte[] fCnt) {
+        return setFCnt(ByteBuffer.wrap(fCnt).getShort());
     }
 
-    public BasicFrameHeader setFOpts(byte[] FOpts) {
-        this.FOpts = FOpts;
+    public BasicFrameHeader setFOpts(byte[] fOpts) {
+        this.fOpts = fOpts;
         return this;
     }
 
-    public BasicFrameHeader setfCtrl(byte fCtrl) {
+    public BasicFrameHeader setFCtrl(byte fCtrl) {
         this.fCtrl = fCtrl;
         return this;
     }
@@ -57,7 +57,7 @@ public class BasicFrameHeader implements FrameHeader {
     }
 
     @Override
-    public byte[] getFCnt() {
+    public byte[] getfCnt() {
         var data = new byte[Short.BYTES];
         ByteBuffer.wrap(data).putShort(getFCntAsShort());
         return data;
@@ -65,12 +65,12 @@ public class BasicFrameHeader implements FrameHeader {
 
     @Override
     public short getFCntAsShort() {
-        return FCnt;
+        return fCnt;
     }
 
     @Override
     public byte[] getFOpts() {
-        return FOpts;
+        return fOpts;
     }
 
     @Override

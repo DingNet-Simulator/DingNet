@@ -66,7 +66,7 @@ public class MqttBrokerMock {
                 .stream()
                 .filter(f -> checkTopicMatch(topic, f))
                 .collect(Collectors.toList())))
-            .forEach(e-> e.getRight().forEach(t -> e.getLeft().dispatch(t, topic, message)));
+            .forEach(e -> e.getRight().forEach(t -> e.getLeft().dispatch(t, topic, message)));
     }
 
     /**

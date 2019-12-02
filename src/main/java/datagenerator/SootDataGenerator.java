@@ -25,7 +25,7 @@ public class SootDataGenerator implements SensorDataGenerator {
             return 85 - 2 + (x + y) / 200 + 0.1 * random.nextGaussian();
     }
     public double nonStaticDataGeneration(double x, double y) {
-        return ParticulateMatterDataGenerator.generateData(x,y);
+        return ParticulateMatterDataGenerator.generateData(x, y);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class SootDataGenerator implements SensorDataGenerator {
     @Override
     public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
         double result = SootDataGenerator.generateData(x, y);
-        return new byte[]{(byte)Math.floorMod((int) Math.round(result),255)};
+        return new byte[]{(byte) Math.floorMod((int) Math.round(result), 255)};
     }
     @Override
     public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {

@@ -41,7 +41,7 @@ public class QualityOfService {
      * @param adaptationGoal The AdaptationGoal to put in the HashMap.
      */
     public void putAdaptationGoal(String name, AdaptationGoal adaptationGoal) {
-        this.adaptationGoals.put(name,adaptationGoal);
+        this.adaptationGoals.put(name, adaptationGoal);
     }
 
 

@@ -22,7 +22,7 @@ public class GlobalClock {
     private Map<LocalTime, List<Trigger>> triggers;
 
     public GlobalClock() {
-        time = LocalTime.of(0,0);
+        time = LocalTime.of(0, 0);
         triggers = new HashMap<>();
     }
 
@@ -52,7 +52,7 @@ public class GlobalClock {
      * @post all events are removed
      */
     public void reset() {
-        this.time = LocalTime.of(0,0);
+        this.time = LocalTime.of(0, 0);
         triggers = new HashMap<>();
     }
 
@@ -69,16 +69,16 @@ public class GlobalClock {
     public long addTriggerOneShot(LocalTime time, Runnable trigger) {
         return addTrigger(time, () -> {
             trigger.run();
-            return LocalTime.of(0,0);
+            return LocalTime.of(0, 0);
         });
     }
 
     private void addTrigger(LocalTime time, Trigger trigger) {
         if (containsTriggers(time)) {
-            triggers.get(time).add(0,trigger);
+            triggers.get(time).add(0, trigger);
         } else {
             List<Trigger> newTriggers = new ArrayList<>(List.of(trigger));
-            triggers.put(time,newTriggers);
+            triggers.put(time, newTriggers);
         }
     }
 

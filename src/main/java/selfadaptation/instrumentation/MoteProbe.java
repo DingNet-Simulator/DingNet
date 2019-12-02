@@ -34,7 +34,7 @@ public class MoteProbe {
      * @param genericFeedbackLoop The FeedbackLoop to set.
      */
     public void setGenericFeedbackLoop(GenericFeedbackLoop genericFeedbackLoop) {
-        this.genericFeedbackLoop =genericFeedbackLoop;
+        this.genericFeedbackLoop = genericFeedbackLoop;
     }
 
     /**

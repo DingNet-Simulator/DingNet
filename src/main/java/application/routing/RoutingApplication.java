@@ -135,7 +135,7 @@ public class RoutingApplication extends Application {
                 var currentRoute = routes.get(deviceEUI);
 
                 // Shorten the path based on the received mote location
-                for (int i = 1; i < Math.min(AMOUNT_OF_POSITIONS_SENT+1, currentRoute.size()); i++) {
+                for (int i = 1; i < Math.min(AMOUNT_OF_POSITIONS_SENT + 1, currentRoute.size()); i++) {
                     if (MapHelper.equalsGeoPosition(motePosition, currentRoute.get(i))) {
                         currentRoute = currentRoute.subList(i, currentRoute.size());
                         routes.put(deviceEUI, currentRoute);

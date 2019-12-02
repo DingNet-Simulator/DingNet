@@ -128,7 +128,7 @@ public class Mote extends NetworkEntity {
     @Raw
     public Mote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
                 List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, Environment environment) {
-        this(DevEUI,xPos,yPos, transmissionPower,SF,moteSensors,energyLevel,path, movementSpeed,
+        this(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET, environment);
     }
 
@@ -283,7 +283,7 @@ public class Mote extends NetworkEntity {
      * @param data The data to send in the message
      * @param macCommands the MAC commands to include in the message.
      */
-    public void sendToGateWay(Byte[] data, HashMap<MacCommand,Byte[]> macCommands) {
+    public void sendToGateWay(Byte[] data, HashMap<MacCommand, Byte[]> macCommands) {
         sendToGateWay(composePacket(data, macCommands));
     }
 
@@ -307,8 +307,8 @@ public class Mote extends NetworkEntity {
         }
     }
 
-    protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand,Byte[]> macCommands) {
-        byte[] payload = new byte[data.length+macCommands.size()+1];
+    protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand, Byte[]> macCommands) {
+        byte[] payload = new byte[data.length + macCommands.size() + 1];
         payload[0] = MessageType.SENSOR_VALUE.getCode();
         if (payload.length > 1) {
             int i = 1;

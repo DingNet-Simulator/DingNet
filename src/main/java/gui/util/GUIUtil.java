@@ -61,7 +61,7 @@ public class GUIUtil {
             .collect(Collectors.toList());
 
         IntStream.range(0, wraps.size())
-            .forEach(i -> map.put(wraps.get(i), i+1));
+            .forEach(i -> map.put(wraps.get(i), i + 1));
         return map;
     }
 
@@ -75,7 +75,7 @@ public class GUIUtil {
         var gateways = environment.getGateways();
 
         IntStream.range(0, gateways.size())
-            .forEach(i -> map.put(new DefaultWaypoint(environment.getMapHelper().toGeoPosition(gateways.get(i).getPosInt())), i+1));
+            .forEach(i -> map.put(new DefaultWaypoint(environment.getMapHelper().toGeoPosition(gateways.get(i).getPosInt())), i + 1));
 
         return map;
     }
@@ -89,7 +89,7 @@ public class GUIUtil {
     public static File getOutputFile(File givenFile, String extension) {
         String name = givenFile.getName();
 
-        if (name.length() < extension.length() + 2 || !name.substring(name.length() - (extension.length()+1)).equals("." + extension)) {
+        if (name.length() < extension.length() + 2 || !name.substring(name.length() - (extension.length() + 1)).equals("." + extension)) {
             // Either the filename is too short, or it is still missing the (right) extension
             return new File(givenFile.getPath() + "." + extension);
         } else {

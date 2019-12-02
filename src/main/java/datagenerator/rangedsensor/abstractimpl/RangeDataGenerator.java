@@ -37,7 +37,7 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     private final TimeUnit timeUnit;
     private final Map<Integer, List<Cell>> map;
 
-    public RangeDataGenerator(AbstractSensorConfigSpec<?,?> sensorConfig) {
+    public RangeDataGenerator(AbstractSensorConfigSpec<?, ?> sensorConfig) {
         width = Environment.getMapWidth();
         height = Environment.getMapHeight();
         Config config = new BaseConfig();
@@ -75,8 +75,8 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
 
     private int calcSquare(int x, int y) {
         //`(height - y)` because in the simulator environment the origin is in the bottom left corner
-        int moteRow = (height - y) / (height/row);
-        int moteCol = x/ (width/columns);
+        int moteRow = (height - y) / (height / row);
+        int moteCol = x / (width / columns);
         return moteRow * columns + moteCol;
     }
 

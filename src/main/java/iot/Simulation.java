@@ -113,7 +113,7 @@ public class Simulation {
      */
     @Basic
     void setApproach(GenericFeedbackLoop approach) {
-        if (getApproach()!= null) {
+        if (getApproach() != null) {
             getApproach().stop();
         }
         this.approach = approach;
@@ -157,7 +157,10 @@ public class Simulation {
         //noinspection SimplifyStreamApiCallChains
         this.getEnvironment().getMotes().stream()
             .filter(Mote::isEnabled)
-            .map(mote -> { mote.consumePackets(); return mote;}) //DON'T replace with peek because the filtered mote after this line will not do the consume packet
+            .map(mote -> {
+                mote.consumePackets();
+                return mote;
+            }) //DON'T replace with peek because the filtered mote after this line will not do the consume packet
             .filter(mote -> !mote.isArrivedToDestination())
             .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                 TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
