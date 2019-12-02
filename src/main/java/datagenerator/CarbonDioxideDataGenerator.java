@@ -1,5 +1,6 @@
 package datagenerator;
 
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
 import java.time.LocalTime;
@@ -38,11 +39,13 @@ public class CarbonDioxideDataGenerator implements SensorDataGenerator {
      * @param time The time of the measurement.
      * @return A measurement of carbon dioxide at the given position and time.
      */
-    public byte[] generateData(int x, int y, LocalTime time) {
+    @Override
+    public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
         double result = CarbonDioxideDataGenerator.generateData(x, y);
         return new byte[]{(byte)Math.floorMod((int) Math.round(result),255)};
     }
-    public byte[] generateData(Pair<Integer, Integer> pos, LocalTime time) {
-        return this.generateData(pos.getLeft(), pos.getRight(), time);
+    @Override
+    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
+        return this.generateData(pos.getLeft(), pos.getRight(), graphPosition, time);
     }
 }

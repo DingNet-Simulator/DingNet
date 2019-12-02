@@ -10,6 +10,7 @@ import iot.strategy.consume.ConsumePacketStrategy;
 import iot.strategy.store.MaintainLastPacket;
 import iot.strategy.store.ReceivedPacketStrategy;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.MapHelper;
 import util.Path;
 
 import java.util.*;
@@ -22,6 +23,8 @@ public class Mote extends NetworkEntity {
 
     //region field
 
+    // Distance in km
+    public static final double DISTANCE_THRESHOLD_ROUNDING_ERROR = 0.001;
     //both in seconds
     private static final int DEFAULT_START_SENDING_OFFSET = 1;
     private static final int DEFAULT_PERIOD_SENDING_PACKET = 20;
@@ -36,6 +39,8 @@ public class Mote extends NetworkEntity {
     // A path representing the connections the mote will follow.
     @Model
     private Path path;
+
+    protected int pathPositionIndex;
 
     // An integer representing the energy level of the mote.
     @Model
@@ -154,7 +159,7 @@ public class Mote extends NetworkEntity {
     protected void initialize() {
         this.setXPos(this.initialPosition.getLeft());
         this.setYPos(this.initialPosition.getRight());
-
+        this.pathPositionIndex = getPath().isEmpty() ? -1 : 0;
         this.frameCounter = 0;
         this.canReceive = false;
         this.keepAliveTriggerId = -1L;
@@ -202,6 +207,28 @@ public class Mote extends NetworkEntity {
         this.path.setPath(positions);
     }
 
+    public int getPathPositionIndex() {
+        return pathPositionIndex;
+    }
+
+    public GeoPosition getPathPosition() {
+        return pathPositionIndex == -1 ?
+            getEnvironment().getMapHelper().toGeoPosition(initialPosition.getLeft().intValue(), initialPosition.getRight().intValue()) :
+            getPath().getWayPoints().get(pathPositionIndex);
+    }
+
+    @Override
+    public void setPos(double xPos, double yPos) {
+        super.setPos(xPos, yPos);
+
+        getPath().getNextPoint(pathPositionIndex)
+            .ifPresent(p -> {
+                var actualPoint = getEnvironment().getMapHelper().toGeoPosition(getPosInt());
+                if (MapHelper.equalsGeoPosition(actualPoint, p)) {
+                    pathPositionIndex++;
+                }
+            });
+    }
 
     /**
      * Shorten the path of this mote from a given waypoint ID.

@@ -1,9 +1,9 @@
 package gui.mapviewer;
 
-import gui.util.GUISettings;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -41,7 +41,7 @@ public class LinePainter implements Painter<JXMapViewer> {
         Rectangle rect = map.getViewportBounds();
         g.translate(-rect.x, -rect.y);
 
-        if (GUISettings.USE_ANTIALIASING) {
+        if (SettingsReader.getInstance().useGUIAntialiasing()) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
 

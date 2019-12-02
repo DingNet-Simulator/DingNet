@@ -1,12 +1,14 @@
 package iot.mqtt;
 
+import util.SettingsReader;
+
 /**
  * Factory to retrieve an instance of {@link MqttClientBasicApi}
  */
 public class MQTTClientFactory {
 
-    private enum MqttClientType {PAHO, MOCK}
-    private static MqttClientType DEFAULT_INSTANCE_TYPE = MqttClientType.MOCK;
+    public enum MqttClientType {PAHO, MOCK}
+    private static MqttClientType DEFAULT_INSTANCE_TYPE = SettingsReader.getInstance().getMQTTClientType();
     private static MqttClientBasicApi clientBasicApi;
 
     /**

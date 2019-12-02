@@ -1,7 +1,10 @@
 package iot.networkentity;
 
 import datagenerator.*;
-import datagenerator.iaqsensor.IAQDataGeneratorSingleton;
+import datagenerator.rangedsensor.iaqsensor.IAQDataGeneratorSingleton;
+import datagenerator.rangedsensor.no2sensor.NO2DataGeneratorSingleton;
+import datagenerator.rangedsensor.pm10sensor.PM10DataGeneratorSingleton;
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
 import java.time.LocalTime;
@@ -13,32 +16,32 @@ import java.util.List;
  */
 public enum MoteSensor {
 
-    SOOT(new SootDataGenerator(), 1),
-    OZONE(new OzoneDataGenerator(), 1),
-    CARBON_DIOXIDE(new CarbonDioxideDataGenerator(), 1),
-    PARTICULATE_MATTER(new ParticulateMatterDataGenerator(), 1),
-    GPS(new GPSDataGenerator(),8),
-    IAQ(IAQDataGeneratorSingleton.getInstance(), 1);
+    SOOT(new SootDataGenerator()),
+    OZONE(new OzoneDataGenerator()),
+    CARBON_DIOXIDE(new CarbonDioxideDataGenerator()),
+    PARTICULATE_MATTER(new ParticulateMatterDataGenerator()),
+    GPS(new GPSDataGenerator()),
+    IAQ(IAQDataGeneratorSingleton.getInstance()),
+    PM10(PM10DataGeneratorSingleton.getInstance()),
+    NO2(NO2DataGeneratorSingleton.getInstance());
 
 
     private final SensorDataGenerator sensorDataGenerator;
-    private final int amountOfData;
 
-    MoteSensor(SensorDataGenerator sensorDataGenerator, int amountOfData) {
+    MoteSensor(SensorDataGenerator sensorDataGenerator) {
         this.sensorDataGenerator = sensorDataGenerator;
-        this.amountOfData = amountOfData;
     }
 
-    public byte[] getValue(int xpos, int ypos, LocalTime time) {
-        return sensorDataGenerator.generateData(xpos,ypos,time);
+    public byte[] getValue(int xpos, int ypos, GeoPosition graphPosition, LocalTime time) {
+        return sensorDataGenerator.generateData(xpos,ypos, graphPosition, time);
     }
 
     public double getValue(double xpos, double ypos) {
         return sensorDataGenerator.nonStaticDataGeneration(xpos,ypos);
     }
 
-    public List<Byte> getValueAsList(int xpos, int ypos, LocalTime time) {
-        var tmp = sensorDataGenerator.generateData(xpos, ypos, time);
+    public List<Byte> getValueAsList(int xpos, int ypos, GeoPosition graphPosition, LocalTime time) {
+        var tmp = sensorDataGenerator.generateData(xpos, ypos, graphPosition, time);
         var ret = new LinkedList<Byte>();
         for (byte b : tmp) {
             ret.add(b);
@@ -46,12 +49,12 @@ public enum MoteSensor {
         return ret;
     }
 
-    public byte[] getValue(Pair<Integer, Integer> pos, LocalTime time) {
-        return getValue(pos.getLeft(), pos.getRight(), time);
+    public byte[] getValue(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
+        return getValue(pos.getLeft(), pos.getRight(), graphPosition, time);
     }
 
-    public List<Byte> getValueAsList(Pair<Integer, Integer> pos, LocalTime time) {
-        return getValueAsList(pos.getLeft(), pos.getRight(), time);
+    public List<Byte> getValueAsList(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
+        return getValueAsList(pos.getLeft(), pos.getRight(), graphPosition, time);
     }
 
     public SensorDataGenerator getSensorDataGenerator() {
@@ -59,6 +62,6 @@ public enum MoteSensor {
     }
 
     public int getAmountOfData() {
-        return amountOfData;
+        return getSensorDataGenerator().getAmountOfData();
     }
 }

@@ -1,9 +1,9 @@
 package gui.mapviewer;
 
-import gui.util.GUISettings;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.Waypoint;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -24,7 +24,7 @@ public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapView
     public NumberPainter(Type type) {
         this.type = type;
 
-        setAntialiasing(GUISettings.USE_ANTIALIASING);
+        setAntialiasing(SettingsReader.getInstance().useGUIAntialiasing());
         setCacheable(false);
     }
 
@@ -85,7 +85,7 @@ public class NumberPainter<W extends Waypoint> extends AbstractPainter<JXMapView
 
         img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         g2d = img.createGraphics();
-        if (GUISettings.USE_ANTIALIASING) {
+        if (SettingsReader.getInstance().useGUIAntialiasing()) {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);

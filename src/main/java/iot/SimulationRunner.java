@@ -338,7 +338,7 @@ public class SimulationRunner {
     private void setupApplications() {
         this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
         this.routingApplication = new RoutingApplication(
-            new AStarRouter(new SimplePollutionHeuristic(pollutionGrid)), getEnvironment().getGraph()
+            new AStarRouter(new SimplePollutionHeuristic(pollutionGrid)), getEnvironment().getGraph(), environment
         );
     }
 

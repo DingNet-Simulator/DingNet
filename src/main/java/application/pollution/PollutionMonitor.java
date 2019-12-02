@@ -41,7 +41,7 @@ public class PollutionMonitor extends Application {
             .filter(me -> me.getKey().equals(MoteSensor.IAQ))
             .map(Map.Entry::getValue)
             .flatMap(Arrays::stream) // Can do this here since we filter the IAQ sensor (we know it generates a single byte)
-            .mapToDouble(b -> (b.intValue() - 1) / 4.0)
+            .mapToDouble(b -> b.intValue() / 125.0)
             .average()
             .orElse(0.0);
     }

@@ -9,6 +9,10 @@ import util.MapHelper;
  * A simple routing heuristic which also takes the pollution over a given connection into account.
  */
 public class SimplePollutionHeuristic implements RoutingHeuristic {
+    // Factor which gives an indication of how much further the user would like to travel to avoid pollution
+    // The higher this factor, the more likely the user will travel further
+    private final int USER_PREFERENCE_FACTOR = 10;
+
     private final PollutionGrid pollutionGrid;
 
     public SimplePollutionHeuristic(PollutionGrid pollutionGrid) {
@@ -22,11 +26,7 @@ public class SimplePollutionHeuristic implements RoutingHeuristic {
 
         double pollutionValue = this.pollutionGrid.getPollutionLevel(MapHelper.meanPosition(begin, end)).getPollutionFactor();
 
-        double factor = (0.0 <= pollutionValue && pollutionValue < 0.2) ? 1 :
-                        (0.2 <= pollutionValue && pollutionValue < 0.4) ? 2 :
-                        (0.4 <= pollutionValue && pollutionValue < 0.6) ? 3 : 10;
-
         // The lower the pollution level, the better the heuristic
-        return factor * MapHelper.distance(begin, end);
+        return ((pollutionValue * USER_PREFERENCE_FACTOR) + 1) * MapHelper.distance(begin, end);
     }
 }

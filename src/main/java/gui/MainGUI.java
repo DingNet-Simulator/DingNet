@@ -20,24 +20,18 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
-import util.MapHelper;
-import util.MutableInteger;
-import util.Pair;
-import util.Statistics;
+import util.*;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -102,6 +96,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private JSplitPane statisticsSplitPane;
     private JPanel inputProfilePanel;
     private JPanel statisticsPanel;
+    private JButton settingsButton;
+    private JComboBox<String> settingsProfilesComboBox;
 
     private static JXMapViewer mapViewer = new JXMapViewer();
     // Create a TileFactoryInfo for OpenStreetMap
@@ -110,6 +106,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     private SimulationRunner simulationRunner;
     private MutableInteger simulationSpeed;
+    private InputProfile selectedInputProfile;
 
     private MouseAdapter moteMouse = new MoteLegendMouseListener();
     private MouseAdapter gateWayMouse = new GatewayLegendMouseListener();
@@ -124,10 +121,10 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         SwingUtilities.invokeLater(() -> {
             mapViewer.setTileFactory(tileFactory);
-            tileFactory.setThreadPoolSize(GUISettings.THREADPOOLSIZE);
+            tileFactory.setThreadPoolSize(SettingsReader.getInstance().getThreadPoolSize());
 
-            if (GUISettings.USE_MAP_CACHING) {
-                File cache = new File(GUISettings.PATH_CACHE_TILEFACTORY);
+            if (SettingsReader.getInstance().useMapCaching()) {
+                File cache = new File(SettingsReader.getInstance().getTileFactoryCachePath());
                 tileFactory.setLocalCache(new FileBasedLocalCache(cache, false));
             }
 
@@ -142,7 +139,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             gui.loadAlgorithms();
             frame.setVisible(true);
 
-            if (GUISettings.START_FULL_SCREEN) {
+            if (SettingsReader.getInstance().shouldStartFullScreen()) {
                 frame.setExtendedState(Frame.MAXIMIZED_BOTH);
             }
         });
@@ -151,10 +148,21 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
     public MainGUI(SimulationRunner simulationRunner) {
         this.simulationRunner = simulationRunner;
-        this.simulationSpeed = new MutableInteger(GUISettings.BASE_VISUALIZATION_SPEED);
+        this.simulationSpeed = new MutableInteger(SettingsReader.getInstance().getBaseVisualizationSpeed());
+        initializeDefaultInputProfile();
 
         updateInputProfiles();
         updateAdaptationGoals();
+        updateSettingsProfiles();
+        DingNetCache.getLastUsedSettingsProfile().ifPresent(s -> {
+            var model = settingsProfilesComboBox.getModel();
+            for (int i = 0; i < model.getSize(); i++) {
+                if (model.getElementAt(i).equals(s.replace(".properties", ""))) {
+                    settingsProfilesComboBox.setSelectedIndex(i);
+                    // In the constructor of the settings reader, the settings have already been loaded.
+                }
+            }
+        });
 
         resultsButton.setEnabled(false);
         editColBoundButton.setEnabled(false);
@@ -180,46 +188,30 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         regionButton.addActionListener(e -> this.setPollutionGraphs(simulationRunner.getEnvironment()));
 
-
-        singleRunButton.addActionListener(e -> {
-            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
-                showNoInputProfileSelectedError();
-                return;
-            }
-
-            this.setEnabledRunButtons(false);
-            simulationRunner.setupSingleRun();
-
-            simulationRunner.simulate(simulationSpeed, this);
-        });
-
-        timedRunButton.addActionListener(e -> {
-            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
-                showNoInputProfileSelectedError();
-                return;
-            }
-
-            this.setEnabledRunButtons(false);
-            simulationRunner.setupTimedRun();
-
-            simulationRunner.simulate(simulationSpeed, this);
-        });
-
-        totalRunButton.addActionListener(e -> {
-            if (simulationRunner.getSimulation().getInputProfile().isEmpty()) {
-                showNoInputProfileSelectedError();
-                return;
-            }
-
-            this.setEnabledRunButtons(false);
-
-            simulationRunner.totalRun(this::setProgressTotalRun);
-        });
+        singleRunButton.addActionListener(e -> this.doRun(RunMode.Single));
+        timedRunButton.addActionListener(e -> this.doRun(RunMode.Timed));
+        totalRunButton.addActionListener(e -> this.doRun(RunMode.Multi));
 
 
         adaptationComboBox.addActionListener((ActionEvent e) -> {
             String chosenOption = (String) adaptationComboBox.getSelectedItem();
             simulationRunner.setApproach(chosenOption);
+        });
+
+        settingsProfilesComboBox.addActionListener(e -> {
+            String chosenProfile = (String) settingsProfilesComboBox.getSelectedItem();
+
+            if (chosenProfile != null) {
+                SettingsReader.getInstance().loadSettings(
+                    Paths.get(Constants.PATH_CUSTOM_SETTINGS, chosenProfile + ".properties").toString()
+                );
+                DingNetCache.updateLastUsedSettingsProfile(chosenProfile + ".properties");
+
+                // Check if a configuration has already been loaded (i.e., an environment has been constructed)
+                if (this.simulationRunner.getEnvironment() != null) {
+                    refresh();
+                }
+            }
         });
 
         clearButton.addActionListener((ActionEvent e) -> {
@@ -256,8 +248,43 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         });
 
         speedSlider.addChangeListener(
-            e -> this.simulationSpeed.setValue(GUISettings.BASE_VISUALIZATION_SPEED * speedSlider.getValue())
+            e -> this.simulationSpeed.setValue(SettingsReader.getInstance().getBaseVisualizationSpeed() * speedSlider.getValue())
         );
+
+        settingsButton.addActionListener(e -> {
+            String currentSettingsProfile = (String) settingsProfilesComboBox.getSelectedItem();
+
+            JFrame frame = new JFrame("Edit settings");
+            SettingsGUI settingsGUI = new SettingsGUI();
+            frame.setContentPane(settingsGUI.getMainPanel());
+            frame.setMinimumSize(settingsGUI.getMainPanel().getMinimumSize());
+            frame.setPreferredSize(settingsGUI.getMainPanel().getPreferredSize());
+            frame.setVisible(true);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    super.windowClosing(e);
+                    updateSettingsProfiles(settingsGUI.getSettingsProfiles());
+
+                    if (currentSettingsProfile == null) {
+                        SettingsReader.getInstance().loadDefaultSettings();
+                    } else {
+                        // Reload the profile which was used before
+                        SettingsReader.getInstance().loadSettings(
+                            Paths.get(Constants.PATH_CUSTOM_SETTINGS, currentSettingsProfile + ".properties").toString()
+                        );
+
+                        // reselect the used setting
+                        for (int i = 0; i < settingsProfilesComboBox.getItemCount(); i++) {
+                            if (settingsProfilesComboBox.getItemAt(i).equals(currentSettingsProfile)) {
+                                settingsProfilesComboBox.setSelectedIndex(i);
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+        });
     }
 
 
@@ -323,6 +350,16 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         this.singleRunButton.setEnabled(state);
         this.timedRunButton.setEnabled(state);
         this.totalRunButton.setEnabled(state);
+    }
+
+    private void initializeDefaultInputProfile() {
+        DingNetCache.getLastUsedInputProfile().ifPresent(profileName -> {
+            for (InputProfile profile : simulationRunner.getInputProfiles()) {
+                if (profile.getName().equals(profileName)) {
+                    selectedInputProfile = profile;
+                }
+            }
+        });
     }
 
     // endregion
@@ -409,8 +446,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         constraints.weighty = 0;
         JPanel panel;
 
-        Optional<InputProfile> selectedInputProfile = simulationRunner.getSimulation().getInputProfile();
-
         for (InputProfile inputProfile : simulationRunner.getInputProfiles()) {
             panel = new JPanel(new BorderLayout());
             panel.setPreferredSize(new Dimension(InputProfilePanel.getWidth() - 10, 50));
@@ -422,7 +457,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             JPanel subPanel2 = new JPanel();
             subPanel2.setOpaque(false);
 
-            if (selectedInputProfile.isPresent() && inputProfile == selectedInputProfile.get()) {
+            if (inputProfile.equals(selectedInputProfile)) {
                 subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_SELECTED)));
             } else {
                 subPanel1.add(new JLabel(new ImageIcon(ImageLoader.IMAGE_CIRCLE_UNSELECTED)));
@@ -442,6 +477,16 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         InputProfilePanel.add(panel, constraints);
         InputProfilePanel.repaint();
         InputProfilePanel.revalidate();
+
+
+        // Also update QoS buttons (if applicable)
+        Set<String> qualityNames = selectedInputProfile == null ?
+            new HashSet<>() :
+            selectedInputProfile.getQualityOfServiceProfile().getNames();
+
+        editRelComButton.setEnabled(qualityNames.contains("reliableCommunication"));
+        editEnConButton.setEnabled(qualityNames.contains("energyConsumption"));
+        editColBoundButton.setEnabled(qualityNames.contains("collisionBound"));
     }
 
     /**
@@ -453,6 +498,19 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         relComLabel.setText(String.format("Interval: %s", QoS.getAdaptationGoal("reliableCommunication").toString()));
         enConLabel.setText(String.format("Threshold: %s", QoS.getAdaptationGoal("energyConsumption").toString()));
         colBoundLabel.setText(String.format("Threshold: %.2f", Double.parseDouble(QoS.getAdaptationGoal("collisionBound").toString()) * 100));
+    }
+
+
+    private void updateSettingsProfiles() {
+        // Check all the custom saved settings profiles
+        this.updateSettingsProfiles(SettingsReader.getCustomSettingsFiles());
+    }
+
+    private void updateSettingsProfiles(List<String> profiles) {
+        var model = new DefaultComboBoxModel<String>();
+        profiles.forEach(p -> model.addElement(p.replace(".properties", "")));
+        settingsProfilesComboBox.setModel(model);
+        settingsProfilesComboBox.setSelectedIndex(-1);
     }
 
     // endregion
@@ -679,6 +737,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            // TODO could this also work before opening a configuration?
             if (simulationRunner.getEnvironment() != null) {
                 JFrame frame = new JFrame("Edit input profile");
                 EditInputProfileGUI editInputProfileGUI =
@@ -703,31 +762,14 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (simulationRunner.getEnvironment() != null) {
-                Simulation simulation = simulationRunner.getSimulation();
-                Optional<InputProfile> currentProfile = simulation.getInputProfile();
-
-                if (currentProfile.isPresent() && inputProfile == currentProfile.get()) {
-                    simulation.setInputProfile(null);
-                    editRelComButton.setEnabled(false);
-                    editColBoundButton.setEnabled(false);
-                    editEnConButton.setEnabled(false);
-                } else {
-                    // Adjust the used inputprofile and QoS in the simulation
-                    simulation.setInputProfile(inputProfile);
-                    simulationRunner.updateQoS(inputProfile.getQualityOfServiceProfile());
-
-                    Set<String> qualityNames = inputProfile.getQualityOfServiceProfile().getNames();
-                    editRelComButton.setEnabled(qualityNames.contains("reliableCommunication"));
-                    editEnConButton.setEnabled(qualityNames.contains("energyConsumption"));
-                    editColBoundButton.setEnabled(qualityNames.contains("collisionBound"));
-                }
-                updateInputProfiles();
-                updateAdaptationGoals();
+            if (inputProfile.equals(selectedInputProfile)) {
+                selectedInputProfile = null;
             } else {
-                JOptionPane.showMessageDialog(null, "Load a configuration before selecting an input profile",
-                    "InfoBox: Select InputProfile", JOptionPane.INFORMATION_MESSAGE);
+                selectedInputProfile = inputProfile;
+                DingNetCache.updateLastUsedInputProfile(inputProfile.getName());
             }
+            updateInputProfiles();
+            updateAdaptationGoals();
         }
     }
 
@@ -963,6 +1005,36 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         this.setEnabledRunButtons(true);
     }
 
+
+    private void doRun(RunMode type) {
+        if (this.selectedInputProfile == null) {
+            showNoInputProfileSelectedError();
+            return;
+        }
+
+        simulationRunner.getSimulation().setInputProfile(selectedInputProfile);
+        this.setEnabledRunButtons(false);
+        simulationRunner.updateQoS(selectedInputProfile.getQualityOfServiceProfile());
+
+        switch (type) {
+            case Single:
+                simulationRunner.setupSingleRun();
+                simulationRunner.simulate(this.simulationSpeed, this);
+                break;
+            case Timed:
+                simulationRunner.setupTimedRun();
+                simulationRunner.simulate(this.simulationSpeed, this);
+                break;
+            case Multi:
+                simulationRunner.totalRun(this::setProgressTotalRun);
+                break;
+        }
+    }
+
+    private enum RunMode {Single, Timed, Multi}
+
+    ;
+
     // endregion
 
 
@@ -977,7 +1049,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
      * Method generated by IntelliJ IDEA GUI Designer
      * >>> IMPORTANT!! <<<
      * DO NOT edit this method OR call it in your code!
-     *
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
@@ -989,7 +1060,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         configurationToolBar.setFloatable(false);
         configurationToolBar.setRollover(true);
         configurationToolBar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        mainPanel.add(configurationToolBar, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
+        mainPanel.add(configurationToolBar, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 30), null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Configuration:");
         configurationToolBar.add(label1);
@@ -1024,6 +1095,17 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         configurationToolBar.add(aboutButton);
         final Spacer spacer3 = new Spacer();
         configurationToolBar.add(spacer3);
+        settingsProfilesComboBox = new JComboBox();
+        settingsProfilesComboBox.setMinimumSize(new Dimension(30, 15));
+        settingsProfilesComboBox.setPreferredSize(new Dimension(30, 15));
+        configurationToolBar.add(settingsProfilesComboBox);
+        final JToolBar.Separator toolBar$Separator6 = new JToolBar.Separator();
+        configurationToolBar.add(toolBar$Separator6);
+        settingsButton = new JButton();
+        settingsButton.setText("Settings");
+        configurationToolBar.add(settingsButton);
+        final JToolBar.Separator toolBar$Separator7 = new JToolBar.Separator();
+        configurationToolBar.add(toolBar$Separator7);
         mainWindowSplitPane = new JSplitPane();
         mainWindowSplitPane.setDividerLocation(600);
         mainWindowSplitPane.setOrientation(0);
@@ -1052,8 +1134,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         final JLabel label2 = new JLabel();
         label2.setText("Map");
         toolBar1.add(label2);
-        final JToolBar.Separator toolBar$Separator6 = new JToolBar.Separator();
-        toolBar1.add(toolBar$Separator6);
+        final JToolBar.Separator toolBar$Separator8 = new JToolBar.Separator();
+        toolBar1.add(toolBar$Separator8);
         final Spacer spacer4 = new Spacer();
         toolBar1.add(spacer4);
         final JLabel label3 = new JLabel();
@@ -1077,7 +1159,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         runAndStatisticsPanel.setPreferredSize(new Dimension(1500, 400));
         mainWindowSplitPane.setRightComponent(runAndStatisticsPanel);
         statisticsSplitPane = new JSplitPane();
-        statisticsSplitPane.setDividerLocation(450);
+        statisticsSplitPane.setDividerLocation(465);
         runAndStatisticsPanel.add(statisticsSplitPane, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
         inputProfilePanel = new JPanel();
         inputProfilePanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
@@ -1202,13 +1284,13 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         final JToolBar toolBar4 = new JToolBar();
         toolBar4.setFloatable(false);
         panel8.add(toolBar4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
-        final JToolBar.Separator toolBar$Separator7 = new JToolBar.Separator();
-        toolBar4.add(toolBar$Separator7);
+        final JToolBar.Separator toolBar$Separator9 = new JToolBar.Separator();
+        toolBar4.add(toolBar$Separator9);
         moteCharacteristicsButton = new JButton();
         moteCharacteristicsButton.setText("Mote");
         toolBar4.add(moteCharacteristicsButton);
-        final JToolBar.Separator toolBar$Separator8 = new JToolBar.Separator();
-        toolBar4.add(toolBar$Separator8);
+        final JToolBar.Separator toolBar$Separator10 = new JToolBar.Separator();
+        toolBar4.add(toolBar$Separator10);
         final JLabel label12 = new JLabel();
         label12.setText("Selected: ");
         toolBar4.add(label12);
@@ -1229,18 +1311,18 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         final JToolBar toolBar5 = new JToolBar();
         toolBar5.setFloatable(false);
         panel9.add(toolBar5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
-        final JToolBar.Separator toolBar$Separator9 = new JToolBar.Separator();
-        toolBar5.add(toolBar$Separator9);
+        final JToolBar.Separator toolBar$Separator11 = new JToolBar.Separator();
+        toolBar5.add(toolBar$Separator11);
         moteApplicationButton = new JButton();
         moteApplicationButton.setText("Mote");
         toolBar5.add(moteApplicationButton);
-        final JToolBar.Separator toolBar$Separator10 = new JToolBar.Separator();
-        toolBar5.add(toolBar$Separator10);
+        final JToolBar.Separator toolBar$Separator12 = new JToolBar.Separator();
+        toolBar5.add(toolBar$Separator12);
         regionButton = new JButton();
         regionButton.setText("Region");
         toolBar5.add(regionButton);
-        final JToolBar.Separator toolBar$Separator11 = new JToolBar.Separator();
-        toolBar5.add(toolBar$Separator11);
+        final JToolBar.Separator toolBar$Separator13 = new JToolBar.Separator();
+        toolBar5.add(toolBar$Separator13);
         final JLabel label14 = new JLabel();
         label14.setText("Selected: ");
         toolBar5.add(label14);
@@ -1272,8 +1354,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         final JToolBar toolBar6 = new JToolBar();
         toolBar6.setFloatable(false);
         resultsPanel.add(toolBar6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 35), null, 0, false));
-        final JToolBar.Separator toolBar$Separator12 = new JToolBar.Separator();
-        toolBar6.add(toolBar$Separator12);
+        final JToolBar.Separator toolBar$Separator14 = new JToolBar.Separator();
+        toolBar6.add(toolBar$Separator14);
         final JLabel label15 = new JLabel();
         label15.setText("Experimental results:  ");
         toolBar6.add(label15);
@@ -1286,8 +1368,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         clearButton = new JButton();
         clearButton.setText("Clear");
         toolBar6.add(clearButton);
-        final JToolBar.Separator toolBar$Separator13 = new JToolBar.Separator();
-        toolBar6.add(toolBar$Separator13);
+        final JToolBar.Separator toolBar$Separator15 = new JToolBar.Separator();
+        toolBar6.add(toolBar$Separator15);
         final Spacer spacer12 = new Spacer();
         toolBar6.add(spacer12);
         runPanel = new JPanel();
@@ -1304,16 +1386,16 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         toolBarAdaptation.add(label17);
         adaptationComboBox = new JComboBox();
         toolBarAdaptation.add(adaptationComboBox);
-        final JToolBar.Separator toolBar$Separator14 = new JToolBar.Separator();
-        toolBarAdaptation.add(toolBar$Separator14);
+        final JToolBar.Separator toolBar$Separator16 = new JToolBar.Separator();
+        toolBarAdaptation.add(toolBar$Separator16);
         final JPanel panel10 = new JPanel();
         panel10.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), 0, 0));
         toolBarAdaptation.add(panel10);
         toolBarMultiRun = new JToolBar();
         toolBarMultiRun.setFloatable(false);
         panel10.add(toolBarMultiRun, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 35), null, 0, false));
-        final JToolBar.Separator toolBar$Separator15 = new JToolBar.Separator();
-        toolBarMultiRun.add(toolBar$Separator15);
+        final JToolBar.Separator toolBar$Separator17 = new JToolBar.Separator();
+        toolBarMultiRun.add(toolBar$Separator17);
         totalRunButton = new JButton();
         totalRunButton.setText("Total Run");
         toolBarMultiRun.add(totalRunButton);
@@ -1325,26 +1407,26 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         toolBarMultiRun.add(label19);
         totalRunProgressBar = new JProgressBar();
         toolBarMultiRun.add(totalRunProgressBar);
-        final JToolBar.Separator toolBar$Separator16 = new JToolBar.Separator();
-        toolBarMultiRun.add(toolBar$Separator16);
+        final JToolBar.Separator toolBar$Separator18 = new JToolBar.Separator();
+        toolBarMultiRun.add(toolBar$Separator18);
         progressLabel = new JLabel();
         progressLabel.setText("0/0");
         toolBarMultiRun.add(progressLabel);
-        final JToolBar.Separator toolBar$Separator17 = new JToolBar.Separator();
-        toolBarMultiRun.add(toolBar$Separator17);
+        final JToolBar.Separator toolBar$Separator19 = new JToolBar.Separator();
+        toolBarMultiRun.add(toolBar$Separator19);
         toolBarSingleRun = new JToolBar();
         toolBarSingleRun.setFloatable(false);
         panel10.add(toolBarSingleRun, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 20), null, 0, false));
         singleRunButton = new JButton();
         singleRunButton.setText("Single Run");
         toolBarSingleRun.add(singleRunButton);
-        final JToolBar.Separator toolBar$Separator18 = new JToolBar.Separator();
-        toolBarSingleRun.add(toolBar$Separator18);
+        final JToolBar.Separator toolBar$Separator20 = new JToolBar.Separator();
+        toolBarSingleRun.add(toolBar$Separator20);
         timedRunButton = new JButton();
         timedRunButton.setText("Timed Run");
         toolBarSingleRun.add(timedRunButton);
-        final JToolBar.Separator toolBar$Separator19 = new JToolBar.Separator();
-        toolBarSingleRun.add(toolBar$Separator19);
+        final JToolBar.Separator toolBar$Separator21 = new JToolBar.Separator();
+        toolBarSingleRun.add(toolBar$Separator21);
         final JLabel label20 = new JLabel();
         label20.setText("Speed:");
         toolBarSingleRun.add(label20);
@@ -1358,8 +1440,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         speedSlider.setValue(1);
         speedSlider.setValueIsAdjusting(false);
         toolBarSingleRun.add(speedSlider);
-        final JToolBar.Separator toolBar$Separator20 = new JToolBar.Separator();
-        toolBarSingleRun.add(toolBar$Separator20);
+        final JToolBar.Separator toolBar$Separator22 = new JToolBar.Separator();
+        toolBarSingleRun.add(toolBar$Separator22);
     }
 
     /**
