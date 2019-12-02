@@ -1,7 +1,7 @@
 # DingNet
 The source code for the DingNet simulator.
 
-Current up to date version: **1.2.0.**
+Current up to date version: **1.2.1.**
 
 
 ## Building the simulator

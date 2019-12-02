@@ -7,15 +7,15 @@ import java.util.List;
 
 
 /**
- * Class used to track the pollution level, specified by a value in the range [0,1] (good to bad respectively)
+ * Class used to track the pollution level, specified by a value in the range [0,125] (good to bad respectively)
  */
 public class PollutionLevel {
     // The pollution level
     private double level;
 
     public PollutionLevel(double level) {
-        if (level < 0 || level > 1) {
-            throw new IllegalArgumentException("The pollution level should be in the range [0,1]");
+        if (level < 0 || level > 125) {
+            throw new IllegalArgumentException("The pollution level should be in the range [0,125]");
         }
         this.level = level;
     }

@@ -11,6 +11,7 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.Waypoint;
 import util.GraphStructure;
+import util.SettingsReader;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -76,8 +77,8 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withConnections(GraphStructure graph) {
-        Color lineColor = GUISettings.CONNECTION_LINE_COLOR;
-        int lineSize = GUISettings.CONNECTION_LINE_SIZE;
+        Color lineColor = SettingsReader.getInstance().getConnectionLineColor();
+        int lineSize = SettingsReader.getInstance().getConnectionLineSize();
 
         graph.getConnections().values().forEach(c -> painters.add(new LinePainter(List.of(graph.getWayPoint(c.getFrom()), graph.getWayPoint(c.getTo())), lineColor, lineSize)));
         return this;
@@ -99,8 +100,8 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withMotePaths(Environment environment) {
-        Color lineColor = GUISettings.MOTE_PATH_LINE_COLOR;
-        int lineSize = GUISettings.MOTE_PATH_LINE_SIZE;
+        Color lineColor = SettingsReader.getInstance().getMotePathLineColor();
+        int lineSize = SettingsReader.getInstance().getMotePathLineSize();
 
         environment.getMotes().forEach(m -> painters.add(new LinePainter(m.getPath().getWayPoints(), lineColor, lineSize)));
         return this;
@@ -124,8 +125,8 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withRoutingPath(Environment environment, RoutingApplication routingApplication) {
-        Color lineColor = GUISettings.ROUTING_PATH_LINE_COLOR;
-        int lineSize = GUISettings.ROUTING_PATH_LINE_SIZE;
+        Color lineColor = SettingsReader.getInstance().getRoutingPathLineColor();
+        int lineSize = SettingsReader.getInstance().getRoutingPathLineSize();
 
         // Optional painter of the complete path
         environment.getMotes().stream()

@@ -118,7 +118,7 @@ public class SenderNoWaitPacket implements Sender {
         int yDist = Math.abs(yPos - sender.getYPosInt());
         int xDir;
         int yDir;
-        Characteristic characteristic = env.getCharacteristic(xPos, yPos);
+        Characteristic characteristic = null;
 
         while (transmissionPower > -300 && xDist + yDist > 0) {
             xDist = Math.abs(xPos - sender.getXPosInt());
@@ -154,7 +154,7 @@ public class SenderNoWaitPacket implements Sender {
             }
 
         }
-        return transmissionPower - random.nextGaussian() * characteristic.getShadowFading();
+        return transmissionPower - random.nextGaussian() * ((characteristic == null) ? env.getCharacteristic(xPos, yPos) : characteristic).getShadowFading();
     }
 
     /**

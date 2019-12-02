@@ -70,8 +70,13 @@ public class Path implements Iterable<GeoPosition> {
         return isEmpty() ? Optional.empty() : Optional.of(points.get(points.size()-1));
     }
 
+    public Optional<GeoPosition> getNextPoint(GeoPosition actualPoint) {
+        return getNextPoint(getWayPoints().indexOf(actualPoint));
+    }
 
-
+    public Optional<GeoPosition> getNextPoint(int actualPointIndex) {
+        return getWayPoints().stream().skip(actualPointIndex+1).findFirst();
+    }
 
     /**
      * Add a waypoint at the end of this path.

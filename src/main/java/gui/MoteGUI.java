@@ -84,7 +84,7 @@ public class MoteGUI {
         EUItextField.setEnabled(isNewMote);
         generateEUIButton.setEnabled(isNewMote);
 
-        powerSpinner.setModel(new SpinnerNumberModel(isNewMote ? 14 : mote.getTransmissionPower(), -3, 14, 1));
+        powerSpinner.setModel(new SpinnerNumberModel(isNewMote ? 14 : mote.getTransmissionPower(), -192, 80, 1));
         SFSpinner.setModel(new SpinnerNumberModel(isNewMote ? 12 : mote.getSF(), 1, 12, 1));
         movementSpeedSpinner.setModel(new SpinnerNumberModel(isNewMote ? 1 : mote.getMovementSpeed(), 0.01, 1000, 0.01));
         periodSpinner.setModel(new SpinnerNumberModel(isNewMote ? 30 : mote.getPeriodSendingPacket(), 1, Integer.MAX_VALUE, 1));

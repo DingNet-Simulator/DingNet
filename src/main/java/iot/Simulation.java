@@ -40,7 +40,6 @@ public class Simulation {
     /**
      * Intermediate parameters used during simulation
      */
-    private Map<Mote, Integer> wayPointMap;
     private Map<Mote, LocalTime> timeMap;
 
     // endregion
@@ -49,7 +48,7 @@ public class Simulation {
 
     public Simulation() {}
 
-     // endregion
+    // endregion
 
     // region getter/setters
 
@@ -159,15 +158,14 @@ public class Simulation {
         this.getEnvironment().getMotes().stream()
             .filter(Mote::isEnabled)
             .map(mote -> { mote.consumePackets(); return mote;}) //DON'T replace with peek because the filtered mote after this line will not do the consume packet
-            .filter(mote -> mote.getPath().getWayPoints().size() > wayPointMap.get(mote))
+            .filter(mote -> !mote.isArrivedToDestination())
             .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
                 TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
             .filter(mote -> TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
             .forEach(mote -> {
                 timeMap.put(mote, this.getEnvironment().getClock().getTime());
-                if (!this.getEnvironment().getMapHelper().toMapCoordinate(mote.getPath().getWayPoints().get(wayPointMap.get(mote))).equals(mote.getPosInt())) {
-                    this.getEnvironment().moveMote(mote, mote.getPath().getWayPoints().get(wayPointMap.get(mote)));
-                } else {wayPointMap.put(mote, wayPointMap.get(mote) + 1);}
+                mote.getPath().getNextPoint(mote.getPathPositionIndex()).ifPresent(dst ->
+                    this.getEnvironment().moveMote(mote, dst));
             });
         this.getEnvironment().getClock().tick(1);
     }
@@ -181,7 +179,6 @@ public class Simulation {
 
 
     private void setupSimulation(Predicate<Environment> pred) {
-        this.wayPointMap = new HashMap<>();
         this.timeMap = new HashMap<>();
 
         setupMotesActivationStatus();
@@ -198,13 +195,12 @@ public class Simulation {
             mote.reset();
 
             timeMap.put(mote, this.getEnvironment().getClock().getTime());
-            wayPointMap.put(mote,0);
 
             // Add initial triggers to the clock for mote data transmissions (transmit sensor readings)
             this.getEnvironment().getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
                 mote.sendToGateWay(
                     mote.getSensors().stream()
-                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), this.getEnvironment().getClock().getTime()).stream())
+                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), mote.getPathPosition(), this.getEnvironment().getClock().getTime()).stream())
                         .toArray(Byte[]::new),
                     new HashMap<>());
                 return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());

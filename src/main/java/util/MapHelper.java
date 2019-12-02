@@ -3,6 +3,8 @@ package util;
 import org.jxmapviewer.viewer.GeoPosition;
 
 public class MapHelper {
+    // Distance in km
+    public static final double DISTANCE_THRESHOLD_ROUNDING_ERROR = 0.001;
     private GeoPosition origin;
 
     public MapHelper(GeoPosition origin) {
@@ -117,6 +119,10 @@ public class MapHelper {
             dist = dist * 1.609344;
             return dist;
         }
+    }
+
+    public static boolean equalsGeoPosition(GeoPosition pos1, GeoPosition pos2) {
+        return distance(pos1, pos2) <= DISTANCE_THRESHOLD_ROUNDING_ERROR;
     }
 
     /**
