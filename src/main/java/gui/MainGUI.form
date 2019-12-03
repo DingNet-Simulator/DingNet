@@ -62,40 +62,23 @@
               <text value="Configure"/>
             </properties>
           </component>
-          <hspacer id="ab4fa">
-            <constraints/>
-          </hspacer>
           <component id="5e7c3" class="javax.swing.JToolBar$Separator">
             <constraints/>
             <properties/>
           </component>
-          <component id="e8ff9" class="javax.swing.JButton" binding="helpButton" default-binding="true">
-            <constraints/>
-            <properties>
-              <text value="Help"/>
-            </properties>
-          </component>
-          <hspacer id="9b945">
-            <constraints/>
-          </hspacer>
-          <component id="48c4d" class="javax.swing.JToolBar$Separator">
-            <constraints/>
-            <properties/>
-          </component>
-          <component id="fb542" class="javax.swing.JButton" binding="aboutButton" default-binding="true">
-            <constraints/>
-            <properties>
-              <text value="About"/>
-            </properties>
-          </component>
           <hspacer id="d3c03">
             <constraints/>
           </hspacer>
+          <component id="f3a1d" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties/>
+          </component>
           <component id="46e36" class="javax.swing.JComboBox" binding="settingsProfilesComboBox">
             <constraints/>
             <properties>
-              <minimumSize width="30" height="15"/>
-              <preferredSize width="30" height="15"/>
+              <maximumSize width="300" height="25"/>
+              <minimumSize width="100" height="15"/>
+              <preferredSize width="250" height="25"/>
             </properties>
           </component>
           <component id="de7c" class="javax.swing.JToolBar$Separator">
@@ -108,9 +91,31 @@
               <text value="Settings"/>
             </properties>
           </component>
-          <component id="7b65" class="javax.swing.JToolBar$Separator">
+          <component id="760a8" class="javax.swing.JToolBar$Separator">
             <constraints/>
             <properties/>
+          </component>
+          <component id="d1668" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties>
+              <separatorSize width="10" height="10"/>
+            </properties>
+          </component>
+          <component id="bbbe6" class="javax.swing.JButton" binding="helpButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Help"/>
+            </properties>
+          </component>
+          <component id="313d8" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties/>
+          </component>
+          <component id="1cb78" class="javax.swing.JButton" binding="aboutButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="About"/>
+            </properties>
           </component>
         </children>
       </toolbar>
@@ -248,7 +253,7 @@
               <splitpane position="right"/>
             </constraints>
             <properties>
-              <minimumSize width="1500" height="35"/>
+              <minimumSize width="1500" height="40"/>
               <preferredSize width="1500" height="400"/>
             </properties>
             <border type="none"/>
@@ -797,7 +802,9 @@
               <grid id="f02a5" binding="simulationPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="-1" height="40"/>
+                  </grid>
                 </constraints>
                 <properties/>
                 <border type="none"/>
@@ -805,7 +812,11 @@
                   <grid id="21cc2" binding="resultsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="1" fill="1" indent="0" use-parent-layout="false">
+                        <minimum-size width="-1" height="40"/>
+                        <preferred-size width="-1" height="40"/>
+                        <maximum-size width="-1" height="40"/>
+                      </grid>
                     </constraints>
                     <properties/>
                     <border type="none"/>
@@ -813,10 +824,13 @@
                       <toolbar id="4d8ae">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                            <preferred-size width="-1" height="35"/>
+                            <minimum-size width="-1" height="40"/>
+                            <preferred-size width="-1" height="40"/>
+                            <maximum-size width="-1" height="40"/>
                           </grid>
                         </constraints>
                         <properties>
+                          <borderPainted value="false"/>
                           <floatable value="false"/>
                         </properties>
                         <border type="none"/>
@@ -864,7 +878,9 @@
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                        <preferred-size width="-1" height="35"/>
+                        <minimum-size width="-1" height="40"/>
+                        <preferred-size width="-1" height="40"/>
+                        <maximum-size width="-1" height="40"/>
                       </grid>
                     </constraints>
                     <properties/>
@@ -873,11 +889,11 @@
                       <toolbar id="575a8" binding="toolBarAdaptation">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                            <preferred-size width="-1" height="20"/>
+                            <preferred-size width="-1" height="40"/>
                           </grid>
                         </constraints>
                         <properties>
-                          <borderPainted value="true"/>
+                          <borderPainted value="false"/>
                           <floatable value="false"/>
                           <rollover value="true"/>
                         </properties>
@@ -889,12 +905,17 @@
                           <component id="79393" class="javax.swing.JLabel">
                             <constraints/>
                             <properties>
+                              <alignmentY value="0.5"/>
                               <text value="Simulation  "/>
                             </properties>
                           </component>
                           <component id="2af12" class="javax.swing.JComboBox" binding="adaptationComboBox">
                             <constraints/>
-                            <properties/>
+                            <properties>
+                              <maximumSize width="200" height="30"/>
+                              <minimumSize width="99" height="30"/>
+                              <preferredSize width="200" height="30"/>
+                            </properties>
                           </component>
                           <component id="1fdab" class="javax.swing.JToolBar$Separator">
                             <constraints/>
@@ -903,7 +924,11 @@
                           <grid id="f4345" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
                             <margin top="0" left="0" bottom="0" right="0"/>
                             <constraints/>
-                            <properties/>
+                            <properties>
+                              <enabled value="true"/>
+                              <minimumSize width="896" height="40"/>
+                              <preferredSize width="896" height="40"/>
+                            </properties>
                             <border type="none"/>
                             <children>
                               <toolbar id="6b81c" binding="toolBarMultiRun">
@@ -913,6 +938,7 @@
                                   </grid>
                                 </constraints>
                                 <properties>
+                                  <borderPainted value="false"/>
                                   <floatable value="false"/>
                                 </properties>
                                 <border type="none"/>
@@ -924,6 +950,7 @@
                                   <component id="9483a" class="javax.swing.JButton" binding="totalRunButton" default-binding="true">
                                     <constraints/>
                                     <properties>
+                                      <enabled value="false"/>
                                       <text value="Total Run"/>
                                     </properties>
                                   </component>
@@ -950,6 +977,8 @@
                                   <component id="e9a24" class="javax.swing.JLabel" binding="progressLabel">
                                     <constraints/>
                                     <properties>
+                                      <maximumSize width="40" height="18"/>
+                                      <preferredSize width="40" height="18"/>
                                       <text value="0/0"/>
                                     </properties>
                                   </component>
@@ -961,11 +990,12 @@
                               </toolbar>
                               <toolbar id="7f943" binding="toolBarSingleRun">
                                 <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                                    <preferred-size width="-1" height="20"/>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                                    <preferred-size width="-1" height="35"/>
                                   </grid>
                                 </constraints>
                                 <properties>
+                                  <borderPainted value="false"/>
                                   <floatable value="false"/>
                                 </properties>
                                 <border type="none"/>
@@ -973,6 +1003,7 @@
                                   <component id="9ea6c" class="javax.swing.JButton" binding="singleRunButton" default-binding="true">
                                     <constraints/>
                                     <properties>
+                                      <enabled value="false"/>
                                       <text value="Single Run"/>
                                     </properties>
                                   </component>
@@ -985,6 +1016,7 @@
                                   <component id="f9430" class="javax.swing.JButton" binding="timedRunButton" default-binding="true">
                                     <constraints/>
                                     <properties>
+                                      <enabled value="false"/>
                                       <text value="Timed Run"/>
                                     </properties>
                                   </component>
@@ -1005,8 +1037,10 @@
                                       <maximum value="5"/>
                                       <minimum value="1"/>
                                       <minorTickSpacing value="1"/>
+                                      <opaque value="false"/>
                                       <paintLabels value="false"/>
                                       <paintTicks value="true"/>
+                                      <snapToTicks value="true"/>
                                       <value value="1"/>
                                       <valueIsAdjusting value="false"/>
                                     </properties>
