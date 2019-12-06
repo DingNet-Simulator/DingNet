@@ -23,6 +23,7 @@ public class Path implements Iterable<GeoPosition> {
 
     public Path(List<GeoPosition> points, GraphStructure graph) {
         this.points = new LinkedList<>(points);
+        removeDuplicateInRow();
         this.graphStructure = graph;
     }
 
@@ -42,6 +43,7 @@ public class Path implements Iterable<GeoPosition> {
      */
     public void setPath(List<GeoPosition> positions) {
         this.points = positions;
+        removeDuplicateInRow();
     }
 
 
@@ -84,6 +86,7 @@ public class Path implements Iterable<GeoPosition> {
      */
     public void addPosition(GeoPosition point) {
         this.points.add(point);
+        removeDuplicateInRow();
     }
 
 
@@ -93,9 +96,17 @@ public class Path implements Iterable<GeoPosition> {
      */
     public void addPositions(@NotNull List<GeoPosition> points) {
         this.points.addAll(points);
+        removeDuplicateInRow();
     }
 
-
+    private void removeDuplicateInRow() {
+        for (int i = 0; i < points.size()-1; i++) {
+            if (points.get(i).equals(points.get(i+1))) {
+                points.remove(i+1);
+                i--;
+            }
+        }
+    }
 
 
     // NOTE: The following functions are only used during setup/saving of the configuration, not at runtime
