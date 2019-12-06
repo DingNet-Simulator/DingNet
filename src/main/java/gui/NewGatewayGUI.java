@@ -41,7 +41,7 @@ public class NewGatewayGUI {
         updateLatLonFields();
 
         saveButton.addActionListener(e -> {
-            environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()),
+            environment.addGateway(new Gateway(Long.parseLong(EUIDtextField.getText()),
                 (int) xPosSpinner.getValue(), (int) yPosSpinner.getValue(),
                 (int) powerSpinner.getValue(), (int) SFSpinner.getValue(),
                 environment));
