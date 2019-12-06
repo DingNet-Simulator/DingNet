@@ -165,7 +165,7 @@ public class ConfigurationWriter {
                 Element gatewayElement = doc.createElement("gateway");
 
                 Element devEUI = doc.createElement("devEUI");
-                devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(gateway.getEUI())));
+                devEUI.appendChild(doc.createTextNode(Long.toString(gateway.getEUI())));
 
                 Element location = doc.createElement("location");
                 Element xPos = doc.createElement("xPos");
@@ -229,7 +229,7 @@ public class ConfigurationWriter {
 
         Element generateDevEUIElement() {
             Element devEUI =  doc.createElement("devEUI");
-            devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(mote.getEUI())));
+            devEUI.appendChild(doc.createTextNode(Long.toString(mote.getEUI())));
             return devEUI;
         }
 

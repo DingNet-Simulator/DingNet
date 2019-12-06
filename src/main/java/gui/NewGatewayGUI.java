@@ -55,7 +55,7 @@ public class NewGatewayGUI {
     }
 
     private void generateNewEUID() {
-        EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+        EUIDtextField.setText(Long.toString(random.nextLong()));
     }
 
 

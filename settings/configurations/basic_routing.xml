@@ -13,7 +13,7 @@
         </region>
     </map>
     <characteristics>
-        <regionProperty numberOfZones="49"/> <!-- Not really used for the demo -->
+        <regionProperty numberOfZones="49"/>
         <row>City-City-City-City-City-City-City</row>
         <row>City-City-City-City-City-City-City</row>
         <row>City-City-City-City-City-City-City</row>
@@ -24,7 +24,7 @@
     </characteristics>
     <motes>
         <userMote>
-            <devEUI>727156569393802495</devEUI>
+            <devEUI>5424394867226112926</devEUI>
             <location>
                 <waypoint id="1"/>
             </location>
@@ -45,7 +45,7 @@
     </motes>
     <gateways>
         <gateway>
-            <devEUI>3122003464731981774</devEUI>
+            <devEUI>-9103770306483490189</devEUI>
             <location>
                 <xPos>1265</xPos>
                 <yPos>561</yPos>

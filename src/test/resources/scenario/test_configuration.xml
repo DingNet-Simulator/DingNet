@@ -24,7 +24,7 @@
     </characteristics>
     <motes>
         <mote>
-            <devEUI>17900769297804672070</devEUI>
+            <devEUI>-4964420948893066024</devEUI>
             <location>
                 <waypoint id="1"/>
             </location>
@@ -47,7 +47,7 @@
     </motes>
     <gateways>
         <gateway>
-            <devEUI>5792344105298610975</devEUI>
+            <devEUI>7564655870752979346</devEUI>
             <location>
                 <xPos>617</xPos>
                 <yPos>668</yPos>
@@ -56,7 +56,7 @@
             <spreadingFactor>12</spreadingFactor>
         </gateway>
         <gateway>
-            <devEUI>3516439820262681922</devEUI>
+            <devEUI>3831662765844904176</devEUI>
             <location>
                 <xPos>340</xPos>
                 <yPos>1119</yPos>
@@ -65,7 +65,7 @@
             <spreadingFactor>12</spreadingFactor>
         </gateway>
         <gateway>
-            <devEUI>81363316787501275</devEUI>
+            <devEUI>6137546356583794141</devEUI>
             <location>
                 <xPos>344</xPos>
                 <yPos>1502</yPos>
@@ -74,7 +74,7 @@
             <spreadingFactor>12</spreadingFactor>
         </gateway>
         <gateway>
-            <devEUI>4158607583867835776</devEUI>
+            <devEUI>-594798593157429144</devEUI>
             <location>
                 <xPos>227</xPos>
                 <yPos>328</yPos>
@@ -83,7 +83,7 @@
             <spreadingFactor>12</spreadingFactor>
         </gateway>
         <gateway>
-            <devEUI>16017550582712713394</devEUI>
+            <devEUI>112842269129291794</devEUI>
             <location>
                 <xPos>2168</xPos>
                 <yPos>1937</yPos>

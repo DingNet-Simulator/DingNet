@@ -24,7 +24,7 @@
     </characteristics>
     <motes>
         <mote>
-            <devEUI>2974222889443647631</devEUI>
+            <devEUI>2139215297105423308</devEUI>
             <location>
                 <waypoint id="55"/>
             </location>
@@ -41,7 +41,7 @@
             <path/>
         </mote>
         <mote>
-            <devEUI>4537036368447151375</devEUI>
+            <devEUI>-4232865876030345843</devEUI>
             <location>
                 <waypoint id="56"/>
             </location>
@@ -58,7 +58,7 @@
             <path/>
         </mote>
         <mote>
-            <devEUI>12468807477143478427</devEUI>
+            <devEUI>-6273872167485304708</devEUI>
             <location>
                 <waypoint id="58"/>
             </location>
@@ -75,7 +75,7 @@
             <path/>
         </mote>
         <mote>
-            <devEUI>14084896803802132140</devEUI>
+            <devEUI>2891469594365336806</devEUI>
             <location>
                 <waypoint id="620"/>
             </location>
@@ -151,7 +151,7 @@
             </path>
         </mote>
         <mote>
-            <devEUI>4971753318158117358</devEUI>
+            <devEUI>6976596177944619528</devEUI>
             <location>
                 <waypoint id="152"/>
             </location>
@@ -168,7 +168,7 @@
             <path/>
         </mote>
         <userMote>
-            <devEUI>8450821791487460777</devEUI>
+            <devEUI>2578166436595196069</devEUI>
             <location>
                 <waypoint id="3"/>
             </location>
@@ -187,7 +187,7 @@
             <destination id="1"/>
         </userMote>
         <userMote>
-            <devEUI>16122219312378297977</devEUI>
+            <devEUI>-5627216606837767319</devEUI>
             <location>
                 <waypoint id="2"/>
             </location>
@@ -206,7 +206,7 @@
             <destination id="1"/>
         </userMote>
         <userMote>
-            <devEUI>15869578781173100217</devEUI>
+            <devEUI>-3592913410653813758</devEUI>
             <location>
                 <waypoint id="301"/>
             </location>
@@ -227,7 +227,7 @@
     </motes>
     <gateways>
         <gateway>
-            <devEUI>1904226345973984134</devEUI>
+            <devEUI>92698085241473569</devEUI>
             <location>
                 <xPos>1071</xPos>
                 <yPos>974</yPos>
@@ -236,7 +236,7 @@
             <spreadingFactor>12</spreadingFactor>
         </gateway>
         <gateway>
-            <devEUI>14606357054910126426</devEUI>
+            <devEUI>-8796603504740353600</devEUI>
             <location>
                 <xPos>1494</xPos>
                 <yPos>1985</yPos>

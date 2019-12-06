@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class ConfigurationReader {
     private static IdRemapping idRemapping = new IdRemapping();
+    private static Random random = new Random(1);
 
     public static void loadConfiguration(File file, SimulationRunner simulationRunner) {
         idRemapping.reset();
@@ -142,7 +144,7 @@ public class ConfigurationReader {
 
             for (int i = 0; i < gateways.getElementsByTagName("gateway").getLength(); i++) {
                 gatewayNode = (Element) gateways.getElementsByTagName("gateway").item(i);
-                long devEUI = Long.parseUnsignedLong(XMLHelper.readChild(gatewayNode, "devEUI"));
+                long devEUI = Long.parseLong(XMLHelper.readChild(gatewayNode, "devEUI"));
                 Element location = (Element) gatewayNode.getElementsByTagName("location").item(0);
                 int xPos = Integer.parseInt(XMLHelper.readChild(location, "xPos"));
                 int yPos = Integer.parseInt(XMLHelper.readChild(location, "yPos"));
@@ -171,7 +173,7 @@ public class ConfigurationReader {
         }
 
         long getDevEUI() {
-            return Long.parseUnsignedLong(XMLHelper.readChild(node, "devEUI"));
+            return Long.parseLong(XMLHelper.readChild(node, "devEUI"));
         }
 
         Pair<Integer, Integer> getMapCoordinates() {
