@@ -73,6 +73,20 @@ public class GlobalClock {
         });
     }
 
+    /**
+     *
+     * @param startingTime time when the trigger is fired for the first time
+     * @param period the period of the trigger in second
+     * @param trigger the trigger
+     * @return the trigger id
+     */
+    public long addPeriodicTrigger(LocalTime startingTime, long period, Runnable trigger) {
+        return addTrigger(startingTime, () -> {
+            trigger.run();
+            return getTime().plusSeconds(period);
+        });
+    }
+
     private void addTrigger(LocalTime time, Trigger trigger) {
         if (containsTriggers(time)) {
             triggers.get(time).add(0, trigger);
