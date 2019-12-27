@@ -2,9 +2,7 @@ package iot;
 
 import application.pollution.PollutionGrid;
 import application.pollution.PollutionMonitor;
-import application.routing.AStarRouter;
 import application.routing.RoutingApplication;
-import application.routing.heuristic.SimplePollutionHeuristic;
 import gui.MainGUI;
 import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
@@ -99,7 +97,6 @@ public class SimulationRunner {
         }
 
         networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
-        pollutionGrid = new PollutionGrid();
         environment = null;
     }
 
@@ -167,7 +164,6 @@ public class SimulationRunner {
      */
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
-
         this.setupSimulationRunner();
     }
 
@@ -184,10 +180,6 @@ public class SimulationRunner {
      * Setup of applications/servers/clients before each run.
      */
     private void setupSimulationRunner() {
-        // Remove previous pollution measurements
-        pollutionGrid.clean();
-        routingApplication.clean();
-
         // Reset received transmissions in the networkServer
         this.networkServer.reset();
     }
@@ -336,10 +328,6 @@ public class SimulationRunner {
      * Initialize all applications used in the simulation.
      */
     private void setupApplications() {
-        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
-        this.routingApplication = new RoutingApplication(
-            new AStarRouter(new SimplePollutionHeuristic(pollutionGrid)), getEnvironment().getGraph(), environment
-        );
     }
 
     // endregion
