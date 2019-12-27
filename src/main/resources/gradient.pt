@@ -1,0 +1,13 @@
+module gradient
+
+public def gradient(source) {
+  rep (d <- POSITIVE_INFINITY) {
+    mux (source) {
+      self.log("distance: " + d)
+      0
+    } else {
+      minHood(nbr(d) + self.nbrRange())
+    }
+  }
+}
+gradient(env.get("leader"))
