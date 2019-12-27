@@ -5,12 +5,16 @@ import iot.lora.BasicFrameHeader;
 import iot.lora.EU868ParameterByDataRate;
 import iot.lora.FrameHeader;
 import iot.lora.RegionalParameter;
+import it.unibo.acdingnet.protelis.model.FrameHeaderApp;
+import it.unibo.acdingnet.protelis.networkmanager.MessageState;
+import org.apache.commons.lang3.SerializationUtils;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.jetbrains.annotations.NotNull;
+import util.Converter;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -61,6 +65,21 @@ public class PahoMqttClient implements MqttClientBasicApi {
             return header;
         });
 
+        builder.registerTypeAdapter(MessageState.class, (JsonSerializer<MessageState>) (state, type, context) -> {
+            var obj = new JsonObject();
+            obj.addProperty("state", Base64.getEncoder().encodeToString(SerializationUtils.serialize(state)));
+            return obj;
+        });
+
+        builder.registerTypeAdapter(MessageState.class, (JsonDeserializer<MessageState>) (jsonElement, type, jsonDeserializationContext) -> (
+            MessageState) SerializationUtils.deserialize(Base64.getDecoder().decode(jsonElement.getAsJsonObject().get("state").getAsString())));
+
+        builder.registerTypeAdapter(FrameHeaderApp.class, (JsonDeserializer<FrameHeaderApp>) (jsonElement, type, jsonDeserializationContext) -> new FrameHeaderApp(
+            Arrays.asList(Converter.toObjectType(Base64.getDecoder().decode(((JsonObject) jsonElement).get("sourceAddress").getAsString()))),
+            ((JsonObject) jsonElement).get("fCnt").getAsInt(),
+            ((JsonObject) jsonElement).get("fCtrl").getAsInt(),
+            Arrays.asList(Converter.toObjectType(Base64.getDecoder().decode(((JsonObject) jsonElement).get("fOpts").getAsString())))));
+
         builder.registerTypeAdapter(RegionalParameter.class,
             (JsonDeserializer<RegionalParameter>) (element, type, context) -> EU868ParameterByDataRate.valueOf(element.getAsString()));
 
@@ -69,10 +88,10 @@ public class PahoMqttClient implements MqttClientBasicApi {
 
     @Override
     public void connect() {
-        var opt = new MqttConnectOptions();
-        opt.setCleanSession(true);
         if (!mqttClient.isConnected()) {
             try {
+                var opt = new MqttConnectOptions();
+                opt.setCleanSession(true);
                 mqttClient.connect(opt);
             } catch (MqttException e) {
                 e.printStackTrace();
