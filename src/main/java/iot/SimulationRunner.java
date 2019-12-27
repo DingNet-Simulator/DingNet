@@ -8,6 +8,7 @@ import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.NetworkServer;
+import it.unibo.acdingnet.protelis.ProtelisApp;
 import org.jetbrains.annotations.NotNull;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
@@ -164,6 +165,7 @@ public class SimulationRunner {
      */
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
+        new ProtelisApp(getEnvironment().getMotes(), getEnvironment().getClock());
         this.setupSimulationRunner();
     }
 
