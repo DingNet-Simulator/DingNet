@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import util.Converter;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -127,7 +128,7 @@ public class PahoMqttClient implements MqttClientBasicApi {
     @Override
     public <T extends MqttMessageType> void subscribe(Object subscriber, String topicFilter, Class<T> classMessage, BiConsumer<String, T> messageConsumer) {
         if (!subscribed.containsKey(topicFilter)) {
-            subscribed.put(topicFilter, new LinkedList<>());
+            subscribed.put(topicFilter, new CopyOnWriteArrayList<>());
             try {
                 mqttClient.subscribe(topicFilter, (topic, msg) -> subscribed.get(topicFilter).forEach(c -> c.accept(topic, msg.toString())));
             } catch (MqttException e) {
