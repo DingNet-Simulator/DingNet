@@ -1,7 +1,7 @@
 package it.unibo.acdingnet.protelis.model.sensorconverter
 
-import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.util.SIZE_BYTES
+import it.unibo.protelisovermqtt.model.LatLongPosition
 import java.nio.ByteBuffer
 
 

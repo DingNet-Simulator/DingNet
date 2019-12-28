@@ -1,7 +1,8 @@
 package it.unibo.acdingnet.protelis.executioncontext
 
-import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.util.Const
+import it.unibo.protelisovermqtt.executioncontext.PositionedExecutionContext
+import it.unibo.protelisovermqtt.model.LatLongPosition
 import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager

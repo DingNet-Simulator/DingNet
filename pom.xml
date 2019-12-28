@@ -48,6 +48,22 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/AnnotationsDoclets.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>mqtt</groupId>
+            <artifactId>fuck</artifactId>
+            <version>0.2.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/MqttClientWrapper-0.2.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>protelis.over.mqtt</groupId>
+            <artifactId>poverm</artifactId>
+            <version>0.1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/ProtelisOverMqtt-0.1.jar</systemPath>
+        </dependency>
+
         <dependency>
             <groupId>org.protelis</groupId>
             <artifactId>protelis</artifactId>

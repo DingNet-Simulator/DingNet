@@ -1,11 +1,14 @@
 package it.unibo.acdingnet.protelis.executioncontext
 
-import iot.mqtt.MqttClientBasicApi
 import it.unibo.acdingnet.protelis.model.LoRaTransmission
 import it.unibo.acdingnet.protelis.model.MessageType
 import it.unibo.acdingnet.protelis.model.SensorType
+import it.unibo.acdingnet.protelis.mqtt.LoRaTransmissionWrapper
 import it.unibo.acdingnet.protelis.node.SensorNode
 import it.unibo.acdingnet.protelis.util.Const
+import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
+import it.unibo.protelisovermqtt.executioncontext.MQTTPositionedExecutionContext
+import it.unibo.protelisovermqtt.util.Topics
 import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager
 import org.protelis.vm.impl.SimpleExecutionEnvironment
@@ -13,14 +16,20 @@ import org.protelis.vm.impl.SimpleExecutionEnvironment
 
 open class SensorExecutionContext @JvmOverloads constructor(
     private val sensorNode: SensorNode,
-    applicationUID: String,
+    val applicationUID: String,
     mqttClient: MqttClientBasicApi,
     netmgr: NetworkManager,
     randomSeed: Int = 1,
     execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
-    ): MQTTPositionedExecutionContext(sensorNode.deviceUID, sensorNode.position, applicationUID, mqttClient, netmgr, randomSeed, execEnvironment) {
+    ): MQTTPositionedExecutionContext(sensorNode.deviceUID, sensorNode.position, mqttClient, netmgr, randomSeed, execEnvironment) {
 
     private var sensorsValue: Map<SensorType, Double> = emptyMap()
+
+    init {
+        subscribeTopic(Topics.nodeReceiveTopic(applicationUID, sensorNode.deviceUID), LoRaTransmissionWrapper::class.java) {
+            topic, msg -> handleDeviceTransmission(topic, msg.transmission)
+        }
+    }
 
     override fun instance(): SensorExecutionContext =
         SensorExecutionContext(
@@ -32,7 +41,7 @@ open class SensorExecutionContext @JvmOverloads constructor(
             execEnvironment
         )
 
-    override fun handleDeviceTransmission(topic: String, message: LoRaTransmission) {
+    protected fun handleDeviceTransmission(topic: String, message: LoRaTransmission) {
         val payload = message.content.payload.toMutableList()
         if (payload.isNotEmpty() && payload[0] == MessageType.SENSOR_VALUE.code) {
             payload.removeAt(0)

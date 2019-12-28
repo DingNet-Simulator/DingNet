@@ -1,9 +1,9 @@
 package it.unibo.acdingnet.protelis.node
 
-import iot.mqtt.MqttClientBasicApi
 import it.unibo.acdingnet.protelis.executioncontext.UserExecutionContext
-import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.model.SensorType
+import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
+import it.unibo.protelisovermqtt.model.LatLongPosition
 import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ExecutionContext
 import org.protelis.vm.ProtelisProgram

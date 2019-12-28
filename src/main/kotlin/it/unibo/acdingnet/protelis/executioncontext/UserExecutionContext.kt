@@ -1,13 +1,15 @@
 package it.unibo.acdingnet.protelis.executioncontext
 
-import iot.mqtt.MqttClientBasicApi
-import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.model.LoRaTransmission
 import it.unibo.acdingnet.protelis.model.MessageType
 import it.unibo.acdingnet.protelis.model.SensorType
+import it.unibo.acdingnet.protelis.mqtt.LoRaTransmissionWrapper
 import it.unibo.acdingnet.protelis.node.DestinationNode
 import it.unibo.acdingnet.protelis.node.UserNode
 import it.unibo.acdingnet.protelis.util.Const
+import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
+import it.unibo.protelisovermqtt.model.LatLongPosition
+import it.unibo.protelisovermqtt.util.Topics
 import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager
@@ -24,6 +26,12 @@ class UserExecutionContext(
 
     private var destinationPosition: LatLongPosition? = null
 
+    init {
+        subscribeTopic(Topics.nodeReceiveTopic(applicationUID, userNode.deviceUID), LoRaTransmissionWrapper::class.java) {
+            topic, msg -> handleUserDeviceTransmission(topic, msg.transmission)
+        }
+    }
+
     override fun instance(): UserExecutionContext =
         UserExecutionContext(
             userNode,
@@ -34,7 +42,7 @@ class UserExecutionContext(
             execEnvironment
         )
 
-    override fun handleDeviceTransmission(topic: String, message: LoRaTransmission) {
+    private fun handleUserDeviceTransmission(topic: String, message: LoRaTransmission) {
         val payload = message.content.payload
         if (payload.isNotEmpty()) {
             when (payload[0]) {

@@ -1,7 +1,7 @@
 package it.unibo.acdingnet.protelis.loader
 
-import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.model.SensorType
+import it.unibo.protelisovermqtt.model.LatLongPosition
 import org.w3c.dom.Element
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
