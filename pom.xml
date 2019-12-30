@@ -50,18 +50,18 @@
         </dependency>
 
         <dependency>
-            <groupId>mqtt</groupId>
-            <artifactId>fuck</artifactId>
-            <version>0.2.0</version>
+            <groupId>it.unibo</groupId>
+            <artifactId>mqttclientwrapper</artifactId>
+            <version>0.2.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/MqttClientWrapper-0.2.0.jar</systemPath>
+            <systemPath>${project.basedir}/lib/MqttClientWrapper-0.2.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>protelis.over.mqtt</groupId>
             <artifactId>poverm</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/ProtelisOverMqtt-0.1.jar</systemPath>
+            <systemPath>${project.basedir}/lib/ProtelisOverMqtt-0.1.1.jar</systemPath>
         </dependency>
 
         <dependency>
