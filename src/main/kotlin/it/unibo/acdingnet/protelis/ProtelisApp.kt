@@ -39,7 +39,7 @@ class ProtelisApp(private val motes: List<Mote>, private val timer: GlobalClock)
                     LatLongPosition(m.pathPosition.latitude, m.pathPosition.longitude),
                     listOf(SensorType.IAQ),
                     timer,
-                    NeighborhoodManager.NeighborhoodManager.computeNeighborhood(
+                    NeighborhoodManager.computeNeighborhood(
                         Node(StringUID("" + m.eui), LatLongPosition(m.pathPosition.latitude, m.pathPosition.longitude)),
                         nodes, Const.NEIGHBORHOOD_RANGE
                     ).map { it.uid }.toSet()

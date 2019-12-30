@@ -1,6 +1,7 @@
 package iot.mqtt;
 
 import iot.lora.MacCommand;
+import it.unibo.mqttclientwrapper.api.MqttMessageType;
 import util.Converter;
 
 import java.util.LinkedList;

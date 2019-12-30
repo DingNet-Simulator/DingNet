@@ -42,7 +42,7 @@ public class SendNewestPacket implements ResponseStrategy {
                 this,
                 Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
                 LoraWanPacketWrapper.class,
-                (t, msg) -> packetBuffer.put(m, msg.getPacket())
+                (t, msg) -> { packetBuffer.put(m, msg.getPacket()); }
             ));
     }
 

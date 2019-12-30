@@ -6,11 +6,11 @@ import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.mqtt.MQTTClientFactory;
-import iot.mqtt.MqttClientBasicApi;
 import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
 import iot.strategy.response.gateway.ResponseStrategy;
 import iot.strategy.response.gateway.SendPacketImmediately;
+import it.unibo.mqttclientwrapper.api.MqttClientBasicApi;
 import selfadaptation.instrumentation.MoteProbe;
 
 import java.util.LinkedList;

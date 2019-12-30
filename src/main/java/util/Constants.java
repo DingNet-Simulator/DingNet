@@ -7,4 +7,6 @@ public class Constants {
     public static String PATH_CUSTOM_SETTINGS = Paths.get(PATH_DINGNET_CACHE, "settings").toString();
     public static String DINGNET_CACHE_FILE = Paths.get(PATH_DINGNET_CACHE, "cache.properties").toString();
     public static String DEFAULT_SETTINGS_FILE = "/settings/default.properties";
+    public static final String PAHO_ADDRESS = "tcp://test.mosquitto.org:1883";
+    public static final String PAHO_CLIENT = "DingNetSimulator";
 }

@@ -1,6 +1,7 @@
 package iot.mqtt;
 
 import iot.lora.LoraWanPacket;
+import it.unibo.mqttclientwrapper.api.MqttMessageType;
 
 /**
  * Wrapper of a {@link LoraWanPacket} as mqtt message.

@@ -1,6 +1,6 @@
 package util;
 
-import iot.mqtt.MQTTClientFactory;
+import it.unibo.mqttclientwrapper.MqttClientType;
 
 import java.awt.*;
 import java.io.*;
@@ -77,9 +77,9 @@ public class SettingsReader {
 
     // region MQTT
 
-    public MQTTClientFactory.MqttClientType getMQTTClientType() {
+    public MqttClientType getMQTTClientType() {
         String clientType = properties.getProperty("mqtt.client").trim().toUpperCase();
-        return MQTTClientFactory.MqttClientType.valueOf(clientType);
+        return MqttClientType.valueOf(clientType);
     }
 
     // endregion

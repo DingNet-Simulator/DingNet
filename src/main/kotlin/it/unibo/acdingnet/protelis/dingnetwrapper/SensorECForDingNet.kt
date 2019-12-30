@@ -1,8 +1,8 @@
 package it.unibo.acdingnet.protelis.dingnetwrapper
 
 import iot.GlobalClock
-import iot.mqtt.MqttClientBasicApi
 import it.unibo.acdingnet.protelis.executioncontext.SensorExecutionContext
+import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import org.protelis.vm.NetworkManager
 
 class SensorECForDingNet(private val sensorNode: SensorNodeWrapper,
