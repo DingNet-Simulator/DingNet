@@ -1,4 +1,7 @@
 # DingNet
+
+[![Build Status](https://travis-ci.com/Placu95/DingNet.svg?branch=protelisOverMqtt)](https://travis-ci.com/Placu95/DingNet)
+
 The source code for the DingNet simulator.
 
 Current up to date version: **1.2.1.**
