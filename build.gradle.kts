@@ -62,10 +62,15 @@ tasks.shadowJar.configure {
     //exclude ("**/*.kotlin_builtins")
 }
 
-val test by tasks.getting(Test::class) {
+tasks.withType<Test> {
     useJUnitPlatform {
     }
     maxParallelForks = 1
+}
+
+tasks.withType<Checkstyle> {
+    ignoreFailures = false
+    maxWarnings = 0
 }
 
 tasks {
