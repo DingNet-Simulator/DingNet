@@ -6,19 +6,16 @@ Current up to date version: **1.2.1.**
 
 ## Building the simulator
 
-To build the simulator, simply run the command `mvn compile`. The generated source are placed in the `target` folder.
-The simulator can then be run with the following command: `mvn exec:java`.
+To build the simulator, simply run the command `gradlew build`. The generated source are placed in the `build` folder.
+The simulator can then be run with the following command: `gradlew run`.
 
-Alternatively, run the command `mvn package`. This will generate a jar file under the target directory: `DingNet-{version}-jar-with-dependencies.jar`.
+Alternatively, run the command `gradlew shadowJar`. This will generate a jar file under the build/libs directory: `DingNet-{version}.jar`.
 
-Similarly to the previously listed commands, `mvn test` runs the tests for the project.
+Similarly to the previously listed commands, `gradlew test` runs the tests for the project and `gradlew chack` extend it performing style check.
 
 ## Running the simulator
 
-Either run the jar file generated from the previous step, or use the maven exec plugin.
-<!-- A jar file is exported to the folder DingNetExe which also contains the correct file structure. Run the jar file to run the simulator.
-The simulator can also be started from the main method in the MainGUI class. -->
-
+Either run the jar file generated from the previous step, or use the `gradlew run` command.
 
 
 ## Libraries
@@ -36,3 +33,4 @@ DingNet uses the following libraries:
 - [ ] Realistic data generation
 - [ ] Rewrite transmission logic (moveTo, transmission power, ...)
 - [ ] \(Not important) Allow creation of circular routes for motes
+- [ ] update used library on README
