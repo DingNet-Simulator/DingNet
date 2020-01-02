@@ -1,12 +1,9 @@
-import org.jetbrains.kotlin.konan.file.File.Companion.separator
-import org.jetbrains.kotlin.konan.file.File.Companion.userHome
-import java.net.URL
-
 plugins {
+    id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
     application
     java
-    kotlin("jvm") version "1.3.61"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    kotlin("jvm") version Versions.org_jetbrains_kotlin
+    id("com.github.johnrengelman.shadow") version Versions.com_github_johnrengelman_shadow
     checkstyle
 }
 
@@ -17,40 +14,27 @@ repositories {
     mavenCentral()
 }
 
-fun downloadLibFromUrl(libName: String , libUrl: String, 
-    libSaveDir: String = "${userHome.path}${separator}.gradle${separator}caches${separator}modules-2${separator}files-2.1${separator}download") {
-    
-    val folder = File(libSaveDir)
-    if (!folder.exists()) {
-        folder.mkdirs()
-    }
-    val file = File("$libSaveDir/$libName")
-    if (!file.exists()) {
-        URL(libUrl).openStream().readAllBytes().also { file.appendBytes(it) }
-    }
-    dependencies.add("implementation", files(file.absolutePath))
-}
-
 dependencies {
+    //dependencies for DingNetSimulator
     implementation(kotlin("stdlib-jdk8"))
-    implementation("commons-logging:commons-logging:1.2")
-    implementation("org.jfree:jfreechart:1.5.0")
-    implementation("org.jxmapviewer:jxmapviewer2:2.4")
-    implementation("com.intellij:forms_rt:7.0.3")
+    implementation(Libs.commons_logging)
+    implementation(Libs.org_jfree_jfreechart)
+    implementation(Libs.org_jxmapviewer_jxmapviewer2)
+    implementation(Libs.com_intellij_forms_rt)
     implementation(files("${projectDir.path}/lib/AnnotationsDoclets.jar"))
-    implementation("com.google.code.gson:gson:2.8.5")
-    downloadLibFromUrl(extra["MqttClientWrapperLib"].toString(), extra["MqttClientWrapperUrl"].toString())
-
-    implementation("org.protelis:protelis:${extra["protelisVersion"].toString()}")
-    downloadLibFromUrl(extra["ProtelisOverMqttLib"].toString(), extra["ProtelisOverMqttUrl"].toString())
-    implementation("com.javadocmd:simplelatlng:${extra["simplelatlng"].toString()}")
-    implementation("org.apache.commons:commons-lang3:${extra["commons-lang3"].toString()}")
-    implementation("com.uchuhimo:konf:0.13.3")
-    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1")
-
-    testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:${extra["kotlinTestVersion"].toString()}")
-    testImplementation("io.mockk:mockk:1.9.1")
+    implementation(Libs.gson)
+    implementation(files(Util.downloadLibFromUrl(Libs.mqtt_client_wrapper)))
+    //dependencies for protelis application
+    implementation(Libs.protelis)
+    implementation(files(Util.downloadLibFromUrl(Libs.protelis_over_mqtt)))
+    implementation(Libs.simplelatlng)
+    implementation(Libs.commons_lang3)
+    implementation(Libs.konf)
+    implementation(Libs.org_eclipse_paho_client_mqttv3)
+    //dependencies for test
+    testImplementation(Libs.junit_jupiter)
+    testImplementation(Libs.kotlintest_runner_junit5)
+    testImplementation(Libs.io_mockk_mockk)
 }
 
 application {
