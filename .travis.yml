@@ -27,8 +27,7 @@ jobs:
           os: *reference_os
           env: *reference_jdk
           script:
-              - ./gradlew clean
-              - ./gradlew check --parallel
+              - ./gradlew clean gradlew check --parallel
 before_install:
     - curl "${GRAVIS}.disable-windows-defender.sh" --output .disable-windows-defender.sh
     - source .disable-windows-defender.sh
@@ -36,8 +35,7 @@ before_install:
     - source .install-jdk-travis.sh
     - chmod +x gradlew
 script:
-    - ./gradlew clean
-    - ./gradlew test --parallel
+    - ./gradlew clean test --parallel
 before_cache:
     - curl "${GRAVIS}.clean_gradle_cache.sh" --output .clean_gradle_cache.sh
     - bash .clean_gradle_cache.sh
