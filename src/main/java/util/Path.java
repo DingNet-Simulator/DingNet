@@ -100,9 +100,9 @@ public class Path implements Iterable<GeoPosition> {
     }
 
     private void removeDuplicateInRow() {
-        for (int i = 0; i < points.size()-1; i++) {
-            if (points.get(i).equals(points.get(i+1))) {
-                points.remove(i+1);
+        for (int i = 0; i < points.size() - 1; i++) {
+            if (points.get(i).equals(points.get(i + 1))) {
+                points.remove(i + 1);
                 i--;
             }
         }
