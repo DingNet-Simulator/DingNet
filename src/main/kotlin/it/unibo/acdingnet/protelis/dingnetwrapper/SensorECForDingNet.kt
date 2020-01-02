@@ -5,10 +5,12 @@ import it.unibo.acdingnet.protelis.executioncontext.SensorExecutionContext
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import org.protelis.vm.NetworkManager
 
-class SensorECForDingNet(private val sensorNode: SensorNodeWrapper,
-                         applicationUID: String,
-                         mqttClient: MqttClientBasicApi,
-                         netmgr: NetworkManager) : SensorExecutionContext(sensorNode, applicationUID, mqttClient, netmgr) {
+class SensorECForDingNet(
+    private val sensorNode: SensorNodeWrapper,
+    applicationUID: String,
+    mqttClient: MqttClientBasicApi,
+    netmgr: NetworkManager
+) : SensorExecutionContext(sensorNode, applicationUID, mqttClient, netmgr) {
     private val timer: GlobalClock = sensorNode.timer
 
     init {
@@ -22,5 +24,4 @@ class SensorECForDingNet(private val sensorNode: SensorNodeWrapper,
     override fun getCurrentTime(): Number {
         return timer.time.nano / 1E6
     }
-
 }

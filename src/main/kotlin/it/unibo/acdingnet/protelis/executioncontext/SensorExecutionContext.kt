@@ -13,7 +13,6 @@ import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager
 import org.protelis.vm.impl.SimpleExecutionEnvironment
 
-
 open class SensorExecutionContext @JvmOverloads constructor(
     private val sensorNode: SensorNode,
     val applicationUID: String,
@@ -21,13 +20,15 @@ open class SensorExecutionContext @JvmOverloads constructor(
     netmgr: NetworkManager,
     randomSeed: Int = 1,
     execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
-    ): MQTTPositionedExecutionContext(sensorNode.deviceUID, sensorNode.position, mqttClient, netmgr, randomSeed, execEnvironment) {
+) : MQTTPositionedExecutionContext(sensorNode.deviceUID, sensorNode.position, mqttClient, netmgr,
+    randomSeed, execEnvironment) {
 
     private var sensorsValue: Map<SensorType, Double> = emptyMap()
 
     init {
-        subscribeTopic(Topics.nodeReceiveTopic(applicationUID, sensorNode.deviceUID), LoRaTransmissionWrapper::class.java) {
-            topic, msg -> handleDeviceTransmission(topic, msg.transmission)
+        subscribeTopic(Topics.nodeReceiveTopic(applicationUID, sensorNode.deviceUID),
+            LoRaTransmissionWrapper::class.java) { topic, msg ->
+            handleDeviceTransmission(topic, msg.transmission)
         }
     }
 
@@ -48,8 +49,9 @@ open class SensorExecutionContext @JvmOverloads constructor(
             sensorNode.sensorTypes.forEach {
                 when (it) {
                     SensorType.GPS -> sensorNode.position = it.consumeAndConvert(payload)
-                    SensorType.IAQ -> {}//log("${it.consumeAndConvert<Double>(payload)}")
-                    else -> sensorsValue = sensorsValue.plus(Pair(it, it.consumeAndConvert(payload)))
+                    SensorType.IAQ -> {} // log("${it.consumeAndConvert<Double>(payload)}")
+                    else -> sensorsValue = sensorsValue.plus(
+                        Pair(it, it.consumeAndConvert(payload)))
                 }
             }
             sensorsValue
@@ -70,12 +72,13 @@ object IAQCalculator {
 
     fun computeIaqLevel(sensorType: SensorType, value: Double): Double {
         return sensorsLevel[sensorType]
-            ?.mapIndexed { i, v -> Pair(i,v) }
+            ?.mapIndexed { i, v -> Pair(i, v) }
             ?.find { it.second.first <= value && value < it.second.second }
             ?.let {
                 val c = it.second
                 val iaq = iaqLevel[it.first]
-                1.0 * (iaq.second - iaq.first) / (c.second - c.first) * (value - c.first) + iaq.first
-            } !!.toDouble()
+                1.0 * (iaq.second - iaq.first) / (c.second - c.first) *
+                    (value - c.first) + iaq.first
+            }!!.toDouble()
     }
 }

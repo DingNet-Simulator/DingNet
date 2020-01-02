@@ -8,8 +8,7 @@ import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ExecutionContext
 import org.protelis.vm.ProtelisProgram
 
-
-//TODO if is only a sensor node (not an extension) check sensorTypes size > 0
+// TODO if is only a sensor node (not an extension) check sensorTypes size > 0
 open class SensorNode(
     protelisProgram: ProtelisProgram,
     sleepTime: Long,
@@ -18,8 +17,9 @@ open class SensorNode(
     mqttClient: MqttClientBasicApi,
     position: LatLongPosition,
     sensorTypes: List<SensorType>,
-    neighbors: Set<StringUID> = emptySet())
-    : NodeWithSensor(protelisProgram, sleepTime, sensorDeviceUID, applicationUID, mqttClient, position, sensorTypes, neighbors) {
+    neighbors: Set<StringUID> = emptySet()
+) : NodeWithSensor(protelisProgram, sleepTime, sensorDeviceUID, applicationUID,
+    mqttClient, position, sensorTypes, neighbors) {
 
     override fun createContext(): ExecutionContext =
         SensorExecutionContext(

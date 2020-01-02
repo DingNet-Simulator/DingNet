@@ -2,14 +2,14 @@ package it.unibo.acdingnet.protelis.model
 
 import java.time.LocalTime
 
-data class FrameHeaderApp (
+data class FrameHeaderApp(
     val sourceAddress: List<Byte>,
     val fCtrl: Int,
     val fCnt: Int,
     val fOpts: List<Byte>
 )
 
-data class LoRaWanPacket (
+data class LoRaWanPacket(
     val senderEUI: Long,
     val designatedReceiverEUI: Long,
     val lowDataRateOptimization: Boolean,
@@ -20,7 +20,7 @@ data class LoRaWanPacket (
     val header: FrameHeaderApp
 )
 
-data class LoRaTransmission (
+data class LoRaTransmission(
     val sender: Long,
     val receiver: Long,
     val transmissionPower: Double,

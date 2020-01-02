@@ -18,15 +18,17 @@ import java.time.LocalTime
 import java.util.*
 import java.util.stream.Collectors
 
-class ProtelisApp(private val motes: List<Mote>, private val timer: GlobalClock) : Application(emptyList()) {
+class ProtelisApp(motes: List<Mote>, private val timer: GlobalClock) : Application(emptyList()) {
 
-    private val neigh = NeighborhoodManager(Const.APPLICATION_ID, MQTTClientFactory.getSingletonInstance(), Const.NEIGHBORHOOD_RANGE)
+    private val neigh = NeighborhoodManager(Const.APPLICATION_ID,
+        MQTTClientFactory.getSingletonInstance(), Const.NEIGHBORHOOD_RANGE)
     private val random = Random(2)
     private val node: List<SensorNodeWrapper>
 
     init {
-        val nodes = motes.map { Node(StringUID("" + it.eui), LatLongPosition(it.pathPosition.latitude, it.pathPosition.longitude)) }.toSet()
-        node  = motes.stream()
+        val nodes = motes.map { Node(StringUID("" + it.eui),
+            LatLongPosition(it.pathPosition.latitude, it.pathPosition.longitude)) }.toSet()
+        node = motes.stream()
             .filter { m: Mote? -> m !is UserMote }
             .map { m: Mote ->
                 SensorNodeWrapper(
@@ -40,7 +42,8 @@ class ProtelisApp(private val motes: List<Mote>, private val timer: GlobalClock)
                     listOf(SensorType.IAQ),
                     timer,
                     NeighborhoodManager.computeNeighborhood(
-                        Node(StringUID("" + m.eui), LatLongPosition(m.pathPosition.latitude, m.pathPosition.longitude)),
+                        Node(StringUID("" + m.eui), LatLongPosition(m.pathPosition.latitude,
+                            m.pathPosition.longitude)),
                         nodes, Const.NEIGHBORHOOD_RANGE
                     ).map { it.uid }.toSet()
                 )

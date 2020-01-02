@@ -11,7 +11,7 @@ object Loader {
     fun loadDevice(path: String): MutableList<DeviceWrapper> {
         val idRemapping = IdRemapping()
 
-        var inputStream =  Loader::class.java.getResourceAsStream(path)
+        var inputStream = Loader::class.java.getResourceAsStream(path)
         if (inputStream == null) {
             val file = File(path)
             if (file.exists()) {
@@ -21,12 +21,12 @@ object Loader {
             }
         }
 
-        //inputStream.bufferedReader().lines().reduce(String::plus).also { println(it) }
+        // inputStream.bufferedReader().lines().reduce(String::plus).also { println(it) }
         val doc = DocumentBuilderFactory
             .newDefaultInstance()
             .newDocumentBuilder()
             .parse(inputStream)
-         val configuration = doc.documentElement
+        val configuration = doc.documentElement
 
         // ---------------
         //    WayPoints
@@ -48,7 +48,7 @@ object Loader {
 
         val motes = configuration.getElementsByTagName("motes").item(0) as Element
         return (0 until motes.getElementsByTagName("mote").length).asSequence()
-            .map{ motes.getElementsByTagName("mote").item(it) as Element }
+            .map { motes.getElementsByTagName("mote").item(it) as Element }
             .map {
                 DeviceWrapper(
                     readChild(it, "devEUI").toLong(),
@@ -61,7 +61,7 @@ object Loader {
                 )
             }
             .toMutableList()
-            .also {list ->
+            .also { list ->
                 list.addAll(
                 (0 until motes.getElementsByTagName("userMote").length).asSequence()
                     .map { motes.getElementsByTagName("userMote").item(it) as Element }

@@ -23,6 +23,10 @@ object Libs {
     const val simplelatlng: String = "com.javadocmd:simplelatlng:" + Versions.simplelatlng
 
     /**
+     * https://github.com/pinterest/ktlint */
+    const val ktlint: String = "com.pinterest:ktlint:" + Versions.ktlint
+
+    /**
      * https://github.com/uchuhimo/konf */
     const val konf: String = "com.uchuhimo:konf:" + Versions.konf
 
@@ -80,13 +84,16 @@ object Libs {
 
     /**
      * https://kotlinlang.org/ */
-    const val org_jetbrains_kotlin_kotlin_stdlib_jdk8: String =
-            "org.jetbrains.kotlin:kotlin-stdlib-jdk8:" +
-            Versions.org_jetbrains_kotlin_kotlin_stdlib_jdk8
+    const val kotlin_stdlib_jdk8: String = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:" +
+            Versions.kotlin_stdlib_jdk8
 
     /**
      * http://www.jfree.org/jfreechart/ */
     const val jfreechart: String = "org.jfree:jfreechart:" + Versions.jfreechart
+
+    const val org_jlleitschuh_gradle_ktlint_gradle_plugin: String =
+            "org.jlleitschuh.gradle.ktlint:org.jlleitschuh.gradle.ktlint.gradle.plugin:" +
+            Versions.org_jlleitschuh_gradle_ktlint_gradle_plugin
 
     /**
      * https://junit.org/junit5/ */

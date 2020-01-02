@@ -15,6 +15,8 @@ object Versions {
 
     const val simplelatlng: String = "1.3.1" 
 
+    const val ktlint: String = "0.33.0" // available: "0.36.0"
+
     const val konf: String = "0.13.3" // available: "0.22.1"
 
     const val commons_logging: String = "1.2" 
@@ -39,9 +41,11 @@ object Versions {
 
     const val kotlin_scripting_compiler_embeddable: String = "1.3.61" 
 
-    const val org_jetbrains_kotlin_kotlin_stdlib_jdk8: String = "1.3.21" // available: "1.3.61"
+    const val kotlin_stdlib_jdk8: String = "1.3.21" // available: "1.3.61"
 
     const val jfreechart: String = "1.5.0" 
+
+    const val org_jlleitschuh_gradle_ktlint_gradle_plugin: String = "8.1.0" // available: "9.1.1"
 
     const val junit_jupiter: String = "5.5.2" 
 

@@ -14,10 +14,10 @@ class DestinationExecutionContext(
     private val netmgr: NetworkManager,
     private val randomSeed: Int = 1,
     private val execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
-    ) : PositionedExecutionContext(_deviceUID, nodePosition, netmgr, randomSeed, execEnvironment) {
+) : PositionedExecutionContext(_deviceUID, nodePosition, netmgr, randomSeed, execEnvironment) {
 
     init {
-        //add variable env per destination
+        // add variable env per destination
         execEnvironment.put(Const.ProtelisEnv.DESTINATION_KEY, true)
     }
 
@@ -29,5 +29,4 @@ class DestinationExecutionContext(
             randomSeed,
             execEnvironment
         )
-
 }

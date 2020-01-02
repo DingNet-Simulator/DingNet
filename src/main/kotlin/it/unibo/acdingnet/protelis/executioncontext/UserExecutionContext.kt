@@ -22,13 +22,15 @@ class UserExecutionContext(
     netmgr: NetworkManager,
     randomSeed: Int = 1,
     execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
-    ): SensorExecutionContext(userNode, applicationUID, mqttClient, netmgr, randomSeed, execEnvironment) {
+) : SensorExecutionContext(userNode, applicationUID, mqttClient, netmgr,
+    randomSeed, execEnvironment) {
 
     private var destinationPosition: LatLongPosition? = null
 
     init {
-        subscribeTopic(Topics.nodeReceiveTopic(applicationUID, userNode.deviceUID), LoRaTransmissionWrapper::class.java) {
-            topic, msg -> handleUserDeviceTransmission(topic, msg.transmission)
+        subscribeTopic(Topics.nodeReceiveTopic(applicationUID, userNode.deviceUID),
+            LoRaTransmissionWrapper::class.java) { topic, msg ->
+            handleUserDeviceTransmission(topic, msg.transmission)
         }
     }
 
@@ -47,21 +49,23 @@ class UserExecutionContext(
         if (payload.isNotEmpty()) {
             when (payload[0]) {
                 MessageType.SENSOR_VALUE.code -> super.handleDeviceTransmission(topic, message)
-                MessageType.REQUEST_PATH.code -> handleRequestPath(payload.toMutableList().also{ it.removeAt(0) })
+                MessageType.REQUEST_PATH.code -> handleRequestPath(payload.toMutableList().also {
+                    it.removeAt(0) })
                 else -> throw IllegalArgumentException("message type not supported")
             }
         }
     }
 
-    //TODO
+    // TODO
     private fun handleRequestPath(mutPayload: MutableList<Byte>) {
-        //TODO put environment variable to start the path
+        // TODO put environment variable to start the path
         execEnvironment.put(Const.ProtelisEnv.SOURCE_KEY, true)
-        //update position
+        // update position
         userNode.position = SensorType.GPS.consumeAndConvert(mutPayload)
-        //TODO create destination node
+        // TODO create destination node
         destinationPosition = SensorType.GPS.consumeAndConvert<LatLongPosition>(mutPayload).also {
-            DestinationNode(userNode.protelisProgram, userNode.sleepTime, StringUID(""), applicationUID, mqttClient, it)
+            DestinationNode(userNode.protelisProgram, userNode.sleepTime, StringUID(""),
+                applicationUID, mqttClient, it)
         }
     }
 }
