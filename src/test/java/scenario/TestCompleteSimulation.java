@@ -39,7 +39,7 @@ public class TestCompleteSimulation {
             public void onEnd() {
                 // Check if mote is at destination
                 Mote mote = runner.getEnvironment().getMotes().get(0);
-                assertEquals(mote.getPosInt(), runner.getEnvironment().getMapHelper().toMapCoordinate(new GeoPosition(50.859172,4.688349)));
+                assertEquals(mote.getPosInt(), runner.getEnvironment().getMapHelper().toMapCoordinate(new GeoPosition(50.859172, 4.688349)));
             }
         });
 

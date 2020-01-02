@@ -36,9 +36,9 @@ class TestEnvironment {
 
         assertTrue(environment.getMotes().isEmpty());
         assertTrue(environment.getGateways().isEmpty());
-        assertEquals(environment.getClock().getTime(), LocalTime.of(0,0,0));
-        assertNull(environment.getCharacteristic(0,0));
-        assertEquals(environment.getMapCenter(), new GeoPosition(5,5));
+        assertEquals(environment.getClock().getTime(), LocalTime.of(0, 0, 0));
+        assertNull(environment.getCharacteristic(0, 0));
+        assertEquals(environment.getMapCenter(), new GeoPosition(5, 5));
         assertEquals(environment.getMaxXpos(), 0);
         assertEquals(environment.getMaxYpos(), 0);
         assertEquals(environment.getNumberOfRuns(), 1);
@@ -48,10 +48,10 @@ class TestEnvironment {
     @Test
     void waypointsConnections() {
         Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(5, 5), 1,
-            new HashMap<>(Map.of(1L, new GeoPosition(6,6), 3L, new GeoPosition(10,5))), new HashMap<>(Map.of(4L, new Connection(1L, 3L))));
+            new HashMap<>(Map.of(1L, new GeoPosition(6, 6), 3L, new GeoPosition(10, 5))), new HashMap<>(Map.of(4L, new Connection(1L, 3L))));
 
         assertTrue(environment.getGraph().connectionExists(1L, 3L));
-        assertEquals(environment.getGraph().getWayPoint(1L), new GeoPosition(6,6));
+        assertEquals(environment.getGraph().getWayPoint(1L), new GeoPosition(6, 6));
         assertNull(environment.getGraph().getWayPoint(2L));
         assertEquals(environment.getGraph().getWayPoint(3L), new GeoPosition(10, 5));
     }
@@ -88,13 +88,13 @@ class TestEnvironment {
     @Test
     void rainyDay() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new Environment(new Characteristic[0][0], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+            new Environment(new Characteristic[0][0], new GeoPosition(0, 0), 1, new HashMap<>(), new HashMap<>());
         });
     }
 
     @Test
     void addMotes() {
-        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0, 0), 1, new HashMap<>(), new HashMap<>());
 
         Mote dummyMote1 = generateDummyMote(environment, 1);
         Mote dummyMote2 = generateDummyMote(environment, 2);
@@ -110,7 +110,7 @@ class TestEnvironment {
 
     @Test
     void addGateways() {
-        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+        Environment environment = new Environment(new Characteristic[1][1], new GeoPosition(0, 0), 1, new HashMap<>(), new HashMap<>());
 
         Gateway dummyGateway1 = generateDummyGateway(environment, 1);
         Gateway dummyGateway2 = generateDummyGateway(environment, 200);
@@ -126,8 +126,8 @@ class TestEnvironment {
 
     @Test
     void addMoteGatewayMultipleEnv() {
-        Environment environment1 = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
-        Environment environment2 = new Environment(new Characteristic[1][1], new GeoPosition(0,0), 1, new HashMap<>(), new HashMap<>());
+        Environment environment1 = new Environment(new Characteristic[1][1], new GeoPosition(0, 0), 1, new HashMap<>(), new HashMap<>());
+        Environment environment2 = new Environment(new Characteristic[1][1], new GeoPosition(0, 0), 1, new HashMap<>(), new HashMap<>());
 
         Gateway gw = generateDummyGateway(environment2, 1);
         Mote mote = generateDummyMote(environment2, 908);
@@ -143,7 +143,7 @@ class TestEnvironment {
 
     @Test
     void moveMote() {
-        GeoPosition origin = new GeoPosition(0,0);
+        GeoPosition origin = new GeoPosition(0, 0);
         Environment environment = new Environment(new Characteristic[600][600], origin, 1, new HashMap<>(), new HashMap<>());
 
         GeoPosition destination1 = environment.getMapHelper().toGeoPosition(200, 500);
