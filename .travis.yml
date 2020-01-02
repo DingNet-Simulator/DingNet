@@ -27,7 +27,7 @@ jobs:
           os: *reference_os
           env: *reference_jdk
           script:
-              - ./gradlew clean gradlew check --parallel
+              - ./gradlew clean check --parallel
 before_install:
     - curl "${GRAVIS}.disable-windows-defender.sh" --output .disable-windows-defender.sh
     - source .disable-windows-defender.sh
