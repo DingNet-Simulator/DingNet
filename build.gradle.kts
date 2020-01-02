@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.file.File.Companion.separator
+import org.jetbrains.kotlin.konan.file.File.Companion.userHome
 import java.net.URL
 
 plugins {
@@ -15,7 +17,9 @@ repositories {
     mavenCentral()
 }
 
-fun downloadLibFromUrl(libName: String , libUrl: String, libSaveDir: String = "${projectDir.absolutePath}/build/libs") {
+fun downloadLibFromUrl(libName: String , libUrl: String, 
+    libSaveDir: String = "${userHome.path}${separator}.gradle${separator}caches${separator}modules-2${separator}files-2.1${separator}download") {
+    
     val folder = File(libSaveDir)
     if (!folder.exists()) {
         folder.mkdirs()
