@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 abstract public class RangeDataGenerator implements SensorDataGenerator {
 
     protected static SensorDataGenerator instance;
+    private static String configFilePath;
     private final int row;
     private final int columns;
     private final int width;
@@ -51,7 +52,18 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
         map.forEach((e, v) -> v.sort((c1, c2) -> Double.compare(c2.getFromTime(), c1.getFromTime())));
     }
 
-    protected abstract String getConfigFilePath();
+    private String getConfigFilePath() {
+        return configFilePath != null ? configFilePath : getDefaultConfigFilePath();
+    }
+
+    public static void setConfigFilePath(String path) {
+        if (instance == null) {
+            throw new IllegalStateException("sensor instance already created");
+        }
+        configFilePath = path;
+    }
+
+    protected abstract String getDefaultConfigFilePath();
 
     @Override
     public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {

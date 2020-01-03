@@ -20,7 +20,7 @@ public class IAQDataGeneratorSingleton extends RangeDataGenerator {
     }
 
     @Override
-    protected String getConfigFilePath() {
+    protected String getDefaultConfigFilePath() {
         return configFile;
     }
 }

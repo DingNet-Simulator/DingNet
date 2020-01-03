@@ -24,7 +24,7 @@ public class NO2DataGeneratorSingleton extends RangeDataGenerator {
     }
 
     @Override
-    protected String getConfigFilePath() {
+    protected String getDefaultConfigFilePath() {
         return configFile;
     }
 }

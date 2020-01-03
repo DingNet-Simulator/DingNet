@@ -19,7 +19,7 @@ public class PM10DataGeneratorSingleton extends RangeDataGenerator {
     }
 
     @Override
-    protected String getConfigFilePath() {
+    protected String getDefaultConfigFilePath() {
         return configFile;
     }
 }
