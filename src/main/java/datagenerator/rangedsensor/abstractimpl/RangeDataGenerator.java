@@ -57,7 +57,7 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     }
 
     public static void setConfigFilePath(String path) {
-        if (instance == null) {
+        if (instance != null) {
             throw new IllegalStateException("sensor instance already created");
         }
         configFilePath = path;
