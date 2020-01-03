@@ -42,7 +42,7 @@ public class ConsumePacketTest {
         var mote = new DummyMote(1, env);
         var strategy = new AddPositionToPath();
         assertThrows(IllegalStateException.class,
-            () -> strategy.consume(mote, new LoraWanPacket(2,1, new byte[2], List.of())));
+            () -> strategy.consume(mote, new LoraWanPacket(2, 1, new byte[2], List.of())));
     }
 
     @Test
@@ -53,8 +53,8 @@ public class ConsumePacketTest {
         assertTrue(mote.getPath().isEmpty());
 
         var strategy = new AddPositionToPath();
-        var pos = new GeoPosition(2,2);
-        strategy.consume(mote, new LoraWanPacket(2,1, Converter.toByteArray(pos), List.of()));
+        var pos = new GeoPosition(2, 2);
+        strategy.consume(mote, new LoraWanPacket(2, 1, Converter.toByteArray(pos), List.of()));
         assertEquals(1, mote.getPath().getWayPoints().size());
         assertTrue(MapHelper.equalsGeoPosition(pos, ListHelper.getLast(mote.getPath().getWayPoints())));
     }
@@ -70,11 +70,11 @@ public class ConsumePacketTest {
         assertTrue(mote.getPath().isEmpty());
 
         var strategy = new ReplacePath();
-        var pos = List.of(new GeoPosition(2,2), new GeoPosition(1,1));
+        var pos = List.of(new GeoPosition(2, 2), new GeoPosition(1, 1));
         var posArray = pos.stream()
             .flatMap(p -> Arrays.stream(Converter.toObjectType(Converter.toByteArray(p))))
             .toArray(Byte[]::new);
-        strategy.consume(mote, new LoraWanPacket(2,1, Converter.toRowType(posArray), List.of()));
+        strategy.consume(mote, new LoraWanPacket(2, 1, Converter.toRowType(posArray), List.of()));
         assertEquals(2, mote.getPath().getWayPoints().size());
         assertTrue(
             IntStream
@@ -85,7 +85,7 @@ public class ConsumePacketTest {
         );
 
         //with a empty packet the path don't change
-        strategy.consume(mote, LoraWanPacket.createEmptyPacket(2,1));
+        strategy.consume(mote, LoraWanPacket.createEmptyPacket(2, 1));
 
         assertEquals(2, mote.getPath().getWayPoints().size());
         assertTrue(
