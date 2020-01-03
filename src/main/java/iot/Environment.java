@@ -111,14 +111,14 @@ public class Environment implements Serializable {
         if (maxXpos == -1) {
             throw new IllegalStateException("map not already initialized");
         }
-        return maxXpos;
+        return maxXpos + 1;
     }
 
     public static int getMapHeight() {
         if (maxYpos == -1) {
             throw new IllegalStateException("map not already initialized");
         }
-        return maxYpos;
+        return maxYpos + 1;
     }
 
     /**
