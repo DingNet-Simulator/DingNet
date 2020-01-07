@@ -56,6 +56,7 @@ open class SensorExecutionContext @JvmOverloads constructor(
             }
             sensorsValue
                 .map { sensor -> IAQCalculator.computeIaqLevel(sensor.key, sensor.value) }
+                .filterNotNull()
                 .max()
                 ?.let { value -> execEnvironment.put(Const.ProtelisEnv.IAQLEVEL_KEY, value) }
         }
@@ -70,7 +71,7 @@ object IAQCalculator {
         SensorType.NO2 to SensorType.NO2.levels
     )
 
-    fun computeIaqLevel(sensorType: SensorType, value: Double): Double {
+    fun computeIaqLevel(sensorType: SensorType, value: Double): Double? {
         return sensorsLevel[sensorType]
             ?.mapIndexed { i, v -> Pair(i, v) }
             ?.find { it.second.first <= value && value < it.second.second }
@@ -79,6 +80,6 @@ object IAQCalculator {
                 val iaq = iaqLevel[it.first]
                 1.0 * (iaq.second - iaq.first) / (c.second - c.first) *
                     (value - c.first) + iaq.first
-            }!!.toDouble()
+            }
     }
 }
