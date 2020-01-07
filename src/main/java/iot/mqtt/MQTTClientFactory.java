@@ -3,6 +3,7 @@ package iot.mqtt;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializer;
+import io.moquette.broker.Server;
 import iot.lora.BasicFrameHeader;
 import iot.lora.EU868ParameterByDataRate;
 import iot.lora.FrameHeader;
@@ -15,16 +16,20 @@ import util.Constants;
 import util.Converter;
 import util.SettingsReader;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Properties;
 
 /**
  * Factory to retrieve an instance of {@link MqttClientBasicApi}
  */
 public class MQTTClientFactory {
 
-    private static MqttClientType DEFAULT_INSTANCE_TYPE = SettingsReader.getInstance().getMQTTClientType();
+    private final static MqttClientType DEFAULT_INSTANCE_TYPE = SettingsReader.getInstance().getMQTTClientType();
+    private final static String ADDRESS = SettingsReader.getInstance().getMQTTServerAddress();
     private static MqttClientBasicApi clientBasicApi;
+    private static Server server;
 
     /**
      *
@@ -35,8 +40,18 @@ public class MQTTClientFactory {
             var builder = new ClientBuilder();
             if (DEFAULT_INSTANCE_TYPE == MqttClientType.PAHO) {
                 addAdapters(builder)
-                    .setAddress(Constants.PAHO_ADDRESS)
+                    .setAddress(ADDRESS)
                     .setClientId(Constants.PAHO_CLIENT);
+                if (ADDRESS.equals(Constants.MQTT_LOCALHOST_ADDRESS)) {
+                    server = new Server();
+                    try {
+                        var prop = new Properties();
+                        prop.load(MQTTClientFactory.class.getResourceAsStream("/config/moquette.conf"));
+                        server.startServer(prop);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             clientBasicApi = builder.build(DEFAULT_INSTANCE_TYPE);
         }
@@ -44,7 +59,6 @@ public class MQTTClientFactory {
     }
 
     private static ClientBuilder addAdapters(ClientBuilder builder) {
-
         return builder
             .addSerializer(FrameHeader.class, (JsonSerializer<FrameHeader>) (header, type, context) -> {
                 var obj = new JsonObject();

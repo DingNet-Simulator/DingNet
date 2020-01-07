@@ -82,6 +82,12 @@ public class SettingsReader {
         return MqttClientType.valueOf(clientType);
     }
 
+    // region MQTT
+
+    public String getMQTTServerAddress() {
+        return properties.getProperty("mqtt.address").trim();
+    }
+
     // endregion
 
 

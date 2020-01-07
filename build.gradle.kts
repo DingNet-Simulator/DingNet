@@ -15,6 +15,7 @@ version = "1.2.1"
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -26,6 +27,7 @@ dependencies {
     implementation(Libs.forms_rt)
     implementation(files("${projectDir.path}/lib/AnnotationsDoclets.jar"))
     implementation(Libs.gson)
+    implementation(Libs.moquette_broker)
     implementation(files(Util.downloadLibFromUrl(ExternalLib.mqtt_client_wrapper)))
     // dependencies for protelis application
     implementation(Libs.protelis)

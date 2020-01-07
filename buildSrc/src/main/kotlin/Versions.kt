@@ -27,6 +27,8 @@ object Versions {
 
     const val mockk: String = "1.9.1" // available: "1.9.3"
 
+    const val moquette_broker: String = "0.12.1" 
+
     const val commons_lang3: String = "3.9" 
 
     const val org_eclipse_paho_client_mqttv3: String = "1.2.1" // available: "1.2.2"
@@ -63,7 +65,7 @@ object Versions {
 
         const val currentVersion: String = "6.0.1"
 
-        const val nightlyVersion: String = "6.2-20200101230025+0000"
+        const val nightlyVersion: String = "6.2-20200106230036+0000"
 
         const val releaseCandidate: String = "6.1-rc-1"
     }

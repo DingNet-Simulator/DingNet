@@ -48,6 +48,8 @@ object Libs {
      * http://mockk.io */
     const val mockk: String = "io.mockk:mockk:" + Versions.mockk
 
+    const val moquette_broker: String = "io.moquette:moquette-broker:" + Versions.moquette_broker
+
     /**
      * http://commons.apache.org/proper/commons-lang/ */
     const val commons_lang3: String = "org.apache.commons:commons-lang3:" + Versions.commons_lang3
