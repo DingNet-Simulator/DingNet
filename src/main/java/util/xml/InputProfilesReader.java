@@ -39,6 +39,8 @@ public class InputProfilesReader {
                                             .filter(c -> c.toString().equals(timeUnitName))
                                             .findFirst();
 
+                String protelisProgram = XMLHelper.readChild(inputProfileElement, "protelisProgram");
+
                 Element QoSElement = (Element) inputProfileElement.getElementsByTagName("QoS").item(0);
                 HashMap<String, AdaptationGoal> adaptationGoalHashMap = new HashMap<>();
                 var adaptationGoals = QoSElement.getElementsByTagName("adaptationGoal");
@@ -86,7 +88,8 @@ public class InputProfilesReader {
                         new HashMap<>(),
                         inputProfileElement,
                         simulationDuration,
-                        chronoUnit))
+                        chronoUnit,
+                        protelisProgram))
                     .orElseGet(() -> new InputProfile(
                         name,
                         new QualityOfService(adaptationGoalHashMap),

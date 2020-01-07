@@ -2,6 +2,7 @@ package it.unibo.acdingnet.protelis
 
 import application.Application
 import iot.GlobalClock
+import iot.SimulationRunner
 import iot.mqtt.MQTTClientFactory
 import iot.mqtt.TransmissionWrapper
 import iot.networkentity.Mote
@@ -28,11 +29,14 @@ class ProtelisApp(motes: List<Mote>, private val timer: GlobalClock) : Applicati
     init {
         val nodes = motes.map { Node(StringUID("" + it.eui),
             LatLongPosition(it.pathPosition.latitude, it.pathPosition.longitude)) }.toSet()
+        val protelisProgram = SimulationRunner.getInstance()
+            .simulation.inputProfile.orElseThrow()
+            .protelisProgram.orElseThrow { IllegalStateException("protelis program not found") }
         node = motes.stream()
             .filter { m: Mote? -> m !is UserMote }
             .map { m: Mote ->
                 SensorNodeWrapper(
-                    ProtelisLoader.parse("gradient"),
+                    ProtelisLoader.parse(protelisProgram),
                     LocalTime.of(0, 0, 0, random.nextInt(100) * 1000000),
                     30,
                     StringUID("" + m.eui),
