@@ -20,6 +20,17 @@ Similarly to the previously listed commands, `gradlew test` runs the tests for t
 
 Either run the jar file generated from the previous step, or use the `gradlew run` command.
 
+## Simulate Protelis application
+
+The simulator support execution of [Protelis](https://github.com/Protelis/Protelis) application with version 13.0.3.
+
+The protelis backend provided from this simulator is MQTT-based and it use the same MQTT server of the LoRa network.
+At every LoRa mote of the simulation correspond a protelis node, and its ExecutionContext put all 
+the sensed value received from the LoRa mote to its environment.
+
+The name of the protelis program to execute is retrieved from the `InputProfile` under the xml tag `protelisProgram`.
+(Currently the only way to define the protelis program to execute is to add it manually in the xml file,
+in further it will be also possible with the simulator GUI)
 
 ## Libraries
 
