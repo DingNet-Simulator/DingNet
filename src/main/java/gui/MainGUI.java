@@ -8,6 +8,7 @@ import gui.util.*;
 import iot.*;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
+import org.jetbrains.annotations.NotNull;
 import org.jfree.chart.ChartPanel;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
@@ -27,8 +28,9 @@ import javax.swing.event.MouseInputListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
@@ -115,10 +117,54 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private int packetsSent;
     private int packetsLost;
 
+    // region copy resources
+    // TODO improve error check and refresh file
+    private static void copyResourceDirectory(@NotNull String source, @NotNull String destination) {
+        var sourceStream = MainGUI.class.getResourceAsStream(source);
+        if (sourceStream == null) {
+            throw new IllegalArgumentException("directory not found: " + source);
+        }
+        var dirDest = new File(destination);
+        if (!dirDest.exists()) {
+            if(!dirDest.mkdirs()) {
+                throw new IllegalStateException("Impossible create directory: " + dirDest.getAbsolutePath());
+            }
+        }
+        try ( var reader = new BufferedReader(new InputStreamReader(sourceStream))) {
+            reader.lines()
+                .filter(f -> f.endsWith(".xml"))
+                .forEach(f -> copyResourceFile(source + f, destination + f));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void copyResourceFile(@NotNull String source, @NotNull String destination) {
+        var sourceStream = MainGUI.class.getResourceAsStream(source);
+        if (sourceStream == null) {
+            throw new IllegalArgumentException("file not found: " + source);
+        }
+        try (var reader = new BufferedReader(new InputStreamReader(sourceStream, StandardCharsets.UTF_8));
+             var output = new OutputStreamWriter(new FileOutputStream(new File(destination)), StandardCharsets.UTF_8)) {
+
+            reader.lines().forEach(l -> {
+                try {
+                    output.write(l);
+                    output.write("\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // endregion
 
     public static void main(String[] args) {
         SimulationRunner simulationRunner = SimulationRunner.getInstance();
-
+        SettingsReader settingsReader = SettingsReader.getInstance();
+        copyResourceDirectory(settingsReader.getConfigurationsResources(), settingsReader.getConfigurationsDirectory());
         SwingUtilities.invokeLater(() -> {
             mapViewer.setTileFactory(tileFactory);
             tileFactory.setThreadPoolSize(SettingsReader.getInstance().getThreadPoolSize());
@@ -797,10 +843,17 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             JFileChooser fc = new JFileChooser();
             fc.setDialogTitle("Load a configuration");
             fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
+/*
 
             File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
             String basePath = file.getParentFile().getParent();
             fc.setCurrentDirectory(new File(Paths.get(basePath, "settings", "configurations").toUri()));
+*/
+            var dir = new File(SettingsReader.getInstance().getConfigurationsDirectory());
+            if (!dir.exists() || !dir.isDirectory()) {
+                throw new IllegalStateException("the path: " + dir.getAbsolutePath() + " not exist or it isn't a directory");
+            }
+            fc.setCurrentDirectory(dir);
 
             int returnVal = fc.showOpenDialog(mainPanel);
 
@@ -840,10 +893,18 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             JFileChooser fc = new JFileChooser();
             fc.setDialogTitle("Save a configuration");
             fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
+/*
 
             File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
             String basePath = file.getParentFile().getParent();
             fc.setCurrentDirectory(new File(Paths.get(basePath, "settings", "configurations").toUri()));
+*/
+
+            var dir = new File(SettingsReader.getInstance().getConfigurationsDirectory());
+            if (!dir.exists() || !dir.isDirectory()) {
+                throw new IllegalStateException("the path: " + dir.getAbsolutePath() + " not exist or it isn't a directory");
+            }
+            fc.setCurrentDirectory(dir);
 
             int returnVal = fc.showSaveDialog(mainPanel);
 
@@ -854,7 +915,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
                 frame.setMinimumSize(new Dimension(300, 300));
                 frame.setVisible(true);
 
-                file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
+                var file = GUIUtil.getOutputFile(fc.getSelectedFile(), "xml");
                 simulationRunner.saveConfigurationToFile(file);
 
                 frame.dispose();

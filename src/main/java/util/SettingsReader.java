@@ -187,9 +187,18 @@ public class SettingsReader {
 
 
     public String getTileFactoryCachePath() {
-        return this.adjustPathString((properties.getProperty("gui.path.CacheTileFactory")));
+        return this.adjustPathString(properties.getProperty("dingnet.directory") +
+            properties.getProperty("gui.path.CacheTileFactory"));
     }
 
+    public String getConfigurationsDirectory() {
+        return this.adjustPathString(properties.getProperty("dingnet.directory") +
+            properties.getProperty("configuration.homeDirectory"));
+    }
+
+    public String getConfigurationsResources() {
+        return this.adjustPathString(properties.getProperty("configuration.resources"));
+    }
 
     // endregion
 
