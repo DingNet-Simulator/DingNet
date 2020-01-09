@@ -129,13 +129,13 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             if(!dirDest.mkdirs()) {
                 throw new IllegalStateException("Impossible create directory: " + dirDest.getAbsolutePath());
             }
-        }
-        try ( var reader = new BufferedReader(new InputStreamReader(sourceStream))) {
-            reader.lines()
-                .filter(f -> f.endsWith(".xml"))
-                .forEach(f -> copyResourceFile(source + f, destination + f));
-        } catch (IOException e) {
-            e.printStackTrace();
+            try ( var reader = new BufferedReader(new InputStreamReader(sourceStream))) {
+                reader.lines()
+                    .filter(f -> f.endsWith(".xml"))
+                    .forEach(f -> copyResourceFile(source + f, destination + f));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -840,20 +840,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private class OpenConfigurationListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Load a configuration");
-            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-/*
-
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "settings", "configurations").toUri()));
-*/
-            var dir = new File(SettingsReader.getInstance().getConfigurationsDirectory());
-            if (!dir.exists() || !dir.isDirectory()) {
-                throw new IllegalStateException("the path: " + dir.getAbsolutePath() + " not exist or it isn't a directory");
-            }
-            fc.setCurrentDirectory(dir);
+            JFileChooser fc = getConfigurationFileChooser("Load a configuration");
 
             int returnVal = fc.showOpenDialog(mainPanel);
 
@@ -890,22 +877,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private class SaveConfigurationListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle("Save a configuration");
-            fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
-/*
-
-            File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String basePath = file.getParentFile().getParent();
-            fc.setCurrentDirectory(new File(Paths.get(basePath, "settings", "configurations").toUri()));
-*/
-
-            var dir = new File(SettingsReader.getInstance().getConfigurationsDirectory());
-            if (!dir.exists() || !dir.isDirectory()) {
-                throw new IllegalStateException("the path: " + dir.getAbsolutePath() + " not exist or it isn't a directory");
-            }
-            fc.setCurrentDirectory(dir);
-
+            JFileChooser fc = getConfigurationFileChooser("Save a configuration");
             int returnVal = fc.showSaveDialog(mainPanel);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -921,6 +893,19 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
                 frame.dispose();
             }
         }
+    }
+
+    private JFileChooser getConfigurationFileChooser(String title) {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle(title);
+        fc.setFileFilter(new FileNameExtensionFilter("xml configuration", "xml"));
+
+        var dir = new File(SettingsReader.getInstance().getConfigurationsDirectory());
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new IllegalStateException("the path: " + dir.getAbsolutePath() + " not exist or it isn't a directory");
+        }
+        fc.setCurrentDirectory(dir);
+        return fc;
     }
 
     private class SaveSimulationResultListener implements ActionListener {
