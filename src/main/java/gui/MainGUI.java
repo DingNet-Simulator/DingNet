@@ -126,7 +126,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         }
         var dirDest = new File(destination);
         if (!dirDest.exists()) {
-            if(!dirDest.mkdirs()) {
+            if (!dirDest.mkdirs()) {
                 throw new IllegalStateException("Impossible create directory: " + dirDest.getAbsolutePath());
             }
             try ( var reader = new BufferedReader(new InputStreamReader(sourceStream))) {
