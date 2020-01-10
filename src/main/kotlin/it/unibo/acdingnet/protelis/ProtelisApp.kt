@@ -9,7 +9,9 @@ import iot.networkentity.Mote
 import iot.networkentity.UserMote
 import it.unibo.acdingnet.protelis.dingnetwrapper.SensorNodeWrapper
 import it.unibo.acdingnet.protelis.model.SensorType
+import it.unibo.acdingnet.protelis.node.SmartphoneNode
 import it.unibo.acdingnet.protelis.util.Const
+import it.unibo.acdingnet.protelis.util.LoadGPXFile
 import it.unibo.protelisovermqtt.model.LatLongPosition
 import it.unibo.protelisovermqtt.neighborhood.NeighborhoodManager
 import it.unibo.protelisovermqtt.neighborhood.Node
@@ -33,26 +35,45 @@ class ProtelisApp(motes: List<Mote>, private val timer: GlobalClock) : Applicati
             .simulation.inputProfile.orElseThrow()
             .protelisProgram.orElseThrow { IllegalStateException("protelis program not found") }
         node = motes.stream()
-            .filter { m: Mote? -> m !is UserMote }
-            .map { m: Mote ->
+            .filter { it !is UserMote }
+            .map {
                 SensorNodeWrapper(
                     ProtelisLoader.parse(protelisProgram),
                     LocalTime.of(0, 0, 0, random.nextInt(100) * 1000000),
                     30,
-                    StringUID("" + m.eui),
-                    "" + m.applicationEUI,
+                    StringUID("" + it.eui),
+                    Const.APPLICATION_ID,
                     MQTTClientFactory.getSingletonInstance(),
-                    LatLongPosition(m.pathPosition.latitude, m.pathPosition.longitude),
+                    LatLongPosition(it.pathPosition.latitude, it.pathPosition.longitude),
                     listOf(SensorType.IAQ),
                     timer,
                     NeighborhoodManager.computeNeighborhood(
-                        Node(StringUID("" + m.eui), LatLongPosition(m.pathPosition.latitude,
-                            m.pathPosition.longitude)),
+                        Node(StringUID("" + it.eui), LatLongPosition(it.pathPosition.latitude,
+                            it.pathPosition.longitude)),
                         nodes, Const.NEIGHBORHOOD_RANGE
-                    ).map { it.uid }.toSet()
+                    ).map { n -> n.uid }.toSet()
                 )
             }
             .collect(Collectors.toList())
+
+        LoadGPXFile.loadFile(this.javaClass.getResourceAsStream(""), 1365922800.0)//time get from Vienna demo of Alchemist
+            .map {
+                val uid = StringUID(UUID.randomUUID().toString())
+                SmartphoneNode(
+                    ProtelisLoader.parse(protelisProgram),
+                    LocalTime.of(0, 0, 0, random.nextInt(100) * 1000000),
+                    10,
+                    uid,
+                    Const.APPLICATION_ID,
+                    MQTTClientFactory.getSingletonInstance(),
+                    it.positions[0].position,
+                    timer,
+                    it,
+                    NeighborhoodManager.computeNeighborhood(
+                        Node(uid, it.positions[0].position),
+                        nodes, Const.NEIGHBORHOOD_RANGE
+                    ).map { n -> n.uid }.toSet())
+            }
     }
 
     override fun consumePackets(topicFilter: String, message: TransmissionWrapper) {}
