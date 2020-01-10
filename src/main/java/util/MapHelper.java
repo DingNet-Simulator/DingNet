@@ -121,6 +121,16 @@ public class MapHelper {
         }
     }
 
+    /**
+     * Calculate the distance (in m) between two geo coordinates.
+     * @param pos1 The first position.
+     * @param pos2 The second position.
+     * @return The distance between the two positions, expressed in m.
+     */
+    public static double distanceMeter(GeoPosition pos1, GeoPosition pos2) {
+        return distance(pos1, pos2) * 1e3;
+    }
+
     public static boolean equalsGeoPosition(GeoPosition pos1, GeoPosition pos2) {
         return distance(pos1, pos2) <= DISTANCE_THRESHOLD_ROUNDING_ERROR;
     }
