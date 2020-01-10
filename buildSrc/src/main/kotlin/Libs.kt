@@ -40,6 +40,10 @@ object Libs {
             Versions.de_fayard_buildsrcversions_gradle_plugin
 
     /**
+     * https://github.com/jenetics/jpx */
+    const val jpx: String = "io.jenetics:jpx:" + Versions.jpx
+
+    /**
      * http://www.github.com/kotlintest/kotlintest */
     const val kotlintest_runner_junit5: String = "io.kotlintest:kotlintest-runner-junit5:" +
             Versions.kotlintest_runner_junit5

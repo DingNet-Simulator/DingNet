@@ -36,6 +36,7 @@ dependencies {
     implementation(Libs.commons_lang3)
     implementation(Libs.konf)
     implementation(Libs.org_eclipse_paho_client_mqttv3)
+    implementation(Libs.jpx)
     // dependencies for test
     testImplementation(Libs.junit_jupiter)
     testImplementation(Libs.kotlintest_runner_junit5)

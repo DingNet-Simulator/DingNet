@@ -23,6 +23,8 @@ object Versions {
 
     const val de_fayard_buildsrcversions_gradle_plugin: String = "0.3.2" // available: "0.7.0"
 
+    const val jpx: String = "1.4.0" // available: "1.6.1"
+
     const val kotlintest_runner_junit5: String = "3.3.2" // available: "3.4.2"
 
     const val mockk: String = "1.9.1" // available: "1.9.3"
@@ -53,7 +55,7 @@ object Versions {
 
     const val jxmapviewer2: String = "2.4" // available: "2.5"
 
-    const val protelis: String = "13.0.3" // available: "13.1.0"
+    const val protelis: String = "13.0.3" // available: "13.1.1"
 
     /**
      *
@@ -65,8 +67,8 @@ object Versions {
 
         const val currentVersion: String = "6.0.1"
 
-        const val nightlyVersion: String = "6.2-20200106230036+0000"
+        const val nightlyVersion: String = "6.2-20200109230020+0000"
 
-        const val releaseCandidate: String = "6.1-rc-1"
+        const val releaseCandidate: String = "6.1-rc-2"
     }
 }
