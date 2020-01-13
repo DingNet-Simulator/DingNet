@@ -41,12 +41,13 @@ class ProtelisApp(
     private val smartphone: List<SmartphoneNode>
 
     init {
+        var counter = 0
         val trace: List<Pair<StringUID, GPSTrace>> = infoProtelisApp.gpxFileTrace?.let {
             LoadGPXFile.loadFile(
                 this.javaClass.getResourceAsStream(it),
                 infoProtelisApp.startingTimeTrace)
                 .filter { t -> t.positions.isNotEmpty() }
-                .map { t -> Pair(StringUID(UUID.randomUUID().toString()), t) }
+                .map { t -> Pair(StringUID("${counter++}"), t) }
         }.orEmpty()
 
         val nodes: MutableSet<Node> = motes.map { Node(StringUID("" + it.eui),

@@ -9,4 +9,4 @@ public def gradient(source) {
     }
   }
 }
-gradient(false)
+gradient(self.getDeviceUID().getUID() == 0)
