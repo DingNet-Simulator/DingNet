@@ -5,6 +5,7 @@ import application.routing.RoutingApplication;
 import gui.mapviewer.*;
 import iot.Environment;
 import iot.networkentity.UserMote;
+import it.unibo.acdingnet.protelis.ProtelisApp;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
@@ -57,9 +58,11 @@ public class CompoundPainterBuilder {
     public CompoundPainterBuilder withWaypoints(GraphStructure graph, boolean includeNumbers) {
         var waypoints = graph.getWayPoints();
 
-        painters.add(new WayPointPainter<>().setWaypoints(waypoints.values().stream()
-            .map(DefaultWaypoint::new)
-            .collect(Collectors.toSet()))
+        painters.add(new WayPointPainter<>()
+            .setWaypoints(waypoints.values()
+                .stream()
+                .map(DefaultWaypoint::new)
+                .collect(Collectors.toSet()))
         );
 
         if (includeNumbers) {
@@ -133,6 +136,20 @@ public class CompoundPainterBuilder {
             .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
             .findFirst()
             .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), lineColor, lineSize)));
+        return this;
+    }
+
+    public CompoundPainterBuilder withProtelisApp(ProtelisApp protelisApp) {
+        if (protelisApp != null) {
+            var painter = new WayPointPainter<>(Color.BLACK, 8)
+                .setWaypoints(protelisApp.getDrawableNode()
+                    .stream()
+                    .map(DefaultWaypoint::new)
+                    .collect(Collectors.toSet())
+                );
+            painters.add(painter);
+        }
+
         return this;
     }
 
