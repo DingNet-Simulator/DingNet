@@ -337,13 +337,14 @@ public class SimulationRunner {
     }
 
     private ProtelisApp createProtelisApp() {
-        return new ProtelisApp(
-            simulation.getInputProfile()
-                .orElseThrow(() -> new IllegalStateException("input profile no selected"))
-                .getInfoProtelisApp()
-                .orElseThrow(() -> new IllegalStateException("info of protelis program not specified")),
-            getEnvironment().getMotes(),
-            getEnvironment().getClock());
+        return simulation.getInputProfile()
+            .orElseThrow(() -> new IllegalStateException("input profile no selected"))
+            .getInfoProtelisApp()
+            .map(app -> new ProtelisApp(
+                app,
+                getEnvironment().getMotes(),
+                getEnvironment().getClock())
+            ).orElse(null);
     }
 
     // endregion
