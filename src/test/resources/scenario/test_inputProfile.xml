@@ -5,6 +5,7 @@
         <numberOfRuns>10</numberOfRuns>
         <simulationDuration>2</simulationDuration>
         <timeUnit>Hours</timeUnit>
+        <protelisApp/>
         <QoS>
             <adaptationGoal type="interval">
                 <name>reliableCommunication</name>
@@ -52,6 +53,7 @@
         <simulationDuration>2</simulationDuration>
         <timeUnit>Hours</timeUnit>
         <numberOfRuns>10</numberOfRuns>
+        <protelisApp/>
         <QoS>
             <adaptationGoal type="interval">
                 <name>reliableCommunication</name>
