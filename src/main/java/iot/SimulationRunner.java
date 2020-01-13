@@ -99,6 +99,7 @@ public class SimulationRunner {
         }
 
         networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
+        pollutionGrid = new PollutionGrid();
         environment = null;
     }
 
@@ -186,6 +187,8 @@ public class SimulationRunner {
      * Setup of applications/servers/clients before each run.
      */
     private void setupSimulationRunner() {
+        // Remove previous pollution measurements
+        pollutionGrid.clean();
         // Reset received transmissions in the networkServer
         this.networkServer.reset();
     }
@@ -334,6 +337,7 @@ public class SimulationRunner {
      * Initialize all applications used in the simulation.
      */
     private void setupApplications() {
+        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
     }
 
     private ProtelisApp createProtelisApp() {
