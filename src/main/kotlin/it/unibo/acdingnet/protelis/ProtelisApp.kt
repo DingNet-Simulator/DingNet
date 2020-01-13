@@ -26,10 +26,10 @@ import java.util.*
 data class InfoProtelisApp @JvmOverloads constructor(
     val protelisProgram: String,
     val gpxFileTrace: String? = null,
-    val startingTimeTrace: Double = 0.0  // in ms
+    val startingTimeTrace: Double = 0.0 // in ms
 )
 
-class ProtelisApp (
+class ProtelisApp(
     infoProtelisApp: InfoProtelisApp,
     motes: List<Mote>,
     private val timer: GlobalClock
@@ -42,9 +42,11 @@ class ProtelisApp (
 
     init {
         val trace: List<Pair<StringUID, GPSTrace>> = infoProtelisApp.gpxFileTrace?.let {
-            LoadGPXFile.loadFile(this.javaClass.getResourceAsStream(it), infoProtelisApp.startingTimeTrace)
-            .filter { t -> t.positions.isNotEmpty() }
-            .map { t -> Pair(StringUID(UUID.randomUUID().toString()), t) }
+            LoadGPXFile.loadFile(
+                this.javaClass.getResourceAsStream(it),
+                infoProtelisApp.startingTimeTrace)
+                .filter { t -> t.positions.isNotEmpty() }
+                .map { t -> Pair(StringUID(UUID.randomUUID().toString()), t) }
         }.orEmpty()
 
         val nodes: MutableSet<Node> = motes.map { Node(StringUID("" + it.eui),
