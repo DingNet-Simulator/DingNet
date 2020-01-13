@@ -322,4 +322,5 @@ buildNumber.properties
 
 
 .cache
-
+moquette*.log
+.kotlintest/*
