@@ -577,6 +577,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         }
 
         mapViewer.setOverlayPainter(new CompoundPainterBuilder()
+            .withProtelisApp(simulationRunner.getProtelisApp())
             .withMotePaths(environment)
             .withMotes(environment)
             .withGateways(environment)
