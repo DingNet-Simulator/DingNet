@@ -1,6 +1,7 @@
 package it.unibo.acdingnet.protelis.node
 
 import iot.GlobalClock
+import it.unibo.acdingnet.protelis.executioncontext.SmartphoneEC
 import it.unibo.acdingnet.protelis.model.GPSTrace
 import it.unibo.acdingnet.protelis.util.millis
 import it.unibo.acdingnet.protelis.util.toGeoPosition
@@ -25,22 +26,23 @@ class SmartphoneNode(
     private val timer: GlobalClock,
     private val trace: GPSTrace,
     neighbors: Set<StringUID>
-) : GenericNode(protelisProgram, sleepTime, deviceUID, applicationUID, mqttClient, initialPosition, neighbors) {
-
+) : GenericNode(protelisProgram, sleepTime, deviceUID, applicationUID, mqttClient,
+    initialPosition, neighbors) {
 
     private val updatePositionTriggerId: Long
 
-    override fun createContext(): ExecutionContext {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun createContext(): ExecutionContext = SmartphoneEC(
+        this,
+        execContextMqttClient,
+        networkManager
+    )
 
     init {
         timer.addPeriodicTrigger(startingTime, sleepTime) { runVM() }
-        updatePositionTriggerId = timer.addPeriodicTrigger(startingTime.minusSeconds(1),
+        updatePositionTriggerId = timer.addPeriodicTrigger(startingTime.plusSeconds(sleepTime - 1),
             sleepTime) { position = move() } // generate MQTT message
     }
 
-    // TODO improve error check
     private fun move(): LatLongPosition {
         val currentTime = timer.time
         val next = trace.positions
@@ -52,7 +54,7 @@ class SmartphoneNode(
             return position
         }
         val (index, nextPos) = next
-        val prePos = trace.positions[index-1]
+        val prePos = trace.positions[index - 1]
         if (nextPos.time == prePos.time) {
             return nextPos.position
         }
