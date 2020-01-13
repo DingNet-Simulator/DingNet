@@ -1,6 +1,5 @@
 package util.xml;
 
-import gui.MainGUI;
 import iot.InputProfile;
 import iot.QualityOfService;
 import it.unibo.acdingnet.protelis.InfoProtelisApp;
@@ -14,16 +13,20 @@ import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class InputProfilesReader {
+
     public static List<InputProfile> readInputProfiles() {
+        return readInputProfiles(InputProfilesReader.class.getResourceAsStream("/inputProfiles/inputProfile.xml"));
+    }
+
+    public static List<InputProfile> readInputProfiles(InputStream fileStream) {
         List<InputProfile> inputProfiles = new LinkedList<>();
 
         try {
-            var fileStream = MainGUI.class.getResourceAsStream("/inputProfiles/inputProfile.xml");
-
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fileStream);
             Element inputProfilesElement = doc.getDocumentElement();
 
