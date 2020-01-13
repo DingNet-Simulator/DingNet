@@ -42,6 +42,7 @@ public class SimulationRunner {
     private List<MoteProbe> moteProbe;
     private PollutionGrid pollutionGrid;
 
+    private ProtelisApp protelisApp;
     private RoutingApplication routingApplication;
     private PollutionMonitor pollutionMonitor;
     private NetworkServer networkServer;
@@ -132,6 +133,9 @@ public class SimulationRunner {
         return pollutionGrid;
     }
 
+    public ProtelisApp getProtelisApp() {
+        return protelisApp;
+    }
 
     public void setApproach(String name) {
         var selectedAlgorithm = algorithms.stream()
@@ -165,7 +169,7 @@ public class SimulationRunner {
      */
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
-        new ProtelisApp(getEnvironment().getMotes(), getEnvironment().getClock());
+        protelisApp = new ProtelisApp(getEnvironment().getMotes(), getEnvironment().getClock());
         this.setupSimulationRunner();
     }
 
@@ -174,7 +178,7 @@ public class SimulationRunner {
      */
     public void setupTimedRun() {
         simulation.setupTimedRun();
-
+        protelisApp = new ProtelisApp(getEnvironment().getMotes(), getEnvironment().getClock());
         this.setupSimulationRunner();
     }
 
