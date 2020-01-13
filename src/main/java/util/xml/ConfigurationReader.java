@@ -158,11 +158,6 @@ public class ConfigurationReader {
         }
     }
 
-    private static boolean hasChild(Element root, String childName) {
-        return root.getElementsByTagName(childName).getLength() != 0;
-    }
-
-
     private static class MoteReader {
         protected Element node;
         protected Environment environment;
@@ -227,24 +222,18 @@ public class ConfigurationReader {
         }
 
         Optional<Integer> getStartMovementOffset() {
-            if (hasChild(node, "startMovementOffset")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startMovementOffset")));
-            }
-            return Optional.empty();
+            return XMLHelper.readOptionalChild(node, "startMovementOffset")
+                .map(Integer::parseInt);
         }
 
         Optional<Integer> getPeriodSendingPacket() {
-            if (hasChild(node, "periodSendingPacket")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "periodSendingPacket")));
-            }
-            return Optional.empty();
+            return XMLHelper.readOptionalChild(node, "periodSendingPacket")
+                .map(Integer::parseInt);
         }
 
         Optional<Integer> getStartSendingOffset() {
-            if (hasChild(node, "startSendingOffset")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startSendingOffset")));
-            }
-            return Optional.empty();
+            return XMLHelper.readOptionalChild(node, "startSendingOffset")
+                .map(Integer::parseInt);
         }
 
         public Mote buildMote() {
