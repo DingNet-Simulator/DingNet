@@ -15,16 +15,17 @@ class SensorNodeWrapper(
     sleepTime: Long,
     sensorDeviceUID: StringUID,
     applicationUID: String,
-    mqttClient: MqttClientBasicApi,
+    netManagerMqttClient: MqttClientBasicApi,
+    execContextMqttClient: MqttClientBasicApi,
     position: LatLongPosition,
     sensorTypes: List<SensorType>,
     val timer: GlobalClock,
     neighborhood: Set<StringUID>
-) : SensorNode(protelisProgram, sleepTime, sensorDeviceUID, applicationUID, mqttClient,
-    position, sensorTypes, neighborhood) {
+) : SensorNode(protelisProgram, sleepTime, sensorDeviceUID, applicationUID, netManagerMqttClient,
+    execContextMqttClient, position, sensorTypes, neighborhood) {
 
     override fun createContext(): SensorECForDingNet {
-        return SensorECForDingNet(this, applicationUID, mqttClient, networkManager)
+        return SensorECForDingNet(this, applicationUID, execContextMqttClient, networkManager)
     }
 
     init {

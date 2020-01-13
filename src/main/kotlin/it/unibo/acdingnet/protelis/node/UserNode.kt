@@ -17,13 +17,13 @@ class UserNode(
     position: LatLongPosition,
     sensorTypes: List<SensorType> = emptyList()
 ) : SensorNode(protelisProgram, sleepTime, userDeviceUID, applicationUID,
-    mqttClient, position, sensorTypes) {
+    mqttClient, mqttClient, position, sensorTypes) {
 
     override fun createContext(): ExecutionContext =
         UserExecutionContext(
             this,
             applicationUID,
-            mqttClient,
+            execContextMqttClient,
             networkManager
         )
 }

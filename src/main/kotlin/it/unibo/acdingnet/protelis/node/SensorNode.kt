@@ -14,18 +14,19 @@ open class SensorNode(
     sleepTime: Long,
     sensorDeviceUID: StringUID,
     applicationUID: String,
-    mqttClient: MqttClientBasicApi,
+    netManagerMqttClient: MqttClientBasicApi,
+    execContextMqttClient: MqttClientBasicApi,
     position: LatLongPosition,
     sensorTypes: List<SensorType>,
     neighbors: Set<StringUID> = emptySet()
 ) : NodeWithSensor(protelisProgram, sleepTime, sensorDeviceUID, applicationUID,
-    mqttClient, position, sensorTypes, neighbors) {
+    netManagerMqttClient, execContextMqttClient, position, sensorTypes, neighbors) {
 
     override fun createContext(): ExecutionContext =
         SensorExecutionContext(
             this,
             applicationUID,
-            mqttClient,
+            execContextMqttClient,
             networkManager
         )
 }
