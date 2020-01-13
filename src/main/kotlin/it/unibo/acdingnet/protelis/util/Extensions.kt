@@ -11,7 +11,8 @@ val Float.Companion.SIZE_BYTES: Int get() = 4
 
 val Double.Companion.SIZE_BYTES: Int get() = 8
 
-fun LatLongPosition.toGeoPosition(): GeoPosition = GeoPosition(this.getLatitude(), this.getLongitude())
+fun LatLongPosition.toGeoPosition(): GeoPosition =
+    GeoPosition(this.getLatitude(), this.getLongitude())
 
 fun LatLongPosition.travel(destination: LatLongPosition, distance: Double): LatLongPosition {
     val source = LatLng(getLatitude(), getLongitude())
@@ -21,4 +22,4 @@ fun LatLongPosition.travel(destination: LatLongPosition, distance: Double): LatL
         .also { return LatLongPosition(it) }
 }
 
-fun LocalTime.millis() : Double = this.toNanoOfDay().toDouble() / 1e6
+fun LocalTime.millis(): Double = this.toNanoOfDay().toDouble() / 1e6

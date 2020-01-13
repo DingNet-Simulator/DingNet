@@ -31,7 +31,7 @@ object LoadGPXFile {
         /*
          * Empty segments
          */
-        if (track.segments.map { it.points }.any { it.isEmpty() } ) {
+        if (track.segments.map { it.points }.any { it.isEmpty() }) {
             throw IllegalStateException("Track $track contains at least a segment with no points")
         }
 
@@ -40,7 +40,8 @@ object LoadGPXFile {
             .map { GPSPosition(
                 LatLongPosition(it.latitude.toDouble(), it.longitude.toDouble()),
                 it.time
-                    .orElseThrow { IllegalStateException("Track $track contains at least a waypoint without timestamp") }
+                    .orElseThrow { IllegalStateException(
+                        "Track $track contains at least a waypoint without timestamp") }
                     .toInstant().toEpochMilli().toDouble()
             ) }
             .sorted()
