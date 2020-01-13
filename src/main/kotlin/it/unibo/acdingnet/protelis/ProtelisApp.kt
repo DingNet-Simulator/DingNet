@@ -7,6 +7,7 @@ import iot.mqtt.TransmissionWrapper
 import iot.networkentity.Mote
 import iot.networkentity.UserMote
 import it.unibo.acdingnet.protelis.dingnetwrapper.SensorNodeWrapper
+import it.unibo.acdingnet.protelis.model.GPSTrace
 import it.unibo.acdingnet.protelis.model.SensorType
 import it.unibo.acdingnet.protelis.node.SmartphoneNode
 import it.unibo.acdingnet.protelis.util.Const
@@ -22,7 +23,17 @@ import org.protelis.lang.datatype.impl.StringUID
 import java.time.LocalTime
 import java.util.*
 
-class ProtelisApp(motes: List<Mote>, private val timer: GlobalClock) : Application(emptyList()) {
+data class InfoProtelisApp @JvmOverloads constructor(
+    val protelisProgram: String,
+    val gpxFileTrace: String? = null,
+    val startingTimeTrace: Double = 0.0  // in ms
+)
+
+class ProtelisApp (
+    infoProtelisApp: InfoProtelisApp,
+    motes: List<Mote>,
+    private val timer: GlobalClock
+) : Application(emptyList()) {
 
     private val neigh: NeighborhoodManager
     private val random = Random(2)
@@ -30,13 +41,11 @@ class ProtelisApp(motes: List<Mote>, private val timer: GlobalClock) : Applicati
     private val smartphone: List<SmartphoneNode>
 
     init {
-        // time get from Vienna demo of Alchemist
-        val trace = LoadGPXFile.loadFile(
-            this.javaClass.getResourceAsStream("/vcmuser.gpx"),
-            1365922800.0*1e3
-        )
-            .filter { it.positions.isNotEmpty() }
-            .map { Pair(StringUID(UUID.randomUUID().toString()), it) }
+        val trace: List<Pair<StringUID, GPSTrace>> = infoProtelisApp.gpxFileTrace?.let {
+            LoadGPXFile.loadFile(this.javaClass.getResourceAsStream(it), infoProtelisApp.startingTimeTrace)
+            .filter { t -> t.positions.isNotEmpty() }
+            .map { t -> Pair(StringUID(UUID.randomUUID().toString()), t) }
+        }.orEmpty()
 
         val nodes: MutableSet<Node> = motes.map { Node(StringUID("" + it.eui),
             LatLongPosition(it.pathPosition.latitude, it.pathPosition.longitude)) }.toMutableSet()
@@ -46,16 +55,12 @@ class ProtelisApp(motes: List<Mote>, private val timer: GlobalClock) : Applicati
         neigh = NeighborhoodManager(Const.APPLICATION_ID,
             MQTTClientFactory.getSingletonInstance(), Const.NEIGHBORHOOD_RANGE, nodes)
 
-        val protelisProgram = "gradient"/*SimulationRunner.getInstance()
-            .simulation.inputProfile.orElseThrow()
-            .protelisProgram.orElseThrow { IllegalStateException("protelis program not found") }
-*/
         node = motes
             .filter { it !is UserMote }
             .map {
                 val id = StringUID("" + it.eui)
                 SensorNodeWrapper(
-                    ProtelisLoader.parse(protelisProgram),
+                    ProtelisLoader.parse(infoProtelisApp.protelisProgram),
                     LocalTime.of(0, 0, 0, random.nextInt(100) * 1000000),
                     30,
                     id,
@@ -72,7 +77,7 @@ class ProtelisApp(motes: List<Mote>, private val timer: GlobalClock) : Applicati
         smartphone = trace
             .map {
                 SmartphoneNode(
-                    ProtelisLoader.parse(protelisProgram),
+                    ProtelisLoader.parse(infoProtelisApp.protelisProgram),
                     LocalTime.of(0, 0, 0, random.nextInt(100) * 1e6.toInt()),
                     10,
                     it.first,

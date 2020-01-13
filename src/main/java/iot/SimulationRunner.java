@@ -169,7 +169,7 @@ public class SimulationRunner {
      */
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
-        protelisApp = new ProtelisApp(getEnvironment().getMotes(), getEnvironment().getClock());
+        protelisApp = createProtelisApp();
         this.setupSimulationRunner();
     }
 
@@ -178,7 +178,7 @@ public class SimulationRunner {
      */
     public void setupTimedRun() {
         simulation.setupTimedRun();
-        protelisApp = new ProtelisApp(getEnvironment().getMotes(), getEnvironment().getClock());
+        protelisApp = createProtelisApp();
         this.setupSimulationRunner();
     }
 
@@ -334,6 +334,16 @@ public class SimulationRunner {
      * Initialize all applications used in the simulation.
      */
     private void setupApplications() {
+    }
+
+    private ProtelisApp createProtelisApp() {
+        return new ProtelisApp(
+            simulation.getInputProfile()
+                .orElseThrow(() -> new IllegalStateException("input profile no selected"))
+                .getInfoProtelisApp()
+                .orElseThrow(() -> new IllegalStateException("info of protelis program not specified")),
+            getEnvironment().getMotes(),
+            getEnvironment().getClock());
     }
 
     // endregion

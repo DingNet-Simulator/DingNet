@@ -3,6 +3,7 @@ package util.xml;
 import gui.MainGUI;
 import iot.InputProfile;
 import iot.QualityOfService;
+import it.unibo.acdingnet.protelis.InfoProtelisApp;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -39,7 +40,20 @@ public class InputProfilesReader {
                                             .filter(c -> c.toString().equals(timeUnitName))
                                             .findFirst();
 
-                String protelisProgram = XMLHelper.readChild(inputProfileElement, "protelisProgram");
+                var protelisInfo = (Element) inputProfileElement.getElementsByTagName("protelisApp").item(0);
+                var protelisProgram = XMLHelper.readOptionalChild(protelisInfo, "protelisProgram");
+                var gpxFile = XMLHelper.readOptionalChild(protelisInfo, "gpxFileResource");
+                var startingTimeTrace = XMLHelper.readOptionalChild(protelisInfo, "startingTimeTrace");
+                var protelisAppInfo = protelisProgram.map(m -> {
+                    if (gpxFile.isPresent()) {
+                        if (startingTimeTrace.isPresent()) {
+                            return new InfoProtelisApp(m, gpxFile.get(), startingTimeTrace.map(Double::parseDouble).get());
+                        }
+                        return new InfoProtelisApp(m, gpxFile.get());
+                    }
+                    return new InfoProtelisApp(m);
+                }).orElse(null);
+
 
                 Element QoSElement = (Element) inputProfileElement.getElementsByTagName("QoS").item(0);
                 HashMap<String, AdaptationGoal> adaptationGoalHashMap = new HashMap<>();
@@ -89,7 +103,7 @@ public class InputProfilesReader {
                         inputProfileElement,
                         simulationDuration,
                         chronoUnit,
-                        protelisProgram))
+                        protelisAppInfo))
                     .orElseGet(() -> new InputProfile(
                         name,
                         new QualityOfService(adaptationGoalHashMap),
