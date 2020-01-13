@@ -38,6 +38,9 @@ public class MQTTClientFactory {
     public static MqttClientBasicApi getSingletonInstance() {
         if (clientBasicApi == null) {
             var builder = new ClientBuilder();
+            if (DEFAULT_INSTANCE_TYPE == MqttClientType.MOCK_SERIALIZATION) {
+                addAdapters(builder);
+            }
             if (DEFAULT_INSTANCE_TYPE == MqttClientType.PAHO) {
                 addAdapters(builder)
                     .setAddress(ADDRESS)
