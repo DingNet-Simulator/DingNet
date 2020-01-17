@@ -1,7 +1,6 @@
 package util.xml;
 
 import iot.Simulation;
-import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.NetworkEntity;
@@ -72,11 +71,16 @@ public class SimulationWriter {
 
     private static Element writeLoraTransmissions(Document doc, NetworkEntity networkEntity, int run, Simulation simulation) {
         Element receivedTransmissions = doc.createElement("receivedTransmissions");
-        int i = 0;
         var env = simulation.getEnvironment();
         Statistics statistics = Statistics.getInstance();
-
-        for (LoraTransmission transmission : statistics.getSentTransmissions(networkEntity.getEUI(), run)) {
+        var transmissions = statistics.getSentTransmissions(networkEntity.getEUI(), run);
+        var usedEnergy = statistics.getUsedEnergy(networkEntity.getEUI(), run);
+        var powerSettingHistory = statistics.getPowerSettingHistory(networkEntity.getEUI(), run);
+        if (transmissions.size() != usedEnergy.size() || transmissions.size() != powerSettingHistory.size()) {
+            throw new IllegalStateException();
+        }
+        for (int i = 0; i < transmissions.size(); i++) {
+            var transmission = transmissions.get(i);
             Element receivedTransmissionElement = doc.createElement("receivedTransmission");
             Element sender = doc.createElement("sender");
 
@@ -118,7 +122,10 @@ public class SimulationWriter {
             timeOnAir.appendChild(doc.createTextNode(Double.toString(transmission.getTimeOnAir())));
 
             Element powerSetting = doc.createElement("powerSetting");
-            powerSetting.appendChild(doc.createTextNode(statistics.getPowerSettingHistory(networkEntity.getEUI(), run).get(i).toString()));
+            powerSetting.appendChild(doc.createTextNode(powerSettingHistory.get(i).getRight().toString()));
+
+            Element energy = doc.createElement("energyUsed");
+            energy.appendChild(doc.createTextNode(usedEnergy.get(i).toString()));
 
             Element collision = doc.createElement("collision");
             collision.appendChild(doc.createTextNode(Boolean.toString(transmission.isCollided())));
@@ -132,11 +139,11 @@ public class SimulationWriter {
             receivedTransmissionElement.appendChild(departureTime);
             receivedTransmissionElement.appendChild(timeOnAir);
             receivedTransmissionElement.appendChild(powerSetting);
+            receivedTransmissionElement.appendChild(energy);
             receivedTransmissionElement.appendChild(collision);
 
             receivedTransmissions.appendChild(receivedTransmissionElement);
 
-            i++;
         }
         return receivedTransmissions;
     }
