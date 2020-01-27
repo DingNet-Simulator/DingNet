@@ -31,6 +31,8 @@ public class Mote extends NetworkEntity {
     // default application identifier
     private static final long DEFAULT_APPLICATION_EUI = 1;
 
+    private static final int TIME_TO_IGNORE_SAME_PACKET = 1;
+
 
     // A List of MoteSensors representing all sensors on the mote.
     @Model
@@ -262,7 +264,7 @@ public class Mote extends NetworkEntity {
             clock.removeTrigger(keepAliveTriggerId);
         }
         keepAliveTriggerId = clock.addTriggerOneShot(
-            clock.getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
+            clock.getTime().plusSeconds(offset + periodSendingPacket * TIME_TO_IGNORE_SAME_PACKET), //TODO configure parameter
             () -> {
                 byte[] payload;
                 if (lastPacketSent == null) {
