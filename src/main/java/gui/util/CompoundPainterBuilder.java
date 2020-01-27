@@ -117,7 +117,9 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withPollutionGrid(Environment environment, PollutionGrid pollutionGrid) {
-        painters.add(new PollutionGridPainter(environment, pollutionGrid));
+        if (pollutionGrid != null) {
+            painters.add(new PollutionGridPainter(environment, pollutionGrid));
+        }
         return this;
     }
 
