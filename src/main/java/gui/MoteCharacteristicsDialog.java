@@ -22,7 +22,7 @@ public class MoteCharacteristicsDialog extends JDialog {
         packetsSentLabel.setText(Integer.toString(packetsSent));
         packetsLostLabel.setText(Integer.toString(packetsLost));
         packetLossLabel.setText((Math.round((double) packetsLost / (double) packetsSent * 10000) / 100) + "%");
-        energyLabel.setText((Math.round(usedEnergy * 100) / 100) + " mJ");
+        energyLabel.setText((Math.round(usedEnergy * 100) / 100.0) + " mJ");
 
         buttonOK.addActionListener(e -> dispose());
     }
