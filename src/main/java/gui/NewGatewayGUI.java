@@ -65,11 +65,11 @@ public class NewGatewayGUI {
     }
 
     private void updateLatField() {
-        GUIUtil.updateTextFieldCoordinate(LongitudeTextField, environment.getMapHelper().toLongitude((int) xPosSpinner.getValue()), "E", "W");
+        GUIUtil.updateTextFieldCoordinate(LongitudeTextField, environment.getMapHelper().toLongitude((int) xPosSpinner.getValue()), "long");
     }
 
     private void updateLonField() {
-        GUIUtil.updateTextFieldCoordinate(LatitudeTextField, environment.getMapHelper().toLatitude((int) yPosSpinner.getValue()), "N", "S");
+        GUIUtil.updateTextFieldCoordinate(LatitudeTextField, environment.getMapHelper().toLatitude((int) yPosSpinner.getValue()), "lat");
     }
 
     public JPanel getMainPanel() {

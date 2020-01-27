@@ -178,6 +178,7 @@ public class MapHelper {
      * Class which represents a geo coordinate in degrees, minutes and seconds.
      */
     public static class DegreesMinutesSeconds {
+        public static final String DEGREE_SYMBOL_CODE = "\u00ba";
         int degrees;
         int minutes;
         double seconds;
@@ -189,7 +190,7 @@ public class MapHelper {
         }
 
         public String toString() {
-            return String.format("%d° %d' %.2f\"", this.degrees, this.minutes, this.seconds);
+            return String.format("%d" + DEGREE_SYMBOL_CODE + " %d' %.2f\"", this.degrees, this.minutes, this.seconds);
         }
     }
 }

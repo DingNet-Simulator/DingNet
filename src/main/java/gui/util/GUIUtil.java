@@ -98,36 +98,30 @@ public class GUIUtil {
     }
 
 
-    public static void updateTextFieldCoordinate(JTextField field, double value, String alt1, String alt2) {
-        field.setText(coordinateToString(value, alt1, alt2));
+    public static void updateTextFieldCoordinate(JTextField field, double value, String axis) {
+        field.setText(coordinateToString(value, axis));
     }
 
 
     public static void updateLabelCoordinateLat(JLabel label, double value) {
-        updateLabelCoordinate(label, value, "E", "W");
+        updateLabelCoordinate(label, value, "lat");
     }
 
     public static void updateLabelCoordinateLon(JLabel label, double value) {
-        updateLabelCoordinate(label, value, "N", "S");
+        updateLabelCoordinate(label, value, "long");
     }
 
-    private static void updateLabelCoordinate(JLabel label, double value, String alt1, String alt2) {
-        label.setText(coordinateToString(value, alt1, alt2));
+    private static void updateLabelCoordinate(JLabel label, double value, String axis) {
+        label.setText(coordinateToString(value, axis));
     }
 
     /**
      * Convert a geo coordinate value to a representing string.
      * @param value The coordinate value.
-     * @param alt1 The default direction (e.g. N).
-     * @param alt2 The alternative direction (e.g. S).
+     * @param axis
      * @return A String which includes the geo coordinate.
      */
-    private static String coordinateToString(double value, String alt1, String alt2) {
-        // TODO clean up magic numbers
-        int degrees = (int) Math.floor(value);
-        int minutes = (int) Math.floor((value - degrees) * 60);
-        double seconds = (double) Math.round(((value - degrees) * 60 - minutes) * 60 * 1000d) / 1000d;
-
-        return String.format("%s %d° %d' %.2f\"", value > 0 ? alt1 : alt2, degrees, minutes, seconds);
+    private static String coordinateToString(double value, String axis) {
+        return MapHelper.getDirectionSign(value, axis) + MapHelper.toDegreeMinuteSecond(value);
     }
 }
