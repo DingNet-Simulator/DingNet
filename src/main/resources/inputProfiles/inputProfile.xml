@@ -6,9 +6,7 @@
         <simulationDuration>2</simulationDuration>
         <timeUnit>Hours</timeUnit>
         <protelisApp>
-            <protelisProgram>gradient</protelisProgram>
-            <gpxFileResource>/vcmuser.gpx</gpxFileResource>
-            <startingTimeTrace>1365922800000</startingTimeTrace>
+            <protelisProgram>protelis:homeHeating_timer</protelisProgram>
         </protelisApp>
         <QoS>
             <adaptationGoal type="interval">
@@ -57,7 +55,11 @@
         <simulationDuration>2</simulationDuration>
         <timeUnit>Hours</timeUnit>
         <numberOfRuns>10</numberOfRuns>
-        <protelisApp/>
+        <protelisApp>
+            <protelisProgram>gradient</protelisProgram>
+            <gpxFileResource>/vcmuser.gpx</gpxFileResource>
+            <startingTimeTrace>1365922800000</startingTimeTrace>
+        </protelisApp>
         <QoS>
             <adaptationGoal type="interval">
                 <name>reliableCommunication</name>
