@@ -21,4 +21,8 @@ public interface Time {
     Time plusSeconds(double seconds);
 
     Time plusMinutes(double minutes);
+
+    boolean isAfter(Time other);
+
+    boolean isBefore(Time other);
 }

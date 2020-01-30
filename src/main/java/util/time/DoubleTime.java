@@ -2,6 +2,8 @@ package util.time;
 
 import util.TimeHelper;
 
+import java.util.Objects;
+
 /**
  * Immutable class, default unit of measure is milliseconds
  */
@@ -25,6 +27,14 @@ public class DoubleTime implements Time{
         this.timeUnit = timeUnit;
     }
     // endregion
+
+    static public Time zero() {
+        return new DoubleTime(0);
+    }
+
+    static public Time fromSeconds(double time) {
+        return new DoubleTime(time * 1e3);
+    }
 
     @Override
     public double asNano() {
@@ -74,5 +84,37 @@ public class DoubleTime implements Time{
     @Override
     public Time plusMinutes(double minutes) {
         return plusSeconds(minutes * 60);
+    }
+
+    @Override
+    public boolean isAfter(Time other) {
+        return asMilli() > other.asMilli();
+    }
+
+    @Override
+    public boolean isBefore(Time other) {
+        return asMilli() < other.asMilli();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DoubleTime that = (DoubleTime) o;
+        return Double.compare(that.time, time) == 0 &&
+            timeUnit == that.timeUnit;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, timeUnit);
+    }
+
+    @Override
+    public String toString() {
+        return "DoubleTime[" +
+            "time=" + time +
+            ", timeUnit=" + timeUnit +
+            ']';
     }
 }
