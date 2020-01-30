@@ -5,10 +5,10 @@ import com.uchuhimo.konf.Config;
 import datagenerator.SensorDataGenerator;
 import datagenerator.rangedsensor.api.Cell;
 import datagenerator.rangedsensor.api.RangeValue;
-import datagenerator.rangedsensor.api.TimeUnit;
 import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
+import util.time.TimeUnit;
 
 import java.time.LocalTime;
 import java.util.LinkedList;

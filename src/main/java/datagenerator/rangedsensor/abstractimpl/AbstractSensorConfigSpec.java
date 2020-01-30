@@ -4,7 +4,7 @@ import com.uchuhimo.konf.ConfigSpec;
 import com.uchuhimo.konf.RequiredItem;
 import datagenerator.rangedsensor.api.Cell;
 import datagenerator.rangedsensor.api.RangeValue;
-import datagenerator.rangedsensor.api.TimeUnit;
+import util.time.TimeUnit;
 
 import java.util.List;
 

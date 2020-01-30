@@ -1,4 +1,4 @@
-package datagenerator.rangedsensor.api;
+package util.time;
 
 public enum TimeUnit {
 
@@ -17,6 +17,10 @@ public enum TimeUnit {
     }
 
     public double convertFromNano(long nanoSeconds) {
+        return nanoSeconds / v;
+    }
+
+    public double convertFromNano(double nanoSeconds) {
         return nanoSeconds / v;
     }
 }
