@@ -1,0 +1,26 @@
+module protelis:homeHeating_timer
+
+import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.*
+import org.protelis.lang.datatype.Option.*
+import protelis:state:time
+
+//list of option of tuple of pollution
+let pollutionField = nbr(mux(env.has("pm10")) {
+	optionally([self.nbrRange(), self.getCoordinates(), env.get("pm10")])
+} else {
+	absent()
+})
+if (env.has("pm10")) {
+	self.log(env.get("pm10").toString())
+}
+if (env.has(NODE_TYPE) && env.get(NODE_TYPE) == BUILDING_TYPE) {
+//	self.prova();
+//	self.log(env.get(CURRENT_TEMP).toString());
+	if (env.get(CURRENT_TEMP) > local(self.maxTempByPollution(pollutionField))) {
+		env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) { if(cyclicTimer(7200)) { v - self.getDecreaseDelta() } else { v }})
+	} else {
+		if (env.get(DESIRED_TEMP) != env.get(CURRENT_TEMP)) {
+			env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) { if(cyclicTimer(7200)) { v + self.getIncreaseDelta() } else { v }})
+		}
+	}
+}
