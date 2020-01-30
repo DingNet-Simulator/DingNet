@@ -6,6 +6,8 @@ import it.unibo.acdingnet.protelis.model.SensorType
 import it.unibo.acdingnet.protelis.mqtt.LoRaTransmissionWrapper
 import it.unibo.acdingnet.protelis.node.SensorNode
 import it.unibo.acdingnet.protelis.util.Const
+import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.NODE_TYPE
+import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.SENSOR_TYPE
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import it.unibo.protelisovermqtt.executioncontext.MQTTPositionedExecutionContext
 import it.unibo.protelisovermqtt.util.Topics
@@ -27,9 +29,10 @@ open class SensorExecutionContext @JvmOverloads constructor(
 
     init {
         subscribeTopic(Topics.nodeReceiveTopic(applicationUID, sensorNode.deviceUID),
-            LoRaTransmissionWrapper::class.java) { topic, msg ->
-            handleDeviceTransmission(topic, msg.transmission)
+            LoRaTransmissionWrapper::class.java) { _, msg ->
+            handleDeviceTransmission(msg.transmission)
         }
+        execEnvironment.put(NODE_TYPE, SENSOR_TYPE)
     }
 
     override fun instance(): SensorExecutionContext =
@@ -42,16 +45,19 @@ open class SensorExecutionContext @JvmOverloads constructor(
             execEnvironment
         )
 
-    protected fun handleDeviceTransmission(topic: String, message: LoRaTransmission) {
+    protected fun handleDeviceTransmission(message: LoRaTransmission) {
         val payload = message.content.payload.toMutableList()
         if (payload.isNotEmpty() && payload[0] == MessageType.SENSOR_VALUE.code) {
             payload.removeAt(0)
             sensorNode.sensorTypes.forEach {
                 when (it) {
                     SensorType.GPS -> sensorNode.position = it.consumeAndConvert(payload)
-                    SensorType.IAQ -> {} // log("${it.consumeAndConvert<Double>(payload)}")
-                    else -> sensorsValue = sensorsValue.plus(
-                        Pair(it, it.consumeAndConvert(payload)))
+                    SensorType.IAQ -> throw IllegalArgumentException("IAQ sensor shouldn't be used")
+                    else -> {
+                        val value: Double = it.consumeAndConvert(payload)
+                        execEnvironment.put(it.name, value)
+                        sensorsValue = sensorsValue.plus(Pair(it, value))
+                    }
                 }
             }
             sensorsValue
