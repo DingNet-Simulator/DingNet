@@ -1,5 +1,3 @@
-import kotlin.String
-
 /**
  * Find which updates are available by running
  *     `$ ./gradlew buildSrcVersions`
@@ -55,7 +53,7 @@ object Versions {
 
     const val jxmapviewer2: String = "2.4" // available: "2.5"
 
-    const val protelis: String = "13.0.3" // available: "13.1.1"
+    const val protelis: String = "13.1.1"
 
     /**
      *
