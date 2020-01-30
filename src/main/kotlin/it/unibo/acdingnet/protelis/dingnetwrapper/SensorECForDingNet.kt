@@ -2,8 +2,11 @@ package it.unibo.acdingnet.protelis.dingnetwrapper
 
 import iot.GlobalClock
 import it.unibo.acdingnet.protelis.executioncontext.SensorExecutionContext
+import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.NODE_TYPE
+import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.SENSOR_TYPE
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import org.protelis.vm.NetworkManager
+
 
 class SensorECForDingNet(
     private val sensorNode: SensorNodeWrapper,
@@ -14,7 +17,8 @@ class SensorECForDingNet(
     private val timer: GlobalClock = sensorNode.timer
 
     init {
-        execEnvironment.put("leader", (sensorNode.deviceUID.uid as String) == "6007316430752245294")
+        execEnvironment.put(NODE_TYPE, SENSOR_TYPE)
+        execEnvironment.put("pm10", 55.1)
     }
 
     override fun instance(): SensorECForDingNet {
@@ -22,6 +26,6 @@ class SensorECForDingNet(
     }
 
     override fun getCurrentTime(): Number {
-        return timer.time.nano / 1E6
+        return timer.time.second
     }
 }
