@@ -29,8 +29,8 @@ class UserExecutionContext(
 
     init {
         subscribeTopic(Topics.nodeReceiveTopic(applicationUID, userNode.deviceUID),
-            LoRaTransmissionWrapper::class.java) { topic, msg ->
-            handleUserDeviceTransmission(topic, msg.transmission)
+            LoRaTransmissionWrapper::class.java) { _, msg ->
+            handleUserDeviceTransmission(msg.transmission)
         }
     }
 
@@ -44,11 +44,11 @@ class UserExecutionContext(
             execEnvironment
         )
 
-    private fun handleUserDeviceTransmission(topic: String, message: LoRaTransmission) {
+    private fun handleUserDeviceTransmission(message: LoRaTransmission) {
         val payload = message.content.payload
         if (payload.isNotEmpty()) {
             when (payload[0]) {
-                MessageType.SENSOR_VALUE.code -> super.handleDeviceTransmission(topic, message)
+                MessageType.SENSOR_VALUE.code -> super.handleDeviceTransmission(message)
                 MessageType.REQUEST_PATH.code -> handleRequestPath(payload.toMutableList().also {
                     it.removeAt(0) })
                 else -> throw IllegalArgumentException("message type not supported")
