@@ -1,6 +1,6 @@
 package it.unibo.acdingnet.protelis.model
 
-import java.time.LocalTime
+import util.time.Time
 
 data class FrameHeaderApp(
     val sourceAddress: List<Byte>,
@@ -28,7 +28,7 @@ data class LoRaTransmission(
     val yPos: Int,
     val content: LoRaWanPacket,
     val regionalParameter: String,
-    val departureTime: LocalTime,
+    val departureTime: Time,
     val timeOnAir: Double,
     val arrived: Boolean,
     val collided: Boolean

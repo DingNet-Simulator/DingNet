@@ -8,11 +8,11 @@ import it.unibo.protelisovermqtt.node.GenericNode
 import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ExecutionContext
 import org.protelis.vm.ProtelisProgram
-import java.time.LocalTime
+import util.time.Time
 
 open class BuildingNode(
     protelisProgram: ProtelisProgram,
-    startingTime: LocalTime,
+    startingTime: Time,
     sleepTime: Long,
     deviceUID: StringUID,
     applicationUID: String,

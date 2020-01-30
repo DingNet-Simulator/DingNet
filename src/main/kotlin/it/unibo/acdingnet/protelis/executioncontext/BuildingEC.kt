@@ -45,7 +45,7 @@ class BuildingEC(
     fun getIncreaseDelta() = deltaTemp
 
     override fun getCurrentTime(): Number {
-        return buildingNode.timer.time.second
+        return buildingNode.timer.time.asSecond()
     }
 
     fun prova() {

@@ -11,8 +11,9 @@ import iot.strategy.consume.ReplacePath;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.Path;
+import util.time.DoubleTime;
+import util.time.Time;
 
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class UserMote extends Mote {
     // the user mote can ask for a path only if this property is true
     private boolean isActive = false;
     private GeoPosition destination;
-    private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
+    private final Time whenAskPath = DoubleTime.fromSeconds(15);
     private boolean alreadyRequested;
 
     UserMote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,

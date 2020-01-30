@@ -7,11 +7,11 @@ import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import it.unibo.protelisovermqtt.model.LatLongPosition
 import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ProtelisProgram
-import java.time.LocalTime
+import util.time.Time
 
 class SensorNodeWrapper(
     protelisProgram: ProtelisProgram,
-    startingTime: LocalTime?,
+    startingTime: Time,
     sleepTime: Long,
     sensorDeviceUID: StringUID,
     applicationUID: String,

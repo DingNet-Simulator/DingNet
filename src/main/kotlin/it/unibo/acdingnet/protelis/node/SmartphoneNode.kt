@@ -13,11 +13,11 @@ import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ExecutionContext
 import org.protelis.vm.ProtelisProgram
 import util.MapHelper
-import java.time.LocalTime
+import util.time.Time
 
 class SmartphoneNode(
     protelisProgram: ProtelisProgram,
-    startingTime: LocalTime,
+    startingTime: Time,
     sleepTime: Long,
     deviceUID: StringUID,
     applicationUID: String,
@@ -39,7 +39,7 @@ class SmartphoneNode(
 
     init {
         timer.addPeriodicTrigger(startingTime, sleepTime) { runVM() }
-        updatePositionTriggerId = timer.addPeriodicTrigger(startingTime.plusSeconds(sleepTime - 1),
+        updatePositionTriggerId = timer.addPeriodicTrigger(startingTime.plusSeconds((sleepTime - 1).toDouble()),
             sleepTime) { position = move() } // generate MQTT message
     }
 
@@ -47,7 +47,7 @@ class SmartphoneNode(
         val currentTime = timer.time
         val next = trace.positions
             .mapIndexed { index, pos -> Pair(index, pos) }
-            .firstOrNull { it.second.time > currentTime.millis() }
+            .firstOrNull { it.second.time > currentTime.asMilli() }
             ?: return position
         // if the next position to reach is the first of the trace -> DON'T move
         if (next.first == 0) {
@@ -58,7 +58,7 @@ class SmartphoneNode(
         if (nextPos.time == prePos.time) {
             return nextPos.position
         }
-        val traveledTime = (currentTime.millis() - prePos.time) / (nextPos.time - prePos.time)
+        val traveledTime = (currentTime.asMilli() - prePos.time) / (nextPos.time - prePos.time)
         val distanceToTravel = MapHelper.distanceMeter(prePos.position.toGeoPosition(),
             nextPos.position.toGeoPosition()) * traveledTime
         return prePos.position.travel(nextPos.position, distanceToTravel)

@@ -282,7 +282,7 @@ public abstract class NetworkEntity implements Serializable {
         sender.send(message, recs)
             .ifPresent(t -> {
                 Statistics statistics = Statistics.getInstance();
-                statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toSecondOfDay(), getTransmissionPower());
+                statistics.addPowerSettingEntry(this.getEUI(), (int)environment.getClock().getTime().asSecond(), getTransmissionPower());
                 statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
                 statistics.addSentTransmissionsEntry(this.getEUI(), t);
             });

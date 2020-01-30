@@ -1,9 +1,9 @@
 package iot;
 
 import util.TimeHelper;
+import util.time.DoubleTime;
+import util.time.Time;
 
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -17,12 +17,12 @@ public class GlobalClock {
     /**
      * A representation of time.
      */
-    private LocalTime time;
+    private Time time;
 
-    private Map<LocalTime, List<Trigger>> triggers;
+    private Map<Time, List<Trigger>> triggers;
 
     public GlobalClock() {
-        time = LocalTime.of(0, 0);
+        time = DoubleTime.zero();
         triggers = new HashMap<>();
     }
 
@@ -30,7 +30,7 @@ public class GlobalClock {
      * Returns the current time.
      * @return The current time.
      */
-    public LocalTime getTime() {
+    public Time getTime() {
         return time;
     }
 
@@ -41,7 +41,7 @@ public class GlobalClock {
      */
     public void tick(long milliSeconds) {
         for (long i = milliSeconds; i > 0; i--) {
-            this.time = this.time.plus(1, ChronoUnit.MILLIS);
+            this.time = this.time.plusMillis(1);
             fireTrigger();
         }
     }
@@ -52,24 +52,24 @@ public class GlobalClock {
      * @post all events are removed
      */
     public void reset() {
-        this.time = LocalTime.of(0, 0);
+        this.time = DoubleTime.zero();
         triggers = new HashMap<>();
     }
 
-    public boolean containsTriggers(LocalTime time) {
+    public boolean containsTriggers(Time time) {
         return triggers.containsKey(time);
     }
 
-    public long addTrigger(LocalTime time, Supplier<LocalTime> trigger) {
+    public long addTrigger(Time time, Supplier<Time> trigger) {
         var trig = new Trigger(trigger);
         addTrigger(TimeHelper.roundToMilli(time), trig);
         return trig.getUid();
     }
 
-    public long addTriggerOneShot(LocalTime time, Runnable trigger) {
+    public long addTriggerOneShot(Time time, Runnable trigger) {
         return addTrigger(time, () -> {
             trigger.run();
-            return LocalTime.of(0, 0);
+            return DoubleTime.zero();
         });
     }
 
@@ -80,14 +80,14 @@ public class GlobalClock {
      * @param trigger the trigger
      * @return the trigger id
      */
-    public long addPeriodicTrigger(LocalTime startingTime, long period, Runnable trigger) {
+    public long addPeriodicTrigger(Time startingTime, long period, Runnable trigger) {
         return addTrigger(startingTime, () -> {
             trigger.run();
             return getTime().plusSeconds(period);
         });
     }
 
-    private void addTrigger(LocalTime time, Trigger trigger) {
+    private void addTrigger(Time time, Trigger trigger) {
         if (containsTriggers(time)) {
             triggers.get(time).add(0, trigger);
         } else {
@@ -97,7 +97,7 @@ public class GlobalClock {
     }
 
     public boolean removeTrigger(long triggerId) {
-        for (Map.Entry<LocalTime, List<Trigger>> e: triggers.entrySet()) {
+        for (Map.Entry<Time, List<Trigger>> e: triggers.entrySet()) {
             if (e.getValue().removeIf(p -> p.getUid() == triggerId)) {
                 return true;
             }
@@ -112,7 +112,7 @@ public class GlobalClock {
             //noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < triggersToFire.size(); i++) {
                 var trigger = triggersToFire.get(i);
-                LocalTime newTime = trigger.getCallback().get();
+                Time newTime = trigger.getCallback().get();
                 if (newTime.isAfter(getTime())) {
                     addTrigger(newTime, trigger);
                 }
@@ -124,9 +124,9 @@ public class GlobalClock {
     private static class Trigger {
 
         private final long uid;
-        private final Supplier<LocalTime> callback;
+        private final Supplier<Time> callback;
 
-        public Trigger(Supplier<LocalTime> callback) {
+        public Trigger(Supplier<Time> callback) {
             uid = nextTriggerUid++;
             this.callback = callback;
         }
@@ -135,7 +135,7 @@ public class GlobalClock {
             return uid;
         }
 
-        public Supplier<LocalTime> getCallback() {
+        public Supplier<Time> getCallback() {
             return callback;
         }
 

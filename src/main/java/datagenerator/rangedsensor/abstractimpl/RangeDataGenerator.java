@@ -8,9 +8,9 @@ import datagenerator.rangedsensor.api.RangeValue;
 import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
+import util.time.Time;
 import util.time.TimeUnit;
 
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +66,9 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     protected abstract String getDefaultConfigFilePath();
 
     @Override
-    public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
+    public byte[] generateData(int x, int y, GeoPosition graphPosition, Time time) {
         return map.getOrDefault(calcSquare(x, y), new LinkedList<>()).stream()
-            .filter(c -> c.getFromTime() < timeUnit.convertFromNano(time.toNanoOfDay()))
+            .filter(c -> c.getFromTime() < timeUnit.convertFromNano(time.asNano()))
             .findFirst()// the list of cell is ordered for time
             .map(Cell::getLevel)
             .orElse(defaultLevel)
@@ -76,7 +76,7 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     }
 
     @Override
-    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
+    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, Time time) {
         return generateData(pos.getLeft(), pos.getRight(), graphPosition, time);
     }
 

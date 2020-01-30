@@ -4,9 +4,9 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
 import util.Pair;
+import util.time.Time;
 
 import java.io.Serializable;
-import java.time.LocalTime;
 import java.util.Objects;
 
 /**
@@ -56,7 +56,7 @@ public class LoraTransmission implements Serializable {
     /**
      * The departure time of the message
      */
-    private final LocalTime departureTime;
+    private final Time departureTime;
 
     /**
      * The time on air of a transmission.
@@ -86,7 +86,7 @@ public class LoraTransmission implements Serializable {
      */
     public LoraTransmission(long sender, long receiver, Pair<Integer, Integer> positionSender,
                             double transmissionPower, RegionalParameter regionalParameter, double timeOnAir,
-                            LocalTime departureTime, LoraWanPacket content) {
+                            Time departureTime, LoraWanPacket content) {
 
         this.sender = sender;
         this.receiver = receiver;
@@ -130,7 +130,7 @@ public class LoraTransmission implements Serializable {
      * Returns the departure time of the transmission.
      * @return  The departure time of the transmission.
      */
-    public LocalTime getDepartureTime() {
+    public Time getDepartureTime() {
         return departureTime;
     }
 

@@ -2,8 +2,7 @@ package datagenerator;
 
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
-
-import java.time.LocalTime;
+import util.time.Time;
 
 /**
  * An abstract class representing all sensor data generators
@@ -17,8 +16,8 @@ public interface SensorDataGenerator {
      * @param time time of measurement.
      * @return sensor data based on location and time.
      */
-    byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time);
-    byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time);
+    byte[] generateData(int x, int y, GeoPosition graphPosition, Time time);
+    byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, Time time);
     double nonStaticDataGeneration(double x, double y);
 
     /**

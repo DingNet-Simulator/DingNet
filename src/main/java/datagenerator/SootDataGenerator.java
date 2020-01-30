@@ -2,8 +2,8 @@ package datagenerator;
 
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
+import util.time.Time;
 
-import java.time.LocalTime;
 import java.util.Random;
 
 /**
@@ -41,12 +41,12 @@ public class SootDataGenerator implements SensorDataGenerator {
      * @return A measurement of soot at the given position and time.
      */
     @Override
-    public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
+    public byte[] generateData(int x, int y, GeoPosition graphPosition, Time time) {
         double result = SootDataGenerator.generateData(x, y);
         return new byte[]{(byte) Math.floorMod((int) Math.round(result), 255)};
     }
     @Override
-    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
+    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, Time time) {
         return this.generateData(pos.getLeft(), pos.getRight(), graphPosition, time);
     }
 }

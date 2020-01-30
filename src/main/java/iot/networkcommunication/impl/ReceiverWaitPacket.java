@@ -7,8 +7,6 @@ import iot.networkentity.NetworkEntity;
 import util.Pair;
 import util.TimeHelper;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -47,7 +45,7 @@ public class ReceiverWaitPacket implements Receiver {
             transmission.setCollided();
         }
         transmissions.add(transmission);
-        clock.addTriggerOneShot(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS), () -> {
+        clock.addTriggerOneShot(transmission.getDepartureTime().plusMillis(transmission.getTimeOnAir()), () -> {
             transmission.setArrived();
             consumerPacket.accept(transmission);
         });
@@ -62,9 +60,9 @@ public class ReceiverWaitPacket implements Receiver {
     private boolean collision(LoraTransmission a, LoraTransmission b) {
         return a.getSpreadingFactor() == b.getSpreadingFactor() &&     //check spreading factor
             a.getTransmissionPower() - b.getTransmissionPower() < transmissionPowerThreshold && //check transmission power
-            Math.abs(Duration.between(a.getDepartureTime().plusNanos(TimeHelper.miliToNano((long)a.getTimeOnAir()) / 2), //check time on air
-                b.getDepartureTime().plusNanos(TimeHelper.miliToNano((long)b.getTimeOnAir()) / 2)).toNanos())
-                < TimeHelper.miliToNano((long)a.getTimeOnAir()) / 2 + TimeHelper.miliToNano((long)b.getTimeOnAir()) / 2;
+            Math.abs(a.getDepartureTime().plusMillis(a.getTimeOnAir() / 2).asNano() - //check time on air
+                b.getDepartureTime().plusMillis(b.getTimeOnAir() / 2).asNano())
+                < TimeHelper.miliToNano(a.getTimeOnAir()) / 2 + TimeHelper.miliToNano(b.getTimeOnAir()) / 2;
     }
 
     @Override

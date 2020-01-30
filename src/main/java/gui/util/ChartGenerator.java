@@ -67,11 +67,11 @@ public class ChartGenerator {
                     if (!transmission.isCollided())
                         transmissionsMote.getLast().add(
                             new Pair<>(environment.getNetworkEntityById(transmission.getReceiver()),
-                                new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
+                                new Pair<>((int)transmission.getDepartureTime().asSecond(), transmission.getTransmissionPower())));
                     else {
                         transmissionsMote.getLast().add(
                             new Pair<>(environment.getNetworkEntityById(transmission.getReceiver()),
-                                new Pair<>(transmission.getDepartureTime().toSecondOfDay(), (double) 20)));
+                                new Pair<>((int)transmission.getDepartureTime().asSecond(), (double) 20)));
                     }
                 }
             }

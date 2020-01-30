@@ -23,6 +23,6 @@ class SensorECForDingNet(
     }
 
     override fun getCurrentTime(): Number {
-        return timer.time.second
+        return timer.time.asSecond()
     }
 }
