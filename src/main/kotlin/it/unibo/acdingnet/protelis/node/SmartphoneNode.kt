@@ -3,7 +3,6 @@ package it.unibo.acdingnet.protelis.node
 import iot.GlobalClock
 import it.unibo.acdingnet.protelis.executioncontext.SmartphoneEC
 import it.unibo.acdingnet.protelis.model.GPSTrace
-import it.unibo.acdingnet.protelis.util.millis
 import it.unibo.acdingnet.protelis.util.toGeoPosition
 import it.unibo.acdingnet.protelis.util.travel
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
