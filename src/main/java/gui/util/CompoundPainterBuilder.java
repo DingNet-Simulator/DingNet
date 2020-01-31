@@ -130,14 +130,16 @@ public class CompoundPainterBuilder {
      * @return The current object.
      */
     public CompoundPainterBuilder withRoutingPath(Environment environment, RoutingApplication routingApplication) {
-        Color lineColor = SettingsReader.getInstance().getRoutingPathLineColor();
-        int lineSize = SettingsReader.getInstance().getRoutingPathLineSize();
+        if (routingApplication != null) {
+            Color lineColor = SettingsReader.getInstance().getRoutingPathLineColor();
+            int lineSize = SettingsReader.getInstance().getRoutingPathLineSize();
 
-        // Optional painter of the complete path
-        environment.getMotes().stream()
-            .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
-            .findFirst()
-            .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), lineColor, lineSize)));
+            // Optional painter of the complete path
+            environment.getMotes().stream()
+                .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
+                .findFirst()
+                .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), lineColor, lineSize)));
+        }
         return this;
     }
 
