@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class UserMote extends Mote {
 
+    private static final int TIME_TO_IGNORE_SAME_PACKET = 5;
     // the user mote can ask for a path only if this property is true
     private boolean isActive = false;
     private GeoPosition destination;
@@ -29,7 +30,8 @@ public class UserMote extends Mote {
     UserMote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
              List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed,
              int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination, Environment environment) {
-        super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset, environment);
+        super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
+            startMovementOffset, periodSendingPacket, startSendingOffset, environment, TIME_TO_IGNORE_SAME_PACKET);
         this.destination = destination;
 
         this.initialize();

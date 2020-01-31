@@ -31,7 +31,7 @@ public class Mote extends NetworkEntity {
     // default application identifier
     private static final long DEFAULT_APPLICATION_EUI = 1;
 
-    private static final int TIME_TO_IGNORE_SAME_PACKET = 1;
+    private static final int DEFAULT_TIME_TO_IGNORE_SAME_PACKET = 1;
 
 
     // A List of MoteSensors representing all sensors on the mote.
@@ -79,9 +79,28 @@ public class Mote extends NetworkEntity {
 
     protected List<ConsumePacketStrategy> consumePacketStrategies;
 
+    private final int timeToIgnoreSamePacket;
+
     //endregion
 
     // region constructor
+
+    @Raw
+    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
+                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
+                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment, int timeToIgnoreSamePacket) {
+        super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
+        OverTheAirActivation();
+        this.moteSensors = moteSensors;
+        this.path = path;
+        this.energyLevel = energyLevel;
+        this.movementSpeed = movementSpeed;
+        this.startMovementOffset = startMovementOffset;
+        this.periodSendingPacket = periodSendingPacket;
+        this.startSendingOffset = startSendingOffset;
+        this.timeToIgnoreSamePacket = timeToIgnoreSamePacket;
+        this.initialize();
+    }
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
      * spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.
@@ -99,20 +118,11 @@ public class Mote extends NetworkEntity {
      * @param startSendingOffset time to await before send the first packet (in seconds)
      */
     @Raw
-    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
-                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
-                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
-        super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
-        OverTheAirActivation();
-        this.moteSensors = moteSensors;
-        this.path = path;
-        this.energyLevel = energyLevel;
-        this.movementSpeed = movementSpeed;
-        this.startMovementOffset = startMovementOffset;
-        this.periodSendingPacket = periodSendingPacket;
-        this.startSendingOffset = startSendingOffset;
-
-        this.initialize();
+    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
+                List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed,
+                int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
+        this(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
+            startMovementOffset, periodSendingPacket, startSendingOffset, environment, DEFAULT_TIME_TO_IGNORE_SAME_PACKET);
     }
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -264,7 +274,7 @@ public class Mote extends NetworkEntity {
             clock.removeTrigger(keepAliveTriggerId);
         }
         keepAliveTriggerId = clock.addTriggerOneShot(
-            clock.getTime().plusSeconds(offset + periodSendingPacket * TIME_TO_IGNORE_SAME_PACKET), //TODO configure parameter
+            clock.getTime().plusSeconds(offset + periodSendingPacket * timeToIgnoreSamePacket),
             () -> {
                 byte[] payload;
                 if (lastPacketSent == null) {
