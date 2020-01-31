@@ -15,6 +15,8 @@ import it.unibo.mqttclientwrapper.api.MqttClientBasicApi;
 import util.Constants;
 import util.Converter;
 import util.SettingsReader;
+import util.time.DoubleTime;
+import util.time.Time;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -85,6 +87,13 @@ public class MQTTClientFactory {
                 )
             )
             .addDeserializer(RegionalParameter.class,
-                (JsonDeserializer<RegionalParameter>) (element, type, context) -> EU868ParameterByDataRate.valueOf(element.getAsString()));
+                (JsonDeserializer<RegionalParameter>) (element, type, context) -> EU868ParameterByDataRate.valueOf(element.getAsString()))
+            .addSerializer(Time.class, (JsonSerializer<Time>) (header, type, context) -> {
+                var obj = new JsonObject();
+                obj.addProperty("time", header.asMilli());
+                return obj;
+            })
+            .addDeserializer(Time.class,
+                (JsonDeserializer<Time>) (element, type, context) -> new DoubleTime(((JsonObject) element).get("time").getAsDouble()));
     }
 }
