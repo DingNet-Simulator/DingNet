@@ -22,6 +22,7 @@ dependencies {
     // dependencies for DingNetSimulator
     implementation(Libs.kotlin_stdlib_jdk8)
     implementation(Libs.commons_logging)
+    implementation(Libs.commons_cli)
     implementation(Libs.jfreechart)
     implementation(Libs.jxmapviewer2)
     implementation(Libs.forms_rt)
@@ -44,7 +45,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "gui.MainGUI"
+    mainClassName = "Simulator"
 }
 
 tasks.shadowJar.configure {

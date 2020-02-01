@@ -17,6 +17,8 @@ object Versions {
 
     const val konf: String = "0.13.3" // available: "0.22.1"
 
+    const val commons_cli: String = "1.4" 
+
     const val commons_logging: String = "1.2" 
 
     const val de_fayard_buildsrcversions_gradle_plugin: String = "0.3.2" // available: "0.7.0"
@@ -49,11 +51,11 @@ object Versions {
 
     const val org_jlleitschuh_gradle_ktlint_gradle_plugin: String = "8.1.0" // available: "9.1.1"
 
-    const val junit_jupiter: String = "5.5.2" 
+    const val junit_jupiter: String = "5.5.2" // available: "5.6.0"
 
     const val jxmapviewer2: String = "2.4" // available: "2.5"
 
-    const val protelis: String = "13.1.1"
+    const val protelis: String = "13.1.1" 
 
     /**
      *
@@ -63,10 +65,10 @@ object Versions {
     object Gradle {
         const val runningVersion: String = "5.4.1"
 
-        const val currentVersion: String = "6.0.1"
+        const val currentVersion: String = "6.1.1"
 
-        const val nightlyVersion: String = "6.2-20200109230020+0000"
+        const val nightlyVersion: String = "6.3-20200131230056+0000"
 
-        const val releaseCandidate: String = "6.1-rc-2"
+        const val releaseCandidate: String = ""
     }
 }
