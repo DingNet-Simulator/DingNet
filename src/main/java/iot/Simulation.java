@@ -226,7 +226,7 @@ public class Simulation {
         this.getEnvironment().resetHistory();
 
         var finalTime = this.getEnvironment().getClock().getTime()
-            .plusNanos(inputProfile.getSimulationDuration() * inputProfile.getTimeUnit().getDuration().toMillis());
+            .plusMinutes(inputProfile.getSimulationDuration() * 60); //TODO generalize
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }
 }
