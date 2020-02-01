@@ -5,7 +5,6 @@ import it.unibo.acdingnet.protelis.executioncontext.SensorExecutionContext
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import org.protelis.vm.NetworkManager
 
-
 class SensorECForDingNet(
     private val sensorNode: SensorNodeWrapper,
     applicationUID: String,
@@ -18,9 +17,9 @@ class SensorECForDingNet(
         execEnvironment.put("pm10", 55.1)
     }
 
-    override fun instance(): SensorECForDingNet {
-        return SensorECForDingNet(sensorNode, applicationUID, mqttClient, netmgr)
-    }
+    override fun instance(): SensorECForDingNet =
+        SensorECForDingNet(sensorNode, applicationUID, mqttClient, netmgr)
+
 
     override fun getCurrentTime(): Number {
         return timer.time.asSecond()

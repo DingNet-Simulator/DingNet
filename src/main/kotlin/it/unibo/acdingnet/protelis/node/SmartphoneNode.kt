@@ -38,8 +38,8 @@ class SmartphoneNode(
 
     init {
         timer.addPeriodicTrigger(startingTime, sleepTime) { runVM() }
-        updatePositionTriggerId = timer.addPeriodicTrigger(startingTime.plusSeconds((sleepTime - 1).toDouble()),
-            sleepTime) { position = move() } // generate MQTT message
+        updatePositionTriggerId = timer.addPeriodicTrigger(
+            startingTime.plusSeconds((sleepTime - 1).toDouble()), sleepTime) { position = move() } // generate MQTT message
     }
 
     private fun move(): LatLongPosition {

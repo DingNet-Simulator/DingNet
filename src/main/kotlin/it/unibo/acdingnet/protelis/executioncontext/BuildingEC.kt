@@ -26,7 +26,7 @@ class BuildingEC(
         val a = desiredTemp - deltaTemp * 2
         execEnvironment.put(CURRENT_TEMP, a)
     }
-    
+
     override fun instance(): BuildingEC = BuildingEC(
         buildingNode,
         desiredTemp,
@@ -40,15 +40,11 @@ class BuildingEC(
         println(pollutionField)
         return 20.5
     }
-    
+
     fun getDecreaseDelta() = deltaTemp
     fun getIncreaseDelta() = deltaTemp
 
     override fun getCurrentTime(): Number {
         return buildingNode.timer.time.asSecond()
-    }
-
-    fun prova() {
-        println("prova")
     }
 }

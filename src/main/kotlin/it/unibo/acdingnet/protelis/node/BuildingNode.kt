@@ -25,7 +25,6 @@ open class BuildingNode(
 ) : GenericNode(protelisProgram, sleepTime, deviceUID, applicationUID,
     netManagerMqttClient, position, neighbors) {
 
-
     init {
         timer.addPeriodicTrigger(startingTime, sleepTime) { runVM() }
     }

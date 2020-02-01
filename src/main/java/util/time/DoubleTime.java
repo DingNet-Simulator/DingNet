@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Immutable class, default unit of measure is milliseconds
  */
-public class DoubleTime implements Time{
+public class DoubleTime implements Time {
 
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLIS;
     private double time;
