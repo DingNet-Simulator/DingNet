@@ -16,11 +16,5 @@ class SmartphoneEC(
 ) : MQTTPositionedExecutionContext(smartphoneNode.deviceUID, smartphoneNode.position, mqttClient,
     netmgr, randomSeed, execEnvironment) {
 
-    override fun instance(): SmartphoneEC = SmartphoneEC(
-        smartphoneNode,
-        mqttClient,
-        netmgr,
-        randomSeed,
-        execEnvironment
-    )
+    override fun instance(): SmartphoneEC = this
 }

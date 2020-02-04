@@ -35,15 +35,7 @@ open class SensorExecutionContext @JvmOverloads constructor(
         execEnvironment.put(NODE_TYPE, SENSOR_TYPE)
     }
 
-    override fun instance(): SensorExecutionContext =
-        SensorExecutionContext(
-            sensorNode,
-            applicationUID,
-            mqttClient,
-            netmgr,
-            randomSeed,
-            execEnvironment
-        )
+    override fun instance(): SensorExecutionContext = this
 
     protected fun handleDeviceTransmission(message: LoRaTransmission) {
         val payload = message.content.payload.toMutableList()
@@ -64,7 +56,7 @@ open class SensorExecutionContext @JvmOverloads constructor(
                 .map { sensor -> IAQCalculator.computeIaqLevel(sensor.key, sensor.value) }
                 .filterNotNull()
                 .max()
-                ?.let { value -> execEnvironment.put(Const.ProtelisEnv.IAQLEVEL_KEY, value) }
+                ?.let { value -> execEnvironment.put(Const.ProtelisEnv.IAQLEVEL, value) }
         }
     }
 }

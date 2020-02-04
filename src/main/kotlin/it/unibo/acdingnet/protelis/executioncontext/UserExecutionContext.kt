@@ -34,15 +34,7 @@ class UserExecutionContext(
         }
     }
 
-    override fun instance(): UserExecutionContext =
-        UserExecutionContext(
-            userNode,
-            applicationUID,
-            mqttClient,
-            netmgr,
-            randomSeed,
-            execEnvironment
-        )
+    override fun instance(): UserExecutionContext = this
 
     private fun handleUserDeviceTransmission(message: LoRaTransmission) {
         val payload = message.content.payload

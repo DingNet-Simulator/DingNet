@@ -27,14 +27,7 @@ class BuildingEC(
         execEnvironment.put(CURRENT_TEMP, a)
     }
 
-    override fun instance(): BuildingEC = BuildingEC(
-        buildingNode,
-        desiredTemp,
-        deltaTemp,
-        netmgr,
-        randomSeed,
-        execEnvironment
-    )
+    override fun instance(): BuildingEC = this
 
     fun maxTempByPollution(pollutionField: Any): Double {
         println(pollutionField)

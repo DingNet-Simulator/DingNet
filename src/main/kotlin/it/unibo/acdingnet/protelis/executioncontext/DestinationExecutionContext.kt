@@ -21,12 +21,5 @@ class DestinationExecutionContext(
         execEnvironment.put(Const.ProtelisEnv.DESTINATION_KEY, true)
     }
 
-    override fun instance(): DestinationExecutionContext =
-        DestinationExecutionContext(
-            _deviceUID,
-            nodePosition,
-            netmgr,
-            randomSeed,
-            execEnvironment
-        )
+    override fun instance(): DestinationExecutionContext = this
 }
