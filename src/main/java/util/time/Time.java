@@ -2,6 +2,8 @@ package util.time;
 
 public interface Time {
 
+    Time as(TimeUnit timeUnit);
+
     double asNano();
 
     double asMilli();
@@ -21,6 +23,8 @@ public interface Time {
     Time plusSeconds(double seconds);
 
     Time plusMinutes(double minutes);
+
+    Time plusHours(double hours);
 
     boolean isAfter(Time other);
 

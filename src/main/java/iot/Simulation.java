@@ -226,7 +226,7 @@ public class Simulation {
         this.getEnvironment().resetHistory();
 
         var finalTime = this.getEnvironment().getClock().getTime()
-            .plusMinutes(inputProfile.getSimulationDuration() * 60); //TODO generalize
+            .plusHours(inputProfile.getSimulationDuration()); //TODO generalize
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }
 }

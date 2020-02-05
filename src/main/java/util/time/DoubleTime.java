@@ -1,5 +1,6 @@
 package util.time;
 
+import org.apache.commons.lang3.NotImplementedException;
 import util.TimeHelper;
 
 import java.util.Objects;
@@ -34,6 +35,11 @@ public class DoubleTime implements Time {
 
     static public Time fromSeconds(double time) {
         return new DoubleTime(time * 1e3);
+    }
+
+    @Override
+    public Time as(TimeUnit timeUnit) {
+        throw new NotImplementedException("conversion to another time unit not implemented yet");
     }
 
     @Override
@@ -84,6 +90,11 @@ public class DoubleTime implements Time {
     @Override
     public Time plusMinutes(double minutes) {
         return plusSeconds(minutes * 60);
+    }
+
+    @Override
+    public Time plusHours(double hours) {
+        return plusMinutes(hours * 60);
     }
 
     @Override
