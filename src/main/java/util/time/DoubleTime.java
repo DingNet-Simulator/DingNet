@@ -1,8 +1,5 @@
 package util.time;
 
-import org.apache.commons.lang3.NotImplementedException;
-import util.TimeHelper;
-
 import java.util.Objects;
 
 /**
@@ -39,62 +36,71 @@ public class DoubleTime implements Time {
 
     @Override
     public Time as(TimeUnit timeUnit) {
-        throw new NotImplementedException("conversion to another time unit not implemented yet");
+        return new DoubleTime(this.timeUnit.convertTo(time, timeUnit), timeUnit);
+    }
+
+    @Override
+    public double getAs(TimeUnit timeUnit) {
+        return this.timeUnit.convertTo(time, timeUnit);
     }
 
     @Override
     public double asNano() {
-        return TimeHelper.miliToNano(asMilli());
+        return getAs(TimeUnit.NANOS);
     }
 
     @Override
     public double asMilli() {
-        return time;
+        return getAs(TimeUnit.MILLIS);
     }
 
     @Override
     public double asSecond() {
-        return asMilli() / 1e3;
+        return getAs(TimeUnit.SECONDS);
     }
 
     @Override
     public double asMinute() {
-        return asSecond() / 60;
+        return getAs(TimeUnit.MINUTES);
     }
 
     @Override
     public double asHour() {
-        return asMinute() / 60;
+        return getAs(TimeUnit.HOURS);
     }
 
     @Override
     public int getDay() {
-        return (int)asMinute() % 24;
+        return (int)asHour() % 24;
+    }
+
+    private DoubleTime plus(double value, TimeUnit timeUnit) {
+        return new DoubleTime(time + timeUnit.convertTo(value, this.timeUnit), this.timeUnit);
     }
 
     @Override
     public Time plusNanos(double nanoSeconds) {
-        return plusMillis(TimeHelper.nanoToMili(nanoSeconds));
+        return plus(nanoSeconds, TimeUnit.NANOS);
     }
 
     @Override
     public Time plusMillis(double milliSeconds) {
-        return new DoubleTime(asMilli() + milliSeconds);
+        return plus(milliSeconds, TimeUnit.MILLIS);
     }
 
     @Override
     public Time plusSeconds(double seconds) {
-        return plusMillis(TimeHelper.secToMili(seconds));
+        return plus(seconds, TimeUnit.SECONDS);
     }
 
     @Override
     public Time plusMinutes(double minutes) {
-        return plusSeconds(minutes * 60);
+        return plus(minutes, TimeUnit.MINUTES);
     }
 
     @Override
     public Time plusHours(double hours) {
-        return plusMinutes(hours * 60);
+        return plus(hours, TimeUnit.HOURS);
     }
 
     @Override

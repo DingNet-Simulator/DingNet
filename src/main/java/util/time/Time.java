@@ -4,6 +4,8 @@ public interface Time {
 
     Time as(TimeUnit timeUnit);
 
+    double getAs(TimeUnit timeUnit);
+
     double asNano();
 
     double asMilli();
