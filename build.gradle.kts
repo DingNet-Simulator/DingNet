@@ -26,6 +26,7 @@ dependencies {
     implementation(Libs.jfreechart)
     implementation(Libs.jxmapviewer2)
     implementation(Libs.forms_rt)
+    implementation("org.apache.commons:commons-math3:3.6.1")
     implementation(files("${projectDir.path}/lib/AnnotationsDoclets.jar"))
     implementation(Libs.gson)
     implementation(Libs.moquette_broker)
