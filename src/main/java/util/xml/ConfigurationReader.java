@@ -146,15 +146,26 @@ public class ConfigurationReader {
                 gatewayNode = (Element) gateways.getElementsByTagName("gateway").item(i);
                 long devEUI = Long.parseLong(XMLHelper.readChild(gatewayNode, "devEUI"));
                 Element location = (Element) gatewayNode.getElementsByTagName("location").item(0);
-                int xPos = Integer.parseInt(XMLHelper.readChild(location, "xPos"));
-                int yPos = Integer.parseInt(XMLHelper.readChild(location, "yPos"));
+                var pos = getPos(location, environment);
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(gatewayNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(gatewayNode, "spreadingFactor"));
-                environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor, environment));
+                environment.addGateway(new Gateway(devEUI, pos.getLeft(), pos.getRight(), transmissionPower, spreadingFactor, environment));
             }
         } catch (ParserConfigurationException | SAXException | IOException e1) {
             e1.printStackTrace();
+        }
+    }
+
+    private static Pair<Integer, Integer> getPos(Element element, Environment env) {
+        if (XMLHelper.hasChild(element, "waypoint")) {
+            Element waypoint = (Element) element.getElementsByTagName("waypoint").item(0);
+            GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(waypoint.getAttribute("id")));
+            return env.getMapHelper().toMapCoordinate(position);
+        } else {
+            int xPos = Integer.parseInt(XMLHelper.readChild(element, "xPos"));
+            int yPos = Integer.parseInt(XMLHelper.readChild(element, "yPos"));
+            return new Pair<>(xPos, yPos);
         }
     }
 
