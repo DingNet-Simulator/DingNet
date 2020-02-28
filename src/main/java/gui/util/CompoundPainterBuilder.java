@@ -4,6 +4,7 @@ import application.pollution.PollutionGrid;
 import application.routing.RoutingApplication;
 import gui.mapviewer.*;
 import iot.Environment;
+import iot.SimulationRunner;
 import iot.networkentity.UserMote;
 import it.unibo.acdingnet.protelis.ProtelisApp;
 import org.jxmapviewer.JXMapViewer;
@@ -112,13 +113,12 @@ public class CompoundPainterBuilder {
 
     /**
      * Include a painter of a pollution grid in the builder.
-     * @param environment The environment to which the pollution grid belongs.
      * @param pollutionGrid The pollution grid which should be painted.
      * @return The current object.
      */
-    public CompoundPainterBuilder withPollutionGrid(Environment environment, PollutionGrid pollutionGrid) {
+    public CompoundPainterBuilder withPollutionGrid(PollutionGrid pollutionGrid) {
         if (pollutionGrid != null) {
-            painters.add(new PollutionGridPainter(environment, pollutionGrid));
+            painters.add(new PollutionGridPainter(pollutionGrid));
         }
         return this;
     }
@@ -129,13 +129,13 @@ public class CompoundPainterBuilder {
      * @param routingApplication The routing application which stores the user mote's path.
      * @return The current object.
      */
-    public CompoundPainterBuilder withRoutingPath(Environment environment, RoutingApplication routingApplication) {
+    public CompoundPainterBuilder withRoutingPath(RoutingApplication routingApplication) {
         if (routingApplication != null) {
             Color lineColor = SettingsReader.getInstance().getRoutingPathLineColor();
             int lineSize = SettingsReader.getInstance().getRoutingPathLineSize();
 
             // Optional painter of the complete path
-            environment.getMotes().stream()
+            SimulationRunner.getInstance().getEnvironment().getMotes().stream()
                 .filter(m -> m instanceof UserMote && ((UserMote) m).isActive())
                 .findFirst()
                 .ifPresent(m -> painters.add(new LinePainter(routingApplication.getRoute(m), lineColor, lineSize)));
@@ -145,7 +145,7 @@ public class CompoundPainterBuilder {
 
     public CompoundPainterBuilder withProtelisApp(ProtelisApp protelisApp) {
         if (protelisApp != null) {
-            var painter = new WayPointPainter<>(Color.BLACK, 8)
+            var painter = new WayPointPainter<>(Color.GREEN, 16)
                 .setWaypoints(protelisApp.getDrawableNode()
                     .stream()
                     .map(DefaultWaypoint::new)

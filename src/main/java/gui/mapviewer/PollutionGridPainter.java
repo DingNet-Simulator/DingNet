@@ -2,6 +2,7 @@ package gui.mapviewer;
 
 import application.pollution.PollutionGrid;
 import iot.Environment;
+import iot.SimulationRunner;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -18,12 +19,12 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
     private Environment environment;
 
 
-    public PollutionGridPainter(Environment environment, PollutionGrid pollutionGrid) {
+    public PollutionGridPainter(PollutionGrid pollutionGrid) {
         this.setAntialiasing(SettingsReader.getInstance().useGUIAntialiasing());
         this.setCacheable(true);
 
         this.pollutionGrid = pollutionGrid;
-        this.environment = environment;
+        this.environment = SimulationRunner.getInstance().getEnvironment();
     }
 
     @Override
