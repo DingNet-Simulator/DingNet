@@ -63,7 +63,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
                     (int) ((i + .5) * maxX / DIVISION),
                     (int) ((j + .5) * maxY / DIVISION));
 
-                float airQuality = (float) pollutionGrid.getPollutionLevel(middle).getPollutionFactor();
+                float airQuality = (float) pollutionGrid.getPollutionLevel(middle);
                 g.setColor(this.getColor(airQuality));
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, SettingsReader.getInstance().getPollutionGridTransparency()));
                 g.fill(new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),

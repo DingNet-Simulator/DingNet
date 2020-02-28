@@ -39,14 +39,14 @@ public class PollutionGrid {
      * @param position The position at which the pollution should be calculated.
      * @return The level of pollution at {@code position}.
      */
-    public PollutionLevel getPollutionLevel(GeoPosition position) {
+    public double getPollutionLevel(GeoPosition position) {
         synchronized (this) {
             var pollutionAtPosition = pollutionMeasurements.values().stream()
                 .filter(o -> o.getLeft().equals(position))
                 .map(Pair::getRight)
                 .findFirst();
             if (pollutionAtPosition.isPresent()) {
-                return pollutionAtPosition.get();
+                return pollutionAtPosition.get().getPollutionFactor();
             }
 
             // Calculate some mean pollution based on the distance of other measurements
@@ -55,7 +55,7 @@ public class PollutionGrid {
                 .map(e -> new Pair<>(MapHelper.distance(e.getLeft(), position), e.getRight()))
                 .collect(Collectors.toList());
 
-            return PollutionLevel.getMediumPollution(distances);
+            return PollutionLevel.getMediumPollution(distances).getPollutionFactor();
         }
     }
 
