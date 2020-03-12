@@ -1,7 +1,5 @@
 package selfadaptation.feedbackloop;
 
-import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Model;
 import iot.QualityOfService;
 import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
@@ -21,19 +19,16 @@ public class SignalBasedAdaptation extends GenericFeedbackLoop {
     /**
      * A HashMap representing the buffers for the approach.
      */
-    @Model
     private Map<Mote, List<Double>> reliableMinPowerBuffers;
 
     /**
      * A map to keep track of which gateway has already sent the packet.
      */
-    @Model
     private FeedbackLoopGatewayBuffer gatewayBuffer;
 
     /**
      * A QualityOfService representing the required quality of service.
      */
-    @Model
     private QualityOfService qualityOfService;
 
 
@@ -54,7 +49,6 @@ public class SignalBasedAdaptation extends GenericFeedbackLoop {
      * Returns the algorithm buffers.
      * @return The algorithm buffers.
      */
-    @Model
     private Map<Mote, List<Double>> getReliableMinPowerBuffers() {
         return this.reliableMinPowerBuffers;
     }
@@ -64,7 +58,6 @@ public class SignalBasedAdaptation extends GenericFeedbackLoop {
      * @param mote The mote where to put the entry.
      * @param reliableMinPowerBuffer The buffer to put in the buffers.
      */
-    @Model
     private void putReliableMinPowerBuffer(Mote mote, List<Double> reliableMinPowerBuffer) {
         this.reliableMinPowerBuffers.put(mote, reliableMinPowerBuffer);
     }
@@ -81,7 +74,6 @@ public class SignalBasedAdaptation extends GenericFeedbackLoop {
      * Returns the lower bound of the approach.
      * @return The lower bound of the approach.
      */
-    @Basic
     public double getLowerBound() {
         return ((IntervalAdaptationGoal) qualityOfService.getAdaptationGoal("reliableCommunication")).getLowerBoundary();
     }
@@ -90,7 +82,6 @@ public class SignalBasedAdaptation extends GenericFeedbackLoop {
      * Returns the upper bound of the approach.
      * @return The upper bound of the approach.
      */
-    @Basic
     public double getUpperBound() {
         return ((IntervalAdaptationGoal) qualityOfService.getAdaptationGoal("reliableCommunication")).getUpperBoundary();
     }

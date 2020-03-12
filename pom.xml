@@ -42,13 +42,6 @@
             <version>7.0.3</version>
         </dependency>
         <dependency>
-            <groupId>be.kuleuven.cs.som</groupId>
-            <artifactId>annotate</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/AnnotationsDoclets.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>com.uchuhimo</groupId>
             <artifactId>konf</artifactId>
             <version>0.13.3</version>
@@ -101,7 +94,7 @@
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>
-                    <includeTestSoureDirectory>true</includeTestSoureDirectory>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <violationSeverity>warning</violationSeverity>
                     <failOnViolation>${checkstyle.failBuild}</failOnViolation>
                 </configuration>

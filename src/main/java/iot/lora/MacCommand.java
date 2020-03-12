@@ -1,6 +1,5 @@
 package iot.lora;
 
-import be.kuleuven.cs.som.annotate.Basic;
 
 /**
  * An enum representing MAC Commands.
@@ -20,7 +19,6 @@ public enum MacCommand {
     MacCommand(int length) {
         this.length = length;
     }
-    @Basic
     public int getLength() {
         return length;
     }

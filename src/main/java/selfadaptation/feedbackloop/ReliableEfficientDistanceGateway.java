@@ -1,7 +1,6 @@
 package selfadaptation.feedbackloop;
 
 
-import be.kuleuven.cs.som.annotate.Model;
 import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
@@ -20,14 +19,12 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
     /**
      * A HashMap representing the buffers for the approach.
      */
-    @Model
     private Map<Mote, List<Double>> reliableDistanceGatewayBuffers;
 
 
     /**
      * A map to keep track of which gateway has already sent the packet.
      */
-    @Model
     private FeedbackLoopGatewayBuffer gatewayBuffer;
 
 
@@ -36,7 +33,6 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
      * Returns the algorithm buffers.
      * @return The algorithm buffers.
      */
-    @Model
     private Map<Mote, List<Double>> getReliableDistanceGatewayBuffers() {
         return this.reliableDistanceGatewayBuffers;
     }
@@ -46,7 +42,6 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
      * @param mote The mote where to put the entry.
      * @param reliableDistanceGatewayBuffer The buffer to put in the buffers.
      */
-    @Model
     private void putReliableDistanceGatewayBuffers(Mote mote, List<Double> reliableDistanceGatewayBuffer) {
         this.reliableDistanceGatewayBuffers.put(mote, reliableDistanceGatewayBuffer);
     }

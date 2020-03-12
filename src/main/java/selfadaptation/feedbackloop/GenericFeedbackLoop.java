@@ -1,7 +1,5 @@
 package selfadaptation.feedbackloop;
 
-import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Model;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import selfadaptation.instrumentation.MoteEffector;
@@ -15,7 +13,6 @@ public abstract class GenericFeedbackLoop {
     /**
      * A string representing the name of the approach.
      */
-    @Model
     private String name;
 
     /**
@@ -74,7 +71,6 @@ public abstract class GenericFeedbackLoop {
      * Returns the name of the approach.
      * @return The name of the approach.
      */
-    @Basic
     public String getName() {
         return name;
     }
@@ -83,7 +79,6 @@ public abstract class GenericFeedbackLoop {
      * Sets the name of the approach to a given string.
      * @param name The name of the approach.
      */
-    @Basic
     public void setName(String name) {
         this.name = name;
     }

@@ -1,6 +1,5 @@
 package iot;
 
-import be.kuleuven.cs.som.annotate.Basic;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.NetworkEntity;
@@ -169,7 +168,6 @@ public class Environment implements Serializable {
      *
      * @return the max x-coordinate
      */
-    @Basic
     public int getMaxXpos() {
         return maxXpos;
     }
@@ -187,7 +185,6 @@ public class Environment implements Serializable {
      *
      * @return the max y-coordinate
      */
-    @Basic
     public int getMaxYpos() {
         return maxYpos;
     }
@@ -196,7 +193,6 @@ public class Environment implements Serializable {
      * Returns all the gateways on the map.
      * @return A list with all the gateways on the map.
      */
-    @Basic
     public List<Gateway> getGateways() {
         return gateways;
     }
@@ -206,7 +202,6 @@ public class Environment implements Serializable {
      * @param gateway  the node to add
      * @Post    If the gateway is in this environment, it is added to the list.
      */
-    @Basic
     public void addGateway(Gateway gateway) {
         // TODO check if coordinates are within valid bounds (although... is this really necessary?)
         gateways.add(gateway);
@@ -216,7 +211,6 @@ public class Environment implements Serializable {
      *
      * @return A list with all the motes on the map.
      */
-    @Basic
     public List<Mote> getMotes() {
         return motes;
     }
@@ -226,7 +220,6 @@ public class Environment implements Serializable {
      * @param mote  the mote to add
      * @Post    If the mote is in this environment, it is added to the list.
      */
-    @Basic
     public void addMote(Mote mote) {
         // TODO check if coordinates are within valid bounds (although... is this really necessary?)
         motes.add(mote);
@@ -359,7 +352,6 @@ public class Environment implements Serializable {
      * Returns the number of runs of this configuration.
      * @return The number of runs of this configuration.
      */
-    @Basic
     public int getNumberOfRuns() {
         return numberOfRuns;
     }
