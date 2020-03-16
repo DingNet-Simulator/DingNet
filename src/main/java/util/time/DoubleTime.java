@@ -20,7 +20,7 @@ public class DoubleTime implements Time {
         this(time, DEFAULT_TIME_UNIT);
     }
 
-    private DoubleTime(double time, TimeUnit timeUnit) {
+    public DoubleTime(double time, TimeUnit timeUnit) {
         this.time = time;
         this.timeUnit = timeUnit;
     }
