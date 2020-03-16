@@ -315,7 +315,7 @@ public class Mote extends NetworkEntity {
             send(packet);
             canReceive = true;
             lastPacketSent = packet;
-            resetKeepAliveTrigger(0);
+            resetKeepAliveTrigger(1);
         }
     }
 
