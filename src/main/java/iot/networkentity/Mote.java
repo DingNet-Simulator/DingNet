@@ -81,6 +81,8 @@ public class Mote extends NetworkEntity {
 
     private final int timeToIgnoreSamePacket;
 
+    private boolean isArrived = false;
+
     //endregion
 
     // region constructor
@@ -438,11 +440,14 @@ public class Mote extends NetworkEntity {
     }
 
     public boolean isArrivedToDestination() {
-        if (path.isEmpty()) {
+        if (path.isEmpty() || isArrived) {
             return true;
         }
         //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
-        return this.getEnvironment().getMapHelper()
-            .toMapCoordinate(path.getDestination().get()).equals(getPosInt());
+        if (this.getEnvironment().getMapHelper()
+            .toMapCoordinate(path.getDestination().get()).equals(getPosInt())) {
+            isArrived = true;
+        }
+        return isArrived;
     }
 }
