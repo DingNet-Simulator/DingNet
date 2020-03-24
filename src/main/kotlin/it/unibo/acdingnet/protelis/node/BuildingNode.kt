@@ -1,7 +1,7 @@
 package it.unibo.acdingnet.protelis.node
 
 import iot.GlobalClock
-import it.unibo.acdingnet.protelis.executioncontext.BuildingEC
+import it.unibo.acdingnet.protelis.executioncontext.BuildingExecutionContext
 import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import org.protelis.lang.datatype.impl.StringUID
@@ -29,7 +29,7 @@ open class BuildingNode(
     }
 
     override fun createContext(): ExecutionContext =
-        BuildingEC(
+        BuildingExecutionContext(
             this,
             desiredTemp,
             deltaTemp,
