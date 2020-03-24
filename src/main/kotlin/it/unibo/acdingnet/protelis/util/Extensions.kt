@@ -5,6 +5,7 @@ import com.javadocmd.simplelatlng.LatLngTool
 import com.javadocmd.simplelatlng.util.LengthUnit
 import it.unibo.protelisovermqtt.model.LatLongPosition
 import org.jxmapviewer.viewer.GeoPosition
+import org.protelis.lang.datatype.Tuple
 
 val Float.Companion.SIZE_BYTES: Int get() = 4
 
@@ -20,3 +21,5 @@ fun LatLongPosition.travel(destination: LatLongPosition, distance: Double): LatL
         .travel(source, LatLngTool.initialBearing(source, dest), distance, LengthUnit.METER)
         .also { return LatLongPosition(it) }
 }
+
+fun Tuple.toLatLongPosition() = LatLongPosition(this[0] as Double, this[1] as Double)
