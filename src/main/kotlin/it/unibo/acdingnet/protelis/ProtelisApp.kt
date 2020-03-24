@@ -23,14 +23,8 @@ import org.protelis.lang.datatype.impl.StringUID
 import util.time.DoubleTime
 import java.util.*
 
-data class InfoProtelisApp @JvmOverloads constructor(
-    val protelisProgram: String,
-    val gpxFileTrace: String? = null,
-    val startingTimeTrace: Double = 0.0 // in ms
-)
-
 class ProtelisApp(
-    infoProtelisApp: InfoProtelisApp,
+    protelisProgram: String,
     motes: List<Mote>,
     private val timer: GlobalClock
 ) : Application(emptyList()) {
@@ -96,7 +90,7 @@ class ProtelisApp(
             .map {
                 val id = StringUID("" + it.eui)
                 SensorNodeWrapper(
-                    ProtelisLoader.parse(infoProtelisApp.protelisProgram),
+                    ProtelisLoader.parse(protelisProgram),
                     DoubleTime(random.nextInt(100).toDouble()),
                     900,
                     id,
@@ -115,7 +109,7 @@ class ProtelisApp(
 
         building = buildingNode.map {
             BuildingNode(
-                ProtelisLoader.parse(infoProtelisApp.protelisProgram),
+                ProtelisLoader.parse(protelisProgram),
                 DoubleTime(random.nextInt(100).toDouble()).plusMinutes(1.0),
                 900,
                 it.first.uid,

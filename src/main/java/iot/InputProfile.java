@@ -1,7 +1,6 @@
 package iot;
 
 
-import it.unibo.acdingnet.protelis.InfoProtelisApp;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -75,7 +74,7 @@ public class InputProfile {
      */
     private Document xmlSource;
 
-    private final InfoProtelisApp infoProtelisApp;
+    private final String protelisProgram;
 
     /**
      * Generates InputProfile with a given qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
@@ -113,7 +112,7 @@ public class InputProfile {
                         int numberOfRuns,
                         Map<Integer, Double> probabilitiesForMotes,
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
-                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit, @Nullable InfoProtelisApp infoProtelisApp) {
+                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit, @Nullable String protelisProgram) {
         this.name = name;
         this.qualityOfServiceProfile = qualityOfServiceProfile;
         this.numberOfRuns = numberOfRuns;
@@ -135,11 +134,11 @@ public class InputProfile {
         this.xmlSource = newDocument;
         this.simulationDuration = simulationDuration;
         this.timeUnit = timeUnit;
-        this.infoProtelisApp = infoProtelisApp;
+        this.protelisProgram = protelisProgram;
     }
 
-    public Optional<InfoProtelisApp> getInfoProtelisApp() {
-        return Optional.ofNullable(infoProtelisApp);
+    public Optional<String> getProtelisProgram() {
+        return Optional.ofNullable(protelisProgram);
     }
 
     /**

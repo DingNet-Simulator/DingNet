@@ -2,7 +2,9 @@ package iot;
 
 import application.pollution.PollutionGrid;
 import application.pollution.PollutionMonitor;
+import application.routing.AStarRouter;
 import application.routing.RoutingApplication;
+import application.routing.heuristic.SimplePollutionHeuristic;
 import gui.MainGUI;
 import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
@@ -99,7 +101,7 @@ public class SimulationRunner {
         }
 
         networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
-        pollutionGrid = new PollutionGrid();
+        pollutionGrid = null;//new PollutionGridImpl();
         environment = null;
     }
 
@@ -170,7 +172,7 @@ public class SimulationRunner {
      */
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
-        protelisApp = createProtelisApp();
+        //protelisApp = createProtelisApp();
         this.setupSimulationRunner();
     }
 
@@ -188,7 +190,8 @@ public class SimulationRunner {
      */
     private void setupSimulationRunner() {
         // Remove previous pollution measurements
-        pollutionGrid.clean();
+//        pollutionGrid.clean();
+        routingApplication.clean();
         // Reset received transmissions in the networkServer
         this.networkServer.reset();
     }
@@ -337,13 +340,17 @@ public class SimulationRunner {
      * Initialize all applications used in the simulation.
      */
     private void setupApplications() {
-        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
+        this.pollutionMonitor = null;// new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
+        this.routingApplication = new RoutingApplication(
+            new AStarRouter(new SimplePollutionHeuristic(pollutionGrid)), getEnvironment().getGraph(), environment
+        );
     }
 
     private ProtelisApp createProtelisApp() {
+//        return null;
         return simulation.getInputProfile()
             .orElseThrow(() -> new IllegalStateException("input profile no selected"))
-            .getInfoProtelisApp()
+            .getProtelisProgram()
             .map(app -> new ProtelisApp(
                 app,
                 getEnvironment().getMotes(),
