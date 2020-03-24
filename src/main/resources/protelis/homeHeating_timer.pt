@@ -4,23 +4,41 @@ import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.*
 import org.protelis.lang.datatype.Option.*
 import protelis:state:time
 
-//list of option of tuple of pollution
-let pollutionField = nbr(mux(env.has("pm10")) {
-	optionally([self.nbrRange(), self.getCoordinates(), env.get("pm10")])
+public def decreaseTemp() = env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) {
+	cyclicFunction(1800, { self.roundToDecimal(v - self.getDecreaseDelta()) }, v)
+})
+
+public def increaseTemp() = env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) {
+	cyclicFunction(1800, { self.roundToDecimal(v + self.getIncreaseDelta()) }, v)
+})
+
+public def emptyFun() = 0
+
+public def idw(sensorValue) = if(!sensorValue.filter { it.get(0) == 0.0 }.isEmpty()) {
+		sensorValue.filter { it.get(0) == 0.0 }.get(0).get(1)
+	} else {
+		let weight = sensorValue.map{ 1 / it.get(0) }.reduce(1) { r1, r2 -> r1 + r2 }
+		sensorValue.map { it.get(1) / it.get(0) }.reduce(1) { r1, r2 -> r1 + r2 } / weight
+	}
+
+let pollutionField = nbr(mux(env.has(IAQLEVEL)) {
+	optionally([self.getCoordinates(), env.get(IAQLEVEL)])
 } else {
 	absent()
-})
-if (env.has("pm10")) {
-	self.log(env.get("pm10").toString())
+}).map { it.set(0, self.distanceTo(it.get(0))) }
+
+let sensorValues = foldUnion([pollutionField]).filter { it.isPresent() }.map { it.get() }
+let maxTemperature = self.temperatureByPollution(idw(sensorValues))
+if (env.has(CURRENT_TEMP)) {
+    env.put(MAX_TEMP, maxTemperature)
+	//self.log("maxTemp: " + maxTemperature + " currentTemp " + env.get(CURRENT_TEMP) + " at: " + self.getCurrentTime())
 }
-if (env.has(NODE_TYPE) && env.get(NODE_TYPE) == BUILDING_TYPE) {
-//	self.prova();
-//	self.log(env.get(CURRENT_TEMP).toString());
-	if (env.get(CURRENT_TEMP) > local(self.maxTempByPollution(pollutionField))) {
-		env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) { if(cyclicTimer(7200)) { v - self.getDecreaseDelta() } else { v }})
-	} else {
-		if (env.get(DESIRED_TEMP) != env.get(CURRENT_TEMP)) {
-			env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) { if(cyclicTimer(7200)) { v + self.getIncreaseDelta() } else { v }})
-		}
+
+optionally(env.get(DESIRED_TEMP, JAVA_NULL))
+	.map { mux(it < maxTemperature) { it } else { maxTemperature } }
+	.map { 
+		if(it < env.get(CURRENT_TEMP)) { decreaseTemp } 
+		else { if(it > env.get(CURRENT_TEMP)) { increaseTemp } else { emptyFun } }
 	}
-}
+	.orElse(emptyFun).apply()
+
