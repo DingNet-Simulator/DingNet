@@ -1,6 +1,5 @@
 package iot;
 
-import be.kuleuven.cs.som.annotate.Basic;
 import datagenerator.SensorDataGenerator;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
@@ -56,7 +55,6 @@ public class Simulation {
      * Gets the Environment used in th simulation.
      * @return The Environment used in the simulation.
      */
-    @Basic
     public Environment getEnvironment() {
         return environment.get();
     }
@@ -64,7 +62,6 @@ public class Simulation {
      * Sets the Environment used in th simulation.
      * @param environment  The Environment to use in the simulation.
      */
-    @Basic
     public void setEnvironment(WeakReference<Environment> environment) {
         this.environment = environment;
     }
@@ -73,7 +70,6 @@ public class Simulation {
      * Gets the InputProfile used in th simulation.
      * @return The InputProfile used in the simulation.
      */
-    @Basic
     public Optional<InputProfile> getInputProfile() {
         return Optional.ofNullable(inputProfile);
     }
@@ -81,7 +77,6 @@ public class Simulation {
      * Sets the InputProfile used in th simulation.
      * @param inputProfile  The InputProfile to use in the simulation.
      */
-    @Basic
     public void setInputProfile(InputProfile inputProfile) {
         this.inputProfile = inputProfile;
     }
@@ -90,7 +85,6 @@ public class Simulation {
      * Gets the GenericFeedbackLoop used in th simulation.
      * @return The GenericFeedbackLoop used in the simulation.
      */
-    @Basic
     public GenericFeedbackLoop getAdaptationAlgorithm() {
         return approach;
     }
@@ -98,7 +92,6 @@ public class Simulation {
      * Sets the GenericFeedbackLoop used in th simulation.
      * @param approach  The GenericFeedbackLoop to use in the simulation.
      */
-    @Basic
     public void setAdaptationAlgorithm(GenericFeedbackLoop approach) {
         this.approach = approach;
     }
@@ -111,7 +104,6 @@ public class Simulation {
      * Sets the GenericFeedbackLoop.
      * @param approach The GenericFeedbackLoop to set.
      */
-    @Basic
     void setApproach(GenericFeedbackLoop approach) {
         if (getApproach() != null) {
             getApproach().stop();

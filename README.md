@@ -21,18 +21,11 @@ The simulator can also be started from the main method in the MainGUI class. -->
 
 
 
-## Libraries
-
-DingNet uses the following libraries:
-- AnnotationsDoclets (included in the lib folder, since it is not available online (yet))
-- jfreechart-1.5.0
-- jxmapviewer2-2.4
-
-
 ## Future goals
 
-- [ ] Refactor Inputprofile
-- [ ] Refactor QualityOfService
-- [ ] Realistic data generation
-- [ ] Rewrite transmission logic (moveTo, transmission power, ...)
-- [ ] \(Not important) Allow creation of circular routes for motes
+- Rewrite of adaptation logic
+- Project consistency (e.g. adjust gateway position assignment to geo-coordinates instead of legacy integer values)
+- Refactor InputProfile and QualityOfService
+- Rewrite transmission logic
+- Provide means of realistic sensor data generation
+- Improve testability of project (e.g. removal of singletons where applicable)

@@ -1,8 +1,5 @@
 package iot.networkentity;
 
-import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Model;
-import be.kuleuven.cs.som.annotate.Raw;
 import iot.Environment;
 import iot.GlobalClock;
 import iot.lora.*;
@@ -33,25 +30,20 @@ public class Mote extends NetworkEntity {
 
 
     // A List of MoteSensors representing all sensors on the mote.
-    @Model
     private List<MoteSensor> moteSensors;
 
     // A path representing the connections the mote will follow.
-    @Model
     private Path path;
 
     protected int pathPositionIndex;
 
     // An integer representing the energy level of the mote.
-    @Model
     private int energyLevel;
 
     // A double representing the movement speed of the mote.
-    @Model
     private double movementSpeed;
 
     // An integer representing the start offset of the mote in seconds.
-    @Model
     private int startMovementOffset;
 
     // The last used frameCounter used when transmitting lora messages
@@ -96,7 +88,6 @@ public class Mote extends NetworkEntity {
      * @param periodSendingPacket period to define how many seconds the mote has to send a packet (in seconds)
      * @param startSendingOffset time to await before send the first packet (in seconds)
      */
-    @Raw
     public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
                 int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
                 double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
@@ -125,7 +116,6 @@ public class Mote extends NetworkEntity {
      * @param path The path for this mote to follow.
      * @param movementSpeed The movement speed of this mote.
      */
-    @Raw
     public Mote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
                 List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, Environment environment) {
         this(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
@@ -180,7 +170,6 @@ public class Mote extends NetworkEntity {
      * Returns the mote sensors of the mote.
      * @return The mote sensors of the mote.
      */
-    @Basic
     public List<MoteSensor> getSensors() {
         return moteSensors;
     }
@@ -189,7 +178,6 @@ public class Mote extends NetworkEntity {
      * Returns the path of the mote.
      * @return The path of the mote.
      */
-    @Basic
     public Path getPath() {
         return path;
     }
@@ -198,7 +186,6 @@ public class Mote extends NetworkEntity {
      * Sets the path of the mote to a given path.
      * @param path The path to set.
      */
-    @Basic
     public void setPath(Path path) {
         this.path = path;
     }
@@ -338,7 +325,6 @@ public class Mote extends NetworkEntity {
      * Returns the energy level of the mote.
      * @return The energy level of the mote.
      */
-    @Basic
     public int getEnergyLevel() {
         return this.energyLevel;
     }
@@ -347,7 +333,6 @@ public class Mote extends NetworkEntity {
      * Sets the energy level of the mote.
      * @param energyLevel The energy level to set.
      */
-    @Basic
     public void setEnergyLevel(int energyLevel) {
         this.energyLevel = energyLevel;
     }
@@ -356,7 +341,6 @@ public class Mote extends NetworkEntity {
      * Sets the mote sensors of the mote.
      * @param moteSensors the mote sensors to set.
      */
-    @Basic
     public void setSensors(List<MoteSensor> moteSensors) {
         this.moteSensors = moteSensors;
     }
@@ -365,7 +349,6 @@ public class Mote extends NetworkEntity {
      * Returns the movementSpeed of the mote.
      * @return The movementSpeed of the mote.
      */
-    @Basic
     public double getMovementSpeed() {
         return movementSpeed;
     }
@@ -374,7 +357,6 @@ public class Mote extends NetworkEntity {
      * Sets the movement speed of the mote.
      * @param movementSpeed The movement speed of the mote.
      */
-    @Basic
     public void setMovementSpeed(double movementSpeed) {
         this.movementSpeed = movementSpeed;
     }
@@ -383,7 +365,6 @@ public class Mote extends NetworkEntity {
      * Returns the start offset of the mote in seconds.
      * @return the start offset of the mote in seconds.
      */
-    @Basic
     public int getStartMovementOffset() {
         return this.startMovementOffset;
     }

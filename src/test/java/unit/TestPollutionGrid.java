@@ -25,7 +25,7 @@ class TestPollutionGrid {
     void noMeasurements() {
         PollutionGrid grid = new PollutionGrid();
 
-        assertEquals(grid.getPollutionLevel(new GeoPosition(5,5)).getPollutionFactor(), 0.0);
-        assertEquals(grid.getPollutionLevel(new GeoPosition(50,50)).getPollutionFactor(), 0.0);
+        assertEquals(grid.getPollutionLevel(new GeoPosition(5, 5)).getPollutionFactor(), 0.0);
+        assertEquals(grid.getPollutionLevel(new GeoPosition(50, 50)).getPollutionFactor(), 0.0);
     }
 }

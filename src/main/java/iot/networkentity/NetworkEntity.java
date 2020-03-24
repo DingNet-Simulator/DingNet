@@ -1,9 +1,6 @@
 package iot.networkentity;
 
 
-import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Immutable;
-import be.kuleuven.cs.som.annotate.Raw;
 import iot.Environment;
 import iot.lora.*;
 import iot.networkcommunication.api.Receiver;
@@ -70,7 +67,6 @@ public abstract class NetworkEntity implements Serializable {
      * @param transmissionPowerThreshold The threshold for discriminating different transmissions.
      * @param environment The environment to which the entity belongs.
      */
-    @Raw
     NetworkEntity(long EUI, double xPos, double yPos, int transmissionPower, int SF, double transmissionPowerThreshold, Environment environment) {
         this.xPos = xPos;
         this.yPos = yPos;
@@ -102,7 +98,6 @@ public abstract class NetworkEntity implements Serializable {
      * @param transmissionPower The transmission power to check.
      * @return true if the transmission power is valid. False otherwise.
      */
-    @Immutable
     private static boolean isValidTransmissionPower(int transmissionPower) {
         return true;
     }
@@ -116,8 +111,6 @@ public abstract class NetworkEntity implements Serializable {
      *  Returns The transmission power of the entity.
      * @return The transmission power of the entity.
      */
-    @Basic
-    @Raw
     public int getTransmissionPower() {
         return transmissionPower;
     }
@@ -188,8 +181,6 @@ public abstract class NetworkEntity implements Serializable {
 
 
 
-    @Basic
-    @Raw
     public int getXPosInt() {
         return (int) xPos;
     }
@@ -198,14 +189,11 @@ public abstract class NetworkEntity implements Serializable {
         return xPos;
     }
 
-    @Basic
     public void setXPos(double xPos) {
         this.xPos = xPos;
     }
 
 
-    @Basic
-    @Raw
     public int getYPosInt() {
         return (int) yPos;
     }
@@ -214,7 +202,6 @@ public abstract class NetworkEntity implements Serializable {
         return yPos;
     }
 
-    @Basic
     public void setYPos(double yPos) {
         this.yPos = yPos;
     }
@@ -245,8 +232,6 @@ public abstract class NetworkEntity implements Serializable {
      *  Returns The spreading factor.
      * @return The spreading factor.
      */
-    @Basic
-    @Raw
     public int getSF() {
         return this.sender.getRegionalParameter().getSpreadingFactor();
     }

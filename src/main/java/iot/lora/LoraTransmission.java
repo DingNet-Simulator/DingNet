@@ -1,8 +1,5 @@
 package iot.lora;
 
-import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Immutable;
-import be.kuleuven.cs.som.annotate.Model;
 import util.Pair;
 
 import java.io.Serializable;
@@ -112,7 +109,6 @@ public class LoraTransmission implements Serializable {
      *  Returns the sender of this transmission.
      * @return The sender of this transmission.
      */
-    @Basic
     public long getSender() {
         return sender;
     }
@@ -121,7 +117,6 @@ public class LoraTransmission implements Serializable {
      *  Returns the receiver of this transmission.
      * @return The receiver of this transmission.
      */
-    @Basic
     public long getReceiver() {
         return receiver;
     }
@@ -147,7 +142,6 @@ public class LoraTransmission implements Serializable {
      * @param transmissionPower The transmission power to check.
      * @return  True if the transmission power is valid.
      */
-    @Immutable
     private static boolean isValidTransmissionPower(double transmissionPower) {
         return true;
     }
@@ -156,7 +150,6 @@ public class LoraTransmission implements Serializable {
      *  Returns The transmission power of this transmission.
      * @return The transmission power of this transmission.
      */
-    @Basic
     public double getTransmissionPower() {
         return transmissionPower;
     }
@@ -167,7 +160,6 @@ public class LoraTransmission implements Serializable {
      * @Post Sets the transmission power to the given value if the given value is valid.
      * @Post Sets the transmission power to 0 if the given value is not valid.
      */
-    @Model
     private void setTransmissionPower(double transmissionPower) {
         if (isValidTransmissionPower(transmissionPower)) {
             this.transmissionPower = transmissionPower;
@@ -255,7 +247,6 @@ public class LoraTransmission implements Serializable {
      * Returns the content of the transmission.
      * @return  the content of the transmission.
      */
-    @Basic
     public LoraWanPacket getContent() {
         return content;
     }

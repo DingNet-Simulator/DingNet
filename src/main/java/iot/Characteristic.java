@@ -1,6 +1,5 @@
 package iot;
 
-import be.kuleuven.cs.som.annotate.Basic;
 
 import java.awt.*;
 
@@ -50,7 +49,6 @@ public enum Characteristic {
      *  Returns the path loss exponent of this position.
      * @return The path loss exponent of this position.
      */
-    @Basic
     public double getPathLossExponent() {
         return pathLossExponent;
     }
@@ -59,7 +57,6 @@ public enum Characteristic {
      *  Returns the reference distance of this position.
      * @return The reference distance of this position.
      */
-    @Basic
     public double getReferenceDistance() {
         return referenceDistance;
     }
@@ -68,7 +65,6 @@ public enum Characteristic {
      *  Returns the shadow fading of this position.
      * @return The shadow fading of this position.
      */
-    @Basic
     public double getShadowFading() {
         return shadowFading;
     }
@@ -77,7 +73,6 @@ public enum Characteristic {
      * Returns the color.
      * @return the color.
      */
-    @Basic
     public Color getColor() {
         return color;
     }
