@@ -1,64 +1,55 @@
 package it.unibo.acdingnet.protelis.executioncontext
 
-import it.unibo.acdingnet.protelis.model.LoRaTransmission
-import it.unibo.acdingnet.protelis.model.MessageType
 import it.unibo.acdingnet.protelis.model.SensorType
-import it.unibo.acdingnet.protelis.mqtt.LoRaTransmissionWrapper
 import it.unibo.acdingnet.protelis.node.SensorNode
 import it.unibo.acdingnet.protelis.util.Const
-import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.NODE_TYPE
-import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.SENSOR_TYPE
+import it.unibo.acdingnet.protelis.util.Interpolator
+import it.unibo.acdingnet.protelis.util.toLatLongPosition
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
-import it.unibo.protelisovermqtt.executioncontext.MQTTPositionedExecutionContext
-import it.unibo.protelisovermqtt.util.Topics
+import org.protelis.lang.datatype.Tuple
 import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager
 import org.protelis.vm.impl.SimpleExecutionEnvironment
+import java.math.RoundingMode
 
 open class SensorExecutionContext @JvmOverloads constructor(
-    private val sensorNode: SensorNode,
-    val applicationUID: String,
+    sensorNode: SensorNode,
+    applicationUID: String,
     mqttClient: MqttClientBasicApi,
     netmgr: NetworkManager,
     randomSeed: Int = 1,
     execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
-) : MQTTPositionedExecutionContext(sensorNode.deviceUID, sensorNode.position, mqttClient, netmgr,
-    randomSeed, execEnvironment) {
-
-    private var sensorsValue: Map<SensorType, Double> = emptyMap()
-
-    init {
-        subscribeTopic(Topics.nodeReceiveTopic(applicationUID, sensorNode.deviceUID),
-            LoRaTransmissionWrapper::class.java) { _, msg ->
-            handleDeviceTransmission(msg.transmission)
-        }
-        execEnvironment.put(NODE_TYPE, SENSOR_TYPE)
-    }
+) : LoRaMoteExecutionContext(sensorNode, applicationUID, mqttClient, netmgr, randomSeed, execEnvironment) {
 
     override fun instance(): SensorExecutionContext = this
 
-    protected fun handleDeviceTransmission(message: LoRaTransmission) {
-        val payload = message.content.payload.toMutableList()
-        if (payload.isNotEmpty() && payload[0] == MessageType.SENSOR_VALUE.code) {
-            payload.removeAt(0)
-            sensorNode.sensorTypes.forEach {
-                when (it) {
-                    SensorType.GPS -> sensorNode.position = it.consumeAndConvert(payload)
-                    SensorType.IAQ -> throw IllegalArgumentException("IAQ sensor shouldn't be used")
-                    else -> {
-                        val value: Double = it.consumeAndConvert(payload)
-                        execEnvironment.put(it.name, value)
-                        sensorsValue = sensorsValue.plus(Pair(it, value))
-                    }
-                }
-            }
-            sensorsValue
-                .map { sensor -> IAQCalculator.computeIaqLevel(sensor.key, sensor.value) }
-                .filterNotNull()
-                .max()
-                ?.let { value -> execEnvironment.put(Const.ProtelisEnv.IAQLEVEL, value) }
-        }
+    override fun manageSensorValues(sensorsValue: Map<SensorType, Double>) {
+        sensorsValue
+            .map { sensor -> IAQCalculator.computeIaqLevel(sensor.key, sensor.value) }
+            .filterNotNull()
+            .max()
+            ?.let { value -> execEnvironment.put(Const.ProtelisEnv.IAQLEVEL, value) }
     }
+
+    // region used in protelis program
+    @JvmOverloads
+    fun roundToDecimal(value: Double, numOfDecimal: Int = 1) = value.toBigDecimal()
+        .setScale(numOfDecimal, RoundingMode.HALF_EVEN).toDouble()
+
+
+    fun distanceTo(position: Tuple): Double {
+        if (position.size() != 2 || position.toArray().any { it !is Double }) {
+            throw IllegalStateException("$position not represent a valid LatLongPosition")
+        }
+        return coordinates.toLatLongPosition().distanceTo(position.toLatLongPosition())
+    }
+
+    fun temperatureByPollution(pollutionValue: Double): Double = when {
+        pollutionValue < 1 -> 25.0
+        pollutionValue > 100 -> 17.0
+        else -> roundToDecimal(Interpolator.interpolateTempByPollution(pollutionValue))
+    }
+    //endregion
 }
 
 object IAQCalculator {
