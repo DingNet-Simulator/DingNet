@@ -7,6 +7,7 @@ import iot.mqtt.MQTTClientFactory
 import iot.mqtt.TransmissionWrapper
 import iot.networkentity.Mote
 import iot.networkentity.UserMote
+import it.unibo.acdingnet.protelis.dingnetwrapper.BuildingNodeWrapper
 import it.unibo.acdingnet.protelis.dingnetwrapper.SensorNodeWrapper
 import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.model.SensorType
@@ -108,7 +109,7 @@ class ProtelisApp(
             }
 
         building = buildingNode.map {
-            BuildingNode(
+            BuildingNodeWrapper(
                 ProtelisLoader.parse(protelisProgram),
                 DoubleTime(random.nextInt(100).toDouble()).plusMinutes(1.0),
                 900,

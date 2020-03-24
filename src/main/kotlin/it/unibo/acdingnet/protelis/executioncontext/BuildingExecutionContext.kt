@@ -9,7 +9,7 @@ import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager
 import org.protelis.vm.impl.SimpleExecutionEnvironment
 
-class BuildingExecutionContext(
+open class BuildingExecutionContext(
     private val buildingNode: BuildingNode,
     desiredTemp: Double,
     private val deltaTemp: Double,
@@ -27,12 +27,6 @@ class BuildingExecutionContext(
         execEnvironment.put(CURRENT_TEMP, (desiredTemp - deltaTemp * 5))
     }
 
-    override fun instance(): BuildingExecutionContext = this
-
     fun getDecreaseDelta() = deltaTemp
     fun getIncreaseDelta() = deltaTemp
-
-    override fun getCurrentTime(): Number {
-        return buildingNode.timer.time.asSecond()
-    }
 }
