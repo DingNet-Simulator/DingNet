@@ -4,7 +4,6 @@ import iot.GlobalClock
 import it.unibo.acdingnet.protelis.executioncontext.BuildingEC
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import it.unibo.protelisovermqtt.model.LatLongPosition
-import it.unibo.protelisovermqtt.node.GenericNode
 import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ExecutionContext
 import org.protelis.vm.ProtelisProgram
@@ -22,8 +21,8 @@ open class BuildingNode(
     private val deltaTemp: Double,
     val timer: GlobalClock,
     neighbors: Set<StringUID> = emptySet()
-) : GenericNode(protelisProgram, sleepTime, deviceUID, applicationUID,
-    netManagerMqttClient, position, neighbors) {
+) : SensorNode(protelisProgram, sleepTime, deviceUID, applicationUID,
+    netManagerMqttClient, netManagerMqttClient, position, emptyList(), neighbors) {
 
     init {
         timer.addPeriodicTrigger(startingTime, sleepTime) { runVM() }
@@ -34,6 +33,10 @@ open class BuildingNode(
             this,
             desiredTemp,
             deltaTemp,
+            applicationUID,
+            execContextMqttClient,
             networkManager
         )
+
+    fun getTemp(temp: String): Double = executionContext.executionEnvironment.get(temp) as Double
 }
