@@ -1,6 +1,6 @@
 # DingNet
 
-[![Build Status](https://travis-ci.com/Placu95/DingNet.svg?branch=protelisOverMqtt)](https://travis-ci.com/Placu95/DingNet)
+[![Build Status](https://travis-ci.com/Placu95/DingNet.svg?branch=develop)](https://travis-ci.com/Placu95/DingNet)
 
 The source code for the DingNet simulator.
 
@@ -14,7 +14,7 @@ The simulator can then be run with the following command: `gradlew run`.
 
 Alternatively, run the command `gradlew shadowJar`. This will generate a jar file under the build/libs directory: `DingNet-{version}.jar`.
 
-Similarly to the previously listed commands, `gradlew test` runs the tests for the project and `gradlew chack` extend it performing style check.
+Similarly to the previously listed commands, `gradlew test` runs the tests for the project and `gradlew check` extend it performing style check.
 
 ## Running the simulator
 
