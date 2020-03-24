@@ -3,7 +3,7 @@
     <inputProfile>
         <name>ReliableEfficient</name>
         <numberOfRuns>10</numberOfRuns>
-        <simulationDuration>2</simulationDuration>
+        <simulationDuration>120</simulationDuration>
         <timeUnit>Hours</timeUnit>
         <protelisApp>
             <protelisProgram>protelis:homeHeating_timer</protelisProgram>
