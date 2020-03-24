@@ -35,8 +35,12 @@ class TestGraph {
         graph.addWayPoint(new GeoPosition(2, 2));
 
         Map<Long, GeoPosition> wayPoints = graph.getWayPoints();
-        Long idPoint1 = wayPoints.entrySet().stream().filter(e -> e.getValue().equals(new GeoPosition(1, 1))).map(Map.Entry::getKey).findFirst().orElse(-1L);
-        Long idPoint2 = wayPoints.entrySet().stream().filter(e -> e.getValue().equals(new GeoPosition(2, 2))).map(Map.Entry::getKey).findFirst().orElse(-1L);
+
+        Long idPoint1 = wayPoints.entrySet().stream().filter(e -> e.getValue()
+            .equals(new GeoPosition(1, 1))).map(Map.Entry::getKey).findFirst().orElse(-1L);
+        Long idPoint2 = wayPoints.entrySet().stream().filter(e -> e.getValue()
+            .equals(new GeoPosition(2, 2))).map(Map.Entry::getKey).findFirst().orElse(-1L);
+
         graph.addConnection(new Connection(idPoint1, idPoint2));
 
         assertFalse(graph.getConnections().isEmpty());
@@ -75,7 +79,7 @@ class TestGraph {
     void initialization() {
         Map<Long, GeoPosition> wayPoints = new HashMap<>();
         wayPoints.put(1L, new GeoPosition(50, 50));
-        wayPoints.put(5L, new GeoPosition(5 , 5));
+        wayPoints.put(5L, new GeoPosition(5, 5));
 
         GraphStructure graph = new GraphStructure(wayPoints, new HashMap<>());
 

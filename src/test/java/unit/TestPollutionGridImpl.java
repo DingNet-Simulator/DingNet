@@ -28,5 +28,6 @@ class TestPollutionGridImpl {
 
         assertEquals(grid.getPollutionLevel(new GeoPosition(5, 5)), 0.0);
         assertEquals(grid.getPollutionLevel(new GeoPosition(50, 50)), 0.0);
+
     }
 }

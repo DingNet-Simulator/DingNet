@@ -32,19 +32,12 @@ The name of the protelis program to execute is retrieved from the `InputProfile`
 (Currently the only way to define the protelis program to execute is to add it manually in the xml file,
 in further it will be also possible with the simulator GUI)
 
-## Libraries
-
-DingNet uses the following libraries:
-- AnnotationsDoclets (included in the lib folder, since it is not available online (yet))
-- jfreechart-1.5.0
-- jxmapviewer2-2.4
-
-
 ## Future goals
 
-- [ ] Refactor Inputprofile
-- [ ] Refactor QualityOfService
-- [ ] Realistic data generation
-- [ ] Rewrite transmission logic (moveTo, transmission power, ...)
-- [ ] \(Not important) Allow creation of circular routes for motes
-- [ ] update used library on README
+
+- Rewrite of adaptation logic
+- Project consistency (e.g. adjust gateway position assignment to geo-coordinates instead of legacy integer values)
+- Refactor InputProfile and QualityOfService
+- Rewrite transmission logic
+- Provide means of realistic sensor data generation
+- Improve testability of project (e.g. removal of singletons where applicable)

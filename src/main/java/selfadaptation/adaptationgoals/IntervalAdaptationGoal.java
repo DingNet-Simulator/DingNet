@@ -1,7 +1,5 @@
 package selfadaptation.adaptationgoals;
 
-import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Model;
 
 /**
  * An adaptation goal with a lower and upper value.
@@ -11,13 +9,11 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
     /**
      * A double representing the lower value of the goal
      */
-    @Model
     private final double lowerBoundary;
 
     /**
      * A double representing the upper value of the goal
      */
-    @Model
     private final double upperBoundary;
 
     /**
@@ -34,7 +30,6 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
      * Returns the lower value of the goal.
      * @return The lower value of the goal.
      */
-    @Basic
     public double getLowerBoundary() {
         return lowerBoundary;
     }
@@ -43,7 +38,6 @@ public class IntervalAdaptationGoal extends AdaptationGoal {
      * Returns the upper value of the goal.
      * @return The upper value of the goal.
      */
-    @Basic
     public double getUpperBoundary() {
         return upperBoundary;
     }

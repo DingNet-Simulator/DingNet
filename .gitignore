@@ -208,7 +208,6 @@ fabric.properties
 
 *.iml
 modules.xml
-.idea/misc.xml
 *.ipr
 
 # Sonarlint plugin
@@ -320,7 +319,9 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 
+# Custom
 
+.idea/vcs.xml
 .cache
 moquette*.log
 .kotlintest/*
