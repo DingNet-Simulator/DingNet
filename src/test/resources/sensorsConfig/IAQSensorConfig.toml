@@ -3,6 +3,8 @@ row = 10
 columns = 10
 defaultLevel = "GOOD"
 timeUnit = "SECONDS"
+samplesTime = 200
+finalTime = 300
 
 [[sensor.cell]]
     cellNumber = 62
