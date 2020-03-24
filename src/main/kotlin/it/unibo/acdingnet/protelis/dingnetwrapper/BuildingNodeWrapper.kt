@@ -34,11 +34,17 @@ class BuildingNodeWrapper(
 ) {
 
     override fun createContext(): ExecutionContext {
-        return BuildingECForDingNet(this, desiredTemp, deltaTemp, applicationUID, execContextMqttClient, networkManager)
+        return BuildingECForDingNet(
+            this,
+            desiredTemp,
+            deltaTemp,
+            applicationUID,
+            execContextMqttClient,
+            networkManager
+        )
     }
 
     init {
         timer.addPeriodicTrigger(startingTime, sleepTime) { runVM() }
     }
-
 }

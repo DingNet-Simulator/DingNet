@@ -41,5 +41,4 @@ abstract class PositionedExecutionContext(
     @JvmOverloads
     fun logField(field: Field<*>, who: DeviceUID = _deviceUID) = this.log(field.toString(), who)
     // endregion
-
 }

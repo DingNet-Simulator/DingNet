@@ -160,7 +160,7 @@ public class CompoundPainterBuilder {
                 .setWaypoints(points.stream()
                     .collect(Collectors.toMap(w ->
                         new DefaultWaypoint(w.getPosition()),
-                        it -> it.getCurrentTemp() + "\u00ba/" + it.getDesiredTemp() + "\u00ba/" + it.getMaxTemp()+"\u00ba")));
+                        it -> it.getCurrentTemp() + "\u00ba/" + it.getDesiredTemp() + "\u00ba/" + it.getMaxTemp() + "\u00ba")));
             painters.add(paintNumber);
         }
 

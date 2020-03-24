@@ -4,7 +4,8 @@ import application.pollution.PollutionGrid
 import gui.mapviewer.PollutionGridPainter
 import java.awt.Color
 
-class ProtelisPulltionGridPainter(pollutionGrid: PollutionGrid) : PollutionGridPainter(pollutionGrid) {
+class ProtelisPulltionGridPainter(pollutionGrid: PollutionGrid) :
+    PollutionGridPainter(pollutionGrid) {
 
     override fun getColor(airQuality: Float): Color = when {
         airQuality > 100 -> Color.decode("#e8416f")

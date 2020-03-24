@@ -20,8 +20,6 @@ class DefaultConverter : SensorConverter<Double> {
             else -> throw IllegalStateException("impossible convert. Sensor with unknown length")
         }
     }
-
-
 }
 
 class GPSConverter : SensorConverter<LatLongPosition> {

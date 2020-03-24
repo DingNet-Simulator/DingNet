@@ -6,12 +6,12 @@ import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import it.unibo.mqttclientwrapper.api.MqttMessageType
 import org.protelis.lang.datatype.impl.StringUID
 
-data class NeighborhoodMessage(val type: MessageType, val node: Node): MqttMessageType  {
+data class NeighborhoodMessage(val type: MessageType, val node: Node) : MqttMessageType {
 
     enum class MessageType { ADD, UPDATE, LEAVE }
 }
 
-data class NewNeighborhoodMessage(val neighborhood: Set<Pair<Node, Set<Node>>>): MqttMessageType
+data class NewNeighborhoodMessage(val neighborhood: Set<Pair<Node, Set<Node>>>) : MqttMessageType
 
 data class Node(val uid: StringUID, var position: LatLongPosition) {
 

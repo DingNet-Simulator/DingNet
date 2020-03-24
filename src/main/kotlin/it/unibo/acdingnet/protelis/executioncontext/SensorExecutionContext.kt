@@ -19,7 +19,8 @@ open class SensorExecutionContext @JvmOverloads constructor(
     netmgr: NetworkManager,
     randomSeed: Int = 1,
     execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
-) : LoRaMoteExecutionContext(sensorNode, applicationUID, mqttClient, netmgr, randomSeed, execEnvironment) {
+) : LoRaMoteExecutionContext(sensorNode, applicationUID, mqttClient, netmgr,
+    randomSeed, execEnvironment) {
 
     override fun instance(): SensorExecutionContext = this
 
@@ -35,7 +36,6 @@ open class SensorExecutionContext @JvmOverloads constructor(
     @JvmOverloads
     fun roundToDecimal(value: Double, numOfDecimal: Int = 1) = value.toBigDecimal()
         .setScale(numOfDecimal, RoundingMode.HALF_EVEN).toDouble()
-
 
     fun distanceTo(position: Tuple): Double {
         if (position.size() != 2 || position.toArray().any { it !is Double }) {

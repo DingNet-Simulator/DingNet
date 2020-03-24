@@ -54,7 +54,7 @@ class ProtelisApp(
                         50.877910751397,
                         4.69141960144043
                     )
-                ), //25
+                ), // 25
                 23.2
             ),
             Pair(
@@ -64,7 +64,7 @@ class ProtelisApp(
                         50.884419292982145,
                         4.711053371429443
                     )
-                ), //23
+                ), // 23
                 24.0
             ),
             Pair(
@@ -74,7 +74,7 @@ class ProtelisApp(
                         50.86946149128906,
                         4.702663421630859
                     )
-                ), //24
+                ), // 24
                 23.5
             )
         )
@@ -139,7 +139,7 @@ class ProtelisApp(
     fun getPollutionGrid(): PollutionGrid = ProtelisPollutionGrid(
         node.map { Pair(it.position.toGeoPosition(), it.getPollutionValue()) },
         Const.NEIGHBORHOOD_RANGE,
-        20.0 //value in good level
+        20.0 // value in good level
     )
 }
 

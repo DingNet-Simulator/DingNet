@@ -16,11 +16,11 @@ class SensorECForDingNet(
     private val timer: GlobalClock = sensorNode.timer
 
     init {
-        execEnvironment.put(Const.ProtelisEnv.IAQLEVEL, 20.0 - abs(sensorNode.deviceUID.uid.toLong()))
+        execEnvironment.put(Const.ProtelisEnv.IAQLEVEL,
+            20.0 - abs(sensorNode.deviceUID.uid.toLong()))
     }
 
     override fun instance(): SensorECForDingNet = this
-
 
     override fun getCurrentTime(): Number {
         return timer.time.asSecond()

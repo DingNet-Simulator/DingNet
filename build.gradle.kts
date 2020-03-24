@@ -1,5 +1,5 @@
 plugins {
-	eclipse
+    eclipse
     id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
     application
     java

@@ -33,6 +33,7 @@ class SensorNodeWrapper(
         timer.addPeriodicTrigger(startingTime, sleepTime) { runVM() }
     }
 
-    //default value for sensors that have not receive value yet
-    fun getPollutionValue(): Double = executionContext.executionEnvironment.get(Const.ProtelisEnv.IAQLEVEL, 40.0) as Double
+    // default value for sensors that have not receive value yet
+    fun getPollutionValue(): Double = executionContext.executionEnvironment
+        .get(Const.ProtelisEnv.IAQLEVEL, 40.0) as Double
 }

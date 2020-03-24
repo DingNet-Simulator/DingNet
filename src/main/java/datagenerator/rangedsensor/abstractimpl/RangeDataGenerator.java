@@ -67,9 +67,9 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     private TricubicInterpolatingFunction initFunction() {
         var random = new Random(1);
         var xval = new double[row];
-        IntStream.rangeClosed(1, row).forEach(i -> xval[i-1] = i);
+        IntStream.rangeClosed(1, row).forEach(i -> xval[i - 1] = i);
         var yval = new double[columns];
-        IntStream.rangeClosed(1, columns).forEach(i -> yval[i-1] = i);
+        IntStream.rangeClosed(1, columns).forEach(i -> yval[i - 1] = i);
         var times = map.entrySet().stream()
             .flatMap(e -> e.getValue().stream())
             .map(Cell::getFromTime)
@@ -114,7 +114,7 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     }
 
     private RangeValue getCellLevel(double x, double y, Time time) {
-        return map.getOrDefault((int)(x*columns+y), new LinkedList<>()).stream()
+        return map.getOrDefault((int)(x * columns + y), new LinkedList<>()).stream()
             .filter(c -> timeUnit.convertTo(c.getFromTime(), TimeUnit.MILLIS) <= time.asMilli())
             .findFirst()// the list of cell is ordered for time
             .map(Cell::getLevel)
