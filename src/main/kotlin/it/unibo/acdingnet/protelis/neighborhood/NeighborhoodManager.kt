@@ -1,9 +1,9 @@
-package it.unibo.protelisovermqtt.neighborhood
+package it.unibo.acdingnet.protelis.neighborhood
 
+import it.unibo.acdingnet.protelis.model.LatLongPosition
+import it.unibo.acdingnet.protelis.util.Topics
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import it.unibo.mqttclientwrapper.api.MqttMessageType
-import it.unibo.protelisovermqtt.model.LatLongPosition
-import it.unibo.protelisovermqtt.util.Topics
 import org.protelis.lang.datatype.impl.StringUID
 
 data class NeighborhoodMessage(val type: MessageType, val node: Node): MqttMessageType  {
@@ -48,7 +48,11 @@ class NeighborhoodManager(
     init {
         neighborhood =
             initialGroup
-                .map { it to computeNeighborhood(it, initialGroup, range).toMutableSet() }
+                .map { it to computeNeighborhood(
+                    it,
+                    initialGroup,
+                    range
+                ).toMutableSet() }
                 .toMap().toMutableMap()
         mqttClient.subscribe(this, Topics.neighborhoodManagerTopic(applicationUID),
             NeighborhoodMessage::class.java) { _, msg ->
@@ -95,6 +99,13 @@ class NeighborhoodManager(
         neighborhood[node] = newNeighborhood
     }
 
-    private fun sendNewNeigh() = mqttClient.publish(Topics.neighborhoodTopic(applicationUID),
-        NewNeighborhoodMessage(neighborhood.map { Pair(it.key, it.value) }.toSet()))
+    private fun sendNewNeigh() = mqttClient.publish(
+        Topics.neighborhoodTopic(applicationUID),
+        NewNeighborhoodMessage(neighborhood.map {
+            Pair(
+                it.key,
+                it.value
+            )
+        }.toSet())
+    )
 }

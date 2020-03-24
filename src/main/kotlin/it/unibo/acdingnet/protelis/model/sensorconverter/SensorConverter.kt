@@ -1,7 +1,7 @@
 package it.unibo.acdingnet.protelis.model.sensorconverter
 
+import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.util.SIZE_BYTES
-import it.unibo.protelisovermqtt.model.LatLongPosition
 import java.nio.ByteBuffer
 
 interface SensorConverter<T> {
@@ -27,8 +27,10 @@ class DefaultConverter : SensorConverter<Double> {
 class GPSConverter : SensorConverter<LatLongPosition> {
     override fun convert(length: Int, data: MutableList<Byte>): LatLongPosition {
         val buffer = ByteBuffer.wrap((1..length).map { data.removeAt(0) }.toByteArray())
-        return LatLongPosition(buffer.float.toDouble(),
-            buffer.getFloat(Float.SIZE_BYTES).toDouble())
+        return LatLongPosition(
+            buffer.float.toDouble(),
+            buffer.getFloat(Float.SIZE_BYTES).toDouble()
+        )
     }
 }
 

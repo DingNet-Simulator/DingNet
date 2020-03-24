@@ -1,6 +1,6 @@
-package it.unibo.protelisovermqtt.executioncontext
+package it.unibo.acdingnet.protelis.executioncontext
 
-import it.unibo.protelisovermqtt.model.LatLongPosition
+import it.unibo.acdingnet.protelis.model.LatLongPosition
 import org.protelis.lang.datatype.DeviceUID
 import org.protelis.lang.datatype.Field
 import org.protelis.lang.datatype.Tuple

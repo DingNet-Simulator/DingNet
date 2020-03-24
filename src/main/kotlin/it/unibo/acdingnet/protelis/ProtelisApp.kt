@@ -8,15 +8,15 @@ import iot.mqtt.TransmissionWrapper
 import iot.networkentity.Mote
 import iot.networkentity.UserMote
 import it.unibo.acdingnet.protelis.dingnetwrapper.SensorNodeWrapper
+import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.model.SensorType
+import it.unibo.acdingnet.protelis.neighborhood.NeighborhoodManager
+import it.unibo.acdingnet.protelis.neighborhood.Node
 import it.unibo.acdingnet.protelis.node.BuildingNode
 import it.unibo.acdingnet.protelis.util.Const
 import it.unibo.acdingnet.protelis.util.gui.ProtelisPollutionGrid
 import it.unibo.acdingnet.protelis.util.toGeoPosition
 import it.unibo.mqttclientwrapper.mock.MqttMockCast
-import it.unibo.protelisovermqtt.model.LatLongPosition
-import it.unibo.protelisovermqtt.neighborhood.NeighborhoodManager
-import it.unibo.protelisovermqtt.neighborhood.Node
 import org.jxmapviewer.viewer.GeoPosition
 import org.protelis.lang.ProtelisLoader
 import org.protelis.lang.datatype.impl.StringUID
@@ -41,34 +41,55 @@ class ProtelisApp(
     private val building: List<BuildingNode>
 
     init {
-        val nodes: MutableSet<Node> = motes.map { Node(StringUID("" + it.eui),
-            LatLongPosition(it.pathPosition.latitude, it.pathPosition.longitude)) }.toMutableSet()
+        val nodes: MutableSet<Node> = motes.map {
+            Node(
+                StringUID("" + it.eui),
+                LatLongPosition(
+                    it.pathPosition.latitude,
+                    it.pathPosition.longitude
+                )
+            )
+        }.toMutableSet()
 
         val buildingNode = listOf(
             Pair(
                 Node(
                     StringUID("0"),
-                    LatLongPosition(50.877910751397,4.69141960144043)), //25
+                    LatLongPosition(
+                        50.877910751397,
+                        4.69141960144043
+                    )
+                ), //25
                 23.2
             ),
             Pair(
                 Node(
                     StringUID("1"),
-                    LatLongPosition(50.884419292982145,4.711053371429443)), //23
+                    LatLongPosition(
+                        50.884419292982145,
+                        4.711053371429443
+                    )
+                ), //23
                 24.0
             ),
             Pair(
                 Node(
                     StringUID("2"),
-                    LatLongPosition(50.86946149128906,4.702663421630859)), //24
+                    LatLongPosition(
+                        50.86946149128906,
+                        4.702663421630859
+                    )
+                ), //24
                 23.5
             )
         )
 
         nodes.addAll(buildingNode.map { it.first })
 
-        neigh = NeighborhoodManager(Const.APPLICATION_ID,
-            MQTTClientFactory.getSingletonInstance(), Const.NEIGHBORHOOD_RANGE, nodes)
+        neigh = NeighborhoodManager(
+            Const.APPLICATION_ID,
+            MQTTClientFactory.getSingletonInstance(), Const.NEIGHBORHOOD_RANGE, nodes
+        )
 
         node = motes
             .filter { it !is UserMote }
@@ -82,7 +103,10 @@ class ProtelisApp(
                     Const.APPLICATION_ID,
                     MqttMockCast(),
                     MQTTClientFactory.getSingletonInstance(),
-                    LatLongPosition(it.pathPosition.latitude, it.pathPosition.longitude),
+                    LatLongPosition(
+                        it.pathPosition.latitude,
+                        it.pathPosition.longitude
+                    ),
                     it.sensors.map { s -> SensorType.valueOf("$s") },
                     timer,
                     neigh.getNeighborhoodByNodeId(id).map { n -> n.uid }.toSet()

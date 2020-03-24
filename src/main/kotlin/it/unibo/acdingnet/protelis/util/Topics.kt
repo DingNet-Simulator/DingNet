@@ -1,4 +1,4 @@
-package it.unibo.protelisovermqtt.util
+package it.unibo.acdingnet.protelis.util
 
 import org.protelis.lang.datatype.impl.StringUID
 

@@ -1,4 +1,4 @@
-package it.unibo.protelisovermqtt.model
+package it.unibo.acdingnet.protelis.model
 
 import com.javadocmd.simplelatlng.LatLng
 import java.io.Serializable

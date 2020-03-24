@@ -5,10 +5,9 @@ import it.unibo.acdingnet.protelis.model.MessageType
 import it.unibo.acdingnet.protelis.model.SensorType
 import it.unibo.acdingnet.protelis.mqtt.LoRaTransmissionWrapper
 import it.unibo.acdingnet.protelis.node.NodeWithSensor
+import it.unibo.acdingnet.protelis.util.Topics
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import it.unibo.mqttclientwrapper.api.MqttMessageType
-import it.unibo.protelisovermqtt.executioncontext.PositionedExecutionContext
-import it.unibo.protelisovermqtt.util.Topics
 import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager
 import org.protelis.vm.impl.SimpleExecutionEnvironment

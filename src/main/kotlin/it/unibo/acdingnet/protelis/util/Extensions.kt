@@ -3,7 +3,7 @@ package it.unibo.acdingnet.protelis.util
 import com.javadocmd.simplelatlng.LatLng
 import com.javadocmd.simplelatlng.LatLngTool
 import com.javadocmd.simplelatlng.util.LengthUnit
-import it.unibo.protelisovermqtt.model.LatLongPosition
+import it.unibo.acdingnet.protelis.model.LatLongPosition
 import org.jxmapviewer.viewer.GeoPosition
 import org.protelis.lang.datatype.Tuple
 
@@ -22,4 +22,5 @@ fun LatLongPosition.travel(destination: LatLongPosition, distance: Double): LatL
         .also { return LatLongPosition(it) }
 }
 
-fun Tuple.toLatLongPosition() = LatLongPosition(this[0] as Double, this[1] as Double)
+fun Tuple.toLatLongPosition() =
+    LatLongPosition(this[0] as Double, this[1] as Double)

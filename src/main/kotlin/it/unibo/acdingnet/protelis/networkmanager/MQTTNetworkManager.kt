@@ -1,12 +1,12 @@
-package it.unibo.protelisovermqtt.networkmanager
+package it.unibo.acdingnet.protelis.networkmanager
 
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializer
+import it.unibo.acdingnet.protelis.util.Topics
 import it.unibo.mqttclientwrapper.MQTTClientSingleton
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import it.unibo.mqttclientwrapper.api.MqttMessageType
-import it.unibo.protelisovermqtt.util.Topics
 import org.apache.commons.lang3.SerializationUtils
 import org.protelis.lang.datatype.DeviceUID
 import org.protelis.lang.datatype.impl.StringUID
@@ -47,8 +47,14 @@ open class MQTTNetworkManager(
     init {
 
         mqttClient
-            .addSerializer(MessageState::class.java, MessageState.jsonSerializer)
-            .addDeserializer(MessageState::class.java, MessageState.jsonDeserialier)
+            .addSerializer(
+                MessageState::class.java,
+                MessageState.jsonSerializer
+            )
+            .addDeserializer(
+                MessageState::class.java,
+                MessageState.jsonDeserialier
+            )
 
         neighbors.forEach { subscribeToMqtt(it) }
     }
@@ -61,7 +67,10 @@ open class MQTTNetworkManager(
     }
 
     override fun shareState(toSend: Map<CodePath, Any>): Unit =
-        mqttClient.publish(Topics.nodeStateTopic(applicationEUI, deviceUID), MessageState(toSend))
+        mqttClient.publish(
+            Topics.nodeStateTopic(applicationEUI, deviceUID),
+            MessageState(toSend)
+        )
 
     override fun getNeighborState(): Map<DeviceUID, Map<CodePath, Any>> =
         messages.apply { messages = emptyMap() }

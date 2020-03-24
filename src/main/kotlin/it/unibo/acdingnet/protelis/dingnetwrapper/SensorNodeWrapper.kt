@@ -1,11 +1,11 @@
 package it.unibo.acdingnet.protelis.dingnetwrapper
 
 import iot.GlobalClock
+import it.unibo.acdingnet.protelis.model.LatLongPosition
 import it.unibo.acdingnet.protelis.model.SensorType
 import it.unibo.acdingnet.protelis.node.SensorNode
 import it.unibo.acdingnet.protelis.util.Const
 import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
-import it.unibo.protelisovermqtt.model.LatLongPosition
 import org.protelis.lang.datatype.impl.StringUID
 import org.protelis.vm.ProtelisProgram
 import util.time.Time
