@@ -16,7 +16,7 @@ import it.unibo.acdingnet.protelis.node.BuildingNode
 import it.unibo.acdingnet.protelis.util.Const
 import it.unibo.acdingnet.protelis.util.gui.ProtelisPollutionGrid
 import it.unibo.acdingnet.protelis.util.toGeoPosition
-import it.unibo.mqttclientwrapper.mock.MqttMockCast
+import it.unibo.mqttclientwrapper.mock.cast.MqttMockCast
 import org.jxmapviewer.viewer.GeoPosition
 import org.protelis.lang.ProtelisLoader
 import org.protelis.lang.datatype.impl.StringUID

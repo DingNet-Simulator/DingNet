@@ -23,7 +23,7 @@ object Versions {
 
     const val de_fayard_buildsrcversions_gradle_plugin: String = "0.3.2" // available: "0.7.0"
 
-    const val jpx: String = "1.4.0" // available: "1.6.1"
+    const val jpx: String = "1.4.0" // available: "1.7.0"
 
     const val kotlintest_runner_junit5: String = "3.3.2" // available: "3.4.2"
 
@@ -33,23 +33,25 @@ object Versions {
 
     const val commons_lang3: String = "3.9" 
 
+    const val commons_math3: String = "3.6.1" 
+
     const val org_eclipse_paho_client_mqttv3: String = "1.2.1" // available: "1.2.2"
 
-    const val org_gradle_kotlin_kotlin_dsl_gradle_plugin: String = "1.2.6" // available: "1.3.3"
+    const val org_gradle_kotlin_kotlin_dsl_gradle_plugin: String = "1.2.6" // available: "1.3.4"
 
-    const val org_jetbrains_kotlin_jvm_gradle_plugin: String = "1.3.61" 
+    const val org_jetbrains_kotlin_jvm_gradle_plugin: String = "1.3.61" // available: "1.3.70"
 
-    const val kotlin_reflect: String = "1.3.21" // available: "1.3.61"
+    const val kotlin_reflect: String = "1.3.21" // available: "1.3.70"
 
-    const val kotlin_sam_with_receiver: String = "1.3.61" 
+    const val kotlin_sam_with_receiver: String = "1.3.61" // available: "1.3.70"
 
-    const val kotlin_scripting_compiler_embeddable: String = "1.3.61" 
+    const val kotlin_scripting_compiler_embeddable: String = "1.3.61" // available: "1.3.70"
 
-    const val kotlin_stdlib_jdk8: String = "1.3.21" // available: "1.3.61"
+    const val kotlin_stdlib_jdk8: String = "1.3.21" // available: "1.3.70"
 
     const val jfreechart: String = "1.5.0" 
 
-    const val org_jlleitschuh_gradle_ktlint_gradle_plugin: String = "8.1.0" // available: "9.1.1"
+    const val org_jlleitschuh_gradle_ktlint_gradle_plugin: String = "8.1.0" // available: "9.2.1"
 
     const val junit_jupiter: String = "5.5.2" // available: "5.6.0"
 
@@ -65,10 +67,10 @@ object Versions {
     object Gradle {
         const val runningVersion: String = "5.4.1"
 
-        const val currentVersion: String = "6.1.1"
+        const val currentVersion: String = "6.2.2"
 
-        const val nightlyVersion: String = "6.3-20200131230056+0000"
+        const val nightlyVersion: String = "6.4-20200315230108+0000"
 
-        const val releaseCandidate: String = ""
+        const val releaseCandidate: String = "6.3-rc-1"
     }
 }

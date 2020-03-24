@@ -61,6 +61,10 @@ object Libs {
     const val commons_lang3: String = "org.apache.commons:commons-lang3:" + Versions.commons_lang3
 
     /**
+     * http://commons.apache.org/proper/commons-math/ */
+    const val commons_math3: String = "org.apache.commons:commons-math3:" + Versions.commons_math3
+
+    /**
      * http://www.eclipse.org/paho */
     const val org_eclipse_paho_client_mqttv3: String =
             "org.eclipse.paho:org.eclipse.paho.client.mqttv3:" +

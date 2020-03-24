@@ -1,4 +1,5 @@
 plugins {
+	eclipse
     id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
     application
     java
@@ -26,19 +27,17 @@ dependencies {
     implementation(Libs.jfreechart)
     implementation(Libs.jxmapviewer2)
     implementation(Libs.forms_rt)
-    implementation("org.apache.commons:commons-math3:3.6.1")
+    implementation(Libs.commons_math3)
     implementation(files("${projectDir.path}/lib/AnnotationsDoclets.jar"))
     implementation(Libs.gson)
     implementation(Libs.moquette_broker)
     implementation(files(Util.downloadLibFromUrl(ExternalLib.mqtt_client_wrapper)))
     // dependencies for protelis application
     implementation(Libs.protelis)
-    implementation(files(Util.downloadLibFromUrl(ExternalLib.protelis_over_mqtt)))
     implementation(Libs.simplelatlng)
     implementation(Libs.commons_lang3)
     implementation(Libs.konf)
     implementation(Libs.org_eclipse_paho_client_mqttv3)
-    implementation(Libs.jpx)
     // dependencies for test
     testImplementation(Libs.junit_jupiter)
     testImplementation(Libs.kotlintest_runner_junit5)
@@ -54,8 +53,6 @@ tasks.shadowJar.configure {
     archiveClassifier.set("")
     exclude("**/*.kotlin_metadata")
     exclude("**/*.kotlin_module")
-    // use this exclude only for library Jar not in runnable Jar
-    // exclude ("**/*.kotlin_builtins")
 }
 
 tasks.withType<Test> {
