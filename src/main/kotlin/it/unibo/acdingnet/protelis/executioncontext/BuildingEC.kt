@@ -1,38 +1,33 @@
 package it.unibo.acdingnet.protelis.executioncontext
 
 import it.unibo.acdingnet.protelis.node.BuildingNode
-import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.BUILDING_TYPE
 import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.CURRENT_TEMP
 import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.DESIRED_TEMP
-import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.NODE_TYPE
-import it.unibo.protelisovermqtt.executioncontext.PositionedExecutionContext
+import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.MAX_TEMP
+import it.unibo.mqttclientwrapper.api.MqttClientBasicApi
 import org.protelis.vm.ExecutionEnvironment
 import org.protelis.vm.NetworkManager
 import org.protelis.vm.impl.SimpleExecutionEnvironment
 
 class BuildingEC(
     private val buildingNode: BuildingNode,
-    private val desiredTemp: Double,
+    desiredTemp: Double,
     private val deltaTemp: Double,
-    private val netmgr: NetworkManager,
-    private val randomSeed: Int = 1,
-    private val execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
-) : PositionedExecutionContext(buildingNode.deviceUID, buildingNode.position,
+    applicationUID: String,
+    mqttClient: MqttClientBasicApi,
+    netmgr: NetworkManager,
+    randomSeed: Int = 1,
+    execEnvironment: ExecutionEnvironment = SimpleExecutionEnvironment()
+) : SensorExecutionContext(buildingNode, applicationUID, mqttClient,
     netmgr, randomSeed, execEnvironment) {
 
     init {
-        execEnvironment.put(NODE_TYPE, BUILDING_TYPE)
+        execEnvironment.put(MAX_TEMP, desiredTemp)
         execEnvironment.put(DESIRED_TEMP, desiredTemp)
-        val a = desiredTemp - deltaTemp * 2
-        execEnvironment.put(CURRENT_TEMP, a)
+        execEnvironment.put(CURRENT_TEMP, (desiredTemp - deltaTemp * 5))
     }
 
     override fun instance(): BuildingEC = this
-
-    fun maxTempByPollution(pollutionField: Any): Double {
-        println(pollutionField)
-        return 20.5
-    }
 
     fun getDecreaseDelta() = deltaTemp
     fun getIncreaseDelta() = deltaTemp
