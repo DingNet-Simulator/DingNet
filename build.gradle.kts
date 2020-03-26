@@ -1,5 +1,4 @@
 plugins {
-    eclipse
     id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
     application
     java
@@ -31,13 +30,12 @@ dependencies {
     implementation(files("${projectDir.path}/lib/AnnotationsDoclets.jar"))
     implementation(Libs.gson)
     implementation(Libs.moquette_broker)
+    implementation(Libs.konf)
     implementation(files(Util.downloadLibFromUrl(ExternalLib.mqtt_client_wrapper)))
     // dependencies for protelis application
     implementation(Libs.protelis)
     implementation(Libs.simplelatlng)
     implementation(Libs.commons_lang3)
-    implementation(Libs.konf)
-    implementation(Libs.org_eclipse_paho_client_mqttv3)
     // dependencies for test
     testImplementation(Libs.junit_jupiter)
     testImplementation(Libs.kotlintest_runner_junit5)
