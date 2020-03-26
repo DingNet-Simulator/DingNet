@@ -11,6 +11,12 @@ import util.time.Time;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Simulator starter class.
+ * If the simulator is executed with the option "-i" and the input profile is specified then
+ * the simulator starts a timedRun simulation in batch mode (without GUI),
+ * otherwise it starts the GUI
+ */
 public class Simulator {
 
     public static void main(String[] args) {
@@ -33,6 +39,8 @@ public class Simulator {
 
         SimulationRunner simulationRunner = SimulationRunner.getInstance();
         SettingsReader settingsReader = SettingsReader.getInstance();
+        // methods to copy all the files with the configuration simulation from the
+        // resource directory to the the directory in the user directory
         copyResourceDirectory(settingsReader.getConfigurationsResources(), settingsReader.getConfigurationsDirectory());
 
         if (cmd.hasOption("inputFile")) {
@@ -47,6 +55,9 @@ public class Simulator {
         }
     }
 
+    /**
+     * Update listener for the simulation in batch mode
+     */
     private static class BatchSimulationUpdater implements SimulationUpdateListener {
 
         private final MutableInteger rate;
@@ -111,5 +122,4 @@ public class Simulator {
         }
     }
     // endregion
-
 }

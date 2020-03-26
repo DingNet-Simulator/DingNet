@@ -32,7 +32,7 @@ class ProtelisApp(
 
     private val neigh: NeighborhoodManager
     private val random = Random(2)
-    private val node: List<SensorNodeWrapper>
+    private val sensorNodes: List<SensorNodeWrapper>
     private val building: List<BuildingNode>
 
     init {
@@ -50,30 +50,21 @@ class ProtelisApp(
             Pair(
                 Node(
                     StringUID("0"),
-                    LatLongPosition(
-                        50.877910751397,
-                        4.69141960144043
-                    )
+                    LatLongPosition(50.877910751397, 4.69141960144043)
                 ), // 25
                 23.2
             ),
             Pair(
                 Node(
                     StringUID("1"),
-                    LatLongPosition(
-                        50.884419292982145,
-                        4.711053371429443
-                    )
+                    LatLongPosition(50.884419292982145, 4.711053371429443)
                 ), // 23
                 24.0
             ),
             Pair(
                 Node(
                     StringUID("2"),
-                    LatLongPosition(
-                        50.86946149128906,
-                        4.702663421630859
-                    )
+                    LatLongPosition(50.86946149128906, 4.702663421630859)
                 ), // 24
                 23.5
             )
@@ -86,7 +77,7 @@ class ProtelisApp(
             MQTTClientFactory.getSingletonInstance(), Const.NEIGHBORHOOD_RANGE, nodes
         )
 
-        node = motes
+        sensorNodes = motes
             .filter { it !is UserMote }
             .map {
                 val id = StringUID("" + it.eui)
@@ -137,7 +128,7 @@ class ProtelisApp(
     }
 
     fun getPollutionGrid(): PollutionGrid = ProtelisPollutionGrid(
-        node.map { Pair(it.position.toGeoPosition(), it.getPollutionValue()) },
+        sensorNodes.map { Pair(it.position.toGeoPosition(), it.getPollutionValue()) },
         Const.NEIGHBORHOOD_RANGE,
         20.0 // value in good level
     )

@@ -22,6 +22,7 @@ public enum MoteSensor {
     PARTICULATE_MATTER(new ParticulateMatterDataGenerator()),
     GPS(new GPSDataGenerator()),
     PM10(PM10DataGeneratorSingleton.getInstance()),
+    // FIXME The last two singletons are always built using the configuration file of the first
     IAQ(IAQDataGeneratorSingleton.getInstance()),
     NO2(NO2DataGeneratorSingleton.getInstance());
 

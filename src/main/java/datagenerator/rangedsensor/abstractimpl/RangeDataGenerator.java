@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 
 
 /**
+ *  Base range data generator for an environment split in a matrix as follow:
  *      -------------
  *      | 1 | 2 | 3 |
  *      -------------
@@ -31,6 +32,10 @@ import java.util.stream.IntStream;
  *      -------------
  *      | 7 | 8 | 9 |
  *      -------------
+ *
+ *  This generator load the sensor configuration from a file and generate a tricubic spline
+ *  with the following coordinates: the two matrix's coordinates and the time, producing a
+ *  spatio-temporal function to produce sensed values
  */
 abstract public class RangeDataGenerator implements SensorDataGenerator {
 

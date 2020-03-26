@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Pollution grid implementation based on the nearest sensed value
+ */
 public class PollutionGridImpl implements PollutionGrid {
     // FIXME synchronized is necessary here, otherwise concurrent modification exceptions are thrown
     //  (even though the GUI updating should happen synchronously with invokeAndWait)

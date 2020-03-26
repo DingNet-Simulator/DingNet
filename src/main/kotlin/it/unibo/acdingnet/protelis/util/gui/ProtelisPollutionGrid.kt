@@ -5,6 +5,9 @@ import application.pollution.PollutionLevel
 import org.jxmapviewer.viewer.GeoPosition
 import util.MapHelper
 
+/**
+ * Pollution grid implementation based on the idw of the sensed value with `range` maximum distance
+ */
 data class ProtelisPollutionGrid(
     val sensors: List<Pair<GeoPosition, Double>>,
     val range: Double,
