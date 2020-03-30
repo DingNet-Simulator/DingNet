@@ -16,10 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class ConfigurationReader {
     private static IdRemapping idRemapping = new IdRemapping();
@@ -122,6 +119,8 @@ public class ConfigurationReader {
             // ---------------
             //      Motes
             // ---------------
+
+            Arrays.stream(MoteSensor.values()).forEach(MoteSensor::init);
 
             Element motes = (Element) configuration.getElementsByTagName("motes").item(0);
 
