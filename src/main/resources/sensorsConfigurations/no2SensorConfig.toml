@@ -1,0 +1,12 @@
+[sensor]
+row = 10
+columns = 10
+defaultLevel = "LOW"
+timeUnit = "SECONDS"
+samplesTime = 900
+finalTime = 3600
+
+[[sensor.cell]]
+    cellNumber = 62
+    level = "MEDIUM"
+    fromTime = 0
