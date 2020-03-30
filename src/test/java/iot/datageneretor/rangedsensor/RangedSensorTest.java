@@ -23,7 +23,7 @@ public class RangedSensorTest {
     static {
         new Environment(new Characteristic[10][10], new GeoPosition(5, 5), 100, Map.of(), Map.of());
         IAQDataGenerator.setConfigFilePath("/sensorsConfig/IAQSensorConfig.toml");
-        instance = IAQDataGenerator.getInstance();
+        instance = new IAQDataGenerator();
     }
 
     @Test
