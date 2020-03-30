@@ -3,7 +3,7 @@ package iot.datageneretor.rangedsensor;
 import datagenerator.SensorDataGenerator;
 import datagenerator.rangedsensor.api.RangeValue;
 import datagenerator.rangedsensor.iaqsensor.AirQualityLevel;
-import datagenerator.rangedsensor.iaqsensor.IAQDataGeneratorSingleton;
+import datagenerator.rangedsensor.iaqsensor.IAQDataGenerator;
 import iot.Characteristic;
 import iot.Environment;
 import org.junit.jupiter.api.Test;
@@ -22,8 +22,8 @@ public class RangedSensorTest {
 
     static {
         new Environment(new Characteristic[10][10], new GeoPosition(5, 5), 100, Map.of(), Map.of());
-        IAQDataGeneratorSingleton.setConfigFilePath("/sensorsConfig/IAQSensorConfig.toml");
-        instance = IAQDataGeneratorSingleton.getInstance();
+        IAQDataGenerator.setConfigFilePath("/sensorsConfig/IAQSensorConfig.toml");
+        instance = IAQDataGenerator.getInstance();
     }
 
     @Test

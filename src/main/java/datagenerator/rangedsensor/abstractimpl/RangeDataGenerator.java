@@ -39,7 +39,6 @@ import java.util.stream.IntStream;
  */
 abstract public class RangeDataGenerator implements SensorDataGenerator {
 
-    protected static SensorDataGenerator instance;
     private static String configFilePath;
     private final int row;
     private final int columns;
@@ -131,9 +130,6 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     }
 
     public static void setConfigFilePath(String path) {
-        if (instance != null) {
-            throw new IllegalStateException("sensor instance already created");
-        }
         configFilePath = path;
     }
 

@@ -1,22 +1,13 @@
 package datagenerator.rangedsensor.iaqsensor;
 
-import datagenerator.SensorDataGenerator;
 import datagenerator.rangedsensor.abstractimpl.RangeDataGenerator;
 
-
-public class IAQDataGeneratorSingleton extends RangeDataGenerator {
+public class IAQDataGenerator extends RangeDataGenerator {
 
     private static final String configFile = "/sensorsConfigurations/IAQSensorConfig.toml";
 
-    private IAQDataGeneratorSingleton() {
+    public IAQDataGenerator() {
         super(new IAQSensorConfigSpec());
-    }
-
-    public static SensorDataGenerator getInstance() {
-        if (instance == null) {
-            instance = new IAQDataGeneratorSingleton();
-        }
-        return instance;
     }
 
     @Override
