@@ -4,14 +4,15 @@ import datagenerator.rangedsensor.abstractimpl.RangeDataGenerator;
 
 public class IAQDataGenerator extends RangeDataGenerator {
 
-    private static final String configFile = "/sensorsConfigurations/IAQSensorConfig.toml";
+    private static final String DEFAULT_CONFIG_FILE = "/sensorsConfigurations/IAQSensorConfig.toml";
+    private final String configFile;
 
-    public IAQDataGenerator() {
-        super(new IAQSensorConfigSpec());
+    public IAQDataGenerator(String configFile) {
+        super(new IAQSensorConfigSpec(), configFile);
+        this.configFile = configFile;
     }
 
-    @Override
-    protected String getDefaultConfigFilePath() {
-        return configFile;
+    public IAQDataGenerator() {
+        this(DEFAULT_CONFIG_FILE);
     }
 }

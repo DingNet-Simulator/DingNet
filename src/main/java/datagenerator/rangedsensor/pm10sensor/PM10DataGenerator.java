@@ -4,14 +4,15 @@ import datagenerator.rangedsensor.abstractimpl.RangeDataGenerator;
 
 public class PM10DataGenerator extends RangeDataGenerator {
 
-    private static final String configFile = "/sensorsConfigurations/pm10SensorConfig.toml";
+    private static final String DEFAULT_CONFIG_FILE = "/sensorsConfigurations/pm10SensorConfig.toml";
+    private final String configFile;
 
     public PM10DataGenerator() {
-        super(new PM10SensorConfigSpec());
+        this(DEFAULT_CONFIG_FILE);
     }
 
-    @Override
-    protected String getDefaultConfigFilePath() {
-        return configFile;
+    public PM10DataGenerator(String configFile) {
+        super(new PM10SensorConfigSpec(), configFile);
+        this.configFile = configFile;
     }
 }

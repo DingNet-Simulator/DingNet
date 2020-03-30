@@ -8,6 +8,7 @@ import datagenerator.rangedsensor.api.RangeValue;
 import iot.Environment;
 import org.apache.commons.math3.analysis.interpolation.TricubicInterpolatingFunction;
 import org.apache.commons.math3.analysis.interpolation.TricubicInterpolator;
+import org.jetbrains.annotations.NotNull;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 import util.time.DoubleTime;
@@ -39,7 +40,6 @@ import java.util.stream.IntStream;
  */
 abstract public class RangeDataGenerator implements SensorDataGenerator {
 
-    private static String configFilePath;
     private final int row;
     private final int columns;
     private final int width;
@@ -51,12 +51,12 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     private final Map<Integer, List<Cell>> map;
     private final TricubicInterpolatingFunction function;
 
-    public RangeDataGenerator(AbstractSensorConfigSpec<?, ?> sensorConfig) {
+    public RangeDataGenerator(AbstractSensorConfigSpec<?, ?> sensorConfig, @NotNull String configFilePath) {
         width = Environment.getMapWidth();
         height = Environment.getMapHeight();
         Config config = new BaseConfig();
         config.addSpec(sensorConfig.SPEC);
-        config = config.from().toml.inputStream(this.getClass().getResourceAsStream(getConfigFilePath()));
+        config = config.from().toml.inputStream(this.getClass().getResourceAsStream(configFilePath));
         row = config.get(sensorConfig.row);
         columns = config.get(sensorConfig.columns);
         defaultLevel = config.get(sensorConfig.defaultLevel);
@@ -124,16 +124,6 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
             .map(Cell::getLevel)
             .orElse(defaultLevel);
     }
-
-    private String getConfigFilePath() {
-        return configFilePath != null ? configFilePath : getDefaultConfigFilePath();
-    }
-
-    public static void setConfigFilePath(String path) {
-        configFilePath = path;
-    }
-
-    protected abstract String getDefaultConfigFilePath();
 
     @Override
     public byte[] generateData(int x, int y, GeoPosition graphPosition, Time time) {
