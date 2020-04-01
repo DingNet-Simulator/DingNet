@@ -27,7 +27,6 @@ dependencies {
     implementation(Libs.jxmapviewer2)
     implementation(Libs.forms_rt)
     implementation(Libs.commons_math3)
-    implementation(files("${projectDir.path}/lib/AnnotationsDoclets.jar"))
     implementation(Libs.gson)
     implementation(Libs.moquette_broker)
     implementation(Libs.konf)
