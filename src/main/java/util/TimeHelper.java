@@ -1,7 +1,7 @@
 package util;
 
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
+import util.time.DoubleTime;
+import util.time.Time;
 
 public class TimeHelper {
     public static double nanoToMili(double nanoTime) {
@@ -20,9 +20,7 @@ public class TimeHelper {
         return  secTime * 1e3;
     }
 
-    public static LocalTime roundToMilli(LocalTime time) {
-        var lowerBound = time.truncatedTo(ChronoUnit.MILLIS);
-        var threshold = lowerBound.plus(500, ChronoUnit.MICROS);
-        return time.isBefore(threshold) ? lowerBound : lowerBound.plus(1, ChronoUnit.MILLIS);
+    public static Time roundToMilli(Time time) {
+        return new DoubleTime(Math.round(time.asMilli()));
     }
 }

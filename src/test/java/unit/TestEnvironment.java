@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Connection;
 import util.Path;
+import util.time.DoubleTime;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +36,7 @@ class TestEnvironment {
 
         assertTrue(environment.getMotes().isEmpty());
         assertTrue(environment.getGateways().isEmpty());
-        assertEquals(environment.getClock().getTime(), LocalTime.of(0, 0, 0));
+        assertEquals(environment.getClock().getTime(), DoubleTime.zero());
         assertNull(environment.getCharacteristic(0, 0));
         assertEquals(environment.getMapCenter(), new GeoPosition(5, 5));
         assertEquals(environment.getMaxXpos(), 0);

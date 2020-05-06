@@ -6,7 +6,7 @@ import java.util.Random;
 
 public enum PM10Level implements RangeValue {
 
-    VERY_LOW(0, 25),
+    VERY_LOW(5, 25),
     LOW(25, 50),
     MEDIUM(50, 90),
     HIGH(90, 180),

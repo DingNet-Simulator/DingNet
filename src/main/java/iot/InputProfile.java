@@ -1,6 +1,7 @@
 package iot;
 
 
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -13,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -72,6 +74,8 @@ public class InputProfile {
      */
     private Document xmlSource;
 
+    private final String protelisProgram;
+
     /**
      * Generates InputProfile with a given qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
      * regionProbabilities, xmlSource and gui.
@@ -88,7 +92,7 @@ public class InputProfile {
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
                         Element xmlSource) {
         this(name, qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
-            regionProbabilities, xmlSource, DEFAULT_SIMULATION_DURATION, DEFAULT_TIME_UNIT);
+            regionProbabilities, xmlSource, DEFAULT_SIMULATION_DURATION, DEFAULT_TIME_UNIT, null);
     }
 
 
@@ -108,7 +112,7 @@ public class InputProfile {
                         int numberOfRuns,
                         Map<Integer, Double> probabilitiesForMotes,
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
-                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit) {
+                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit, @Nullable String protelisProgram) {
         this.name = name;
         this.qualityOfServiceProfile = qualityOfServiceProfile;
         this.numberOfRuns = numberOfRuns;
@@ -130,6 +134,11 @@ public class InputProfile {
         this.xmlSource = newDocument;
         this.simulationDuration = simulationDuration;
         this.timeUnit = timeUnit;
+        this.protelisProgram = protelisProgram;
+    }
+
+    public Optional<String> getProtelisProgram() {
+        return Optional.ofNullable(protelisProgram);
     }
 
     /**

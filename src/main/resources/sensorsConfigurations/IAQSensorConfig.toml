@@ -3,6 +3,8 @@ row = 10
 columns = 10
 defaultLevel = "GOOD"
 timeUnit = "SECONDS"
+samplesTime = 900
+finalTime = 3600
 
 [[sensor.cell]]
     cellNumber = 62
@@ -14,5 +16,5 @@ timeUnit = "SECONDS"
     fromTime = 0
 [[sensor.cell]]
     cellNumber = 63
-    level = "POOR"
+    level = "VERY_POOR"
     fromTime = 120

@@ -34,7 +34,9 @@ public class SendPacketImmediately implements ResponseStrategy {
                 this,
                 Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
                 LoraWanPacketWrapper.class,
-                (t, msg) -> gateway.sendToDevice(msg.getPacket())
+                (t, msg) -> {
+                    gateway.sendToDevice(msg.getPacket());
+                }
             ));
     }
 

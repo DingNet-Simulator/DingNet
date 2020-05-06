@@ -1,6 +1,6 @@
 package util;
 
-import iot.mqtt.MQTTClientFactory;
+import it.unibo.mqttclientwrapper.MqttClientType;
 
 import java.awt.*;
 import java.io.*;
@@ -77,9 +77,15 @@ public class SettingsReader {
 
     // region MQTT
 
-    public MQTTClientFactory.MqttClientType getMQTTClientType() {
+    public MqttClientType getMQTTClientType() {
         String clientType = properties.getProperty("mqtt.client").trim().toUpperCase();
-        return MQTTClientFactory.MqttClientType.valueOf(clientType);
+        return MqttClientType.valueOf(clientType);
+    }
+
+    // region MQTT
+
+    public String getMQTTServerAddress() {
+        return properties.getProperty("mqtt.address").trim();
     }
 
     // endregion
@@ -181,9 +187,18 @@ public class SettingsReader {
 
 
     public String getTileFactoryCachePath() {
-        return this.adjustPathString((properties.getProperty("gui.path.CacheTileFactory")));
+        return this.adjustPathString(properties.getProperty("dingnet.directory") +
+            properties.getProperty("gui.path.CacheTileFactory"));
     }
 
+    public String getConfigurationsDirectory() {
+        return this.adjustPathString(properties.getProperty("dingnet.directory") +
+            properties.getProperty("configuration.homeDirectory"));
+    }
+
+    public String getConfigurationsResources() {
+        return this.adjustPathString(properties.getProperty("configuration.resources"));
+    }
 
     // endregion
 

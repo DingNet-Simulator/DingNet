@@ -28,6 +28,8 @@ public class Mote extends NetworkEntity {
     // default application identifier
     private static final long DEFAULT_APPLICATION_EUI = 1;
 
+    private static final int DEFAULT_TIME_TO_IGNORE_SAME_PACKET = 1;
+
 
     // A List of MoteSensors representing all sensors on the mote.
     private List<MoteSensor> moteSensors;
@@ -69,9 +71,29 @@ public class Mote extends NetworkEntity {
 
     protected List<ConsumePacketStrategy> consumePacketStrategies;
 
+    private final int timeToIgnoreSamePacket;
+
+    private boolean isArrived = false;
+
     //endregion
 
     // region constructor
+
+    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
+                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
+                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment, int timeToIgnoreSamePacket) {
+        super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
+        OverTheAirActivation();
+        this.moteSensors = moteSensors;
+        this.path = path;
+        this.energyLevel = energyLevel;
+        this.movementSpeed = movementSpeed;
+        this.startMovementOffset = startMovementOffset;
+        this.periodSendingPacket = periodSendingPacket;
+        this.startSendingOffset = startSendingOffset;
+        this.timeToIgnoreSamePacket = timeToIgnoreSamePacket;
+        this.initialize();
+    }
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
      * spreading factor, list of MoteSensors, energy level, connection, sampling rate, movement speed and start offset.
@@ -88,20 +110,11 @@ public class Mote extends NetworkEntity {
      * @param periodSendingPacket period to define how many seconds the mote has to send a packet (in seconds)
      * @param startSendingOffset time to await before send the first packet (in seconds)
      */
-    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
-                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
-                double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
-        super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
-        OverTheAirActivation();
-        this.moteSensors = moteSensors;
-        this.path = path;
-        this.energyLevel = energyLevel;
-        this.movementSpeed = movementSpeed;
-        this.startMovementOffset = startMovementOffset;
-        this.periodSendingPacket = periodSendingPacket;
-        this.startSendingOffset = startSendingOffset;
-
-        this.initialize();
+    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
+                List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed,
+                int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
+        this(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
+            startMovementOffset, periodSendingPacket, startSendingOffset, environment, DEFAULT_TIME_TO_IGNORE_SAME_PACKET);
     }
     /**
      * A constructor generating a node with a given x-coordinate, y-coordinate, environment, transmitting power
@@ -249,7 +262,7 @@ public class Mote extends NetworkEntity {
             clock.removeTrigger(keepAliveTriggerId);
         }
         keepAliveTriggerId = clock.addTriggerOneShot(
-            clock.getTime().plusSeconds(offset + periodSendingPacket * 5), //TODO configure parameter
+            clock.getTime().plusSeconds(offset + periodSendingPacket * timeToIgnoreSamePacket),
             () -> {
                 byte[] payload;
                 if (lastPacketSent == null) {
@@ -290,7 +303,7 @@ public class Mote extends NetworkEntity {
             send(packet);
             canReceive = true;
             lastPacketSent = packet;
-            resetKeepAliveTrigger(0);
+            resetKeepAliveTrigger(1);
         }
     }
 
@@ -407,11 +420,14 @@ public class Mote extends NetworkEntity {
     }
 
     public boolean isArrivedToDestination() {
-        if (path.isEmpty()) {
+        if (path.isEmpty() || isArrived) {
             return true;
         }
         //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
-        return this.getEnvironment().getMapHelper()
-            .toMapCoordinate(path.getDestination().get()).equals(getPosInt());
+        if (this.getEnvironment().getMapHelper()
+            .toMapCoordinate(path.getDestination().get()).equals(getPosInt())) {
+            isArrived = true;
+        }
+        return isArrived;
     }
 }

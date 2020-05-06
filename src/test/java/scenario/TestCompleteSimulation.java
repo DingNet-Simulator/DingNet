@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.MutableInteger;
+import util.xml.InputProfilesReader;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -27,8 +28,8 @@ public class TestCompleteSimulation {
         // Provide test configuration
         SimulationRunner runner = SimulationRunner.getInstance();
         runner.loadConfigurationFromFile(new File(TestCompleteSimulation.class.getResource("test_configuration.xml").getPath()));
-        runner.updateInputProfilesFile(new File(TestCompleteSimulation.class.getResource("test_inputProfile.xml").getPath()));
-        runner.getSimulation().setInputProfile(runner.getInputProfiles().get(0));
+        var inputProfiles = InputProfilesReader.readInputProfiles(TestCompleteSimulation.class.getResourceAsStream("test_inputProfile.xml"));
+        runner.getSimulation().setInputProfile(inputProfiles.get(0));
 
         // Do simulation
         runner.setupSingleRun();

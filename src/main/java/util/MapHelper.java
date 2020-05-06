@@ -1,5 +1,6 @@
 package util;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jxmapviewer.viewer.GeoPosition;
 
 public class MapHelper {
@@ -113,12 +114,23 @@ public class MapHelper {
             double theta = lon1 - lon2;
             double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) +
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
-            dist = Math.acos(dist);
+            //dist = Math.acos(dist);
+            dist = FastMath.acos(dist);
             dist = Math.toDegrees(dist);
             dist = dist * 60 * 1.1515;
             dist = dist * 1.609344;
             return dist;
         }
+    }
+
+    /**
+     * Calculate the distance (in m) between two geo coordinates.
+     * @param pos1 The first position.
+     * @param pos2 The second position.
+     * @return The distance between the two positions, expressed in m.
+     */
+    public static double distanceMeter(GeoPosition pos1, GeoPosition pos2) {
+        return distance(pos1, pos2) * 1e3;
     }
 
     public static boolean equalsGeoPosition(GeoPosition pos1, GeoPosition pos2) {
@@ -168,6 +180,7 @@ public class MapHelper {
      * Class which represents a geo coordinate in degrees, minutes and seconds.
      */
     public static class DegreesMinutesSeconds {
+        public static final String DEGREE_SYMBOL_CODE = "\u00ba";
         int degrees;
         int minutes;
         double seconds;
@@ -179,7 +192,7 @@ public class MapHelper {
         }
 
         public String toString() {
-            return String.format("%d° %d' %.2f\"", this.degrees, this.minutes, this.seconds);
+            return String.format("%d" + DEGREE_SYMBOL_CODE + " %d' %.2f\"", this.degrees, this.minutes, this.seconds);
         }
     }
 }

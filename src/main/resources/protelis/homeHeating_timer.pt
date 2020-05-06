@@ -1,0 +1,44 @@
+module protelis:homeHeating_timer
+
+import it.unibo.acdingnet.protelis.util.Const.ProtelisEnv.*
+import org.protelis.lang.datatype.Option.*
+import protelis:state:time
+
+public def decreaseTemp() = env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) {
+	cyclicFunction(1800, { self.roundToDecimal(v - self.getDecreaseDelta()) }, v)
+})
+
+public def increaseTemp() = env.put(CURRENT_TEMP, rep (v <- env.get(CURRENT_TEMP)) {
+	cyclicFunction(1800, { self.roundToDecimal(v + self.getIncreaseDelta()) }, v)
+})
+
+public def emptyFun() = 0
+
+public def idw(sensorValue) = if(!sensorValue.filter { it.get(0) == 0.0 }.isEmpty()) {
+		sensorValue.filter { it.get(0) == 0.0 }.get(0).get(1)
+	} else {
+		let weight = sensorValue.map{ 1 / it.get(0) }.reduce(1) { r1, r2 -> r1 + r2 }
+		sensorValue.map { it.get(1) / it.get(0) }.reduce(1) { r1, r2 -> r1 + r2 } / weight
+	}
+
+let pollutionField = nbr(mux(env.has(IAQLEVEL)) {
+	optionally([self.getCoordinates(), env.get(IAQLEVEL)])
+} else {
+	absent()
+}).map { it.set(0, self.distanceTo(it.get(0))) }
+
+let sensorValues = foldUnion([pollutionField]).filter { it.isPresent() }.map { it.get() }
+let maxTemperature = self.temperatureByPollution(idw(sensorValues))
+if (env.has(CURRENT_TEMP)) {
+    env.put(MAX_TEMP, maxTemperature)
+	//self.log("maxTemp: " + maxTemperature + " currentTemp " + env.get(CURRENT_TEMP) + " at: " + self.getCurrentTime())
+}
+
+optionally(env.get(DESIRED_TEMP, JAVA_NULL))
+	.map { mux(it < maxTemperature) { it } else { maxTemperature } }
+	.map { 
+		if(it < env.get(CURRENT_TEMP)) { decreaseTemp } 
+		else { if(it > env.get(CURRENT_TEMP)) { increaseTemp } else { emptyFun } }
+	}
+	.orElse(emptyFun).apply()
+

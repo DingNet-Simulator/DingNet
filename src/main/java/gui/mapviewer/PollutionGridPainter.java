@@ -2,6 +2,7 @@ package gui.mapviewer;
 
 import application.pollution.PollutionGrid;
 import iot.Environment;
+import iot.SimulationRunner;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -18,12 +19,12 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
     private Environment environment;
 
 
-    public PollutionGridPainter(Environment environment, PollutionGrid pollutionGrid) {
+    public PollutionGridPainter(PollutionGrid pollutionGrid) {
         this.setAntialiasing(SettingsReader.getInstance().useGUIAntialiasing());
         this.setCacheable(true);
 
         this.pollutionGrid = pollutionGrid;
-        this.environment = environment;
+        this.environment = SimulationRunner.getInstance().getEnvironment();
     }
 
     @Override
@@ -62,7 +63,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
                     (int) ((i + .5) * maxX / DIVISION),
                     (int) ((j + .5) * maxY / DIVISION));
 
-                float airQuality = (float) pollutionGrid.getPollutionLevel(middle).getPollutionFactor();
+                float airQuality = (float) pollutionGrid.getPollutionLevel(middle);
                 g.setColor(this.getColor(airQuality));
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, SettingsReader.getInstance().getPollutionGridTransparency()));
                 g.fill(new Rectangle2D.Double(topLeft.getX(), topLeft.getY(),
@@ -79,7 +80,7 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
      * @param airQuality The air quality in question (1 being good, 0 being bad).
      * @return A color between green and red representing the air quality.
      */
-    private Color getColor(float airQuality) {
+    protected Color getColor(float airQuality) {
         float[] hsbVals = Color.RGBtoHSB((int) (255 * airQuality), (int) (255 * (1 - airQuality)), 0, null);
         return Color.getHSBColor(hsbVals[0], hsbVals[1], hsbVals[2]).brighter().brighter();
     }

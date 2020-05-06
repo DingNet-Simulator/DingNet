@@ -26,17 +26,21 @@ public class WayPointPainter<W extends Waypoint> extends AbstractPainter<JXMapVi
     }
 
     public WayPointPainter(Color color) {
+        this(color, 12);
+    }
+
+    public WayPointPainter(Color color, int dimension) {
         setAntialiasing(SettingsReader.getInstance().useGUIAntialiasing());
         setCacheable(false);
 
-        this.img = new BufferedImage(12, 12, BufferedImage.TYPE_INT_ARGB);
+        this.img = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = this.img.createGraphics();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        g.fillRect(0, 0, 12, 12);
+        g.fillRect(0, 0, dimension, dimension);
         //reset composite
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
         g.setColor(color);
-        g.fill(new Ellipse2D.Double(0, 0, 12, 12));
+        g.fill(new Ellipse2D.Double(0, 0, dimension, dimension));
     }
 
     /**

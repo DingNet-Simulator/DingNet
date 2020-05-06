@@ -16,12 +16,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ConfigurationReader {
     private static IdRemapping idRemapping = new IdRemapping();
+    private static Random random = new Random(1);
 
     public static void loadConfiguration(File file, SimulationRunner simulationRunner) {
         idRemapping.reset();
@@ -121,6 +120,8 @@ public class ConfigurationReader {
             //      Motes
             // ---------------
 
+            Arrays.stream(MoteSensor.values()).forEach(MoteSensor::init);
+
             Element motes = (Element) configuration.getElementsByTagName("motes").item(0);
 
             for (int i = 0; i < motes.getElementsByTagName("mote").getLength(); i++) {
@@ -142,24 +143,30 @@ public class ConfigurationReader {
 
             for (int i = 0; i < gateways.getElementsByTagName("gateway").getLength(); i++) {
                 gatewayNode = (Element) gateways.getElementsByTagName("gateway").item(i);
-                long devEUI = Long.parseUnsignedLong(XMLHelper.readChild(gatewayNode, "devEUI"));
+                long devEUI = Long.parseLong(XMLHelper.readChild(gatewayNode, "devEUI"));
                 Element location = (Element) gatewayNode.getElementsByTagName("location").item(0);
-                int xPos = Integer.parseInt(XMLHelper.readChild(location, "xPos"));
-                int yPos = Integer.parseInt(XMLHelper.readChild(location, "yPos"));
+                var pos = getPos(location, environment);
 
                 int transmissionPower = Integer.parseInt(XMLHelper.readChild(gatewayNode, "transmissionPower"));
                 int spreadingFactor = Integer.parseInt(XMLHelper.readChild(gatewayNode, "spreadingFactor"));
-                environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor, environment));
+                environment.addGateway(new Gateway(devEUI, pos.getLeft(), pos.getRight(), transmissionPower, spreadingFactor, environment));
             }
         } catch (ParserConfigurationException | SAXException | IOException e1) {
             e1.printStackTrace();
         }
     }
 
-    private static boolean hasChild(Element root, String childName) {
-        return root.getElementsByTagName(childName).getLength() != 0;
+    private static Pair<Integer, Integer> getPos(Element element, Environment env) {
+        if (XMLHelper.hasChild(element, "waypoint")) {
+            Element waypoint = (Element) element.getElementsByTagName("waypoint").item(0);
+            GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(waypoint.getAttribute("id")));
+            return env.getMapHelper().toMapCoordinate(position);
+        } else {
+            int xPos = Integer.parseInt(XMLHelper.readChild(element, "xPos"));
+            int yPos = Integer.parseInt(XMLHelper.readChild(element, "yPos"));
+            return new Pair<>(xPos, yPos);
+        }
     }
-
 
     private static class MoteReader {
         protected Element node;
@@ -171,7 +178,7 @@ public class ConfigurationReader {
         }
 
         long getDevEUI() {
-            return Long.parseUnsignedLong(XMLHelper.readChild(node, "devEUI"));
+            return Long.parseLong(XMLHelper.readChild(node, "devEUI"));
         }
 
         Pair<Integer, Integer> getMapCoordinates() {
@@ -225,24 +232,18 @@ public class ConfigurationReader {
         }
 
         Optional<Integer> getStartMovementOffset() {
-            if (hasChild(node, "startMovementOffset")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startMovementOffset")));
-            }
-            return Optional.empty();
+            return XMLHelper.readOptionalChild(node, "startMovementOffset")
+                .map(Integer::parseInt);
         }
 
         Optional<Integer> getPeriodSendingPacket() {
-            if (hasChild(node, "periodSendingPacket")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "periodSendingPacket")));
-            }
-            return Optional.empty();
+            return XMLHelper.readOptionalChild(node, "periodSendingPacket")
+                .map(Integer::parseInt);
         }
 
         Optional<Integer> getStartSendingOffset() {
-            if (hasChild(node, "startSendingOffset")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startSendingOffset")));
-            }
-            return Optional.empty();
+            return XMLHelper.readOptionalChild(node, "startSendingOffset")
+                .map(Integer::parseInt);
         }
 
         public Mote buildMote() {

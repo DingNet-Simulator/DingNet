@@ -35,10 +35,12 @@ class TestGraph {
         graph.addWayPoint(new GeoPosition(2, 2));
 
         Map<Long, GeoPosition> wayPoints = graph.getWayPoints();
+
         Long idPoint1 = wayPoints.entrySet().stream().filter(e -> e.getValue()
             .equals(new GeoPosition(1, 1))).map(Map.Entry::getKey).findFirst().orElse(-1L);
         Long idPoint2 = wayPoints.entrySet().stream().filter(e -> e.getValue()
             .equals(new GeoPosition(2, 2))).map(Map.Entry::getKey).findFirst().orElse(-1L);
+
         graph.addConnection(new Connection(idPoint1, idPoint2));
 
         assertFalse(graph.getConnections().isEmpty());

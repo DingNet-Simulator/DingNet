@@ -1,10 +1,45 @@
-language: java
-
-sudo: false
-
-script: 
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean verify -Dcheckstyle.failBuild=true; fi'
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn clean verify; fi'
-
+reference_jdk: &reference_jdk
+                   'JDK="adopt@1.11"'
+reference_os: &reference_os
+                  "linux"
+language: shell
+git:
+    depth: false
+os:
+    - osx
+    - windows
+    - *reference_os
+dist: xenial
+stages:
+    - check
+    - test
+env:
+    global:
+        - TERM=dumb
+        - GRAVIS="https://raw.githubusercontent.com/DanySK/Gravis-CI/master/"
+    jobs:
+        - *reference_jdk
+        - JDK="adopt@1.12"
+jobs:
+    include:
+        - stage: check
+          name: "Deep check on reference OS and JDK"
+          os: *reference_os
+          env: *reference_jdk
+          script:
+              - ./gradlew clean check --parallel
+before_install:
+    - curl "${GRAVIS}.disable-windows-defender.sh" --output .disable-windows-defender.sh
+    - source .disable-windows-defender.sh
+    - curl "${GRAVIS}.install-jdk-travis.sh" --output .install-jdk-travis.sh
+    - source .install-jdk-travis.sh
+    - chmod +x gradlew
+script:
+    - ./gradlew clean test --parallel
+before_cache:
+    - curl "${GRAVIS}.clean_gradle_cache.sh" --output .clean_gradle_cache.sh
+    - bash .clean_gradle_cache.sh
 cache:
-  - $HOME/.m2
+    directories:
+        - $HOME/.gradle/caches/
+        - $HOME/.gradle/wrapper/

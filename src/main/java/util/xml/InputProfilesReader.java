@@ -1,6 +1,5 @@
 package util.xml;
 
-import gui.MainGUI;
 import iot.InputProfile;
 import iot.QualityOfService;
 import org.w3c.dom.Document;
@@ -13,16 +12,20 @@ import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class InputProfilesReader {
+
     public static List<InputProfile> readInputProfiles() {
+        return readInputProfiles(InputProfilesReader.class.getResourceAsStream("/inputProfiles/inputProfile.xml"));
+    }
+
+    public static List<InputProfile> readInputProfiles(InputStream fileStream) {
         List<InputProfile> inputProfiles = new LinkedList<>();
 
         try {
-            var fileStream = MainGUI.class.getResourceAsStream("/inputProfiles/inputProfile.xml");
-
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fileStream);
             Element inputProfilesElement = doc.getDocumentElement();
 
@@ -38,6 +41,9 @@ public class InputProfilesReader {
                 Optional<ChronoUnit> timeUnit = Arrays.stream(ChronoUnit.values())
                                             .filter(c -> c.toString().equals(timeUnitName))
                                             .findFirst();
+
+                var protelisApp = (Element) inputProfileElement.getElementsByTagName("protelisApp").item(0);
+                var protelisProgram = XMLHelper.readOptionalChild(protelisApp, "protelisProgram");
 
                 Element QoSElement = (Element) inputProfileElement.getElementsByTagName("QoS").item(0);
                 HashMap<String, AdaptationGoal> adaptationGoalHashMap = new HashMap<>();
@@ -86,7 +92,8 @@ public class InputProfilesReader {
                         new HashMap<>(),
                         inputProfileElement,
                         simulationDuration,
-                        chronoUnit))
+                        chronoUnit,
+                        protelisProgram.orElse(null)))
                     .orElseGet(() -> new InputProfile(
                         name,
                         new QualityOfService(adaptationGoalHashMap),

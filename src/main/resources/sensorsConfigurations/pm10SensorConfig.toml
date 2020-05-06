@@ -1,0 +1,72 @@
+[sensor]
+row = 10
+columns = 10
+defaultLevel = "VERY_LOW"
+timeUnit = "MINUTES"
+samplesTime = 1440
+finalTime = 7200
+
+[[sensor.cell]]
+    cellNumber = 35
+    level = "HIGH"
+    fromTime = 0
+[[sensor.cell]]
+    cellNumber = 47
+    level = "HIGH"
+    fromTime = 0
+[[sensor.cell]]
+    cellNumber = 33
+    level = "HIGH"
+    fromTime = 0
+[[sensor.cell]]
+    cellNumber = 57
+    level = "MEDIUM"
+    fromTime = 0
+[[sensor.cell]]
+    cellNumber = 67
+    level = "LOW"
+    fromTime = 0
+[[sensor.cell]]
+    cellNumber = 55
+    level = "LOW"
+    fromTime = 0
+[[sensor.cell]]
+    cellNumber = 35
+    level = "MEDIUM"
+    fromTime = 4320
+[[sensor.cell]]
+    cellNumber = 47
+    level = "MEDIUM"
+    fromTime = 4320
+[[sensor.cell]]
+    cellNumber = 33
+    level = "LOW"
+    fromTime = 4320
+[[sensor.cell]]
+    cellNumber = 57
+    level = "LOW"
+    fromTime = 4320
+[[sensor.cell]]
+    cellNumber = 67
+    level = "VERY_LOW"
+    fromTime = 4320
+[[sensor.cell]]
+    cellNumber = 55
+    level = "VERY_LOW"
+    fromTime = 4320
+[[sensor.cell]]
+    cellNumber = 35
+    level = "LOW"
+    fromTime = 5760
+[[sensor.cell]]
+    cellNumber = 47
+    level = "LOW"
+    fromTime = 5760
+[[sensor.cell]]
+    cellNumber = 33
+    level = "VERY_LOW"
+    fromTime = 5760
+[[sensor.cell]]
+    cellNumber = 57
+    level = "VERY_LOW"
+    fromTime = 5760

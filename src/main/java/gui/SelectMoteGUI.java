@@ -18,7 +18,7 @@ public class SelectMoteGUI extends JFrame {
 
     public SelectMoteGUI(Environment environment, MainGUI parent, JFrame frame) {
         for (Mote mote : environment.getMotes()) {
-            moteSelectorComboBox.addItem("Mote " + (environment.getMotes().indexOf(mote) + 1) + " EUI " + Long.toUnsignedString(mote.getEUI()));
+            moteSelectorComboBox.addItem("Mote " + (environment.getMotes().indexOf(mote) + 1) + " EUI " + Long.toString(mote.getEUI()));
         }
         for (int i = 0; i < environment.getNumberOfRuns(); i++) {
             runSelectorComboBox.addItem("Run " + (i + 1));

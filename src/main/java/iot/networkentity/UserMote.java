@@ -11,24 +11,27 @@ import iot.strategy.consume.ReplacePath;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.Path;
+import util.time.DoubleTime;
+import util.time.Time;
 
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class UserMote extends Mote {
 
+    private static final int TIME_TO_IGNORE_SAME_PACKET = 5;
     // the user mote can ask for a path only if this property is true
     private boolean isActive = false;
     private GeoPosition destination;
-    private final LocalTime whenAskPath = LocalTime.of(0, 0, 15);
+    private final Time whenAskPath = DoubleTime.fromSeconds(15);
     private boolean alreadyRequested;
 
     UserMote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
              List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed,
              int startMovementOffset, int periodSendingPacket, int startSendingOffset, GeoPosition destination, Environment environment) {
-        super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset, environment);
+        super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
+            startMovementOffset, periodSendingPacket, startSendingOffset, environment, TIME_TO_IGNORE_SAME_PACKET);
         this.destination = destination;
 
         this.initialize();

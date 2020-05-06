@@ -94,7 +94,7 @@ public class Statistics {
     }
 
     public List<PowerSettingDataPoint> getPowerSettingHistory(long networkEntity) {
-        return powerSettingHistory.get(networkEntity);
+        return powerSettingHistory.getOrDefault(networkEntity, List.of());
     }
 
     public List<Pair<Integer, Integer>> getPowerSettingHistory(long networkEntity, int run) {
@@ -105,7 +105,7 @@ public class Statistics {
     }
 
     public List<SpreadingFactorDataPoint> getSpreadingFactorHistory(long networkEntity) {
-        return spreadingFactorHistory.get(networkEntity);
+        return spreadingFactorHistory.getOrDefault(networkEntity, List.of());
     }
 
     public List<Integer> getSpreadingFactorHistory(long networkEntity, int run) {
@@ -116,7 +116,7 @@ public class Statistics {
     }
 
     public LinkedHashSet<LoraTransmissionDataPoint> getReceivedTransmissions(long networkEntity) {
-        return receivedTransmissions.get(networkEntity);
+        return receivedTransmissions.getOrDefault(networkEntity, new LinkedHashSet<>());
     }
 
     public List<LoraTransmission> getReceivedTransmissions(long eui, int run) {
@@ -134,7 +134,7 @@ public class Statistics {
 
 
     public List<LoraTransmissionDataPoint> getSentTransmissions(long networkEntity) {
-        return sentTransmissions.get(networkEntity);
+        return sentTransmissions.getOrDefault(networkEntity, List.of());
     }
 
     public List<LoraTransmission> getSentTransmissions(long networkEntity, int run) {

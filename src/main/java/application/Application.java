@@ -1,11 +1,11 @@
 package application;
 
 import iot.mqtt.MQTTClientFactory;
-import iot.mqtt.MqttClientBasicApi;
 import iot.mqtt.TransmissionWrapper;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import iot.networkentity.NetworkServer;
+import it.unibo.mqttclientwrapper.api.MqttClientBasicApi;
 
 import java.util.HashMap;
 import java.util.List;

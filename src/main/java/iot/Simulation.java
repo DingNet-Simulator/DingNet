@@ -6,9 +6,10 @@ import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
 import util.TimeHelper;
+import util.time.DoubleTime;
+import util.time.Time;
 
 import java.lang.ref.WeakReference;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -39,7 +40,7 @@ public class Simulation {
     /**
      * Intermediate parameters used during simulation
      */
-    private Map<Mote, LocalTime> timeMap;
+    private Map<Mote, Time> timeMap;
 
     // endregion
 
@@ -155,8 +156,8 @@ public class Simulation {
             }) //DON'T replace with peek because the filtered mote after this line will not do the consume packet
             .filter(mote -> !mote.isArrivedToDestination())
             .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
-                TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
-            .filter(mote -> TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
+                TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().asNano() - timeMap.get(mote).asNano()))
+            .filter(mote -> TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().asNano()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
             .forEach(mote -> {
                 timeMap.put(mote, this.getEnvironment().getClock().getTime());
                 mote.getPath().getNextPoint(mote.getPathPositionIndex()).ifPresent(dst ->
@@ -192,7 +193,7 @@ public class Simulation {
             timeMap.put(mote, this.getEnvironment().getClock().getTime());
 
             // Add initial triggers to the clock for mote data transmissions (transmit sensor readings)
-            this.getEnvironment().getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
+            this.getEnvironment().getClock().addTrigger(DoubleTime.fromSeconds(mote.getStartSendingOffset()), () -> {
                 mote.sendToGateWay(
                     mote.getSensors().stream()
                         .flatMap(s -> s.getValueAsList(mote.getPosInt(), mote.getPathPosition(), this.getEnvironment().getClock().getTime()).stream())
@@ -217,7 +218,7 @@ public class Simulation {
         this.getEnvironment().resetHistory();
 
         var finalTime = this.getEnvironment().getClock().getTime()
-            .plus(inputProfile.getSimulationDuration(), inputProfile.getTimeUnit());
+            .plusHours(inputProfile.getSimulationDuration()); //TODO generalize
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }
 }

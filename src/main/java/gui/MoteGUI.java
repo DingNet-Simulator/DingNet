@@ -80,7 +80,7 @@ public class MoteGUI {
         updateSourcePosition(geoPosition);
 
         // Disable new EUI generation for existing motes
-        EUItextField.setText(isNewMote ? generateNewEUIString() : Long.toUnsignedString(mote.getEUI()));
+        EUItextField.setText(isNewMote ? generateNewEUIString() : Long.toString(mote.getEUI()));
         EUItextField.setEnabled(isNewMote);
         generateEUIButton.setEnabled(isNewMote);
 
@@ -123,7 +123,7 @@ public class MoteGUI {
 
         chooseDestinationButton.addActionListener(e ->
                 spawnMapFrame(selectedPosition ->
-                    destinationWaypointLabel.setText(Long.toUnsignedString(environment.getGraph().getClosestWayPoint(selectedPosition))))
+                    destinationWaypointLabel.setText(Long.toString(environment.getGraph().getClosestWayPoint(selectedPosition))))
         );
 
         generateEUIButton.addActionListener(e -> this.EUItextField.setText(generateNewEUIString()));
@@ -193,7 +193,7 @@ public class MoteGUI {
                 UserMote userMote = (UserMote) mote;
                 long destinationWayPointId = environment.getGraph().getClosestWayPoint(userMote.getDestination());
 
-                destinationWaypointLabel.setText(Long.toUnsignedString(destinationWayPointId));
+                destinationWaypointLabel.setText(Long.toString(destinationWayPointId));
                 isActiveCheckBox.setSelected(userMote.isActive());
             }
         } else {
@@ -204,7 +204,7 @@ public class MoteGUI {
 
 
     private String generateNewEUIString() {
-        return Long.toUnsignedString(random.nextLong());
+        return Long.toString(random.nextLong());
     }
 
     private void setVisibleUserMoteComponents(boolean state) {
@@ -246,7 +246,7 @@ public class MoteGUI {
         Pair<Integer, Integer> position = handleChosenStartingPosition();
 
         // TODO Energy level? Add field as well?
-        environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(), position.getRight(),
+        environment.addMote(MoteFactory.createMote(Long.parseLong(EUItextField.getText()), position.getLeft(), position.getRight(),
                 (int) powerSpinner.getValue(),
                 (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(environment.getGraph()),
                 (double) movementSpeedSpinner.getValue(),
@@ -261,10 +261,10 @@ public class MoteGUI {
         // if no destination waypoint is set, default to the starting waypoint on which the mote is located
         long selectedDestinationIndex = destinationWaypointLabel.getText().equals("") ?
                 graph.getClosestWayPoint(source) :
-                Long.parseUnsignedLong(destinationWaypointLabel.getText());
+                Long.parseLong(destinationWaypointLabel.getText());
 
         // TODO Energy level? Add field as well?
-        UserMote userMote = MoteFactory.createUserMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(),
+        UserMote userMote = MoteFactory.createUserMote(Long.parseLong(EUItextField.getText()), position.getLeft(),
                 position.getRight(), (int) powerSpinner.getValue(),
                 (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(environment.getGraph()),
                 (double) movementSpeedSpinner.getValue(),
@@ -297,7 +297,7 @@ public class MoteGUI {
             userMote.setActive(isActiveCheckBox.isSelected());
 
             // Destination label cannot be empty, since the usermote has to have had a destination already
-            long index = Long.parseUnsignedLong(destinationWaypointLabel.getText());
+            long index = Long.parseLong(destinationWaypointLabel.getText());
             userMote.setDestination(environment.getGraph().getWayPoint(index));
         }
     }

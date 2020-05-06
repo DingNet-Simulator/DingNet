@@ -1,6 +1,7 @@
 package iot;
 
 import application.pollution.PollutionGrid;
+import application.pollution.PollutionGridImpl;
 import application.pollution.PollutionMonitor;
 import application.routing.AStarRouter;
 import application.routing.RoutingApplication;
@@ -10,6 +11,7 @@ import iot.mqtt.MQTTClientFactory;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.NetworkServer;
+import it.unibo.acdingnet.protelis.ProtelisApp;
 import org.jetbrains.annotations.NotNull;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
@@ -43,6 +45,7 @@ public class SimulationRunner {
     private List<MoteProbe> moteProbe;
     private PollutionGrid pollutionGrid;
 
+    private ProtelisApp protelisApp;
     private RoutingApplication routingApplication;
     private PollutionMonitor pollutionMonitor;
     private NetworkServer networkServer;
@@ -99,7 +102,6 @@ public class SimulationRunner {
         }
 
         networkServer = new NetworkServer(MQTTClientFactory.getSingletonInstance());
-        pollutionGrid = new PollutionGrid();
         environment = null;
     }
 
@@ -134,6 +136,9 @@ public class SimulationRunner {
         return pollutionGrid;
     }
 
+    public ProtelisApp getProtelisApp() {
+        return protelisApp;
+    }
 
     public void setApproach(String name) {
         var selectedAlgorithm = algorithms.stream()
@@ -167,27 +172,32 @@ public class SimulationRunner {
      */
     public void setupSingleRun(boolean startFresh) {
         simulation.setupSingleRun(startFresh);
-
         this.setupSimulationRunner();
     }
 
     /**
-     * Set the simulator up for a single timed run.
+     * Set the simulator up for a single timed run of a Protelis application.
      */
     public void setupTimedRun() {
         simulation.setupTimedRun();
-
-        this.setupSimulationRunner();
+        this.networkServer.reset();
+        this.pollutionGrid = null;
+        this.pollutionMonitor = null;
+        this.routingApplication = null;
+        protelisApp = createProtelisApp();
     }
 
     /**
      * Setup of applications/servers/clients before each run.
      */
     private void setupSimulationRunner() {
-        // Remove previous pollution measurements
-        pollutionGrid.clean();
-        routingApplication.clean();
-
+        if (pollutionGrid == null || pollutionMonitor == null || routingApplication == null) {
+            setupApplications();
+        } else {
+            // Remove previous pollution measurements
+            pollutionGrid.clean();
+            routingApplication.clean();
+        }
         // Reset received transmissions in the networkServer
         this.networkServer.reset();
     }
@@ -336,10 +346,22 @@ public class SimulationRunner {
      * Initialize all applications used in the simulation.
      */
     private void setupApplications() {
+        this.pollutionGrid = new PollutionGridImpl();
         this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
         this.routingApplication = new RoutingApplication(
             new AStarRouter(new SimplePollutionHeuristic(pollutionGrid)), getEnvironment().getGraph(), environment
         );
+    }
+
+    private ProtelisApp createProtelisApp() {
+        return simulation.getInputProfile()
+            .orElseThrow(() -> new IllegalStateException("input profile no selected"))
+            .getProtelisProgram()
+            .map(app -> new ProtelisApp(
+                app,
+                getEnvironment().getMotes(),
+                getEnvironment().getClock())
+            ).orElseThrow();
     }
 
     // endregion

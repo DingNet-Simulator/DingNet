@@ -41,7 +41,7 @@ public class NewGatewayGUI {
         updateLatLonFields();
 
         saveButton.addActionListener(e -> {
-            environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()),
+            environment.addGateway(new Gateway(Long.parseLong(EUIDtextField.getText()),
                 (int) xPosSpinner.getValue(), (int) yPosSpinner.getValue(),
                 (int) powerSpinner.getValue(), (int) SFSpinner.getValue(),
                 environment));
@@ -55,7 +55,7 @@ public class NewGatewayGUI {
     }
 
     private void generateNewEUID() {
-        EUIDtextField.setText(Long.toUnsignedString(random.nextLong()));
+        EUIDtextField.setText(Long.toString(random.nextLong()));
     }
 
 
@@ -65,11 +65,11 @@ public class NewGatewayGUI {
     }
 
     private void updateLatField() {
-        GUIUtil.updateTextFieldCoordinate(LongitudeTextField, environment.getMapHelper().toLongitude((int) xPosSpinner.getValue()), "E", "W");
+        GUIUtil.updateTextFieldCoordinate(LongitudeTextField, environment.getMapHelper().toLongitude((int) xPosSpinner.getValue()), "long");
     }
 
     private void updateLonField() {
-        GUIUtil.updateTextFieldCoordinate(LatitudeTextField, environment.getMapHelper().toLatitude((int) yPosSpinner.getValue()), "N", "S");
+        GUIUtil.updateTextFieldCoordinate(LatitudeTextField, environment.getMapHelper().toLatitude((int) yPosSpinner.getValue()), "lat");
     }
 
     public JPanel getMainPanel() {

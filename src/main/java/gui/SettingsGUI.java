@@ -2,7 +2,7 @@ package gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import iot.mqtt.MQTTClientFactory;
+import it.unibo.mqttclientwrapper.MqttClientType;
 import util.Constants;
 import util.SettingsReader;
 
@@ -131,7 +131,7 @@ public class SettingsGUI {
 
         settingsPanel.add(this.addFloatSetting("Transparency pollution grid", instance::getPollutionGridTransparency, "gui.TransparencyPollutionGrid"), constraints);
 
-        settingsPanel.add(this.addEnumSetting("MQTT client type", MQTTClientFactory.MqttClientType.class, instance::getMQTTClientType, "mqtt.client"), constraints);
+        settingsPanel.add(this.addEnumSetting("MQTT client type", MqttClientType.class, instance::getMQTTClientType, "mqtt.client"), constraints);
 
         settingsPanel.add(this.addColorSetting("Default waypoint color", instance::getDefaultWaypointColor, "gui.DefaultWaypointColor"), constraints);
         settingsPanel.add(this.addColorSetting("Connection line color", instance::getConnectionLineColor, "gui.ConnectionLineColor"), constraints);
