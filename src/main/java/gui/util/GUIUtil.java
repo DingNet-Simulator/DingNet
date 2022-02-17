@@ -52,7 +52,7 @@ public class GUIUtil {
 
         var wraps = motes.stream()
             .map(m -> {
-                var pos = environment.getMapHelper().toGeoPosition(m.getPosInt());
+                var pos = m.getPos();
                 if (m instanceof UserMote) {
                     return new MoteWayPoint(pos, true, ((UserMote)m).isActive());
                 }
@@ -75,7 +75,7 @@ public class GUIUtil {
         var gateways = environment.getGateways();
 
         IntStream.range(0, gateways.size())
-            .forEach(i -> map.put(new DefaultWaypoint(environment.getMapHelper().toGeoPosition(gateways.get(i).getPosInt())), i + 1));
+            .forEach(i -> map.put(new DefaultWaypoint(gateways.get(i).getPos()), i + 1));
 
         return map;
     }

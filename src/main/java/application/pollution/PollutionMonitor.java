@@ -66,7 +66,7 @@ public class PollutionMonitor extends Application {
 
         // Retrieve the position of the mote
         // TODO is this position even correct when getting it at this point? Has it changed since the transmission of the data?
-        var position = this.environment.getMapHelper().toGeoPosition(mote.getPosInt());
+        var position = mote.getPos();
 
         // Retrieve the individual sensor readings
         Map<MoteSensor, Byte[]> sensorData = this.retrieveSensorData(mote, body);

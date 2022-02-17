@@ -108,7 +108,7 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
                     Map<Mote, Double> moteDistances = new HashMap<>();
 
                     for (Mote mote : environment.getMotes()) {
-                        double distance = MapHelper.distance(geo, mapHelper.toGeoPosition(mote.getPosInt()));
+                        double distance = MapHelper.distance(geo, mote.getPos());
                         moteDistances.put(mote, distance);
                     }
 
@@ -119,7 +119,7 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
                     if (nearest != null) {
                         currentMote = nearest.getKey();
                         loadMap(true);
-                        GeoPosition motePosition = mapHelper.toGeoPosition(currentMote.getPosInt());
+                        GeoPosition motePosition = currentMote.getPos();
                         long wayPointID = graph.getClosestWayPoint(motePosition);
                         currentWayPoints.add(wayPointID);
                     }

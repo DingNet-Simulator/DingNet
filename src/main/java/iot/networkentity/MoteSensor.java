@@ -4,9 +4,10 @@ import datagenerator.*;
 import datagenerator.rangedsensor.iaqsensor.IAQDataGeneratorSingleton;
 import datagenerator.rangedsensor.no2sensor.NO2DataGeneratorSingleton;
 import datagenerator.rangedsensor.pm10sensor.PM10DataGeneratorSingleton;
+import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Pair;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,16 +33,12 @@ public enum MoteSensor {
         this.sensorDataGenerator = sensorDataGenerator;
     }
 
-    public byte[] getValue(int xpos, int ypos, GeoPosition graphPosition, LocalTime time) {
-        return sensorDataGenerator.generateData(xpos, ypos, graphPosition, time);
+    public double getValue(Environment environment, GeoPosition position) {
+        return sensorDataGenerator.nonStaticDataGeneration(environment, position);
     }
 
-    public double getValue(double xpos, double ypos) {
-        return sensorDataGenerator.nonStaticDataGeneration(xpos, ypos);
-    }
-
-    public List<Byte> getValueAsList(int xpos, int ypos, GeoPosition graphPosition, LocalTime time) {
-        var tmp = sensorDataGenerator.generateData(xpos, ypos, graphPosition, time);
+    public List<Byte> getValueAsList(Environment environment, GeoPosition graphPosition, LocalDateTime time) {
+        var tmp = sensorDataGenerator.generateData(environment, graphPosition, time);
         var ret = new LinkedList<Byte>();
         for (byte b : tmp) {
             ret.add(b);
@@ -49,12 +46,8 @@ public enum MoteSensor {
         return ret;
     }
 
-    public byte[] getValue(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
-        return getValue(pos.getLeft(), pos.getRight(), graphPosition, time);
-    }
-
-    public List<Byte> getValueAsList(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
-        return getValueAsList(pos.getLeft(), pos.getRight(), graphPosition, time);
+    public byte[] getValue(GeoPosition graphPosition, LocalTime time) {
+        return getValue(graphPosition, time);
     }
 
     public SensorDataGenerator getSensorDataGenerator() {

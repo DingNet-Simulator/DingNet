@@ -14,8 +14,9 @@ public class MoteCharacteristicsDialog extends JDialog {
     private JLabel packetsLostLabel;
     private JLabel packetLossLabel;
     private JLabel energyLabel;
+    private JLabel latencyLabel;
 
-    MoteCharacteristicsDialog(double usedEnergy, int packetsSent, int packetsLost) {
+    MoteCharacteristicsDialog(double usedEnergy, int packetsSent, int packetsLost, int averageLatency) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -23,6 +24,7 @@ public class MoteCharacteristicsDialog extends JDialog {
         packetsLostLabel.setText(Integer.toString(packetsLost));
         packetLossLabel.setText((Math.round((double) packetsLost / (double) packetsSent * 10000) / 100) + "%");
         energyLabel.setText((Math.round(usedEnergy * 100) / 100) + " mJ");
+        latencyLabel.setText(averageLatency +"%");
 
         buttonOK.addActionListener(e -> dispose());
     }

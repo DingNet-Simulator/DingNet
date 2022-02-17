@@ -82,7 +82,7 @@ public class LoraWanPacket implements Serializable {
      * @param macCommands
      */
     public LoraWanPacket(long senderEUI, long designatedReceiverEUI, byte[] payload, FrameHeader header, List<MacCommand> macCommands) {
-        this(senderEUI, designatedReceiverEUI, payload, header, false, 8, 0.8, macCommands);
+        this(senderEUI, designatedReceiverEUI, payload, header, false, 8, 4, macCommands);
     }
 
     /**
@@ -93,7 +93,7 @@ public class LoraWanPacket implements Serializable {
      * @param macCommands
      */
     public LoraWanPacket(long senderEUI, long designatedReceiverEUI, byte[] payload, List<MacCommand> macCommands) {
-        this(senderEUI, designatedReceiverEUI, payload, new BasicFrameHeader(), false, 8, 0.8, macCommands);
+        this(senderEUI, designatedReceiverEUI, payload, new BasicFrameHeader(), false, 8, 4, macCommands);
     }
 
     /**
@@ -206,4 +206,5 @@ public class LoraWanPacket implements Serializable {
         result = 31 * result + Arrays.hashCode(getPayload());
         return result;
     }
+
 }

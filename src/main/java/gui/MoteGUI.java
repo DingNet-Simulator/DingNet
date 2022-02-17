@@ -7,10 +7,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import gui.util.GUIUtil;
 import gui.util.Refreshable;
 import iot.Environment;
-import iot.networkentity.Mote;
-import iot.networkentity.MoteFactory;
-import iot.networkentity.MoteSensor;
-import iot.networkentity.UserMote;
+import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
 import util.Pair;
@@ -49,6 +46,11 @@ public class MoteGUI {
     private JLabel latPositionLabel;
     private JLabel lonPositionLabel;
     private JLabel destinationWaypointLabel;
+    private JCheckBox isLLSACompliantCheckBox;
+    private JSpinner transmittingIntervalSpinner;
+    private JSpinner expirationTimeSpinner;
+    private JLabel transmittingIntervalLabel;
+    private JLabel expirationTimeLabel;
     private Environment environment;
 
     private Random random;
@@ -56,7 +58,7 @@ public class MoteGUI {
     private MainGUI mainGUI;
     private Mote mote;
 
-    public MoteGUI(Environment environment, Pair<Integer, Integer> pos, JFrame frame, Refreshable parent, MainGUI mainGUI, Mote mote) {
+    public MoteGUI(Environment environment, Pair<Double, Double> pos, JFrame frame, Refreshable parent, MainGUI mainGUI, Mote mote) {
         this(environment, environment.getMapHelper().toGeoPosition(pos), frame, parent, mainGUI, mote);
     }
 
@@ -109,8 +111,10 @@ public class MoteGUI {
 
         if (!isNewMote) {
             initializeExistingUserMoteFields();
+            initializeExistingLLSAMoteFields();
         } else {
             updateUserMoteFields(true);
+            updateLLSAMoteFields(true);
         }
 
         // endregion
@@ -140,12 +144,24 @@ public class MoteGUI {
         });
 
         isUserMoteCheckBox.addChangeListener(evt -> this.updateUserMoteFields(isNewMote));
+        isLLSACompliantCheckBox.addChangeListener(evt -> this.updateLLSAMoteFields(isNewMote));
 
         saveButton.addActionListener((e) -> {
             if (!isNewMote) {
-                updateMote(mote, isUserMoteCheckBox.isSelected());
+                if(isUserMoteCheckBox.isSelected()){
+                    updateMote((UserMote) mote);
+                }else{
+                    if (isLLSACompliantCheckBox.isSelected()){
+                        updateMote((LifeLongMote) mote);
+                    }else{
+                        updateMote(mote);
+                    }
+                }
+
             } else if (isUserMoteCheckBox.isSelected()) {
                 addUserMote();
+            } else if (isLLSACompliantCheckBox.isSelected()) {
+                addLLSAComplaintMote();
             } else {
                 addMote();
             }
@@ -163,6 +179,12 @@ public class MoteGUI {
         isUserMoteCheckBox.setSelected(mote instanceof UserMote);
         updateUserMoteFields(false);
     }
+    private void initializeExistingLLSAMoteFields() {
+        // We are working with an existing mote -> do not allow changing of class type
+        isLLSACompliantCheckBox.setVisible(false);
+        isLLSACompliantCheckBox.setSelected(mote instanceof LifeLongMote);
+        updateLLSAMoteFields(false);
+    }
 
 
     private void updateSourcePosition(GeoPosition pos) {
@@ -177,8 +199,8 @@ public class MoteGUI {
         GUIUtil.updateLabelCoordinateLat(latPositionLabel, pos.getLatitude());
         GUIUtil.updateLabelCoordinateLon(lonPositionLabel, pos.getLongitude());
 
-        xPositionLabel.setText(String.format("x: %d", environment.getMapHelper().toMapXCoordinate(pos)));
-        yPositionLabel.setText(String.format("y: %d", environment.getMapHelper().toMapYCoordinate(pos)));
+        xPositionLabel.setText(String.format("x: %d", (int) Math.round(environment.getMapHelper().toMapXCoordinate(pos))));
+        yPositionLabel.setText(String.format("y: %d", (int) Math.round(environment.getMapHelper().toMapYCoordinate(pos))));
     }
 
     private void updateUserMoteFields(boolean isNewMote) {
@@ -200,6 +222,26 @@ public class MoteGUI {
             // Not a usermote, hide the fields specific to usermotes
             setVisibleUserMoteComponents(false);
         }
+
+    }
+    private void updateLLSAMoteFields(boolean isNewMote) {
+        if (isLLSACompliantCheckBox.isSelected()) {
+            setVisibleLLSAMoteComponents(true);
+
+            // If we are creating a new mote, the destination is not set by default
+            if (isNewMote) {
+                transmittingIntervalSpinner.setValue(0);
+                expirationTimeSpinner.setValue(0);
+            } else {
+                LifeLongMote llsaCompliantMote = (LifeLongMote) mote;
+                transmittingIntervalSpinner.setValue(llsaCompliantMote.getTransmittingInterval());
+                expirationTimeSpinner.setValue(llsaCompliantMote.getExpirationTime());
+            }
+        } else {
+            // Not a usermote, hide the fields specific to usermotes
+            setVisibleLLSAMoteComponents(false);
+        }
+
     }
 
 
@@ -212,6 +254,13 @@ public class MoteGUI {
         destinationLabel.setVisible(state);
         chooseDestinationButton.setVisible(state);
         destinationWaypointLabel.setVisible(state);
+    }
+
+    private void setVisibleLLSAMoteComponents(boolean state) {
+        transmittingIntervalSpinner.setVisible(state);
+        transmittingIntervalLabel.setVisible(state);
+        expirationTimeSpinner.setVisible(state);
+        expirationTimeLabel.setVisible(state);
     }
 
     private void spawnMapFrame(Consumer<GeoPosition> consumer) {
@@ -233,7 +282,7 @@ public class MoteGUI {
     }
 
 
-    private Pair<Integer, Integer> handleChosenStartingPosition() {
+    private Pair<Double, Double> handleChosenStartingPosition() {
         if (newPositionRadioButton.isSelected()) {
             // Add a new waypoint to the graph
             environment.getGraph().addWayPoint(source);
@@ -243,7 +292,7 @@ public class MoteGUI {
 
 
     private void addMote() {
-        Pair<Integer, Integer> position = handleChosenStartingPosition();
+        Pair<Double, Double> position = handleChosenStartingPosition();
 
         // TODO Energy level? Add field as well?
         environment.addMote(MoteFactory.createMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(), position.getRight(),
@@ -254,9 +303,23 @@ public class MoteGUI {
                 (int) offsetSendingSpinner.getValue(), environment));
     }
 
+    private void addLLSAComplaintMote() {
+        Pair<Double, Double> position = handleChosenStartingPosition();
+
+        // TODO Energy level? Add field as well?
+        LifeLongMote llsaCompliantMote = MoteFactory.createLLSACompliantMote(Long.parseUnsignedLong(EUItextField.getText()), position.getLeft(), position.getRight(),
+            (int) powerSpinner.getValue(),
+            (int) SFSpinner.getValue(), this.getSelectedMoteSensors(), 20, new Path(environment.getGraph()),
+            (double) movementSpeedSpinner.getValue(),
+            (int) offsetMovementSpinner.getValue(), (int) periodSpinner.getValue(),
+            (int) offsetSendingSpinner.getValue(), environment,(int) transmittingIntervalSpinner.getValue(),
+            (int) expirationTimeSpinner.getValue());
+        environment.addMote(llsaCompliantMote);
+    }
+
     private void addUserMote() {
         GraphStructure graph = environment.getGraph();
-        Pair<Integer, Integer> position = handleChosenStartingPosition();
+        Pair<Double, Double> position = handleChosenStartingPosition();
 
         // if no destination waypoint is set, default to the starting waypoint on which the mote is located
         long selectedDestinationIndex = destinationWaypointLabel.getText().equals("") ?
@@ -274,10 +337,32 @@ public class MoteGUI {
         environment.addMote(userMote);
     }
 
-    private void updateMote(Mote mote, boolean isUserMote) {
-        Pair<Integer, Integer> position = handleChosenStartingPosition();
+    private void updateMote(LifeLongMote mote) {
+        Pair<Double, Double> position = handleChosenStartingPosition();
 
-        mote.updateInitialPosition(position);
+        mote.updateInitialPosition(environment.getMapHelper().toGeoPosition(position));
+
+        mote.setSF((int) SFSpinner.getValue());
+        mote.setTransmissionPower((int) powerSpinner.getValue());
+        mote.setMovementSpeed((double) movementSpeedSpinner.getValue());
+        mote.setStartMovementOffset((int) offsetMovementSpinner.getValue());
+        mote.setStartSendingOffset((int) offsetSendingSpinner.getValue());
+        mote.setPeriodSendingPacket((int) periodSpinner.getValue());
+
+        List<MoteSensor> moteSensors = new LinkedList<>();
+        for (Object sensor : ((DefaultListModel) sensorList.getModel()).toArray()) {
+            moteSensors.add((MoteSensor) sensor);
+        }
+        mote.setSensors(moteSensors);
+        mote.setTransmittingInterval((int) transmittingIntervalSpinner.getValue());
+        mote.setExpirationTime((int) expirationTimeSpinner.getValue());
+
+    }
+
+    private void updateMote(Mote mote) {
+        Pair<Double, Double> position = handleChosenStartingPosition();
+
+        mote.updateInitialPosition(environment.getMapHelper().toGeoPosition(position));
 
         mote.setSF((int) SFSpinner.getValue());
         mote.setTransmissionPower((int) powerSpinner.getValue());
@@ -292,14 +377,16 @@ public class MoteGUI {
         }
         mote.setSensors(moteSensors);
 
-        if (isUserMote) {
-            UserMote userMote = (UserMote) mote;
-            userMote.setActive(isActiveCheckBox.isSelected());
 
-            // Destination label cannot be empty, since the usermote has to have had a destination already
-            long index = Long.parseUnsignedLong(destinationWaypointLabel.getText());
-            userMote.setDestination(environment.getGraph().getWayPoint(index));
-        }
+    }
+    private void updateMote(UserMote userMote) {
+        updateMote((Mote) userMote);
+        userMote.setActive(isActiveCheckBox.isSelected());
+
+        // Destination label cannot be empty, since the usermote has to have had a destination already
+        long index = Long.parseUnsignedLong(destinationWaypointLabel.getText());
+        userMote.setDestination(environment.getGraph().getWayPoint(index));
+
     }
 
 

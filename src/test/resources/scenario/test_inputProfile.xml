@@ -4,7 +4,7 @@
         <name>ReliableEfficient</name>
         <numberOfRuns>10</numberOfRuns>
         <simulationDuration>2</simulationDuration>
-        <timeUnit>Hours</timeUnit>
+        <timeUnit>HOURS</timeUnit>
         <QoS>
             <adaptationGoal type="interval">
                 <name>reliableCommunication</name>

@@ -160,22 +160,22 @@ class TestEnvironment {
             environment.moveMote(mote, destination1);
         }
 
-        assertEquals(mote.getXPosInt(), 200);
-        assertEquals(mote.getYPosInt(), 500);
+        assertEquals(environment.getMapHelper().toMapXCoordinate(mote.getPos()), 200);
+        assertEquals(environment.getMapHelper().toMapYCoordinate(mote.getPos()), 500);
 
         for (int i = 0; i < 100; i++) {
             environment.moveMote(mote, destination2);
         }
 
-        assertNotEquals(mote.getXPosInt(), 300);
-        assertNotEquals(mote.getYPosInt(), 400);
+        assertNotEquals(environment.getMapHelper().toMapXCoordinate(mote.getPos()), 300);
+        assertNotEquals(environment.getMapHelper().toMapYCoordinate(mote.getPos()), 400);
 
         for (int i = 0; i < 42; i++) {
             environment.moveMote(mote, destination2);
         }
 
-        assertEquals(mote.getXPosInt(), 300);
-        assertEquals(mote.getYPosInt(), 400);
+        assertEquals(environment.getMapHelper().toMapXCoordinate(mote.getPos()), 300);
+        assertEquals(environment.getMapHelper().toMapYCoordinate(mote.getPos()), 400);
     }
 
     @Test

@@ -16,7 +16,6 @@ public class Path implements Iterable<GeoPosition> {
     // The Graph which contains all the waypoints and connections
     private GraphStructure graphStructure;
 
-
     public Path(GraphStructure graph) {
         this(new ArrayList<>(), graph);
     }
@@ -44,6 +43,9 @@ public class Path implements Iterable<GeoPosition> {
         this.points = positions;
     }
 
+    public int size(){
+        return points.size();
+    }
 
     /**
      * Check if the path contains any waypoints.
@@ -62,6 +64,7 @@ public class Path implements Iterable<GeoPosition> {
         return isEmpty() ? Optional.empty() : Optional.of(points.get(0));
     }
 
+
     /**
      * Get the last position in the path, if present.
      * @return Either the last position of the path if present, otherwise an empty Optional.
@@ -71,11 +74,14 @@ public class Path implements Iterable<GeoPosition> {
     }
 
     public Optional<GeoPosition> getNextPoint(GeoPosition actualPoint) {
-        return getNextPoint(getWayPoints().indexOf(actualPoint));
+        return getPoint(getWayPoints().indexOf(actualPoint)+1);
     }
 
-    public Optional<GeoPosition> getNextPoint(int actualPointIndex) {
-        return getWayPoints().stream().skip(actualPointIndex + 1).findFirst();
+    public Optional<GeoPosition> getPoint(int actualPointIndex) {
+        if(actualPointIndex > -1)
+            return getWayPoints().stream().skip(actualPointIndex).findFirst();
+        else
+            return Optional.empty();
     }
 
     /**

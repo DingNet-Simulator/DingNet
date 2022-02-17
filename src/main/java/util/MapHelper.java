@@ -16,8 +16,8 @@ public class MapHelper {
      * @param geoPosition the GeoPosition to convert.
      * @return The x-coordinate on the map of the GeoPosition.
      */
-    public int toMapXCoordinate(GeoPosition geoPosition) {
-        return (int) Math.round(1000 * distance(this.origin, new GeoPosition(this.origin.getLatitude(), geoPosition.getLongitude())));
+    public double toMapXCoordinate(GeoPosition geoPosition) {
+        return (1000 * distance(this.origin, new GeoPosition(this.origin.getLatitude(), geoPosition.getLongitude())));
     }
 
     /**
@@ -25,8 +25,8 @@ public class MapHelper {
      * @param geoPosition the GeoPosition to convert.
      * @return The y-coordinate on the map of the GeoPosition.
      */
-    public int toMapYCoordinate(GeoPosition geoPosition) {
-        return (int) Math.round(1000 * distance(this.origin, new GeoPosition(geoPosition.getLatitude(), this.origin.getLongitude())));
+    public double toMapYCoordinate(GeoPosition geoPosition) {
+        return (1000 * distance(this.origin, new GeoPosition(geoPosition.getLatitude(), this.origin.getLongitude())));
     }
 
     /**
@@ -34,7 +34,7 @@ public class MapHelper {
      * @param geoPosition the GeoPosition to convert.
      * @return The coordinate on the map of the GeoPosition.
      */
-    public Pair<Integer, Integer> toMapCoordinate(GeoPosition geoPosition) {
+    public Pair<Double, Double> toMapCoordinate(GeoPosition geoPosition) {
         return new Pair<>(toMapXCoordinate(geoPosition), toMapYCoordinate(geoPosition));
     }
 
@@ -43,7 +43,7 @@ public class MapHelper {
      * @param x The x-coordinate of the entity.
      * @return The longitude of the given x-coordinate
      */
-    public double toLongitude(int x) {
+    public double toLongitude(double x) {
         double longitude;
         if (x > 0) {
             longitude = x;
@@ -68,7 +68,7 @@ public class MapHelper {
      * @param y The y-coordinate of the entity.
      * @return The latitude of the given y-coordinate.
      */
-    public double toLatitude(int y) {
+    public double toLatitude(double y) {
         double latitude = y;
         latitude = latitude / 1000 ;
         latitude = latitude / 1.609344;
@@ -83,7 +83,7 @@ public class MapHelper {
      * @param coords The x and y coordinates to be converted.
      * @return The GeoPosition which corresponds with {@code coords}.
      */
-    public GeoPosition toGeoPosition(Pair<Integer, Integer> coords) {
+    public GeoPosition toGeoPosition(Pair<Double, Double> coords) {
         return toGeoPosition(coords.getLeft(), coords.getRight());
     }
 
@@ -93,7 +93,7 @@ public class MapHelper {
      * @param y The y coordinate to be converted.
      * @return The GeoPosition which corresponds with coordinates {@code x} and {@code y}.
      */
-    public GeoPosition toGeoPosition(int x, int y) {
+    public GeoPosition toGeoPosition(double x, double y) {
         return new GeoPosition(toLatitude(y), toLongitude(x));
     }
 

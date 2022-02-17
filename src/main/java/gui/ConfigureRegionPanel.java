@@ -209,8 +209,8 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
             if (e.getClickCount() == 1) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
-                int xPos = environment.getMapHelper().toMapXCoordinate(geo);
-                int yPos = environment.getMapHelper().toMapYCoordinate(geo);
+                int xPos = (int) Math.round(environment.getMapHelper().toMapXCoordinate(geo));
+                int yPos = (int)Math.round(environment.getMapHelper().toMapYCoordinate(geo));
                 int i = 0;
                 while (xPos > 1) {
                     xPos -= environment.getMaxXpos() / amountOfSquares;

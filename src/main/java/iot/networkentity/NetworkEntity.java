@@ -7,11 +7,14 @@ import iot.networkcommunication.api.Receiver;
 import iot.networkcommunication.api.Sender;
 import iot.networkcommunication.impl.ReceiverWaitPacket;
 import iot.networkcommunication.impl.SenderNoWaitPacket;
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
+import util.MapHelper;
 import util.Pair;
 import util.Statistics;
 
 import java.io.Serializable;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,10 +36,9 @@ public abstract class NetworkEntity implements Serializable {
     // NOTE: The x and y coordinates below (in double format) are NOT geo coordinates
     //       Rather, they represent the (x,y) coordinates of the grid of the environment (specified in configuration files)
     // FIXME: adjust the simulator to completely use geographical coordinates
-    private double xPos;
-    private double yPos;
+    private GeoPosition pos;
 
-    protected Pair<Double, Double> initialPosition;
+    protected GeoPosition initialPosition;
 
 
     // The transmission power of the entity.
@@ -68,15 +70,14 @@ public abstract class NetworkEntity implements Serializable {
      * @param environment The environment to which the entity belongs.
      */
     NetworkEntity(long EUI, double xPos, double yPos, int transmissionPower, int SF, double transmissionPowerThreshold, Environment environment) {
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.initialPosition = new Pair<>(xPos, yPos);
+        this.environment = environment;
+        this.pos = getEnvironment().getMapHelper().toGeoPosition(xPos,yPos);
+        this.initialPosition = pos;
 
         this.transmissionPower = isValidTransmissionPower(transmissionPower) ? transmissionPower : 0;
 
         this.transmissionPowerThreshold = transmissionPowerThreshold;
         this.EUI = EUI;
-        this.environment = environment;
 
         enabled = true;
         receiver = new ReceiverWaitPacket(this, transmissionPowerThreshold, environment.getClock()).setConsumerPacket(this::receive);
@@ -117,7 +118,7 @@ public abstract class NetworkEntity implements Serializable {
 
     /**
      * A method for receiving a packet, which checks if it can detect the packet and then adds it to the received packets.
-     * @param transmission The transmission to receiveTransmission.
+     * @param transmission The transmission to receive.
      */
     private void receive(LoraTransmission transmission) {
         Statistics.getInstance().addReceivedTransmissionsEntry(this.getEUI(), transmission);
@@ -181,51 +182,45 @@ public abstract class NetworkEntity implements Serializable {
 
 
 
-    public int getXPosInt() {
-        return (int) xPos;
-    }
 
-    public double getXPosDouble() {
-        return xPos;
-    }
-
-    public void setXPos(double xPos) {
-        this.xPos = xPos;
-    }
-
-
-    public int getYPosInt() {
-        return (int) yPos;
-    }
-
-    public double getYPosDouble() {
-        return yPos;
-    }
-
-    public void setYPos(double yPos) {
-        this.yPos = yPos;
+    public double getLatPos() {
+        return pos.getLatitude();
     }
 
 
 
-    public Pair<Integer, Integer> getPosInt() {
-        return new Pair<>(getXPosInt(), getYPosInt());
+    public void setLatPos(double latPos) {
+        this.pos = new GeoPosition(latPos,pos.getLongitude());
     }
 
-    public Pair<Integer, Integer> getOriginalPosInt() {
-        return new Pair<>(this.initialPosition.getLeft().intValue(), this.initialPosition.getRight().intValue());
+    public double getLongPos() {
+        return pos.getLongitude();
     }
 
-    public void setPos(double xPos, double yPos) {
-        setXPos(xPos);
-        setYPos(yPos);
+    public void setLongPos(double longPos) {
+        this.pos = new GeoPosition(pos.getLatitude(),longPos);
+
     }
 
-    public void updateInitialPosition(Pair<Integer, Integer> position) {
-        if (this.initialPosition.getLeft() == this.xPos && this.initialPosition.getRight() == this.yPos) {
-            this.setPos(position.getLeft(), position.getRight());
+
+
+    public GeoPosition getPos() {
+        return pos;
+    }
+
+    public GeoPosition getOriginalPos() {
+        return this.initialPosition;
+    }
+
+    public void setPos(GeoPosition pos) {
+        this.pos = pos;
+    }
+
+    public void updateInitialPosition(GeoPosition position) {
+        if (initialPosition.equals(pos)) {
+            this.pos = position;
         }
-        this.initialPosition = new Pair<>(position.getLeft().doubleValue(), position.getRight().doubleValue());
+        this.initialPosition = position;
     }
 
     /**
@@ -267,7 +262,7 @@ public abstract class NetworkEntity implements Serializable {
         sender.send(message, recs)
             .ifPresent(t -> {
                 Statistics statistics = Statistics.getInstance();
-                statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toSecondOfDay(), getTransmissionPower());
+                statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toEpochSecond(ZoneOffset.UTC), getTransmissionPower());
                 statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
                 statistics.addSentTransmissionsEntry(this.getEUI(), t);
             });
@@ -321,5 +316,9 @@ public abstract class NetworkEntity implements Serializable {
         sender.reset();
 
         this.initialize();
+    }
+
+    public Sender getSender(){
+        return sender;
     }
 }

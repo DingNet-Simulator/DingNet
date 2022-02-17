@@ -6,6 +6,7 @@ import iot.lora.LoraTransmission;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import selfadaptation.instrumentation.FeedbackLoopGatewayBuffer;
+import util.MapHelper;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -75,22 +76,19 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
              */
             List<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
             var env = SimulationRunner.getInstance().getEnvironment();
-            double shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getYPosInt() - receivedSignals.get(0).getYPos(), 2) +
-                    Math.pow(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getXPosInt() - receivedSignals.get(0).getXPos(), 2));
+            double shortestDistance = MapHelper.distance(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getPos(),receivedSignals.get(0).getPos());
 
             for (LoraTransmission transmission: receivedSignals) {
-                if (shortestDistance > Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
-                        Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2))) {
-                    shortestDistance = Math.sqrt(Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
-                            Math.pow(env.getNetworkEntityById(transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2));
+                if (shortestDistance > MapHelper.distance(env.getNetworkEntityById(transmission.getReceiver()).getPos(),transmission.getPos())) {
+                    shortestDistance = MapHelper.distance(env.getNetworkEntityById(transmission.getReceiver()).getPos(),transmission.getPos());
                 }
             }
 
 
 
             /**
-             * If the buffer has an entry for the current mote, the new the distance to the nearest gateway is added to it,
-             * else a new buffer is created and added to which we can add the the distance to the nearest gateway.
+             * If the buffer has an entry for the current mote, the new distance to the nearest gateway is added to it,
+             * else a new buffer is created and added to which we can add the distance to the nearest gateway.
              */
             List<Double> reliableDistanceGatewayBuffer;
             if (!getReliableDistanceGatewayBuffers().containsKey(mote)) {

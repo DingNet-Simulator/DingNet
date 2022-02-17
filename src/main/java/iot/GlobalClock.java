@@ -2,7 +2,8 @@ package iot;
 
 import util.TimeHelper;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Supplier;
@@ -17,20 +18,19 @@ public class GlobalClock {
     /**
      * A representation of time.
      */
-    private LocalTime time;
+    private LocalDateTime time;
 
-    private Map<LocalTime, List<Trigger>> triggers;
+    private Map<LocalDateTime, List<Trigger>> triggers;
 
     public GlobalClock() {
-        time = LocalTime.of(0, 0);
-        triggers = new HashMap<>();
+        reset();
     }
 
     /**
      * Returns the current time.
      * @return The current time.
      */
-    public LocalTime getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
@@ -43,6 +43,7 @@ public class GlobalClock {
         for (long i = milliSeconds; i > 0; i--) {
             this.time = this.time.plus(1, ChronoUnit.MILLIS);
             fireTrigger();
+
         }
     }
 
@@ -52,67 +53,76 @@ public class GlobalClock {
      * @post all events are removed
      */
     public void reset() {
-        this.time = LocalTime.of(0, 0);
-        triggers = new HashMap<>();
+        time = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
+        triggers = Collections.synchronizedMap(new HashMap<>());
     }
 
-    public boolean containsTriggers(LocalTime time) {
+    public boolean containsTriggers(LocalDateTime time) {
         return triggers.containsKey(time);
     }
 
-    public long addTrigger(LocalTime time, Supplier<LocalTime> trigger) {
+    public long addTrigger(LocalDateTime time, Supplier<LocalDateTime> trigger) {
         var trig = new Trigger(trigger);
-        addTrigger(TimeHelper.roundToMilli(time), trig);
+        addTrigger(LocalDateTime.of(time.toLocalDate(),TimeHelper.roundToMilli(time.toLocalTime())), trig);
         return trig.getUid();
     }
 
-    public long addTriggerOneShot(LocalTime time, Runnable trigger) {
+    public long addTriggerOneShot(LocalDateTime time, Runnable trigger) {
+
         return addTrigger(time, () -> {
             trigger.run();
-            return LocalTime.of(0, 0);
+            return LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
         });
     }
 
-    private void addTrigger(LocalTime time, Trigger trigger) {
-        if (containsTriggers(time)) {
-            triggers.get(time).add(0, trigger);
-        } else {
-            List<Trigger> newTriggers = new ArrayList<>(List.of(trigger));
-            triggers.put(time, newTriggers);
+    private void addTrigger(LocalDateTime time, Trigger trigger) {
+        synchronized (triggers) {
+            if (containsTriggers(time)) {
+                triggers.get(time).add(0, trigger);
+            } else {
+                List<Trigger> newTriggers = new ArrayList<>(List.of(trigger));
+                triggers.put(time, newTriggers);
+            }
         }
     }
 
-    public boolean removeTrigger(long triggerId) {
-        for (Map.Entry<LocalTime, List<Trigger>> e: triggers.entrySet()) {
-            if (e.getValue().removeIf(p -> p.getUid() == triggerId)) {
-                return true;
+    public void removeTrigger(long triggerId) {
+        synchronized (triggers) {
+            for (Map.Entry<LocalDateTime, List<Trigger>> e: triggers.entrySet()) {
+                e.getValue().forEach(p -> {
+                    if(p.getUid() == triggerId){
+                        p.callback = () -> LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
+                    }
+                });
             }
         }
-        return false;
     }
 
     private void fireTrigger() {
-        var triggersToFire = triggers.get(getTime());
-        if (triggersToFire != null) {
-            //Here you have to leave the normal 'for' because you can remove element from the list during the iteration
-            //noinspection ForLoopReplaceableByForEach
-            for (int i = 0; i < triggersToFire.size(); i++) {
-                var trigger = triggersToFire.get(i);
-                LocalTime newTime = trigger.getCallback().get();
-                if (newTime.isAfter(getTime())) {
-                    addTrigger(newTime, trigger);
+        synchronized (triggers) {
+            var triggersToFire = triggers.get(getTime());
+            if (triggersToFire != null) {
+                //Here you have to leave the normal 'for' because you can remove element from the list during the iteration
+                //noinspection ForLoopReplaceableByForEach
+                triggersToFire = new ArrayList<>(triggersToFire);
+                for (int i = 0; i < triggersToFire.size(); i++) {
+                    var trigger = triggersToFire.get(i);
+                    LocalDateTime newTime = trigger.getCallback().get();
+                    if (newTime.isAfter(getTime())) {
+                        addTrigger(newTime, trigger);
+                    }
                 }
+                triggers.remove(getTime());
             }
-            triggers.remove(getTime());
         }
     }
 
     private static class Trigger {
 
         private final long uid;
-        private final Supplier<LocalTime> callback;
+        private Supplier<LocalDateTime> callback;
 
-        public Trigger(Supplier<LocalTime> callback) {
+        public Trigger(Supplier<LocalDateTime> callback) {
             uid = nextTriggerUid++;
             this.callback = callback;
         }
@@ -121,7 +131,7 @@ public class GlobalClock {
             return uid;
         }
 
-        public Supplier<LocalTime> getCallback() {
+        public Supplier<LocalDateTime> getCallback() {
             return callback;
         }
 

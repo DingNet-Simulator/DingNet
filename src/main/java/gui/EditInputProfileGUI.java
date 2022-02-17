@@ -29,6 +29,8 @@ public class EditInputProfileGUI {
     private JLabel QOSLabel;
     private JSpinner durationSpinner;
     private JComboBox timeUnitComboBox;
+    private JSpinner movementRepeatingSpinner;
+    private JComboBox movementRepeatingUnitSpinner;
     private InputProfile inputProfile;
     private Environment environment;
 
@@ -39,11 +41,13 @@ public class EditInputProfileGUI {
 
         classSaveButton.addActionListener(e -> {
             if (numberOfRoundsComboBox.getSelectedItem() != null) {
-                inputProfile.setNumberOfRuns(Integer.valueOf((String) numberOfRoundsComboBox.getSelectedItem()));
+                inputProfile.setNumberOfRuns(Integer.parseInt((String) numberOfRoundsComboBox.getSelectedItem()));
             }
             inputProfile
                 .setSimulationDuration(((Double) durationSpinner.getValue()).longValue())
-                .setTimeUnit((ChronoUnit) timeUnitComboBox.getSelectedItem());
+                .setTimeUnit(ChronoUnit.valueOf((String) timeUnitComboBox.getSelectedItem()))
+                .setRepeatingTime(((Double) movementRepeatingSpinner.getValue()).longValue())
+                .setRepeatingTimeTimeUnit(ChronoUnit.valueOf((String) movementRepeatingUnitSpinner.getSelectedItem()));
             refresh();
         });
 
@@ -93,7 +97,15 @@ public class EditInputProfileGUI {
         }
         moteProbSpinner.setModel(new SpinnerNumberModel(inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()), 0, 1, 0.01));
         durationSpinner.setModel(new SpinnerNumberModel(inputProfile.getSimulationDuration(), 0, Long.MAX_VALUE, 1));
-        timeUnitComboBox.setSelectedItem(inputProfile.getTimeUnit());
+        for (ChronoUnit unit : ChronoUnit.values()) {
+            timeUnitComboBox.addItem(unit.toString().toUpperCase());
+        }
+        timeUnitComboBox.setSelectedItem(inputProfile.getTimeUnit().toString().toUpperCase());
+        movementRepeatingSpinner.setModel(new SpinnerNumberModel(inputProfile.getRepeatingTime(), 0, Long.MAX_VALUE, 1));
+        for (ChronoUnit unit : ChronoUnit.values()) {
+            movementRepeatingUnitSpinner.addItem(unit.toString().toUpperCase());
+        }
+        movementRepeatingUnitSpinner.setSelectedItem(inputProfile.getRepeatingTimeTimeUnit().toString().toUpperCase());
     }
 
     public JPanel getMainPanel() {

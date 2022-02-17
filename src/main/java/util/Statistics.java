@@ -36,7 +36,7 @@ public class Statistics {
         return instance;
     }
 
-    public void addPowerSettingEntry(long networkEntity, int timeInSeconds, int powerSetting) {
+    public void addPowerSettingEntry(long networkEntity, long timeInSeconds, int powerSetting) {
         initIfAbsent(powerSettingHistory, networkEntity);
         var lists = powerSettingHistory.get(networkEntity);
         lists.add(new PowerSettingDataPoint(this.runNumber, timeInSeconds, powerSetting));
@@ -97,7 +97,7 @@ public class Statistics {
         return powerSettingHistory.get(networkEntity);
     }
 
-    public List<Pair<Integer, Integer>> getPowerSettingHistory(long networkEntity, int run) {
+    public List<Pair<Long, Integer>> getPowerSettingHistory(long networkEntity, int run) {
         return getPowerSettingHistory(networkEntity).stream()
             .filter(o -> o.runNumber == run)
             .map(o -> new Pair<>(o.timeInSeconds, o.powerSetting))
@@ -157,10 +157,10 @@ public class Statistics {
 
     public static class PowerSettingDataPoint {
         public int runNumber;
-        public int timeInSeconds;
+        public long timeInSeconds;
         public int powerSetting;
 
-        PowerSettingDataPoint(int runNumber, int timeInSeconds, int powerSetting) {
+        PowerSettingDataPoint(int runNumber, long timeInSeconds, int powerSetting) {
             this.runNumber = runNumber;
             this.timeInSeconds = timeInSeconds;
             this.powerSetting = powerSetting;

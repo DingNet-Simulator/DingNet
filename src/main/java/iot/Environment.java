@@ -269,9 +269,9 @@ public class Environment implements Serializable {
      * @param yPos  The y-coordinate of the position.
      * @return  the characteristic of the position if the position is valid.
      */
-    public Characteristic getCharacteristic(int xPos, int yPos) {
+    public Characteristic getCharacteristic(double xPos, double yPos) {
         if (isValidXpos(xPos) && isValidYpos(yPos)) {
-            return characteristics[xPos][yPos];
+            return characteristics[(int)Math.round(xPos)][(int)Math.round(yPos)];
         } else {
             return null;
         }
@@ -311,21 +311,20 @@ public class Environment implements Serializable {
      * @param destination The position to move towards.
      */
     public void moveMote(Mote mote, GeoPosition destination) {
-        double xPosDest = this.mapHelper.toMapXCoordinate(destination);
-        double yPosDest = this.mapHelper.toMapYCoordinate(destination);
-        double xPosMote = mote.getXPosDouble();
-        double yPosMote = mote.getYPosDouble();
+        double xPosDest = destination.getLongitude();
+        double yPosDest = destination.getLatitude();
+        double xPosMote = mote.getPos().getLongitude();
+        double yPosMote = mote.getPos().getLatitude();
 
         if (xPosMote != xPosDest || yPosMote != yPosDest) {
-            double deltaX = (xPosDest - xPosMote);
-            double deltaY = (yPosDest - yPosMote);
-            double distance = Math.min(1, Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)));
+            double deltaX = (destination.getLongitude() - mote.getPos().getLongitude());
+            double deltaY = (destination.getLatitude() - mote.getPos().getLatitude());
+            double distance = Math.min(Math.abs(mapHelper.toLatitude(0) - mapHelper.toLatitude(1)),Math.min(Math.abs(mapHelper.toLongitude(0) - mapHelper.toLongitude(1)), MapHelper.distance(mote.getPos(),destination)));
             var angle = Math.atan(Math.abs(deltaY) / Math.abs(deltaX));
 
             xPosMote += distance * Math.cos(angle) * (xPosDest > xPosMote ? 1 : -1);
             yPosMote += distance * Math.sin(angle) * (yPosDest > yPosMote ? 1 : -1);
-
-            mote.setPos(xPosMote, yPosMote);
+            mote.setPos(new GeoPosition(yPosMote,xPosMote));
         }
     }
 

@@ -1,6 +1,7 @@
 package iot.networkcommunication.api;
 
 import iot.lora.LoraTransmission;
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
 import java.util.function.Consumer;
@@ -24,15 +25,10 @@ public interface Receiver {
 
     /**
      *
-     * @return receiver position as double
+     * @return receiver position as geo position
      */
-    Pair<Double, Double> getReceiverPosition();
+    GeoPosition getReceiverPosition();
 
-    /**
-     *
-     * @return receiver position as int
-     */
-    Pair<Integer, Integer> getReceiverPositionAsInt();
 
     /**
      * Setter for the consumer for all the received transmission

@@ -1,8 +1,11 @@
 package iot.lora;
 
+
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 
@@ -30,14 +33,10 @@ public class LoraTransmission implements Serializable {
     private double transmissionPower = 0.0;
 
     /**
-     * An integer representing the x-coordinate of the packet.
+     * A GeoPosition representing the location of the packet.
      */
-    private int xPos;
+    private GeoPosition pos;
 
-    /**
-     * An integer representing the y-coordinate of the packet.
-     */
-    private int yPos;
 
 
     /**
@@ -53,7 +52,7 @@ public class LoraTransmission implements Serializable {
     /**
      * The departure time of the message
      */
-    private final LocalTime departureTime;
+    private final LocalDateTime departureTime;
 
     /**
      * The time on air of a transmission.
@@ -78,17 +77,17 @@ public class LoraTransmission implements Serializable {
      * environment and content.
      * @param sender    The sender sending the transmission.
      * @param receiver The receiver receiving the transmission.
+     * @param positionSender
      * @param transmissionPower The transmission power of the transmission.
      * @param content The content of the transmission.
      */
-    public LoraTransmission(long sender, long receiver, Pair<Integer, Integer> positionSender,
+    public LoraTransmission(long sender, long receiver, GeoPosition positionSender,
                             double transmissionPower, RegionalParameter regionalParameter, double timeOnAir,
-                            LocalTime departureTime, LoraWanPacket content) {
+                            LocalDateTime departureTime, LoraWanPacket content) {
 
         this.sender = sender;
         this.receiver = receiver;
-        this.xPos = positionSender.getLeft();
-        this.yPos = positionSender.getRight();
+        this.pos = positionSender;
         this.content = content;
         this.arrived = false;
         this.collided = false;
@@ -125,7 +124,7 @@ public class LoraTransmission implements Serializable {
      * Returns the departure time of the transmission.
      * @return  The departure time of the transmission.
      */
-    public LocalTime getDepartureTime() {
+    public LocalDateTime getDepartureTime() {
         return departureTime;
     }
 
@@ -228,20 +227,13 @@ public class LoraTransmission implements Serializable {
     }
 
     /**
-     * Returns the x-coordinate of the transmission.
-     * @return The x-coordinate of the transmission.
+     * Returns the coordinates of the transmission.
+     * @return The coordinates of the transmission.
      */
-    public int getXPos() {
-        return xPos;
+    public GeoPosition getPos() {
+        return pos;
     }
 
-    /**
-     * Returns the y-coordinate of the transmission.
-     * @return The y-coordinate of the transmission.
-     */
-    public int getYPos() {
-        return yPos;
-    }
 
     /**
      * Returns the content of the transmission.

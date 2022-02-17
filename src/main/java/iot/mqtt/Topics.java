@@ -48,30 +48,30 @@ public class Topics {
 
     private static String createTopic(String applicationId, String nodeId, String suffix) {
         return new StringBuilder()
-            .append(APPLICATION_ID)
-            .append("/")
-            .append(applicationId)
-            .append("/")
             .append(MOTE_ID)
             .append("/")
             .append(nodeId)
+            .append("/")
+            .append(APPLICATION_ID)
+            .append("/")
+            .append(applicationId)
             .append(suffix)
             .toString();
     }
 
     private static String createTopicWithGateway(String applicationId, String gatewayId, String nodeId, String suffix) {
         return new StringBuilder()
-            .append(APPLICATION_ID)
+            .append(MOTE_ID)
             .append("/")
-            .append(applicationId)
+            .append(nodeId)
             .append("/")
             .append(GATEWAY_ID)
             .append("/")
             .append(gatewayId)
             .append("/")
-            .append(MOTE_ID)
+            .append(APPLICATION_ID)
             .append("/")
-            .append(nodeId)
+            .append(applicationId)
             .append(suffix)
             .toString();
     }

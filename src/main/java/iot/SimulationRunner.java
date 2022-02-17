@@ -18,6 +18,7 @@ import selfadaptation.feedbackloop.ReliableEfficientDistanceGateway;
 import selfadaptation.feedbackloop.SignalBasedAdaptation;
 import selfadaptation.instrumentation.MoteEffector;
 import selfadaptation.instrumentation.MoteProbe;
+import util.Constants;
 import util.MutableInteger;
 import util.Pair;
 import util.Statistics;
@@ -249,7 +250,7 @@ public class SimulationRunner {
 
             for (int i = 0; i < nrOfRuns; i++) {
 
-                while (!simulation.isFinished()) {
+                while(!simulation.isFinished()) {
                     this.simulation.simulateStep();
                 }
 
@@ -269,8 +270,7 @@ public class SimulationRunner {
     // region loading/saving/cleanup
 
     public void updateInputProfilesFile() {
-        File file = new File(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        file = new File(file.getParent() + "/inputProfiles/inputProfile.xml");
+        File file = new File(MainGUI.class.getResource(Constants.INPUT_PROFILES_FILE).getPath());
         updateInputProfilesFile(file);
     }
 

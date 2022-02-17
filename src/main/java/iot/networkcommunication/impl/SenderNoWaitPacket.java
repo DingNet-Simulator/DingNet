@@ -10,9 +10,11 @@ import iot.networkcommunication.api.Receiver;
 import iot.networkcommunication.api.Sender;
 import iot.networkentity.NetworkEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 import util.TimeHelper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -24,6 +26,7 @@ public class SenderNoWaitPacket implements Sender {
     private RegionalParameter regionalParameter;
     private double transmissionPower;
     private boolean isTransmitting;
+    private LocalDateTime currentTransmittingTime;
     private final NetworkEntity sender;
     private final Environment env;
     /**
@@ -50,29 +53,35 @@ public class SenderNoWaitPacket implements Sender {
             var timeOnAir = computeTimeOnAir(packet);
             var stream = receivers.stream()
                 .map(r -> new Pair<>(r,
-                    new LoraTransmission(sender.getEUI(), r.getID(), sender.getPosInt(), moveTo(r.getReceiverPositionAsInt(), transmissionPower),
+                    new LoraTransmission(sender.getEUI(), r.getID(), sender.getPos(), moveTo(r.getReceiverPosition(), transmissionPower),
                         regionalParameter, timeOnAir, env.getClock().getTime(), packet)))
                 .filter(p -> packetStrengthHighEnough(p.getRight().getTransmissionPower()));
 
             var filteredSet = stream.collect(Collectors.toSet());
 
+
+
             var ret = filteredSet.stream()
                 .findFirst()
                 .map(Pair::getRight);
-            filteredSet.forEach(p -> p.getLeft().receive(p.getRight()));
+            for (Pair<Receiver,LoraTransmission> pair : filteredSet) {
+                pair.getLeft().receive(pair.getRight());
+            }
 
             isTransmitting = true;
+
             var clock = env.getClock();
+            currentTransmittingTime = clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir));
             clock.addTriggerOneShot(clock.getTime().plusNanos((long) TimeHelper.miliToNano(timeOnAir)),
-                () -> isTransmitting = false);
+                () -> {isTransmitting = false;
+                    currentTransmittingTime = null;});
             return ret;
         } else {
-            throw new IllegalStateException("impossible send two packet at the same time");
+            throw new IllegalStateException("impossible to send two packet at the same time");
         }
     }
 
     /**
-     * TODO miss *(codingRate + 4) after ceil
      * https://docs.google.com/spreadsheets/d/1voGAtQAjC1qBmaVuP1ApNKs1ekgUjavHuVQIXyYSvNc/edit#gid=0
      * @return time on air in milliseconds
      */
@@ -91,6 +100,7 @@ public class SenderNoWaitPacket implements Sender {
         var payloadSymbNb = (8 * packet.getPayload().length - 4 * sf + (28 + 16) - 20 * (packet.hasHeader() ? 0 : 1)) /
             ((4 * (sf - (packet.hasLowDataRateOptimization() ? 2 : 0))) * 1.0);
         payloadSymbNb = Math.ceil(payloadSymbNb);
+        payloadSymbNb = payloadSymbNb * packet.getCodingRate();
         payloadSymbNb = 8 + Math.max(payloadSymbNb, 0);
         var tPayload = payloadSymbNb * tSym;
         return tPayload + tPreamble;
@@ -102,8 +112,8 @@ public class SenderNoWaitPacket implements Sender {
      * @param transmissionPower the initial transmission power
      * @return
      */
-    private double moveTo(Pair<Integer, Integer> pos, double transmissionPower) {
-        return moveTo(pos.getLeft(), pos.getRight(), transmissionPower);
+    private double moveTo(GeoPosition pos, double transmissionPower) {
+        return moveTo(env.getMapHelper().toMapXCoordinate(pos),env.getMapHelper().toMapYCoordinate(pos), transmissionPower);
     }
 
     /**
@@ -113,18 +123,20 @@ public class SenderNoWaitPacket implements Sender {
      * @param transmissionPower the initial transmission power
      * @return the transmission
      */
-    private double moveTo(int xPos, int yPos, double transmissionPower) {
-        int xDist = Math.abs(xPos - sender.getXPosInt());
-        int yDist = Math.abs(yPos - sender.getYPosInt());
+    private double moveTo(double xPos, double yPos, double transmissionPower) {
+        double senderX = env.getMapHelper().toMapXCoordinate(sender.getPos());
+        double senderY = env.getMapHelper().toMapYCoordinate(sender.getPos());
+        double xDist = Math.abs(xPos - senderX);
+        double yDist = Math.abs(yPos - senderY);
         int xDir;
         int yDir;
         Characteristic characteristic = null;
 
         while (transmissionPower > -300 && xDist + yDist > 0) {
-            xDist = Math.abs(xPos - sender.getXPosInt());
-            yDist = Math.abs(yPos - sender.getYPosInt());
-            xDir = Integer.signum(xPos - sender.getXPosInt());
-            yDir = Integer.signum(yPos - sender.getYPosInt());
+            xDist = (int) Math.round(Math.abs(xPos - senderX));
+            yDist = (int) Math.round(Math.abs(yPos - senderY));
+            xDir = (int) Math.signum(xPos - senderX);
+            yDir = (int) Math.signum(yPos - senderY);
             characteristic = env.getCharacteristic(xPos, yPos);
 
             if (xDist + yDist > 1) {
@@ -162,6 +174,11 @@ public class SenderNoWaitPacket implements Sender {
     @Override
     public boolean isTransmitting() {
         return isTransmitting;
+    }
+
+    @Override
+    public LocalDateTime getCurrentTransmittingTime() {
+        return currentTransmittingTime;
     }
 
     @Override
@@ -204,5 +221,6 @@ public class SenderNoWaitPacket implements Sender {
     @Override
     public void reset() {
         isTransmitting = false;
+        currentTransmittingTime = null;
     }
 }

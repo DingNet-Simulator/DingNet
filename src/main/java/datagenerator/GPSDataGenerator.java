@@ -1,9 +1,11 @@
 package datagenerator;
 
+import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 import util.Pair;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class GPSDataGenerator implements SensorDataGenerator {
@@ -11,16 +13,11 @@ public class GPSDataGenerator implements SensorDataGenerator {
     public GPSDataGenerator() {}
 
     @Override
-    public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
+    public byte[] generateData(Environment environment, GeoPosition graphPosition, LocalDateTime time) {
         return Converter.toByteArray(graphPosition);
     }
 
-    @Override
-    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
-        return this.generateData(pos.getLeft(), pos.getRight(), graphPosition, time);
-    }
-
-    public double nonStaticDataGeneration(double x, double y) {
+    public double nonStaticDataGeneration(Environment environment, GeoPosition position) {
         return 0.0;
     }
 

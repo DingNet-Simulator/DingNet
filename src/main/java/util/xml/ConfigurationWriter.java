@@ -2,10 +2,7 @@ package util.xml;
 
 import iot.Environment;
 import iot.SimulationRunner;
-import iot.networkentity.Gateway;
-import iot.networkentity.Mote;
-import iot.networkentity.MoteSensor;
-import iot.networkentity.UserMote;
+import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -150,7 +147,11 @@ public class ConfigurationWriter {
                 if (mote instanceof UserMote) {
                     motes.appendChild(new UserMoteWriter(doc, (UserMote) mote, environment).buildMoteElement());
                 } else {
-                    motes.appendChild(new MoteWriter(doc, mote, environment).buildMoteElement());
+                    if (mote instanceof LifeLongMote) {
+                        motes.appendChild(new LLMoteWriter(doc, (LifeLongMote) mote, environment).buildMoteElement());
+                    }else {
+                        motes.appendChild(new MoteWriter(doc, mote, environment).buildMoteElement());
+                    }
                 }
             }
 
@@ -169,9 +170,9 @@ public class ConfigurationWriter {
 
                 Element location = doc.createElement("location");
                 Element xPos = doc.createElement("xPos");
-                xPos.appendChild(doc.createTextNode(Integer.toString(gateway.getXPosInt())));
+                xPos.appendChild(doc.createTextNode(Integer.toString((int) Math.round(environment.getMapHelper().toMapXCoordinate(gateway.getPos())))));
                 Element yPos = doc.createElement("yPos");
-                yPos.appendChild(doc.createTextNode(Integer.toString(gateway.getYPosInt())));
+                yPos.appendChild(doc.createTextNode(Integer.toString((int) Math.round(environment.getMapHelper().toMapYCoordinate(gateway.getPos())))));
                 location.appendChild(xPos);
                 location.appendChild(yPos);
 
@@ -237,7 +238,7 @@ public class ConfigurationWriter {
             Element location = doc.createElement("location");
             Element wayPoint = doc.createElement("waypoint");
 
-            GeoPosition position = environment.getMapHelper().toGeoPosition(mote.getOriginalPosInt());
+            GeoPosition position = mote.getOriginalPos();
             wayPoint.setAttribute("id", Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(position))));
             location.appendChild(wayPoint);
 
@@ -357,6 +358,37 @@ public class ConfigurationWriter {
             Element moteElement = doc.createElement("userMote");
             addMoteDetails(moteElement);
             addUserMoteDetails(moteElement);
+            return moteElement;
+        }
+    }
+
+    private static class LLMoteWriter extends MoteWriter {
+        LLMoteWriter(Document doc, LifeLongMote mote, Environment environment) {
+            super(doc, mote, environment);
+        }
+
+        Element generateTransmittingIntervalElement() {
+            Element transmittingInterval = doc.createElement("transmittingInterval");
+            transmittingInterval.appendChild(doc.createTextNode(Integer.toString(((LifeLongMote) mote).getTransmittingInterval())));
+            return transmittingInterval;
+        }
+
+        Element generateExpirationTimeElement() {
+            Element expirationTime = doc.createElement("expirationTime");
+            expirationTime.appendChild(doc.createTextNode(Integer.toString(((LifeLongMote) mote).getExpirationTime())));
+            return expirationTime;
+        }
+
+        void addLifeLongMoteDetails(Element element) {
+            List.of(generateTransmittingIntervalElement(), generateExpirationTimeElement())
+                .forEach(element::appendChild);
+        }
+
+        @Override
+        public Element buildMoteElement() {
+            Element moteElement = doc.createElement("lifeLongMote");
+            addMoteDetails(moteElement);
+            addLifeLongMoteDetails(moteElement);
             return moteElement;
         }
     }

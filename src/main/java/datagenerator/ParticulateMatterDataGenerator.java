@@ -1,8 +1,10 @@
 package datagenerator;
 
+import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Random;
 /**
@@ -18,7 +20,8 @@ public class ParticulateMatterDataGenerator implements SensorDataGenerator {
         random = new Random(DEFAULT_SEED);
     }
 
-    public static double generateData(double x, double y) {
+    public double generateData(int x, int y) {
+
         if (x < 250 && y < 250)
             return (double) 97 + (x + y) / 250 + 0.3 * random.nextGaussian();
         else if (x < 750 && y < 750)
@@ -29,23 +32,23 @@ public class ParticulateMatterDataGenerator implements SensorDataGenerator {
             return 85 + (x + y) / 200 + 0.1 * random.nextGaussian();
     }
 
-    public double nonStaticDataGeneration(double x, double y) {
-        return ParticulateMatterDataGenerator.generateData(x, y);
+    public double nonStaticDataGeneration(Environment environment, GeoPosition position) {
+        int x = (int) Math.round(environment.getMapHelper().toMapXCoordinate(position));
+        int y = (int) Math.round(environment.getMapHelper().toMapYCoordinate(position));
+        return generateData(x,y);
     }
     /**
      * A function generating senor data for particulate matter.
-     * @param x The x position of the measurement.
-     * @param y The y position of the measurement.
+     * @param position The position of the measurement.
      * @param time The time of the measurement.
      * @return A measurement of particulate matter at the given position and time.
      */
     @Override
-    public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
-        double result = ParticulateMatterDataGenerator.generateData(x, y);
+    public byte[] generateData(Environment environment,GeoPosition position, LocalDateTime time) {
+        int x = (int) Math.round(environment.getMapHelper().toMapXCoordinate(position));
+        int y = (int) Math.round(environment.getMapHelper().toMapYCoordinate(position));
+        double result = generateData(x,y);
         return new byte[]{(byte) Math.floorMod((int) Math.round(result), 255)};
     }
-    @Override
-    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
-        return this.generateData(pos.getLeft(), pos.getRight(), graphPosition, time);
-    }
+
 }

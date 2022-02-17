@@ -26,11 +26,11 @@ public class GatewayGUI extends JFrame {
         gatewayNumberLabel.setText(Integer.toString(environment.getGateways().indexOf(gateway) + 1));
         EUIDText.setText(Long.toUnsignedString(gateway.getEUI()));
 
-        GUIUtil.updateLabelCoordinateLon(longitudeLabel, environment.getMapHelper().toLongitude(gateway.getXPosInt()));
-        GUIUtil.updateLabelCoordinateLat(latitudeLabel, environment.getMapHelper().toLatitude(gateway.getYPosInt()));
+        GUIUtil.updateLabelCoordinateLon(longitudeLabel, gateway.getPos().getLongitude());
+        GUIUtil.updateLabelCoordinateLat(latitudeLabel, gateway.getPos().getLatitude());
 
-        xCoordinateLabel.setText(Integer.toString(gateway.getXPosInt()));
-        yCoordinateLabel.setText(Integer.toString(gateway.getYPosInt()));
+        xCoordinateLabel.setText(Double.toString(environment.getMapHelper().toMapXCoordinate(gateway.getPos())));
+        yCoordinateLabel.setText(Double.toString(environment.getMapHelper().toMapYCoordinate(gateway.getPos())));
         powerSettingLabel.setText(Integer.toString(gateway.getTransmissionPower()));
         SFLabel.setText(Integer.toString(gateway.getSF()));
 

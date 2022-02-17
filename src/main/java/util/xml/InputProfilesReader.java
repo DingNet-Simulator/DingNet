@@ -9,9 +9,11 @@ import org.xml.sax.SAXException;
 import selfadaptation.adaptationgoals.AdaptationGoal;
 import selfadaptation.adaptationgoals.IntervalAdaptationGoal;
 import selfadaptation.adaptationgoals.ThresholdAdaptationGoal;
+import util.Constants;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -21,7 +23,8 @@ public class InputProfilesReader {
         List<InputProfile> inputProfiles = new LinkedList<>();
 
         try {
-            var fileStream = MainGUI.class.getResourceAsStream("/inputProfiles/inputProfile.xml");
+
+            var fileStream = MainGUI.class.getResourceAsStream(Constants.INPUT_PROFILES_FILE);
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fileStream);
             Element inputProfilesElement = doc.getDocumentElement();
@@ -35,9 +38,11 @@ public class InputProfilesReader {
 
                 long simulationDuration = Long.parseLong(XMLHelper.readChild(inputProfileElement, "simulationDuration"));
                 String timeUnitName = XMLHelper.readChild(inputProfileElement, "timeUnit");
-                Optional<ChronoUnit> timeUnit = Arrays.stream(ChronoUnit.values())
-                                            .filter(c -> c.toString().equals(timeUnitName))
-                                            .findFirst();
+                ChronoUnit timeUnit = ChronoUnit.valueOf(timeUnitName);
+
+                long movementRepeatingTime = Long.parseLong(XMLHelper.readChild(inputProfileElement, "movementRepeatingTime"));
+                String repeatingTimeTimeUnitUnit = XMLHelper.readChild(inputProfileElement, "repeatingTimeTimeUnit");
+                ChronoUnit repeatingTimeTimeUnit = ChronoUnit.valueOf(repeatingTimeTimeUnitUnit);
 
                 Element QoSElement = (Element) inputProfileElement.getElementsByTagName("QoS").item(0);
                 HashMap<String, AdaptationGoal> adaptationGoalHashMap = new HashMap<>();
@@ -76,7 +81,7 @@ public class InputProfilesReader {
                     moteProbabilities.put(moteNumber - 1, activationProbability);
                 }
 
-                InputProfile ip = timeUnit.map(chronoUnit ->
+                InputProfile ip =
                     new InputProfile(
                         name,
                         new QualityOfService(adaptationGoalHashMap),
@@ -86,15 +91,9 @@ public class InputProfilesReader {
                         new HashMap<>(),
                         inputProfileElement,
                         simulationDuration,
-                        chronoUnit))
-                    .orElseGet(() -> new InputProfile(
-                        name,
-                        new QualityOfService(adaptationGoalHashMap),
-                        numberOfRuns,
-                        moteProbabilities,
-                        new HashMap<>(),
-                        new HashMap<>(),
-                        inputProfileElement));
+                        timeUnit,
+                        movementRepeatingTime,
+                        repeatingTimeTimeUnit);
                 inputProfiles.add(ip);
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {

@@ -11,6 +11,7 @@ import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
 import iot.strategy.response.gateway.ResponseStrategy;
 import iot.strategy.response.gateway.SendPacketImmediately;
+import org.jfree.data.json.impl.JSONObject;
 import selfadaptation.instrumentation.MoteProbe;
 
 import java.util.LinkedList;
@@ -101,6 +102,7 @@ public class Gateway extends NetworkEntity {
 
     @Override
     protected void initialize() {}
+
 
     public MqttClientBasicApi getMqttClient() {
         return mqttClient;

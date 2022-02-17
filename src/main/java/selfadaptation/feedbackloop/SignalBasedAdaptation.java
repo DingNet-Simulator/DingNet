@@ -19,17 +19,21 @@ public class SignalBasedAdaptation extends GenericFeedbackLoop {
     /**
      * A HashMap representing the buffers for the approach.
      */
-    private Map<Mote, List<Double>> reliableMinPowerBuffers;
+
+    private final Map<Mote, List<Double>> reliableMinPowerBuffers;
 
     /**
      * A map to keep track of which gateway has already sent the packet.
      */
-    private FeedbackLoopGatewayBuffer gatewayBuffer;
+
+    private final FeedbackLoopGatewayBuffer gatewayBuffer;
 
     /**
      * A QualityOfService representing the required quality of service.
      */
-    private QualityOfService qualityOfService;
+
+    private final QualityOfService qualityOfService;
+
 
 
 

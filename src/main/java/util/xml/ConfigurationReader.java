@@ -131,6 +131,10 @@ public class ConfigurationReader {
                 Element userMoteNode = (Element) motes.getElementsByTagName("userMote").item(i);
                 environment.addMote(new UserMoteReader(userMoteNode, environment).buildMote());
             }
+            for (int i = 0; i < motes.getElementsByTagName("lifeLongMote").getLength(); i++) {
+                Element lifeLongMoteNode = (Element) motes.getElementsByTagName("lifeLongMote").item(i);
+                environment.addMote(new LLMoteReader(lifeLongMoteNode, environment).buildMote());
+            }
 
 
             // ---------------
@@ -174,7 +178,7 @@ public class ConfigurationReader {
             return Long.parseUnsignedLong(XMLHelper.readChild(node, "devEUI"));
         }
 
-        Pair<Integer, Integer> getMapCoordinates() {
+        Pair<Double, Double> getMapCoordinates() {
             Element location = (Element) node.getElementsByTagName("location").item(0);
             Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
             GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(waypoint.getAttribute("id")));
@@ -321,6 +325,41 @@ public class ConfigurationReader {
             );
             userMote.setActive(isActive());
             return userMote;
+        }
+    }
+
+    private static class LLMoteReader extends MoteReader {
+        protected LLMoteReader(Element moteNode, Environment environment) {
+            super(moteNode, environment);
+        }
+
+        int getTransmittingInterval(){
+            return Integer.parseInt(XMLHelper.readChild(node, "transmittingInterval"));
+        }
+        int getExpirationTime(){
+            return Integer.parseInt(XMLHelper.readChild(node, "expirationTime"));
+        }
+
+        @Override
+        public LifeLongMote buildMote() {
+            LifeLongMote lifeLongMote = MoteFactory.createLLSACompliantMote(
+                getDevEUI(),
+                getMapCoordinates().getLeft(),
+                getMapCoordinates().getRight(),
+                getTransmissionPower(),
+                getSpreadingFactor(),
+                getMoteSensors(),
+                getEnergyLevel(),
+                getPath(),
+                getMovementSpeed(),
+                getStartMovementOffset().get(), // Intentional
+                getPeriodSendingPacket().get(), // Intentional
+                getStartSendingOffset().get(),  // Intentional
+                environment,
+                getTransmittingInterval(),
+                getExpirationTime()
+            );
+            return lifeLongMote;
         }
     }
 }

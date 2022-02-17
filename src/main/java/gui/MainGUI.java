@@ -4,6 +4,7 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import datagenerator.rangedsensor.api.TimeUnit;
 import gui.util.*;
 import iot.*;
 import iot.networkentity.Gateway;
@@ -30,7 +31,11 @@ import java.awt.event.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -114,6 +119,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private double usedEnergy;
     private int packetsSent;
     private int packetsLost;
+    private int averageLatency;
 
 
     public static void main(String[] args) {
@@ -242,7 +248,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
         resultsButton.addActionListener((ActionEvent e) -> {
             MoteCharacteristicsDialog moteCharacteristicsDialog =
-                new MoteCharacteristicsDialog(usedEnergy, packetsSent, packetsLost);
+                new MoteCharacteristicsDialog(usedEnergy, packetsSent, packetsLost,averageLatency);
             moteCharacteristicsDialog.pack();
             moteCharacteristicsDialog.setVisible(true);
         });
@@ -398,8 +404,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             textArea.append(String.format("Gateway %d:\n", environment.getGateways().indexOf(gateway) + 1));
             textArea.append(String.format("EUID: %d\n", gateway.getEUI()));
 
-            double latitude = environment.getMapHelper().toLatitude(gateway.getYPosInt());
-            double longitude = environment.getMapHelper().toLongitude(gateway.getXPosInt());
+            double latitude = gateway.getPos().getLatitude();
+            double longitude = gateway.getPos().getLongitude();
             textArea.append(String.format("%s%s, %s%s",
                 MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecond(latitude),
                 MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecond(longitude)));
@@ -417,8 +423,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             textArea.append(String.format("Mote %d:\n", environment.getMotes().indexOf(mote) + 1));
             textArea.append(String.format("EUID: %d\n", mote.getEUI()));
 
-            double latitude = environment.getMapHelper().toLatitude(mote.getYPosInt());
-            double longitude = environment.getMapHelper().toLongitude(mote.getXPosInt());
+            double latitude = mote.getPos().getLatitude();
+            double longitude = mote.getPos().getLongitude();
             textArea.append(String.format("%s%s, %s%s",
                 MapHelper.getDirectionSign(latitude, "lat"), MapHelper.toDegreeMinuteSecond(latitude),
                 MapHelper.getDirectionSign(longitude, "long"), MapHelper.toDegreeMinuteSecond(longitude)));
@@ -928,7 +934,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
 
             JFrame frame = new JFrame("Mote settings");
             Mote mote = simulationRunner.getEnvironment().getMotes().get(index - 1);
-            MoteGUI moteGUI = new MoteGUI(getEnvironment(), mote.getOriginalPosInt(), frame, MainGUI.this, MainGUI.this, mote);
+            MoteGUI moteGUI = new MoteGUI(getEnvironment(), mote.getOriginalPos(), frame, MainGUI.this, MainGUI.this, mote);
             frame.setContentPane(moteGUI.getMainPanel());
             frame.setMinimumSize(moteGUI.getMainPanel().getMinimumSize());
             frame.setPreferredSize(moteGUI.getMainPanel().getPreferredSize());
@@ -968,20 +974,34 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         this.usedEnergy = 0;
         this.packetsLost = 0;
         this.packetsSent = 0;
+        this.averageLatency = 0;
 
         Statistics statistics = Statistics.getInstance();
         Environment environment = simulationRunner.getEnvironment();
 
+        HashSet<LocalDateTime> sentpacketsList= new HashSet<>();
+        List<LocalDateTime> lostpacketsList= new LinkedList<>();
+        int amountOfGateways = environment.getGateways().size();
         environment.getGateways().forEach(gw ->
             statistics.getAllReceivedTransmissions(gw.getEUI(), run).stream()
                 .filter(t -> t.getSender() == mote.getEUI())
                 .forEach(t -> {
-                    this.packetsSent++;
+                    this.averageLatency = this.averageLatency + t.getContent().getPayload()[t.getContent().getPayload().length-1];
+                    sentpacketsList.add(t.getDepartureTime());
                     if (t.isCollided()) {
-                        this.packetsLost++;
+                        lostpacketsList.add(t.getDepartureTime());
                     }
                 })
         );
+
+        for (LocalDateTime time : sentpacketsList){
+            if(lostpacketsList.stream().filter(t->t.compareTo(time) == 0).count() == amountOfGateways){
+                this.packetsLost ++;
+            }
+        }
+        this.packetsSent = sentpacketsList.size();
+        this.averageLatency = this.averageLatency /(this.packetsSent * amountOfGateways);
+
 
         statistics.getUsedEnergy(mote.getEUI(), run).forEach(energy -> this.usedEnergy += energy);
     }

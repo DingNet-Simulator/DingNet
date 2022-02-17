@@ -44,4 +44,8 @@ public class Converter {
     static public GeoPosition toFloatingGeoPosition(GeoPosition pos) {
         return new GeoPosition((float) pos.getLatitude(), (float) pos.getLongitude());
     }
+
+    static public MoteSettings toMoteSettings(byte[] data){
+        return new MoteSettings(data[0],data[1],data[2]);
+    }
 }

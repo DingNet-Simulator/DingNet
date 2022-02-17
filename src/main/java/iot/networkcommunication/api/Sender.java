@@ -5,6 +5,7 @@ import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +28,12 @@ public interface Sender {
      * @return if the device stay already transmitting a packet
      */
     boolean isTransmitting();
+
+    /**
+     *
+     * @return
+     */
+    LocalDateTime getCurrentTransmittingTime();
 
     /**
      *

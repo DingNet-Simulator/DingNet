@@ -39,6 +39,7 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ChartGenerator {
      * @return A Pair containing ChartPanel containing a received power graph and another pair containing 2 integers: the amount of packets sent and the amount lost.
      */
     public static ChartPanel generateReceivedPowerGraphForMotes(Mote mote, int run, Environment environment) {
-        LinkedList<List<Pair<NetworkEntity, Pair<Integer, Double>>>> transmissionsMote = new LinkedList<>();
+        LinkedList<List<Pair<NetworkEntity, Pair<Long, Double>>>> transmissionsMote = new LinkedList<>();
 
         Statistics statistics = Statistics.getInstance();
 
@@ -67,11 +68,11 @@ public class ChartGenerator {
                     if (!transmission.isCollided())
                         transmissionsMote.getLast().add(
                             new Pair<>(environment.getNetworkEntityById(transmission.getReceiver()),
-                                new Pair<>(transmission.getDepartureTime().toSecondOfDay(), transmission.getTransmissionPower())));
+                                new Pair<>(transmission.getDepartureTime().toEpochSecond(ZoneOffset.UTC), transmission.getTransmissionPower())));
                     else {
                         transmissionsMote.getLast().add(
                             new Pair<>(environment.getNetworkEntityById(transmission.getReceiver()),
-                                new Pair<>(transmission.getDepartureTime().toSecondOfDay(), (double) 20)));
+                                new Pair<>(transmission.getDepartureTime().toEpochSecond(ZoneOffset.UTC), (double) 20)));
                     }
                 }
             }
@@ -81,13 +82,13 @@ public class ChartGenerator {
         }
         XYSeriesCollection dataReceivedPowerMote = new XYSeriesCollection();
 
-        for (List<Pair<NetworkEntity, Pair<Integer, Double>>> list : transmissionsMote) {
+        for (List<Pair<NetworkEntity, Pair<Long, Double>>> list : transmissionsMote) {
             NetworkEntity receiver = list.get(0).getLeft();
 
             //noinspection SuspiciousMethodCalls Here we know for certain that the receiver is a gateway (packets are only sent to gateways)
             XYSeries series = new XYSeries("gateway " + (environment.getGateways().indexOf(receiver) + 1));
 
-            for (Pair<NetworkEntity, Pair<Integer, Double>> data : list) {
+            for (Pair<NetworkEntity, Pair<Long, Double>> data : list) {
                 series.add(data.getRight().getLeft(), data.getRight().getRight());
             }
             dataReceivedPowerMote.addSeries(series);
@@ -236,8 +237,8 @@ public class ChartGenerator {
             XYSeries series = new XYSeries("gateway " + (environment.getGateways().indexOf(receiver) + 1));
             int i = 0;
             for (LoraTransmission transmission : list) {
-                series.add(i, (Number) Math.sqrt(Math.pow(environment.getNetworkEntityById(transmission.getReceiver()).getYPosInt() - transmission.getYPos(), 2) +
-                    Math.pow(environment.getNetworkEntityById(transmission.getReceiver()).getXPosInt() - transmission.getXPos(), 2)));
+                series.add(i, (Number) Math.sqrt(Math.pow(environment.getMapHelper().toMapYCoordinate(environment.getNetworkEntityById(transmission.getReceiver()).getPos()) - environment.getMapHelper().toMapYCoordinate(transmission.getPos()), 2) +
+                    Math.pow(environment.getMapHelper().toMapXCoordinate(environment.getNetworkEntityById(transmission.getReceiver()).getPos()) - environment.getMapHelper().toMapXCoordinate(transmission.getPos()), 2)));
                 i = i + 1;
             }
             dataDistanceToGateway.addSeries(series);
@@ -280,7 +281,7 @@ public class ChartGenerator {
         XYSeries seriesPowerSettingMote = new XYSeries("Power setting");
         Statistics statistics = Statistics.getInstance();
 
-        for (Pair<Integer, Integer> powerSetting : statistics.getPowerSettingHistory(mote.getEUI(), run)) {
+        for (Pair<Long, Integer> powerSetting : statistics.getPowerSettingHistory(mote.getEUI(), run)) {
             seriesPowerSettingMote.add(powerSetting.getLeft(), powerSetting.getRight());
         }
         dataPowerSettingMote.addSeries(seriesPowerSettingMote);
@@ -345,32 +346,32 @@ public class ChartGenerator {
     @SuppressWarnings("SuspiciousNameCombination")
     private static Pair<JPanel, JComponent> generateGraph(Environment environment, MoteSensor moteSensor, String keyName, TileFactory tileFactory, JFrame frame) {
         DefaultXYZDataset data = new DefaultXYZDataset();
-        HashMap<Pair<Integer, Integer>, LinkedList<Double>> seriesList = new HashMap<>();
+        HashMap<Pair<Double, Double>, LinkedList<Double>> seriesList = new HashMap<>();
         LinkedList<Pair<GeoPosition, Double>> dataSet = new LinkedList<>();
         Statistics statistics = Statistics.getInstance();
 
         for (Mote mote : environment.getMotes()) {
             if (mote.getSensors().contains(moteSensor)) {
                 for (LoraTransmission transmission : statistics.getSentTransmissions(mote.getEUI(), environment.getNumberOfRuns() - 1)) {
-                    int xPos = transmission.getXPos();
-                    int yPos = transmission.getYPos();
-                    for (Pair<Integer, Integer> key : seriesList.keySet()) {
+                    double xPos = environment.getMapHelper().toMapXCoordinate(transmission.getPos());
+                    double yPos =  environment.getMapHelper().toMapYCoordinate(transmission.getPos());
+                    for (Pair<Double, Double> key : seriesList.keySet()) {
                         if (Math.sqrt(Math.pow(key.getLeft() - xPos, 2) + Math.pow(key.getRight() - yPos, 2)) < 300) {
                             xPos = key.getLeft();
                             yPos = key.getRight();
                         }
                     }
                     if (seriesList.containsKey(new Pair<>(xPos, yPos))) {
-                        seriesList.get(new Pair<>(xPos, yPos)).add(moteSensor.getValue(xPos, yPos));
+                        seriesList.get(new Pair<>(xPos, yPos)).add(moteSensor.getValue(environment,environment.getMapHelper().toGeoPosition(xPos, yPos)));
                     } else {
                         LinkedList<Double> dataList = new LinkedList<>();
-                        dataList.add(moteSensor.getValue(xPos, yPos));
+                        dataList.add(moteSensor.getValue(environment,environment.getMapHelper().toGeoPosition(xPos, yPos)));
                         seriesList.put(new Pair<>(xPos, yPos), dataList);
                     }
                 }
             }
         }
-        for (Pair<Integer, Integer> key : seriesList.keySet()) {
+        for (Pair<Double, Double> key : seriesList.keySet()) {
             double average = seriesList.get(key).stream()
                 .mapToDouble(o -> o)
                 .average()
@@ -384,7 +385,7 @@ public class ChartGenerator {
 
         double[][] seriesParticulateMatter = new double[3][seriesList.size()];
         int i = 0;
-        for (Pair<Integer, Integer> key : seriesList.keySet()) {
+        for (Pair<Double, Double> key : seriesList.keySet()) {
             seriesParticulateMatter[0][i] = key.getLeft();
             seriesParticulateMatter[1][i] = key.getRight();
             seriesParticulateMatter[2][i] = seriesList.get(key).get(0);
@@ -445,7 +446,7 @@ public class ChartGenerator {
 
         if (mote.getSensors().contains(moteSensor)) {
             for (LoraTransmission transmission : statistics.getSentTransmissions(mote.getEUI(), environment.getNumberOfRuns() - 1)) {
-                series.add(i * 10, moteSensor.getValue(transmission.getXPos(), transmission.getYPos()));
+                series.add(i * 10, moteSensor.getValue(environment,transmission.getPos()));
                 i = i + 1;
             }
             dataSoot.addSeries(series);

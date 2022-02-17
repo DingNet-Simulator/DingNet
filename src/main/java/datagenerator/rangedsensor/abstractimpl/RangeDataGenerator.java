@@ -10,6 +10,7 @@ import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,9 +55,11 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     protected abstract String getConfigFilePath();
 
     @Override
-    public byte[] generateData(int x, int y, GeoPosition graphPosition, LocalTime time) {
-        return map.getOrDefault(calcSquare(x, y), new LinkedList<>()).stream()
-            .filter(c -> c.getFromTime() < timeUnit.convertFromNano(time.toNanoOfDay()))
+    public byte[] generateData(Environment environment,GeoPosition position, LocalDateTime time) {
+        int x = (int) Math.round(environment.getMapHelper().toMapXCoordinate(position));
+        int y = (int) Math.round(environment.getMapHelper().toMapYCoordinate(position));
+        return map.getOrDefault(calcSquare(x,y), new LinkedList<>()).stream()
+            .filter(c -> c.getFromTime() < timeUnit.convertFromNano(time.toLocalTime().toNanoOfDay()))
             .findFirst()// the list of cell is ordered for time
             .map(Cell::getLevel)
             .orElse(defaultLevel)
@@ -64,12 +67,7 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     }
 
     @Override
-    public byte[] generateData(Pair<Integer, Integer> pos, GeoPosition graphPosition, LocalTime time) {
-        return generateData(pos.getLeft(), pos.getRight(), graphPosition, time);
-    }
-
-    @Override
-    public double nonStaticDataGeneration(double x, double y) {
+    public double nonStaticDataGeneration(Environment environment,GeoPosition position) {
         return 0.0;
     }
 

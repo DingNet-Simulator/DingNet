@@ -37,6 +37,8 @@ public class Mote extends NetworkEntity {
 
     protected int pathPositionIndex;
 
+    private int direction;
+
     // An integer representing the energy level of the mote.
     private int energyLevel;
 
@@ -88,7 +90,8 @@ public class Mote extends NetworkEntity {
      * @param periodSendingPacket period to define how many seconds the mote has to send a packet (in seconds)
      * @param startSendingOffset time to await before send the first packet (in seconds)
      */
-    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower,
+
+    public Mote(long DevEUI, double xPos, double yPos, int transmissionPower,
                 int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
                 double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
         super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
@@ -116,7 +119,8 @@ public class Mote extends NetworkEntity {
      * @param path The path for this mote to follow.
      * @param movementSpeed The movement speed of this mote.
      */
-    public Mote(long DevEUI, int xPos, int yPos, int transmissionPower, int SF,
+
+    public Mote(long DevEUI, double xPos, double yPos, int transmissionPower, int SF,
                 List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, Environment environment) {
         this(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
             Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET, environment);
@@ -147,9 +151,9 @@ public class Mote extends NetworkEntity {
 
     @Override
     protected void initialize() {
-        this.setXPos(this.initialPosition.getLeft());
-        this.setYPos(this.initialPosition.getRight());
+        this.setPos(this.initialPosition);
         this.pathPositionIndex = getPath().isEmpty() ? -1 : 0;
+        this.direction = 1;
         this.frameCounter = 0;
         this.canReceive = false;
         this.keepAliveTriggerId = -1L;
@@ -182,6 +186,7 @@ public class Mote extends NetworkEntity {
         return path;
     }
 
+
     /**
      * Sets the path of the mote to a given path.
      * @param path The path to set.
@@ -200,19 +205,27 @@ public class Mote extends NetworkEntity {
 
     public GeoPosition getPathPosition() {
         return pathPositionIndex == -1 ?
-            getEnvironment().getMapHelper().toGeoPosition(initialPosition.getLeft().intValue(), initialPosition.getRight().intValue()) :
+            getOriginalPos() :
             getPath().getWayPoints().get(pathPositionIndex);
     }
 
-    @Override
-    public void setPos(double xPos, double yPos) {
-        super.setPos(xPos, yPos);
+    public Optional<GeoPosition> getNextPathPoint(){
+        return getPath().getPoint(getPathPositionIndex()+direction);
+    }
 
-        getPath().getNextPoint(pathPositionIndex)
+    public void reverseDirection(){
+        this.direction = -1 * this.direction;
+    }
+
+    @Override
+    public void setPos(GeoPosition pos) {
+        super.setPos(pos);
+
+        getNextPathPoint()
             .ifPresent(p -> {
-                var actualPoint = getEnvironment().getMapHelper().toGeoPosition(getPosInt());
+                var actualPoint = getPos();
                 if (MapHelper.equalsGeoPosition(actualPoint, p)) {
-                    pathPositionIndex++;
+                    pathPositionIndex += direction;
                 }
             });
     }
@@ -407,11 +420,10 @@ public class Mote extends NetworkEntity {
     }
 
     public boolean isArrivedToDestination() {
-        if (path.isEmpty()) {
+        if (getPath().isEmpty()) {
             return true;
         }
         //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
-        return this.getEnvironment().getMapHelper()
-            .toMapCoordinate(path.getDestination().get()).equals(getPosInt());
+        return getNextPathPoint().isEmpty();
     }
 }

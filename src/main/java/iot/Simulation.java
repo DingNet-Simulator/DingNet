@@ -8,9 +8,11 @@ import selfadaptation.feedbackloop.GenericFeedbackLoop;
 import util.TimeHelper;
 
 import java.lang.ref.WeakReference;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * A class representing a simulation.
@@ -39,7 +41,7 @@ public class Simulation {
     /**
      * Intermediate parameters used during simulation
      */
-    private Map<Mote, LocalTime> timeMap;
+    private Map<Mote, LocalDateTime> timeMap;
 
     // endregion
 
@@ -52,14 +54,14 @@ public class Simulation {
     // region getter/setters
 
     /**
-     * Gets the Environment used in th simulation.
+     * Gets the Environment used in the simulation.
      * @return The Environment used in the simulation.
      */
     public Environment getEnvironment() {
         return environment.get();
     }
     /**
-     * Sets the Environment used in th simulation.
+     * Sets the Environment used in the simulation.
      * @param environment  The Environment to use in the simulation.
      */
     public void setEnvironment(WeakReference<Environment> environment) {
@@ -67,14 +69,14 @@ public class Simulation {
     }
 
     /**
-     * Gets the InputProfile used in th simulation.
+     * Gets the InputProfile used in the simulation.
      * @return The InputProfile used in the simulation.
      */
     public Optional<InputProfile> getInputProfile() {
         return Optional.ofNullable(inputProfile);
     }
     /**
-     * Sets the InputProfile used in th simulation.
+     * Sets the InputProfile used in the simulation.
      * @param inputProfile  The InputProfile to use in the simulation.
      */
     public void setInputProfile(InputProfile inputProfile) {
@@ -82,7 +84,7 @@ public class Simulation {
     }
 
     /**
-     * Gets the GenericFeedbackLoop used in th simulation.
+     * Gets the GenericFeedbackLoop used ine th simulation.
      * @return The GenericFeedbackLoop used in the simulation.
      */
     public GenericFeedbackLoop getAdaptationAlgorithm() {
@@ -154,14 +156,15 @@ public class Simulation {
                 return mote;
             }) //DON'T replace with peek because the filtered mote after this line will not do the consume packet
             .filter(mote -> !mote.isArrivedToDestination())
-            .filter(mote -> TimeHelper.secToMili( 1 / mote.getMovementSpeed()) <
-                TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay() - timeMap.get(mote).toNanoOfDay()))
-            .filter(mote -> TimeHelper.nanoToMili(this.getEnvironment().getClock().getTime().toNanoOfDay()) > TimeHelper.secToMili(Math.abs(mote.getStartMovementOffset())))
+            .filter(mote ->  1 / mote.getMovementSpeed() <
+                this.getEnvironment().getClock().getTime().toEpochSecond(ZoneOffset.UTC) - timeMap.get(mote).toEpochSecond(ZoneOffset.UTC))
+            .filter(mote -> this.getEnvironment().getClock().getTime().toEpochSecond(ZoneOffset.UTC) > Math.abs(mote.getStartMovementOffset()))
             .forEach(mote -> {
                 timeMap.put(mote, this.getEnvironment().getClock().getTime());
-                mote.getPath().getNextPoint(mote.getPathPositionIndex()).ifPresent(dst ->
+                mote.getNextPathPoint().ifPresent(dst ->
                     this.getEnvironment().moveMote(mote, dst));
             });
+
         this.getEnvironment().getClock().tick(1);
     }
 
@@ -192,10 +195,10 @@ public class Simulation {
             timeMap.put(mote, this.getEnvironment().getClock().getTime());
 
             // Add initial triggers to the clock for mote data transmissions (transmit sensor readings)
-            this.getEnvironment().getClock().addTrigger(LocalTime.ofSecondOfDay(mote.getStartSendingOffset()), () -> {
+            this.getEnvironment().getClock().addTrigger(LocalDateTime.ofEpochSecond(mote.getStartSendingOffset(),0, ZoneOffset.UTC), () -> {
                 mote.sendToGateWay(
                     mote.getSensors().stream()
-                        .flatMap(s -> s.getValueAsList(mote.getPosInt(), mote.getPathPosition(), this.getEnvironment().getClock().getTime()).stream())
+                        .flatMap(s -> s.getValueAsList(getEnvironment(),mote.getPathPosition(), this.getEnvironment().getClock().getTime()).stream())
                         .toArray(Byte[]::new),
                     new HashMap<>());
                 return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
@@ -218,6 +221,17 @@ public class Simulation {
 
         var finalTime = this.getEnvironment().getClock().getTime()
             .plus(inputProfile.getSimulationDuration(), inputProfile.getTimeUnit());
+
+        LocalDateTime reversingTime = this.getEnvironment().getClock().getTime()
+            .plus(inputProfile.getRepeatingTime(), inputProfile.getRepeatingTimeTimeUnit());
+        this.getEnvironment().getMotes().forEach(mote -> {
+            this.getEnvironment().getClock().addTrigger(reversingTime, () -> {
+                mote.reverseDirection();
+                return this.getEnvironment().getClock().getTime()
+                    .plus(inputProfile.getRepeatingTime(), inputProfile.getRepeatingTimeTimeUnit());
+            });
+        });
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));
     }
+
 }

@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +29,10 @@ public class InputProfile {
      * The default unit of measure of the duration.
      */
     private static final ChronoUnit DEFAULT_TIME_UNIT = ChronoUnit.HOURS;
+    /**
+    * The default movement repeating time of the simulation.
+    */
+    private static final long DEFAULT_REPEATING_TIME =  4;
 
     /**
      * The name of the input profile.
@@ -73,6 +78,17 @@ public class InputProfile {
     private Document xmlSource;
 
     /**
+     * The time after which the movement of the motes are reversed.
+     */
+    private long movementRepeatingTime;
+
+    /**
+     * The unit of measure of the movement repaeting time.
+     * We use a class instead of a interface to allow serialisation.
+     */
+    private ChronoUnit movementRepeatingTimeTimeUnit;
+
+    /**
      * Generates InputProfile with a given qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
      * regionProbabilities, xmlSource and gui.
      * @param qualityOfServiceProfile The quality of service profile.
@@ -88,7 +104,7 @@ public class InputProfile {
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
                         Element xmlSource) {
         this(name, qualityOfServiceProfile, numberOfRuns, probabilitiesForMotes, probabilitiesForGateways,
-            regionProbabilities, xmlSource, DEFAULT_SIMULATION_DURATION, DEFAULT_TIME_UNIT);
+            regionProbabilities, xmlSource, DEFAULT_SIMULATION_DURATION, DEFAULT_TIME_UNIT,DEFAULT_REPEATING_TIME, DEFAULT_TIME_UNIT);
     }
 
 
@@ -108,7 +124,7 @@ public class InputProfile {
                         int numberOfRuns,
                         Map<Integer, Double> probabilitiesForMotes,
                         Map<Integer, Double> probabilitiesForGateways, Map<Integer, Double> regionProbabilities,
-                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit) {
+                        Element xmlSource, long simulationDuration, ChronoUnit timeUnit, long movementRepeatingTime,ChronoUnit movementRepeatingTimeTimeUnit) {
         this.name = name;
         this.qualityOfServiceProfile = qualityOfServiceProfile;
         this.numberOfRuns = numberOfRuns;
@@ -130,6 +146,8 @@ public class InputProfile {
         this.xmlSource = newDocument;
         this.simulationDuration = simulationDuration;
         this.timeUnit = timeUnit;
+        this.movementRepeatingTime = movementRepeatingTime;
+        this.movementRepeatingTimeTimeUnit = movementRepeatingTimeTimeUnit;
     }
 
     /**
@@ -305,6 +323,26 @@ public class InputProfile {
         return this;
     }
 
+    public InputProfile setRepeatingTime(long movementRepeatingTime) {
+        this.movementRepeatingTime = movementRepeatingTime;
+        updateFile();
+        return this;
+    }
+
+    public InputProfile setRepeatingTimeTimeUnit(ChronoUnit timeUnit) {
+        this.movementRepeatingTimeTimeUnit = timeUnit;
+        updateFile();
+        return this;
+    }
+
+    public long getRepeatingTime() {
+        return this.movementRepeatingTime;
+    }
+
+    public TemporalUnit getRepeatingTimeTimeUnit() {
+        return this.movementRepeatingTimeTimeUnit;
+    }
+
     /**
      * A function which updates the source file.
      */
@@ -321,7 +359,7 @@ public class InputProfile {
         inputProfileElement.appendChild(name);
 
         Element numberOfRuns = doc.createElement("numberOfRuns");
-        numberOfRuns.appendChild(doc.createTextNode(Double.toString(getNumberOfRuns())));
+        numberOfRuns.appendChild(doc.createTextNode(Integer.toString(getNumberOfRuns())));
         inputProfileElement.appendChild(numberOfRuns);
 
         Element simulationDuration = doc.createElement("simulationDuration");
@@ -329,8 +367,16 @@ public class InputProfile {
         inputProfileElement.appendChild(simulationDuration);
 
         Element timeUnit = doc.createElement("timeUnit");
-        timeUnit.appendChild(doc.createTextNode(getTimeUnit().toString()));
+        timeUnit.appendChild(doc.createTextNode(getTimeUnit().toString().toUpperCase()));
         inputProfileElement.appendChild(timeUnit);
+
+        Element repeatingTime = doc.createElement("movementRepeatingTime");
+        repeatingTime.appendChild(doc.createTextNode("" + getRepeatingTime()));
+        inputProfileElement.appendChild(repeatingTime);
+
+        Element repeatingTimeTimeUnit = doc.createElement("repeatingTimeTimeUnit");
+        repeatingTimeTimeUnit.appendChild(doc.createTextNode(getRepeatingTimeTimeUnit().toString().toUpperCase()));
+        inputProfileElement.appendChild(repeatingTimeTimeUnit);
 
         Element QoSElement = doc.createElement("QoS");
         QualityOfService QoS = getQualityOfServiceProfile();
@@ -398,3 +444,4 @@ public class InputProfile {
         updateFile();
     }
 }
+

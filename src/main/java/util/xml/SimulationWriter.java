@@ -102,9 +102,9 @@ public class SimulationWriter {
 
             Element origin = doc.createElement("origin");
             Element xPos = doc.createElement("xPosition");
-            xPos.appendChild(doc.createTextNode(Integer.toString(transmission.getXPos())));
+            xPos.appendChild(doc.createTextNode(Double.toString(env.getMapHelper().toMapXCoordinate(transmission.getPos()))));
             Element yPos = doc.createElement("yPosition");
-            yPos.appendChild(doc.createTextNode(Integer.toString(transmission.getYPos())));
+            yPos.appendChild(doc.createTextNode(Double.toString(env.getMapHelper().toMapYCoordinate(transmission.getPos()))));
             origin.appendChild(xPos);
             origin.appendChild(yPos);
 
@@ -118,7 +118,7 @@ public class SimulationWriter {
             timeOnAir.appendChild(doc.createTextNode(Double.toString(transmission.getTimeOnAir())));
 
             Element powerSetting = doc.createElement("powerSetting");
-            powerSetting.appendChild(doc.createTextNode(statistics.getPowerSettingHistory(networkEntity.getEUI(), run).get(i).toString()));
+            powerSetting.appendChild(doc.createTextNode(statistics.getPowerSettingHistory(networkEntity.getEUI(), run).get(i).getRight().toString()));
 
             Element collision = doc.createElement("collision");
             collision.appendChild(doc.createTextNode(Boolean.toString(transmission.isCollided())));
