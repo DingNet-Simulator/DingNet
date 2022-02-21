@@ -1,5 +1,9 @@
 package util.xml;
 
+import de.westnordost.osmapi.OsmConnection;
+import de.westnordost.osmapi.map.handler.MapDataHandler;
+import de.westnordost.osmapi.overpass.MapDataWithGeometryHandler;
+import de.westnordost.osmapi.overpass.OverpassMapDataApi;
 import iot.Characteristic;
 import iot.Environment;
 import iot.SimulationRunner;
@@ -9,6 +13,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import util.Connection;
+import util.MyMapDataHandler;
 import util.Pair;
 import util.Path;
 
@@ -112,10 +117,25 @@ public class ConfigurationReader {
                 }
             }
 
-            simulationRunner.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones,
-                idRemapping.getWayPoints(), idRemapping.getConnections()));
 
-            Environment environment = simulationRunner.getEnvironment();
+
+            Environment environment = new Environment(characteristicsMap, mapOrigin, numberOfZones,
+                idRemapping.getWayPoints(), idRemapping.getConnections());;
+            // ----------------
+            // Alt Connections
+            // ----------------
+            System.out.println("( way[\"highway\"][\"highway\"!= \"footway\"][\"highway\"!= \"pedestrian\"][\"highway\"!= \"path\"][\"highway\"!= \"bicycle\"]("+mapOrigin.getLatitude()+","+mapOrigin.getLongitude()+","+ environment.getMapHelper().toLatitude(height)+","+environment.getMapHelper().toLongitude(width)+"); node(w); ); out skel;");
+            OsmConnection connection = new OsmConnection("https://overpass-api.de/api/", "dingNet-simulator");
+            OverpassMapDataApi overpass = new OverpassMapDataApi(connection);
+            MyMapDataHandler handler = new MyMapDataHandler();
+            overpass.queryElements(
+                "( way[\"highway\"][\"highway\"!= \"footway\"][\"highway\"!= \"pedestrian\"][\"highway\"!= \"path\"][\"highway\"!= \"bicycle\"]("+mapOrigin.getLatitude()+","+mapOrigin.getLongitude()+","+ environment.getMapHelper().toLatitude(height)+","+environment.getMapHelper().toLongitude(width)+"); node(w); ); out skel;",
+                handler
+            );
+
+            simulationRunner.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones,
+                handler.getWayPoints(), handler.getConnections()));
+
 
             // ---------------
             //      Motes
