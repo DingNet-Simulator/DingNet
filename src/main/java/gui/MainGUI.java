@@ -951,7 +951,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             if (e.getClickCount() == 2) {
                 Environment environment = MainGUI.this.getEnvironment();
                 JFrame frame = new JFrame("Gateway settings");
-                GatewayGUI gatewayGUI = new GatewayGUI(environment.getGateways().get(index - 1), environment);
+                NewGatewayGUI gatewayGUI = new NewGatewayGUI(environment, frame, MainGUI.this, MainGUI.this, environment.getGateways().get(index - 1));
                 frame.setContentPane(gatewayGUI.getMainPanel());
                 frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
                 frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());

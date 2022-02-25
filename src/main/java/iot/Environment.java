@@ -4,10 +4,7 @@ import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.NetworkEntity;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Connection;
-import util.GraphStructure;
-import util.MapHelper;
-import util.Statistics;
+import util.*;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -367,5 +364,11 @@ public class Environment implements Serializable {
     public void removeConnectionFromMotes(long connectionId) {
         motes.forEach(o -> o.shortenPathFromConnection(connectionId));
     }
+
+    public void updateGraph(GraphStructure graph) {
+        this.graph = graph;
+    }
+
+
 }
 

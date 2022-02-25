@@ -2,8 +2,10 @@ package util;
 
 import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.Waypoint;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GraphStructure {
@@ -191,6 +193,13 @@ public class GraphStructure {
             .filter(c -> c.getValue().getFrom() == wayPointId)
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
+    }
+
+    public List<GeoPosition> getWaypointsWithTwoConnections(){
+        Map<Long, Long> waypointMap = connections.values().stream()
+            .map(c -> c.getFrom())
+            .collect(Collectors.toMap(Function.identity(), v -> 1L, Long::sum));
+        return waypointMap.entrySet().stream().filter(entry-> entry.getValue() != 2).map(entry -> getWayPoint(entry.getKey())).collect(Collectors.toList());
     }
 
     /**

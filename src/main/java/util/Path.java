@@ -113,7 +113,7 @@ public class Path implements Iterable<GeoPosition> {
     public List<Long> getConnectionsByID() {
         var connectionsMap = graphStructure.getConnections();
         List<Long> connections = new ArrayList<>();
-
+        if(false){
         for (int i = 0; i < points.size() - 1; i++) {
             final int index = i;
 
@@ -125,6 +125,7 @@ public class Path implements Iterable<GeoPosition> {
                 .orElseThrow();
 
             connections.add(connectionId);
+        }
         }
 
         return connections;

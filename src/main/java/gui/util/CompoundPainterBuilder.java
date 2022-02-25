@@ -72,6 +72,22 @@ public class CompoundPainterBuilder {
     }
 
     /**
+     * Include painters for all waypoints that don't have 2 connections in the builder.
+     * @param graph The graph which stores all the waypoints.
+     * @return The current object.
+     */
+    public CompoundPainterBuilder withConnectedWaypoints(GraphStructure graph) {
+        var waypoints = graph.getWaypointsWithTwoConnections();
+
+        painters.add(new WayPointPainter<>().setWaypoints(waypoints.stream()
+            .map(DefaultWaypoint::new)
+            .collect(Collectors.toSet()))
+        );
+        return this;
+    }
+
+
+    /**
      * Include painters for all connections in the builder.
      * @param graph The graph which contains all the connections.
      * @return The current object.

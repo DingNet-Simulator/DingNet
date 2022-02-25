@@ -34,7 +34,7 @@ public class Gateway extends NetworkEntity {
      * @param transmissionPower The transmission power of the gateway.
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
-    public Gateway(long gatewayEUI, int xPos, int yPos, int transmissionPower, int SF, Environment environment) {
+    public Gateway(long gatewayEUI, double xPos, double yPos, int transmissionPower, int SF, Environment environment) {
         this(gatewayEUI, xPos, yPos, transmissionPower, SF, new SendPacketImmediately(), environment);
     }
 
@@ -47,7 +47,7 @@ public class Gateway extends NetworkEntity {
      * @param responseStrategy  strategy to enable response to mote
      * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
      */
-    public Gateway(long gatewayEUI, int xPos, int yPos, int transmissionPower, int SF, ResponseStrategy responseStrategy, Environment environment) {
+    public Gateway(long gatewayEUI, double xPos, double yPos, int transmissionPower, int SF, ResponseStrategy responseStrategy, Environment environment) {
         super(gatewayEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
         subscribedMoteProbes = new LinkedList<>();
         mqttClient = MQTTClientFactory.getSingletonInstance();

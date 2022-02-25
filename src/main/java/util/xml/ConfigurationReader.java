@@ -118,23 +118,10 @@ public class ConfigurationReader {
             }
 
 
-
-            Environment environment = new Environment(characteristicsMap, mapOrigin, numberOfZones,
-                idRemapping.getWayPoints(), idRemapping.getConnections());;
-            // ----------------
-            // Alt Connections
-            // ----------------
-            System.out.println("( way[\"highway\"][\"highway\"!= \"footway\"][\"highway\"!= \"pedestrian\"][\"highway\"!= \"path\"][\"highway\"!= \"bicycle\"]("+mapOrigin.getLatitude()+","+mapOrigin.getLongitude()+","+ environment.getMapHelper().toLatitude(height)+","+environment.getMapHelper().toLongitude(width)+"); node(w); ); out skel;");
-            OsmConnection connection = new OsmConnection("https://overpass-api.de/api/", "dingNet-simulator");
-            OverpassMapDataApi overpass = new OverpassMapDataApi(connection);
-            MyMapDataHandler handler = new MyMapDataHandler();
-            overpass.queryElements(
-                "( way[\"highway\"][\"highway\"!= \"footway\"][\"highway\"!= \"pedestrian\"][\"highway\"!= \"path\"][\"highway\"!= \"bicycle\"]("+mapOrigin.getLatitude()+","+mapOrigin.getLongitude()+","+ environment.getMapHelper().toLatitude(height)+","+environment.getMapHelper().toLongitude(width)+"); node(w); ); out skel;",
-                handler
-            );
-
             simulationRunner.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones,
-                handler.getWayPoints(), handler.getConnections()));
+                idRemapping.getWayPoints(), idRemapping.getConnections()));
+
+            Environment environment = simulationRunner.getEnvironment();
 
 
             // ---------------

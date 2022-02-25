@@ -62,7 +62,7 @@ public class ConfigureGatewayPanel extends AbstractConfigurePanel {
                     double yDistance = Math.abs(environment.getMapHelper().toMapYCoordinate(geo) - environment.getMapHelper().toMapYCoordinate(gateway.getPos()));
                     if (xDistance < 100 && yDistance > -20 && yDistance < 250) {
                         JFrame frame = new JFrame("Gateway settings");
-                        GatewayGUI gatewayGUI = new GatewayGUI(gateway, environment);
+                        NewGatewayGUI gatewayGUI = new NewGatewayGUI(environment, frame, panel,mainGUI,gateway);
                         frame.setContentPane(gatewayGUI.getMainPanel());
                         frame.setMinimumSize(gatewayGUI.getMainPanel().getMinimumSize());
                         frame.setPreferredSize(gatewayGUI.getMainPanel().getPreferredSize());
@@ -73,7 +73,7 @@ public class ConfigureGatewayPanel extends AbstractConfigurePanel {
 
                 if (!exists) {
                     JFrame frame = new JFrame("New gateway");
-                    NewGatewayGUI newGatewayGUI = new NewGatewayGUI(environment, geo, frame, panel);
+                    NewGatewayGUI newGatewayGUI = new NewGatewayGUI(environment, geo, frame, panel,mainGUI,null);
                     frame.setContentPane(newGatewayGUI.getMainPanel());
                     frame.setMinimumSize(newGatewayGUI.getMainPanel().getMinimumSize());
                     frame.setPreferredSize(newGatewayGUI.getMainPanel().getPreferredSize());

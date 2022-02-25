@@ -4,11 +4,15 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import de.westnordost.osmapi.OsmConnection;
+import de.westnordost.osmapi.overpass.OverpassMapDataApi;
 import gui.util.AbstractConfigurePanel;
 import gui.util.CompoundPainterBuilder;
+import iot.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
 import util.MapHelper;
+import util.MyMapDataHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +28,7 @@ public class ConfigureWayPointsPanel extends AbstractConfigurePanel {
     private JRadioButton addRadioBtn;
     private JPanel configurePanel;
     private JRadioButton deleteRadioBtn;
+    private JButton downloadRoadsButton;
 
     private Mode mode;
 
@@ -49,6 +54,10 @@ public class ConfigureWayPointsPanel extends AbstractConfigurePanel {
             }
             deleteRadioBtn.setSelected(true);
             this.mode = Mode.DELETE;
+        });
+
+        downloadRoadsButton.addActionListener(e->{
+            downloadWayPoints();
         });
 
         loadMap(false);
@@ -127,6 +136,24 @@ public class ConfigureWayPointsPanel extends AbstractConfigurePanel {
         public void mouseExited(MouseEvent e) {
 
         }
+    }
+
+    public void downloadWayPoints(){
+
+        Environment environment = mainGUI.getEnvironment();
+        // ----------------
+        // Alt Connections
+        // ----------------
+        OsmConnection connection = new OsmConnection("https://overpass-api.de/api/", "dingNet-simulator");
+        OverpassMapDataApi overpass = new OverpassMapDataApi(connection);
+        MyMapDataHandler handler = new MyMapDataHandler();
+        overpass.queryElements(
+            "( way[\"highway\"][\"highway\"!= \"footway\"][\"highway\"!= \"pedestrian\"][\"highway\"!= \"path\"][\"highway\"!= \"bicycle\"]("+environment.getMapOrigin().getLatitude()+","+environment.getMapOrigin().getLongitude()+","+ environment.getMapHelper().toLatitude(environment.getMaxXpos())+","+environment.getMapHelper().toLongitude(environment.getMaxYpos())+"); node(w); ); out skel;",
+            handler
+        );
+        environment.updateGraph(new GraphStructure(handler.getWayPoints(),handler.getConnections()));
+        loadMap(true);
+
     }
 
 

@@ -7,13 +7,12 @@ import gui.mapviewer.LinePainter;
 import gui.util.AbstractConfigurePanel;
 import gui.util.CompoundPainterBuilder;
 import iot.networkentity.Mote;
+import javafx.collections.transformation.SortedList;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Connection;
-import util.GraphStructure;
-import util.MapHelper;
-import util.Path;
+import org.jxmapviewer.viewer.Waypoint;
+import util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,7 +70,7 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
 
         CompoundPainterBuilder builder = new CompoundPainterBuilder()
             .withBorders(environment)
-            .withWaypoints(graph, false)
+            .withConnectedWaypoints(graph)
             .withMotes(environment);
 
         if (currentMote == null) {
@@ -91,6 +90,8 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
     public JPanel getMainPanel() {
         return mainPanel;
     }
+
+    public Map<Long, Pair<LinkedList<Long>,GeoPosition>> endWaypoints;
 
 
     private class MapMouseAdapter implements MouseListener {
@@ -122,23 +123,26 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
                         GeoPosition motePosition = currentMote.getPos();
                         long wayPointID = graph.getClosestWayPoint(motePosition);
                         currentWayPoints.add(wayPointID);
+                        endWaypoints = new HashMap<>();
+                        graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size()-1)).forEach(conn -> endWaypoints.put(conn.getTo(),new Pair<>(new LinkedList<>(Collections.singleton(conn.getTo())),graph.getWayPoint(conn.getTo()))));
                     }
                 } else {
-                    Map<Long, Double> distances = new HashMap<>();
-                    for (var me : graph.getWayPoints().entrySet()) {
-                        double distance = MapHelper.distance(geo, me.getValue());
-                        distances.put(me.getKey(), distance);
+
+                    Map<LinkedList<Long>, Double> distances = new HashMap<>();
+                    for (var me : endWaypoints.entrySet()) {
+                        double distance = MapHelper.distance(geo, me.getValue().getRight());
+                        distances.put(me.getValue().getLeft(), distance);
                     }
-                    Map.Entry<Long, Double> nearest = distances.entrySet().stream()
+                    Map.Entry<LinkedList<Long>, Double> nearest = distances.entrySet().stream()
                         .min(Comparator.comparing(Map.Entry::getValue))
                         .orElse(null);
 
                     if (nearest != null) {
-
                         // Make sure there is a connection between the last point and the currently selected point
-                        if (graph.connectionExists(currentWayPoints.get(currentWayPoints.size() - 1), nearest.getKey())) {
+                        if (graph.connectionExists(currentWayPoints.get(currentWayPoints.size() - 1), nearest.getKey().get(1))) {
+                            currentWayPoints.addAll(nearest.getKey().subList(1,nearest.getKey().size()));
                             loadMap(true);
-                            currentWayPoints.add(nearest.getKey());
+
                         }
                     }
                 }
@@ -154,6 +158,40 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
 
 
                 List<Connection> connections = graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size() - 1));
+
+                Long currentWaypoint = currentWayPoints.get(currentWayPoints.size()-1);
+                Long initialWaypoint = currentWaypoint;
+                LinkedList<Long> previousWaypoints = new LinkedList<>();
+                int connectionIndex = 0;
+                List<Connection> originalConnections = new ArrayList<>(connections);
+                Connection connection = originalConnections.get(connectionIndex);
+                endWaypoints = new HashMap<>();
+
+                while(connectionIndex < originalConnections.size()){
+                    previousWaypoints.add(currentWaypoint);
+
+                    currentWaypoint = connection.getTo();
+
+                    if (graph.getOutgoingConnections(currentWaypoint).size() == 2) {
+                        if(graph.getOutgoingConnections(currentWaypoint).get(0).getTo() != previousWaypoints.getLast()){
+                            connections.add(graph.getOutgoingConnections(currentWaypoint).get(0));
+                            connection = graph.getOutgoingConnections(currentWaypoint).get(0);
+                        } else {
+                            connections.add(graph.getOutgoingConnections(currentWaypoint).get(1));
+                            connection = graph.getOutgoingConnections(currentWaypoint).get(1);
+                        }
+                    }else{
+                        previousWaypoints.add(currentWaypoint);
+                        endWaypoints.put(originalConnections.get(connectionIndex).getTo(), new Pair<>(previousWaypoints,graph.getWayPoint(currentWaypoint)));
+                        connectionIndex ++;
+                        if(connectionIndex < originalConnections.size()){
+                            connection = originalConnections.get(connectionIndex);
+                        }
+                        currentWaypoint = initialWaypoint;
+                        previousWaypoints = new LinkedList<>();
+                    }
+                }
+
                 // Filter out the previous connection, in case at least one connection has already been made
                 if (currentWayPoints.size() > 1) {
                     saveTrackButton.setEnabled(true);

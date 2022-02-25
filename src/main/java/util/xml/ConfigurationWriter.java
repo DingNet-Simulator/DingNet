@@ -299,11 +299,13 @@ public class ConfigurationWriter {
 
         Element generatePathElement() {
             Element pathElement = doc.createElement("path");
-            Path path = mote.getPath();
-            for (Long id : path.getConnectionsByID()) {
-                Element connectionElement = doc.createElement("connection");
-                connectionElement.setAttribute("id", Long.toString(idRemapping.getNewConnectionId(id)));
-                pathElement.appendChild(connectionElement);
+            if(false) {
+                Path path = mote.getPath();
+                for (Long id : path.getConnectionsByID()) {
+                    Element connectionElement = doc.createElement("connection");
+                    connectionElement.setAttribute("id", Long.toString(idRemapping.getNewConnectionId(id)));
+                    pathElement.appendChild(connectionElement);
+                }
             }
             return pathElement;
         }
