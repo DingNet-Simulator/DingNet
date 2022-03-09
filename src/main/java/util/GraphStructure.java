@@ -242,9 +242,6 @@ public class GraphStructure {
         for (var conn : connToDelete) {
             connections.remove(conn);
         }
-
-        // Make sure to also delete part of the paths of motes which use this waypoint
-        environment.removeWayPointFromMotes(wayPointId);
     }
 
 
@@ -266,7 +263,6 @@ public class GraphStructure {
         }
         assert possibleConnections.size() == 1;
 
-        environment.removeConnectionFromMotes(possibleConnections.get(0));
         connections.remove(possibleConnections.get(0));
     }
 }

@@ -104,8 +104,7 @@ public class UserMote extends Mote {
     protected void initialize() {
         super.initialize();
 
-        setPath(new Path(List.of(this.getPos()),
-            this.getEnvironment().getGraph()));
+        setPath(new Path(List.of(this.getPos())));
         this.pathPositionIndex = 0;
 
         this.alreadyRequested = false;

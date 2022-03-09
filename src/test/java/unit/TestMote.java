@@ -1,6 +1,7 @@
 package unit;
 
 import iot.Characteristic;
+import iot.CharacteristicsMap;
 import iot.Environment;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
@@ -18,8 +19,8 @@ class TestMote {
 
     @Test
     void happyDay() {
-        Environment environment = new Environment(new Characteristic[200][200], new GeoPosition(10, 10), 1, new HashMap<>(), new HashMap<>());
-        Mote mote = new Mote(1L, 10, 10, 10, 12, new ArrayList<>(), 20, new Path(environment.getGraph()), 1, environment);
+        Environment environment = new Environment(new CharacteristicsMap(200,200,1,1,Characteristic.City), new GeoPosition(10, 10), 1, new HashMap<>(), new HashMap<>());
+        Mote mote = new Mote(1L, 10, 10, 10, 12, new ArrayList<>(), 20, new Path(), 1, environment);
 
         assertEquals(mote.getEUI(), 1);
         assertEquals(mote.getEnergyLevel(), 20);
@@ -32,8 +33,8 @@ class TestMote {
 
     @Test
     void setters() {
-        Environment environment = new Environment(new Characteristic[200][200], new GeoPosition(10, 10), 1, new HashMap<>(), new HashMap<>());
-        Mote mote = new Mote(10L, 150, 150, 8, 12, new ArrayList<>(), 100, new Path(environment.getGraph()), 5, environment);
+        Environment environment = new Environment(new CharacteristicsMap(200,200,1,1,Characteristic.City), new GeoPosition(10, 10), 1, new HashMap<>(), new HashMap<>());
+        Mote mote = new Mote(10L, 150, 150, 8, 12, new ArrayList<>(), 100, new Path(), 5, environment);
 
         // Maybe move this to some separate test for networkentity
         assertEquals(mote.getSF(), 12);

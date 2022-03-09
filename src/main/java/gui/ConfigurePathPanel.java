@@ -7,11 +7,10 @@ import gui.mapviewer.LinePainter;
 import gui.util.AbstractConfigurePanel;
 import gui.util.CompoundPainterBuilder;
 import iot.networkentity.Mote;
-import javafx.collections.transformation.SortedList;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.Waypoint;
+
 import util.*;
 
 import javax.swing.*;
@@ -230,7 +229,7 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
     private class MapSaveTrackActionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            Path path = new Path(graph);
+            Path path = new Path(new LinkedList<>());
 
             currentWayPoints.forEach(o -> path.addPosition(graph.getWayPoint(o)));
 

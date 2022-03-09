@@ -1,10 +1,12 @@
 package util.xml;
 
+import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
 import de.westnordost.osmapi.OsmConnection;
 import de.westnordost.osmapi.map.handler.MapDataHandler;
 import de.westnordost.osmapi.overpass.MapDataWithGeometryHandler;
 import de.westnordost.osmapi.overpass.OverpassMapDataApi;
 import iot.Characteristic;
+import iot.CharacteristicsMap;
 import iot.Environment;
 import iot.SimulationRunner;
 import iot.networkentity.*;
@@ -12,15 +14,21 @@ import org.jxmapviewer.viewer.GeoPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import util.Connection;
-import util.MyMapDataHandler;
-import util.Pair;
-import util.Path;
+import util.*;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.*;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -32,115 +40,136 @@ public class ConfigurationReader {
         idRemapping.reset();
 
         try {
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
-            Element configuration = doc.getDocumentElement();
-
-
+            XMLInputFactory input = XMLInputFactory.newInstance();
+            XMLEventReader reader = input.createXMLEventReader(new FileInputStream(file), "UTF-8");
             // ---------------
             //      Map
             // ---------------
+            XMLEvent event = reader.nextEvent();
+            while (!event.isStartElement() || !"map".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            while (!event.isStartElement() || !"latitude".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            double latitude = Double.parseDouble(reader.getElementText());
+            while (!event.isStartElement() || !"longitude".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            double longitude = Double.parseDouble(reader.getElementText());
 
-            Element map = (Element) configuration.getElementsByTagName("map").item(0);
-            Element region = (Element) map.getElementsByTagName("region").item(0);
-            int width = Integer.parseInt(XMLHelper.readChild(region, "width"));
-            int height = Integer.parseInt(XMLHelper.readChild(region, "height"));
 
-            Element origin = (Element) region.getElementsByTagName("origin").item(0);
-            GeoPosition mapOrigin = new GeoPosition(
-                Double.parseDouble(XMLHelper.readChild(origin, "latitude")),
-                Double.parseDouble(XMLHelper.readChild(origin, "longitude"))
-            );
+            GeoPosition mapOrigin = new GeoPosition(latitude, longitude);
 
+            while (!event.isStartElement() || !"width".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            int width = Integer.parseInt(reader.getElementText());
+            while (!event.isStartElement() || !"height".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            int height = Integer.parseInt(reader.getElementText());
 
             // ---------------
             // Characteristics
             // ---------------
 
-            Element characteristics = (Element) configuration.getElementsByTagName("characteristics").item(0);
-            int numberOfZones = Integer.parseInt(((Element) characteristics.getElementsByTagName("regionProperty").item(0)).getAttribute("numberOfZones"));
+            while (!event.isStartElement() || !"characteristics".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            reader.nextEvent();
+            event = reader.nextEvent();
+            int numberOfZones = Integer.parseInt(event.asStartElement().getAttributeByName(QName.valueOf("numberOfZones")).getValue());
             long n = Math.round(Math.sqrt(numberOfZones));
-            Characteristic[][] characteristicsMap = new Characteristic[width][height];
+            CharacteristicsMap characteristicsMap = new CharacteristicsMap(width,height,n,n,Characteristic.City);
+            reader.nextEvent();
+            reader.nextEvent();
+            reader.nextEvent();
 
             for (int i = 0; i < n; i++) {
-                String[] characteristicsRow = characteristics.getElementsByTagName("row").item(i).getTextContent().split("-");
+                String[] characteristicsRow = reader.getElementText().split("-");
+
                 for (int j = 0; j < characteristicsRow.length; j++) {
                     Characteristic characteristic = Characteristic.valueOf(characteristicsRow[j]);
-
-                    double widthSize = ((double) width) / n;
-                    double heightSize = ((double) height) / n;
-                    for (int x = (int) Math.round(j * widthSize); x < (int) Math.round((j + 1) * widthSize); x++) {
-                        for (int y = (int) Math.round(i * heightSize); y < (int) Math.round((i + 1) * heightSize); y++) {
-                            characteristicsMap[x][y] = characteristic;
-                        }
-                    }
+                    characteristicsMap.setCharacterstics(characteristic,i,j);
                 }
-
+                reader.nextEvent();
+                reader.nextEvent();
             }
-
-
 
             // ---------------
             //    WayPoints
             // ---------------
 
-            Element wayPointsElement = (Element) configuration.getElementsByTagName("wayPoints").item(0);
-
-            for (int i = 0; i < wayPointsElement.getElementsByTagName("wayPoint").getLength(); i++) {
-                Element waypoint = (Element) wayPointsElement.getElementsByTagName("wayPoint").item(i);
-
-                double wayPointLatitude = Double.parseDouble(waypoint.getTextContent().split(",")[0]);
-                double wayPointLongitude = Double.parseDouble(waypoint.getTextContent().split(",")[1]);
-
-                long ID = Long.parseLong(waypoint.getAttribute("id"));
-                idRemapping.addWayPoint(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
+            while (!event.isStartElement() || !"wayPoints".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
             }
+            reader.nextEvent();
+            event = reader.nextEvent();
+            while (!event.isEndElement()) {
+                long ID = Long.parseLong(event.asStartElement().getAttributeByName(QName.valueOf("id")).getValue());
 
+                String position = reader.getElementText();
+                double wayPointLatitude = Double.parseDouble(position.split(",")[0]);
+                double wayPointLongitude = Double.parseDouble(position.split(",")[1]);
+
+                idRemapping.addWayPoint(ID, new GeoPosition(wayPointLatitude, wayPointLongitude));
+                reader.nextEvent();
+                event = reader.nextEvent();
+            }
 
 
             // ---------------
             //   Connections
             // ---------------
 
-            if (configuration.getElementsByTagName("connections").getLength() != 0) {
-                Element connectionsElement = (Element) configuration.getElementsByTagName("connections").item(0);
-
-                var con = connectionsElement.getElementsByTagName("connection");
-
-                for (int i = 0; i < con.getLength(); i++) {
-                    Element connectionNode = (Element) con.item(i);
-
-                    long ID = Long.parseLong(connectionNode.getAttribute("id"));
-                    idRemapping.addConnection(ID, new Connection(
-                        idRemapping.getNewWayPointId(Long.parseLong(connectionNode.getAttribute("src"))),
-                        idRemapping.getNewWayPointId(Long.parseLong(connectionNode.getAttribute("dst")))
-                    ));
-                }
+            while (!event.isStartElement() || !"connections".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
             }
+            reader.nextEvent();
+            event = reader.nextEvent();
+            while (!event.isEndElement()) {
+                long ID = Long.parseLong(event.asStartElement().getAttributeByName(QName.valueOf("id")).getValue());
 
+                idRemapping.addConnection(ID, new Connection(
+                    idRemapping.getNewWayPointId(Long.parseLong(event.asStartElement().getAttributeByName(QName.valueOf("src")).getValue())),
+                    idRemapping.getNewWayPointId(Long.parseLong(event.asStartElement().getAttributeByName(QName.valueOf("dst")).getValue()))
+                ));
+                reader.nextEvent();
+                reader.nextEvent();
+                event = reader.nextEvent();
+            }
 
             simulationRunner.setEnvironment(new Environment(characteristicsMap, mapOrigin, numberOfZones,
                 idRemapping.getWayPoints(), idRemapping.getConnections()));
 
             Environment environment = simulationRunner.getEnvironment();
 
-
             // ---------------
             //      Motes
             // ---------------
 
-            Element motes = (Element) configuration.getElementsByTagName("motes").item(0);
+            while (!event.isStartElement() || !"motes".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            reader.nextEvent();
+            event = reader.nextEvent();
 
-            for (int i = 0; i < motes.getElementsByTagName("mote").getLength(); i++) {
-                Element moteNode = (Element) motes.getElementsByTagName("mote").item(i);
-                environment.addMote(new MoteReader(moteNode, environment).buildMote());
-            }
-            for (int i = 0; i < motes.getElementsByTagName("userMote").getLength(); i++) {
-                Element userMoteNode = (Element) motes.getElementsByTagName("userMote").item(i);
-                environment.addMote(new UserMoteReader(userMoteNode, environment).buildMote());
-            }
-            for (int i = 0; i < motes.getElementsByTagName("lifeLongMote").getLength(); i++) {
-                Element lifeLongMoteNode = (Element) motes.getElementsByTagName("lifeLongMote").item(i);
-                environment.addMote(new LLMoteReader(lifeLongMoteNode, environment).buildMote());
+            while (!event.isEndElement()) {
+                reader.nextEvent();
+                switch (event.asStartElement().getName().getLocalPart()) {
+                    case "lifeLongMote":
+                        environment.addMote(new LLMoteReader(reader, environment).buildMote());
+                        break;
+                    case "userMote":
+                        environment.addMote(new UserMoteReader(reader, environment).buildMote());
+                        break;
+                    default:
+                        environment.addMote(new MoteReader(reader, environment).buildMote());
+                        break;
+                }
+                reader.nextEvent();
+                event = reader.nextEvent();
             }
 
 
@@ -148,115 +177,211 @@ public class ConfigurationReader {
             //    Gateways
             // ---------------
 
-            Element gateways = (Element) configuration.getElementsByTagName("gateways").item(0);
-            Element gatewayNode;
+            while (!event.isStartElement() || !"gateways".equals(event.asStartElement().getName().getLocalPart())) {
+                event = reader.nextEvent();
+            }
+            reader.nextEvent();
+            event = reader.nextEvent();
+            while (!event.isEndElement()) {
 
-            for (int i = 0; i < gateways.getElementsByTagName("gateway").getLength(); i++) {
-                gatewayNode = (Element) gateways.getElementsByTagName("gateway").item(i);
-                long devEUI = Long.parseUnsignedLong(XMLHelper.readChild(gatewayNode, "devEUI"));
-                Element location = (Element) gatewayNode.getElementsByTagName("location").item(0);
-                int xPos = Integer.parseInt(XMLHelper.readChild(location, "xPos"));
-                int yPos = Integer.parseInt(XMLHelper.readChild(location, "yPos"));
+                reader.nextEvent();
+                reader.nextEvent();
+                long devEUI = Long.parseUnsignedLong(reader.getElementText());
 
-                int transmissionPower = Integer.parseInt(XMLHelper.readChild(gatewayNode, "transmissionPower"));
-                int spreadingFactor = Integer.parseInt(XMLHelper.readChild(gatewayNode, "spreadingFactor"));
+                while(!reader.peek().isStartElement() ||
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("xPos")){
+                    reader.nextEvent();
+                }
+                reader.nextEvent();
+                int xPos = Integer.parseInt(reader.getElementText());
+                while(!reader.peek().isStartElement() ||
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("yPos")){
+                    reader.nextEvent();
+                }
+                reader.nextEvent();
+                int yPos = Integer.parseInt(reader.getElementText());
+                while(!reader.peek().isStartElement() ||
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("transmissionPower")){
+                    reader.nextEvent();
+                }
+                reader.nextEvent();
+
+                int transmissionPower = Integer.parseInt(reader.getElementText());
+                while(!reader.peek().isStartElement() ||
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("spreadingFactor")){
+                    reader.nextEvent();
+                }
+                reader.nextEvent();
+                int spreadingFactor = Integer.parseInt(reader.getElementText());
+                while(!reader.peek().isEndElement() ||
+                    !reader.peek().asEndElement().getName().getLocalPart().equals("gateway")){
+                    reader.nextEvent();
+                }
+                reader.nextEvent();
+                reader.nextEvent();
+                event = reader.nextEvent();
                 environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor, environment));
             }
-        } catch (ParserConfigurationException | SAXException | IOException e1) {
+
+
+        } catch (IOException | XMLStreamException e1) {
             e1.printStackTrace();
         }
     }
 
-    private static boolean hasChild(Element root, String childName) {
-        return root.getElementsByTagName(childName).getLength() != 0;
-    }
 
 
     private static class MoteReader {
-        protected Element node;
+        protected XMLEventReader reader;
         protected Environment environment;
 
-        MoteReader(Element moteNode, Environment environment) {
-            this.node = moteNode;
+        MoteReader(XMLEventReader reader, Environment environment) {
+            this.reader = reader;
             this.environment = environment;
         }
 
-        long getDevEUI() {
-            return Long.parseUnsignedLong(XMLHelper.readChild(node, "devEUI"));
+        long getDevEUI() throws XMLStreamException {
+            reader.nextEvent();
+            long EUI =  Long.parseUnsignedLong(reader.getElementText());
+            reader.nextEvent();
+            return EUI;
         }
 
-        Pair<Double, Double> getMapCoordinates() {
-            Element location = (Element) node.getElementsByTagName("location").item(0);
-            Element waypoint = (Element) location.getElementsByTagName("waypoint").item(0);
-            GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(waypoint.getAttribute("id")));
+        Pair<Double, Double> getMapCoordinates() throws XMLStreamException {
+            reader.nextEvent();
+            reader.nextEvent();
+            GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(reader.nextEvent().asStartElement().getAttributeByName(QName.valueOf("id")).getValue()));
+            reader.nextEvent();
+            reader.nextEvent();
+            reader.nextEvent();
             return environment.getMapHelper().toMapCoordinate(position);
         }
 
-        int getTransmissionPower() {
-            return Integer.parseInt(XMLHelper.readChild(node, "transmissionPower"));
+        int getTransmissionPower() throws XMLStreamException {
+            reader.nextEvent();
+            reader.nextEvent();
+            int transmissionPower =  Integer.parseInt(reader.getElementText());
+            reader.nextEvent();
+            reader.nextEvent();
+            return transmissionPower;
         }
 
-        int getSpreadingFactor() {
-            return Integer.parseInt(XMLHelper.readChild(node, "spreadingFactor"));
+        int getSpreadingFactor() throws XMLStreamException {
+            int spreadingFactor =  Integer.parseInt(reader.getElementText());
+            reader.nextEvent();
+            return spreadingFactor;
         }
 
-        int getEnergyLevel() {
-            return Integer.parseInt(XMLHelper.readChild(node, "energyLevel"));
+        int getEnergyLevel() throws XMLStreamException {
+
+            reader.nextEvent();
+            int energyLevel =  Integer.parseInt(reader.getElementText());
+            reader.nextEvent();
+            return energyLevel;
         }
 
-        double getMovementSpeed() {
-            return Double.parseDouble(XMLHelper.readChild(node, "movementSpeed"));
+        double getMovementSpeed() throws XMLStreamException {
+            reader.nextEvent();
+            double movementSpeed =  Double.parseDouble(reader.getElementText());
+            reader.nextEvent();
+            return movementSpeed;
         }
 
-        List<MoteSensor> getMoteSensors() {
-            Element sensors = (Element) node.getElementsByTagName("sensors").item(0);
+        List<MoteSensor> getMoteSensors() throws XMLStreamException {
+            reader.nextEvent();
+            reader.nextEvent();
+            XMLEvent event = reader.nextEvent();
             List<MoteSensor> moteSensors = new LinkedList<>();
-            for (int i = 0; i < sensors.getElementsByTagName("sensor").getLength(); i++) {
-                Element sensornode = (Element) sensors.getElementsByTagName("sensor").item(i);
-                moteSensors.add(MoteSensor.valueOf(sensornode.getAttribute("SensorType")));
+            while(event.isStartElement()){
+                moteSensors.add(MoteSensor.valueOf(event.asStartElement().getAttributeByName(QName.valueOf("SensorType")).getValue()));
+                reader.nextEvent();
+                reader.nextEvent();
+                event = reader.nextEvent();
+            }
+            while(!event.isStartElement()) {
+                event = reader.nextEvent();
             }
 
             return moteSensors;
         }
 
-        Path getPath() {
-            Path path = new Path(environment.getGraph());
-            Element pathElement = (Element) node.getElementsByTagName("path").item(0);
-            for (int i = 0; i < pathElement.getElementsByTagName("connection").getLength(); i++) {
-                Element connectionElement = (Element) pathElement.getElementsByTagName("connection").item(i);
-                Connection connection = idRemapping.getConnectionWithOriginalId(Long.parseLong(connectionElement.getAttribute("id")));
+        Path getPath() throws XMLStreamException {;
+            reader.nextEvent();
+            Path path;
+            LinkedList<GeoPosition> pathWaypoints = new LinkedList<>();
+            XMLEvent event = reader.nextEvent();
 
-                path.addPosition(idRemapping.getWayPointWithNewId(connection.getFrom()));
-                if (i == pathElement.getElementsByTagName("connection").getLength() - 1) {
-                    // Add the last destination
-                    path.addPosition(idRemapping.getWayPointWithNewId(connection.getTo()));
+            if(event.asStartElement().getName().getLocalPart().equals("wayPoints")) {
+                // ---------------
+                //    WayPoints
+                // ---------------
+                reader.nextEvent();
+                event = reader.nextEvent();
+
+                while (event.isStartElement()) {
+                    String waypoint = reader.getElementText();
+
+                    double wayPointLatitude = Double.parseDouble(waypoint.split(",")[0]);
+                    double wayPointLongitude = Double.parseDouble(waypoint.split(",")[1]);
+
+                    pathWaypoints.add(new GeoPosition(wayPointLatitude, wayPointLongitude));
+                    reader.nextEvent();
+                    event =  reader.nextEvent();
+                }
+                reader.nextEvent();
+                reader.nextEvent();
+                path = new Path(pathWaypoints);
+            } else {
+                path = new Path(new LinkedList<>());
+                while (event.isStartElement()) {
+                    Connection connection = idRemapping.getConnectionWithOriginalId(Long.parseLong(event.asStartElement().getAttributeByName(QName.valueOf("id")).getValue()));
+                    reader.nextEvent();
+                    reader.nextEvent();
+                    event = reader.nextEvent();
+
+                    path.addPosition(idRemapping.getWayPointWithNewId(idRemapping.getNewWayPointId(connection.getFrom())));
+                    if (!event.isStartElement()) {
+                        // Add the last destination
+                        path.addPosition(idRemapping.getWayPointWithNewId(connection.getTo()));
+                    }
                 }
             }
+
             return path;
         }
 
-        Optional<Integer> getStartMovementOffset() {
-            if (hasChild(node, "startMovementOffset")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startMovementOffset")));
+        Optional<Integer> getStartMovementOffset() throws XMLStreamException {
+            if (reader.peek().asStartElement().getName().getLocalPart().equals("startMovementOffset")) {
+                reader.nextEvent();
+                Optional offset =  Optional.of(Integer.parseInt(reader.getElementText()));
+                reader.nextEvent();
+                return offset;
             }
             return Optional.empty();
         }
 
-        Optional<Integer> getPeriodSendingPacket() {
-            if (hasChild(node, "periodSendingPacket")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "periodSendingPacket")));
+        Optional<Integer> getPeriodSendingPacket() throws XMLStreamException {
+            if (reader.peek().asStartElement().getName().getLocalPart().equals("periodSendingPacket")) {
+                reader.nextEvent();
+                Optional period =  Optional.of(Integer.parseInt(reader.getElementText()));
+                reader.nextEvent();
+                return period;
             }
             return Optional.empty();
         }
 
-        Optional<Integer> getStartSendingOffset() {
-            if (hasChild(node, "startSendingOffset")) {
-                return Optional.of(Integer.parseInt(XMLHelper.readChild(node, "startSendingOffset")));
+        Optional<Integer> getStartSendingOffset() throws XMLStreamException {
+            if (reader.peek().asStartElement().getName().getLocalPart().equals("startSendingOffset")) {
+                reader.nextEvent();
+                Optional offset =  Optional.of(Integer.parseInt(reader.getElementText()));
+                reader.nextEvent();
+                return offset;
             }
             return Optional.empty();
+
         }
 
-        public Mote buildMote() {
+        public Mote buildMote() throws XMLStreamException {
             var startMovementOffset = getStartMovementOffset();
             var periodSendingPacket = getPeriodSendingPacket();
             var startSendingOffset = getStartSendingOffset();
@@ -265,30 +390,29 @@ public class ConfigurationReader {
             if (startMovementOffset.isPresent() && periodSendingPacket.isPresent() && startSendingOffset.isPresent()) {
                 mote = MoteFactory.createMote(
                     getDevEUI(),
-                    getMapCoordinates().getLeft(),
-                    getMapCoordinates().getRight(),
+                    getMapCoordinates(),
                     getTransmissionPower(),
                     getSpreadingFactor(),
-                    getMoteSensors(),
                     getEnergyLevel(),
-                    getPath(),
                     getMovementSpeed(),
                     startMovementOffset.get(),
                     periodSendingPacket.get(),
                     startSendingOffset.get(),
+                    getMoteSensors(),
+                    getPath(),
                     environment
                 );
             } else {
                 mote = MoteFactory.createMote(
                     getDevEUI(),
-                    getMapCoordinates().getLeft(),
-                    getMapCoordinates().getRight(),
+                    getMapCoordinates(),
                     getTransmissionPower(),
                     getSpreadingFactor(),
-                    getMoteSensors(),
                     getEnergyLevel(),
-                    getPath(),
                     getMovementSpeed(),
+                    getMoteSensors(),
+                    getPath(),
+
                     environment
                 );
             }
@@ -297,37 +421,40 @@ public class ConfigurationReader {
     }
 
     private static class UserMoteReader extends MoteReader {
-        protected UserMoteReader(Element moteNode, Environment environment) {
-            super(moteNode, environment);
+        protected UserMoteReader(XMLEventReader reader, Environment environment) {
+            super(reader, environment);
         }
 
 
-        boolean isActive() {
-            return Boolean.parseBoolean(XMLHelper.readChild(node, "userMoteState"));
+        boolean isActive() throws XMLStreamException {
+            reader.nextEvent();
+            boolean active = Boolean.parseBoolean(reader.getElementText());
+            reader.nextEvent();
+            return active;
         }
 
-        GeoPosition getDestination() {
-            Element destinationElement = (Element) node.getElementsByTagName("destination").item(0);
-            long wayPointId =  Long.parseLong(destinationElement.getAttribute("id"));
+        GeoPosition getDestination() throws XMLStreamException {
+            XMLEvent event = reader.nextEvent();
+            long wayPointId =  Long.parseLong(event.asStartElement().getAttributeByName(QName.valueOf("id")).getValue());
+            reader.nextEvent();
             return idRemapping.getWayPointWithOriginalId(wayPointId);
         }
 
         @Override
-        public Mote buildMote() {
+        public Mote buildMote() throws XMLStreamException {
             UserMote userMote = MoteFactory.createUserMote(
                 getDevEUI(),
-                getMapCoordinates().getLeft(),
-                getMapCoordinates().getRight(),
+                getMapCoordinates(),
                 getTransmissionPower(),
                 getSpreadingFactor(),
-                getMoteSensors(),
                 getEnergyLevel(),
-                getPath(),
                 getMovementSpeed(),
                 getStartMovementOffset().get(), // Intentional
                 getPeriodSendingPacket().get(), // Intentional
                 getStartSendingOffset().get(),  // Intentional
                 getDestination(),
+                getMoteSensors(),
+                getPath(),
                 environment
             );
             userMote.setActive(isActive());
@@ -336,35 +463,42 @@ public class ConfigurationReader {
     }
 
     private static class LLMoteReader extends MoteReader {
-        protected LLMoteReader(Element moteNode, Environment environment) {
-            super(moteNode, environment);
+        protected LLMoteReader(XMLEventReader reader, Environment environment) {
+            super(reader, environment);
         }
 
-        int getTransmittingInterval(){
-            return Integer.parseInt(XMLHelper.readChild(node, "transmittingInterval"));
+        int getTransmittingInterval() throws XMLStreamException {
+            while(!reader.nextEvent().isStartElement()){
+            }
+            int interval = Integer.parseInt(reader.getElementText());
+            reader.nextEvent();
+            return interval;
         }
-        int getExpirationTime(){
-            return Integer.parseInt(XMLHelper.readChild(node, "expirationTime"));
+        int getExpirationTime() throws XMLStreamException {
+            reader.nextEvent();
+            int expirationTime = Integer.parseInt(reader.getElementText());
+            reader.nextEvent();
+            reader.nextEvent();
+            return expirationTime;
         }
 
         @Override
-        public LifeLongMote buildMote() {
+        public LifeLongMote buildMote() throws XMLStreamException {
             LifeLongMote lifeLongMote = MoteFactory.createLLSACompliantMote(
                 getDevEUI(),
-                getMapCoordinates().getLeft(),
-                getMapCoordinates().getRight(),
+                getMapCoordinates(),
                 getTransmissionPower(),
                 getSpreadingFactor(),
-                getMoteSensors(),
                 getEnergyLevel(),
-                getPath(),
                 getMovementSpeed(),
                 getStartMovementOffset().get(), // Intentional
                 getPeriodSendingPacket().get(), // Intentional
                 getStartSendingOffset().get(),  // Intentional
-                environment,
+                getMoteSensors(),
+                getPath(),
                 getTransmittingInterval(),
-                getExpirationTime()
+                getExpirationTime(),
+                environment
             );
             return lifeLongMote;
         }

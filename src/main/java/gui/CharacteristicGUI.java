@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import iot.Characteristic;
+import iot.CharacteristicsMap;
 import iot.Environment;
 
 import javax.swing.*;
@@ -34,11 +35,7 @@ public class CharacteristicGUI {
         characteristicComboBox.setSelectedItem(environment.getCharacteristic(beginX + 1, beginY + 1));
 
         okButton.addActionListener(e -> {
-            for (int i = beginX; i < endX; i++) {
-                for (int j = beginY; j < endY; j++) {
-                    environment.setCharacteristics((Characteristic) characteristicComboBox.getSelectedItem(), i, j);
-                }
-            }
+            environment.setCharacteristics((Characteristic) characteristicComboBox.getSelectedItem(),x,y);
             parent.update();
             frame.dispose();
         });

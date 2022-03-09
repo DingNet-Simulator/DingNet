@@ -222,13 +222,14 @@ public class Simulation {
         var finalTime = this.getEnvironment().getClock().getTime()
             .plus(inputProfile.getSimulationDuration(), inputProfile.getTimeUnit());
 
-        LocalDateTime reversingTime = this.getEnvironment().getClock().getTime()
-            .plus(inputProfile.getRepeatingTime(), inputProfile.getRepeatingTimeTimeUnit());
         this.getEnvironment().getMotes().forEach(mote -> {
+            LocalDateTime reversingTime = this.getEnvironment().getClock().getTime()
+                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(new Random().nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
+            mote.reverseDirection();
             this.getEnvironment().getClock().addTrigger(reversingTime, () -> {
                 mote.reverseDirection();
                 return this.getEnvironment().getClock().getTime()
-                    .plus(inputProfile.getRepeatingTime(), inputProfile.getRepeatingTimeTimeUnit());
+                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(new Random().nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
             });
         });
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));

@@ -95,7 +95,7 @@ public class EditInputProfileGUI {
         } else {
             moteNumberComboBox.removeAllItems();
         }
-        moteProbSpinner.setModel(new SpinnerNumberModel(inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()), 0, 1, 0.01));
+        moteProbSpinner.setModel(new SpinnerNumberModel((double) inputProfile.getProbabilityForMote(moteNumberComboBox.getSelectedIndex()), 0, inputProfile.getRepeatingTime() , 0.01));
         durationSpinner.setModel(new SpinnerNumberModel(inputProfile.getSimulationDuration(), 0, Long.MAX_VALUE, 1));
         for (ChronoUnit unit : ChronoUnit.values()) {
             timeUnitComboBox.addItem(unit.toString().toUpperCase());

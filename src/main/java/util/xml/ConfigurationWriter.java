@@ -1,5 +1,6 @@
 package util.xml;
 
+import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
 import iot.Environment;
 import iot.SimulationRunner;
 import iot.networkentity.*;
@@ -8,16 +9,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import util.Connection;
 import util.GraphStructure;
-import util.Path;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
-import java.util.LinkedList;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 public class ConfigurationWriter {
@@ -28,85 +33,79 @@ public class ConfigurationWriter {
         idRemapping.reset();
 
         try {
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
             Environment environment = simulationRunner.getEnvironment();
             GraphStructure graph = environment.getGraph();
 
             // root element
-            Element rootElement = doc.createElement("configuration");
-            doc.appendChild(rootElement);
-
+            XMLOutputFactory output = XMLOutputFactory.newInstance();
+            XMLStreamWriter writer = new IndentingXMLStreamWriter(output.createXMLStreamWriter(new FileOutputStream(file),"UTF-8"));
+            writer.writeStartDocument();
+            writer.writeStartElement("configuration");
 
             // ---------------
             //      Map
             // ---------------
-            Element map = doc.createElement("map");
-            Element region = doc.createElement("region");
-            Element origin = doc.createElement("origin");
-            map.appendChild(origin);
-
-            Element MapZeroLatitude = doc.createElement("latitude");
-            MapZeroLatitude.appendChild(doc.createTextNode(Double.toString(environment.getMapOrigin().getLatitude())));
-            origin.appendChild(MapZeroLatitude);
-
-            Element MapZeroLongitude = doc.createElement("longitude");
-            MapZeroLongitude.appendChild(doc.createTextNode(Double.toString(environment.getMapOrigin().getLongitude())));
-            origin.appendChild(MapZeroLongitude);
-            region.appendChild(origin);
-
-            Element size = doc.createElement("size");
-            Element width = doc.createElement("width");
-            width.appendChild(doc.createTextNode(Integer.toString(environment.getMaxXpos() + 1)));
-            Element height = doc.createElement("height");
-            height.appendChild(doc.createTextNode(Integer.toString(environment.getMaxYpos() + 1)));
-            size.appendChild(width);
-            size.appendChild(height);
-            region.appendChild(size);
-
-            map.appendChild(region);
+            writer.writeStartElement("map");
+            writer.writeStartElement("region");
+            writer.writeStartElement("origin");
+            writer.writeStartElement("latitude");
+            writer.writeCharacters(Double.toString(environment.getMapOrigin().getLatitude()));
+            writer.writeEndElement();
+            writer.writeStartElement("longitude");
+            writer.writeCharacters(Double.toString(environment.getMapOrigin().getLongitude()));
+            writer.writeEndElement();
+            writer.writeEndElement();
+            writer.writeStartElement("size");
+            writer.writeStartElement("width");
+            writer.writeCharacters(Integer.toString(environment.getMaxXpos() + 1));
+            writer.writeEndElement();
+            writer.writeStartElement("height");
+            writer.writeCharacters(Integer.toString(environment.getMaxYpos() + 1));
+            writer.writeEndElement();
+            writer.writeEndElement();
+            writer.writeEndElement();
+            writer.writeEndElement();
 
 
             // ---------------
             // Characteristics
             // ---------------
-
-            Element characteristics = doc.createElement("characteristics");
-            Element regionProperty = doc.createElement("regionProperty");
-            regionProperty.setAttribute("numberOfZones", Integer.toString(environment.getNumberOfZones()));
-            characteristics.appendChild(regionProperty);
+            writer.writeStartElement("characteristics");
+            writer.writeStartElement("regionProperty");
+            writer.writeAttribute("numberOfZones",Integer.toString(environment.getNumberOfZones()));
+            writer.writeEndElement();
 
             int amountOfSquares = (int) Math.sqrt(environment.getNumberOfZones());
-            LinkedList<Element> row = new LinkedList<>();
             for (int i = 0; i < amountOfSquares; i++) {
-                row.add(doc.createElement("row"));
-                row.getLast().appendChild(doc.createTextNode(environment.getCharacteristic(0, (int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares) + 1
-                ).name()));
+                writer.writeStartElement("row");
+                writer.writeCharacters(environment.getCharacteristic(0, (int) Math.round(i * ((double) environment.getMaxXpos()) / amountOfSquares) + 1
+                ).name());
                 for (int j = 1; j < amountOfSquares; j++) {
 
-                    row.getLast().appendChild(doc.createTextNode("-" + environment.getCharacteristic((int) Math.round(j * ((double) environment.getMaxXpos()) / amountOfSquares) + 1
-                        , (int) Math.round(i * ((double) environment.getMaxYpos()) / amountOfSquares) + 1).name()));
+                    writer.writeCharacters("-" + environment.getCharacteristic((int) Math.round(j * ((double) environment.getMaxXpos()) / amountOfSquares) + 1
+                        , (int) Math.round(i * ((double) environment.getMaxYpos()) / amountOfSquares) + 1).name());
                 }
-                characteristics.appendChild(row.getLast());
+                writer.writeEndElement();
             }
-
-
+            writer.writeEndElement();
 
             // ---------------
             //    WayPoints
             // ---------------
-
-            Element wayPointsElement = doc.createElement("wayPoints");
+            writer.writeStartElement("wayPoints");
             var wayPoints = graph.getWayPoints();
 
             for (var me : wayPoints.entrySet()) {
-                Element wayPointElement = doc.createElement("wayPoint");
+                writer.writeStartElement("wayPoint");
                 long newId = idRemapping.addWayPoint(me.getKey(), me.getValue());
-
-                wayPointElement.setAttribute("id", Long.toString(newId));
+                writer.writeAttribute("id",Long.toString(newId));
                 var wayPoint = me.getValue();
-                wayPointElement.appendChild(doc.createTextNode(wayPoint.getLatitude() + "," + wayPoint.getLongitude()));
-                wayPointsElement.appendChild(wayPointElement);
+                writer.writeCharacters(wayPoint.getLatitude() + "," + wayPoint.getLongitude());
+                writer.writeEndElement();
             }
+
+            writer.writeEndElement();
 
 
 
@@ -114,11 +113,11 @@ public class ConfigurationWriter {
             //   Connections
             // ---------------
 
-            Element connectionsElement = doc.createElement("connections");
+            writer.writeStartElement("connections");
             var connections = graph.getConnections();
 
             for (var me : connections.entrySet()) {
-                Element connectionElement = doc.createElement("connection");
+                writer.writeStartElement("connection");
                 long originalId = me.getKey();
                 Connection conn = me.getValue();
 
@@ -127,88 +126,74 @@ public class ConfigurationWriter {
 
                 // Not really necesary here to make a new connection, but it's a bit awkward to put null here
                 long newId = idRemapping.addConnection(originalId, new Connection(newFromId, newToId));
+                writer.writeAttribute("id",Long.toString(newId));
+                writer.writeAttribute("src",Long.toString(newFromId));
+                writer.writeAttribute("dst",Long.toString(newToId));
 
-                connectionElement.setAttribute("id", Long.toString(newId));
-                connectionElement.setAttribute("src", Long.toString(newFromId));
-                connectionElement.setAttribute("dst", Long.toString(newToId));
-
-                connectionsElement.appendChild(connectionElement);
+                writer.writeEndElement();
             }
 
-
+            writer.writeEndElement();
 
             // ---------------
             //      Motes
             // ---------------
-
-            Element motes = doc.createElement("motes");
+            writer.writeStartElement("motes");
 
             for (Mote mote : environment.getMotes()) {
                 if (mote instanceof UserMote) {
-                    motes.appendChild(new UserMoteWriter(doc, (UserMote) mote, environment).buildMoteElement());
+                    new UserMoteWriter((UserMote) mote, environment).writeMoteElement(writer);
                 } else {
                     if (mote instanceof LifeLongMote) {
-                        motes.appendChild(new LLMoteWriter(doc, (LifeLongMote) mote, environment).buildMoteElement());
+                        new LLMoteWriter((LifeLongMote) mote, environment).writeMoteElement(writer);
                     }else {
-                        motes.appendChild(new MoteWriter(doc, mote, environment).buildMoteElement());
+                        new MoteWriter(mote, environment).writeMoteElement(writer);
                     }
                 }
             }
+            writer.writeEndElement();
 
 
             // ---------------
             //    Gateways
             // ---------------
-
-            Element gateways = doc.createElement("gateways");
+            writer.writeStartElement("gateways");
 
             for (Gateway gateway : environment.getGateways()) {
-                Element gatewayElement = doc.createElement("gateway");
+                writer.writeStartElement("gateway");
 
-                Element devEUI = doc.createElement("devEUI");
-                devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(gateway.getEUI())));
+                writer.writeStartElement("devEUI");
+                writer.writeCharacters((Long.toUnsignedString(gateway.getEUI())));
+                writer.writeEndElement();
 
-                Element location = doc.createElement("location");
-                Element xPos = doc.createElement("xPos");
-                xPos.appendChild(doc.createTextNode(Integer.toString((int) Math.round(environment.getMapHelper().toMapXCoordinate(gateway.getPos())))));
-                Element yPos = doc.createElement("yPos");
-                yPos.appendChild(doc.createTextNode(Integer.toString((int) Math.round(environment.getMapHelper().toMapYCoordinate(gateway.getPos())))));
-                location.appendChild(xPos);
-                location.appendChild(yPos);
+                writer.writeStartElement("location");
+                writer.writeStartElement("xPos");
+                writer.writeCharacters(Integer.toString((int) Math.round(environment.getMapHelper().toMapXCoordinate(gateway.getPos()))));
+                writer.writeEndElement();
+                writer.writeStartElement("yPos");
+                writer.writeCharacters(Integer.toString((int) Math.round(environment.getMapHelper().toMapYCoordinate(gateway.getPos()))));
+                writer.writeEndElement();
+                writer.writeEndElement();
 
-                Element transmissionPower = doc.createElement("transmissionPower");
-                transmissionPower.appendChild(doc.createTextNode(Integer.toString(gateway.getTransmissionPower())));
+                writer.writeStartElement("transmissionPower");
+                writer.writeCharacters(Integer.toString(gateway.getTransmissionPower()));
+                writer.writeEndElement();
 
-                Element spreadingFactor = doc.createElement("spreadingFactor");
-                spreadingFactor.appendChild(doc.createTextNode(Integer.toString(gateway.getSF())));
+                writer.writeStartElement("spreadingFactor");
+                writer.writeCharacters(Integer.toString(gateway.getSF()));
+                writer.writeEndElement();
 
-                gatewayElement.appendChild(devEUI);
-                gatewayElement.appendChild(location);
-                gatewayElement.appendChild(transmissionPower);
-                gatewayElement.appendChild(spreadingFactor);
-                gateways.appendChild(gatewayElement);
+                writer.writeEndElement();
             }
+            writer.writeEndElement();
 
 
             // ---------------
             //    Data dump
             // ---------------
 
-            rootElement.appendChild(map);
-            rootElement.appendChild(characteristics);
-            rootElement.appendChild(motes);
-            rootElement.appendChild(gateways);
-            rootElement.appendChild(wayPointsElement);
-            rootElement.appendChild(connectionsElement);
-
-            // write the content into xml file
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            transformerFactory.setAttribute("indent-number", 4);
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(file);
-            transformer.transform(source, result);
+            writer.writeEndElement();
+            writer.writeEndDocument();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -216,182 +201,193 @@ public class ConfigurationWriter {
     }
 
     private static class MoteWriter {
-        Document doc;
         Mote mote;
         GraphStructure graph;
         Environment environment;
 
-        MoteWriter(Document doc, Mote mote, Environment environment) {
-            this.doc = doc;
+        MoteWriter(Mote mote, Environment environment) {
             this.mote = mote;
             this.graph = environment.getGraph();
             this.environment = environment;
         }
 
-        Element generateDevEUIElement() {
-            Element devEUI =  doc.createElement("devEUI");
-            devEUI.appendChild(doc.createTextNode(Long.toUnsignedString(mote.getEUI())));
-            return devEUI;
+        void writeDevEUIElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("devEUI");
+            writer.writeCharacters(Long.toUnsignedString(mote.getEUI()));
+            writer.writeEndElement();
         }
 
-        Element generateLocationElement() {
-            Element location = doc.createElement("location");
-            Element wayPoint = doc.createElement("waypoint");
-
+        void writeLocationElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("location");
+            writer.writeStartElement("waypoint");
             GeoPosition position = mote.getOriginalPos();
-            wayPoint.setAttribute("id", Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(position))));
-            location.appendChild(wayPoint);
+            writer.writeAttribute("id",Long.toString(graph.getClosestWayPoint(position)));
+            writer.writeEndElement();
+            writer.writeEndElement();
 
-            return location;
         }
 
-        Element generateTransmissionPowerElement() {
-            Element transmissionPower = doc.createElement("transmissionPower");
-            transmissionPower.appendChild(doc.createTextNode(Integer.toString(mote.getTransmissionPower())));
-            return transmissionPower;
+        void writeTransmissionPowerElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("transmissionPower");
+            writer.writeCharacters(Integer.toString(mote.getTransmissionPower()));
+            writer.writeEndElement();
         }
 
-        Element generateSpreadingFactorElement() {
-            Element spreadingFactor = doc.createElement("spreadingFactor");
-            spreadingFactor.appendChild(doc.createTextNode(Integer.toString(mote.getSF())));
-            return spreadingFactor;
+        void writeSpreadingFactorElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("spreadingFactor");
+            writer.writeCharacters(Integer.toString(mote.getSF()));
+            writer.writeEndElement();
         }
 
-        Element generateEnergyLevelElement() {
-            Element energyLevel = doc.createElement("energyLevel");
-            energyLevel.appendChild(doc.createTextNode(Integer.toString(mote.getEnergyLevel())));
-            return energyLevel;
+        void writeEnergyLevelElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("energyLevel");
+            writer.writeCharacters(Integer.toString(mote.getEnergyLevel()));
+            writer.writeEndElement();
         }
 
-        Element generateMovementSpeedElement() {
-            Element movementSpeed = doc.createElement("movementSpeed");
-            movementSpeed.appendChild(doc.createTextNode(Double.toString(mote.getMovementSpeed())));
-            return movementSpeed;
+        void writeMovementSpeedElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("movementSpeed");
+            writer.writeCharacters(Double.toString(mote.getMovementSpeed()));
+            writer.writeEndElement();
         }
 
-        Element generateStartMovementSpeedElement() {
-            Element startMovementOffset = doc.createElement("startMovementOffset");
-            startMovementOffset.appendChild(doc.createTextNode(Integer.toString(mote.getStartMovementOffset())));
-            return startMovementOffset;
+        void writeStartMovementSpeedElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("startMovementOffset");
+            writer.writeCharacters(Integer.toString(mote.getStartMovementOffset()));
+            writer.writeEndElement();
         }
 
-        Element generatePeriodSendingPacketElement() {
-            Element periodSendingPacket = doc.createElement("periodSendingPacket");
-            periodSendingPacket.appendChild(doc.createTextNode(Integer.toString(mote.getPeriodSendingPacket())));
-            return periodSendingPacket;
+        void writePeriodSendingPacketElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("periodSendingPacket");
+            writer.writeCharacters(Integer.toString(mote.getPeriodSendingPacket()));
+            writer.writeEndElement();
         }
 
-        Element generateStartSendingOffsetElement() {
-            Element startSendingOffset = doc.createElement("startSendingOffset");
-            startSendingOffset.appendChild(doc.createTextNode(Integer.toString(mote.getStartSendingOffset())));
-            return startSendingOffset;
+        void writeStartSendingOffsetElement(XMLStreamWriter writer) throws  XMLStreamException {
+
+            writer.writeStartElement("startSendingOffset");
+            writer.writeCharacters(Integer.toString(mote.getStartSendingOffset()));
+            writer.writeEndElement();
         }
 
-        Element generateMoteSensorsElement() {
-            Element sensors = doc.createElement("sensors");
+        void writeMoteSensorsElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("sensors");
             for (MoteSensor sensor : mote.getSensors()) {
-                Element sensorElement = doc.createElement("sensor");
-                sensorElement.setAttribute("SensorType", sensor.name());
-                sensors.appendChild(sensorElement);
+                writer.writeStartElement("sensor");
+                writer.writeAttribute("SensorType",sensor.name());
+                writer.writeEndElement();
             }
-            return sensors;
+            writer.writeEndElement();
         }
 
-        Element generatePathElement() {
-            Element pathElement = doc.createElement("path");
-            if(false) {
-                Path path = mote.getPath();
-                for (Long id : path.getConnectionsByID()) {
-                    Element connectionElement = doc.createElement("connection");
-                    connectionElement.setAttribute("id", Long.toString(idRemapping.getNewConnectionId(id)));
-                    pathElement.appendChild(connectionElement);
-                }
+        void writePathElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("path");
+            // ---------------
+            //    WayPoints
+            // ---------------
+
+            writer.writeStartElement("wayPoints");
+            var wayPoints = mote.getPath().getWayPoints();
+
+            for (var wayPoint : wayPoints) {
+                writer.writeStartElement("wayPoint");
+                writer.writeCharacters(wayPoint.getLatitude() + "," + wayPoint.getLongitude());
+                writer.writeEndElement();
             }
-            return pathElement;
+            writer.writeEndElement();
+            writer.writeEndElement();
         }
 
 
-        void addMoteDetails(Element element) {
-            List.of(generateDevEUIElement(), generateLocationElement(), generateTransmissionPowerElement(), generateSpreadingFactorElement(),
-                generateEnergyLevelElement(), generateMovementSpeedElement(), generateStartMovementSpeedElement(), generatePeriodSendingPacketElement(),
-                generateStartSendingOffsetElement(), generateMoteSensorsElement(), generatePathElement())
-                .forEach(element::appendChild);
+        void addMoteDetails(XMLStreamWriter writer) throws XMLStreamException {
+            writeDevEUIElement(writer);
+            writeLocationElement(writer);
+            writeTransmissionPowerElement(writer);
+            writeSpreadingFactorElement(writer);
+            writeEnergyLevelElement(writer);
+            writeMovementSpeedElement(writer);
+            writeStartMovementSpeedElement(writer);
+            writePeriodSendingPacketElement(writer);
+            writeStartSendingOffsetElement(writer);
+            writeMoteSensorsElement(writer);
+            writePathElement(writer);
         }
 
-        public Element buildMoteElement() {
-            Element moteElement = doc.createElement("mote");
-            addMoteDetails(moteElement);
-            return moteElement;
+        public void writeMoteElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("mote");
+            addMoteDetails(writer);
+            writer.writeEndElement();
         }
     }
 
     private static class UserMoteWriter extends MoteWriter {
-        UserMoteWriter(Document doc, UserMote mote, Environment environment) {
-            super(doc, mote, environment);
+        UserMoteWriter( UserMote mote, Environment environment) {
+            super( mote, environment);
         }
 
-        Element generateIsActiveElement() {
-            Element isActive = doc.createElement("userMoteState");
-            isActive.appendChild(doc.createTextNode(Boolean.toString(((UserMote) mote).isActive())));
-            return isActive;
+        void writeIsActiveElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("userMoteState");
+            writer.writeCharacters(Boolean.toString(((UserMote) mote).isActive()));
+            writer.writeEndElement();
         }
 
-        Element generateDestinationElement() {
+        void writeDestinationElement(XMLStreamWriter writer) throws XMLStreamException {
             GeoPosition destinationPos = ((UserMote) mote).getDestination();
-            Element destination = doc.createElement("destination");
-            destination.setAttribute("id", Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(destinationPos))));
-            return destination;
+            writer.writeStartElement("destination");
+            writer.writeAttribute("id",Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(destinationPos))));
+            writer.writeEndElement();
         }
 
-        void addUserMoteDetails(Element element) {
-            List.of(generateIsActiveElement(), generateDestinationElement())
-                .forEach(element::appendChild);
+        void addUserMoteDetails(XMLStreamWriter writer) throws XMLStreamException {
+            writeIsActiveElement(writer);
+            writeDestinationElement(writer);
         }
 
         @Override
-        public Element generatePathElement() {
+        public void writePathElement(XMLStreamWriter writer) throws XMLStreamException{
             // Empty element since user motes get their path from the routing application
             // (Currently, a starting path for user motes is not supported)
-            return doc.createElement("path");
+            writer.writeStartElement("path");
+            writer.writeEndElement();
         }
 
         @Override
-        public Element buildMoteElement() {
-            Element moteElement = doc.createElement("userMote");
-            addMoteDetails(moteElement);
-            addUserMoteDetails(moteElement);
-            return moteElement;
+        public void writeMoteElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("userMote");
+            addMoteDetails(writer);
+            addUserMoteDetails(writer);
+            writer.writeEndElement();
         }
     }
 
     private static class LLMoteWriter extends MoteWriter {
-        LLMoteWriter(Document doc, LifeLongMote mote, Environment environment) {
-            super(doc, mote, environment);
+        LLMoteWriter( LifeLongMote mote, Environment environment) {
+            super( mote, environment);
         }
 
-        Element generateTransmittingIntervalElement() {
-            Element transmittingInterval = doc.createElement("transmittingInterval");
-            transmittingInterval.appendChild(doc.createTextNode(Integer.toString(((LifeLongMote) mote).getTransmittingInterval())));
-            return transmittingInterval;
+        void writeTransmittingIntervalElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("transmittingInterval");
+            writer.writeCharacters(Integer.toString(((LifeLongMote) mote).getTransmittingInterval()));
+            writer.writeEndElement();
         }
 
-        Element generateExpirationTimeElement() {
-            Element expirationTime = doc.createElement("expirationTime");
-            expirationTime.appendChild(doc.createTextNode(Integer.toString(((LifeLongMote) mote).getExpirationTime())));
-            return expirationTime;
+        void writeExpirationTimeElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("expirationTime");
+            writer.writeCharacters(Integer.toString(((LifeLongMote) mote).getExpirationTime()));
+            writer.writeEndElement();
         }
 
-        void addLifeLongMoteDetails(Element element) {
-            List.of(generateTransmittingIntervalElement(), generateExpirationTimeElement())
-                .forEach(element::appendChild);
+        void addLifeLongMoteDetails(XMLStreamWriter writer) throws XMLStreamException {
+            writeTransmittingIntervalElement(writer);
+            writeExpirationTimeElement(writer);
         }
 
         @Override
-        public Element buildMoteElement() {
-            Element moteElement = doc.createElement("lifeLongMote");
-            addMoteDetails(moteElement);
-            addLifeLongMoteDetails(moteElement);
-            return moteElement;
+        public void writeMoteElement(XMLStreamWriter writer) throws XMLStreamException {
+            writer.writeStartElement("lifeLongMote");
+            addMoteDetails(writer);
+            addLifeLongMoteDetails(writer);
+            writer.writeEndElement();
         }
     }
 }

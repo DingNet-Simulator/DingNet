@@ -47,7 +47,7 @@ public class Environment implements Serializable {
     /**
      * The actual map containing the characteristics of the environment.
      */
-    private Characteristic[][] characteristics;
+    private CharacteristicsMap characteristics;
 
     /**
      * The number of zones in the configuration.
@@ -83,11 +83,11 @@ public class Environment implements Serializable {
      * @Post    Sets the max y-coordinate to 0 if the map is not valid.
      * @Post    Sets the characteristics to an empty list if the map is not valid.
      */
-    public Environment(Characteristic[][] characteristics, GeoPosition mapOrigin, int numberOfZones,
+    public Environment(CharacteristicsMap characteristics, GeoPosition mapOrigin, int numberOfZones,
                        Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         if (areValidCharacteristics(characteristics)) {
-            maxXpos = characteristics.length - 1;
-            maxYpos = characteristics[0].length - 1;
+            maxXpos = characteristics.getMaxXPos();
+            maxYpos = characteristics.getMaxYPos();
             this.characteristics = characteristics;
         } else {
             throw new IllegalArgumentException("Invalid characteristics given in constructor of Environment.");
@@ -241,20 +241,11 @@ public class Environment implements Serializable {
      * @param characteristics The map to check.
      * @return  True if the Map is square.
      */
-    private boolean areValidCharacteristics(Characteristic[][] characteristics) {
-        if (characteristics.length == 0) {
+    private boolean areValidCharacteristics(CharacteristicsMap characteristics) {
+        if (characteristics.maxXPos == 0) {
             return false;
-        } else if (characteristics[0].length == 0) {
+        } else if (characteristics.maxYPos == 0) {
             return false;
-        }
-
-        // Make sure that each row has the same length
-        int ySize = characteristics[0].length;
-
-        for (Characteristic[] row : characteristics) {
-            if (row.length != ySize) {
-                return false;
-            }
         }
 
         return true;
@@ -268,7 +259,7 @@ public class Environment implements Serializable {
      */
     public Characteristic getCharacteristic(double xPos, double yPos) {
         if (isValidXpos(xPos) && isValidYpos(yPos)) {
-            return characteristics[(int)Math.round(xPos)][(int)Math.round(yPos)];
+            return characteristics.getCharacteristic(xPos,yPos);
         } else {
             return null;
         }
@@ -278,8 +269,8 @@ public class Environment implements Serializable {
      * Sets the characteristic to the given characteristic on the given location.
      * @param characteristic the given characteristic.
      */
-    public void setCharacteristics(Characteristic characteristic, int xPos, int yPos) {
-        this.characteristics[xPos][yPos] = characteristic;
+    public void setCharacteristics(Characteristic characteristic, int columnNumber, int rowNumber) {
+        this.characteristics.setCharacterstics(characteristic,columnNumber,rowNumber);
     }
 
 
@@ -350,19 +341,6 @@ public class Environment implements Serializable {
      */
     public int getNumberOfRuns() {
         return numberOfRuns;
-    }
-
-
-    /**
-     * Shortens the routes of motes which contain the given waypoint.
-     * @param wayPointId The ID of the waypoint.
-     */
-    public void removeWayPointFromMotes(long wayPointId) {
-        motes.forEach(o -> o.shortenPathFromWayPoint(wayPointId));
-    }
-
-    public void removeConnectionFromMotes(long connectionId) {
-        motes.forEach(o -> o.shortenPathFromConnection(connectionId));
     }
 
     public void updateGraph(GraphStructure graph) {

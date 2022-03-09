@@ -70,12 +70,6 @@ public class NewGatewayGUI {
 
             parent.refresh();
             frame.dispose();
-            environment.addGateway(new Gateway(Long.parseUnsignedLong(EUIDtextField.getText()),
-                (int) xPosSpinner.getValue(), (int) yPosSpinner.getValue(),
-                (int) powerSpinner.getValue(), (int) SFSpinner.getValue(),
-                environment));
-            parent.refresh();
-            frame.dispose();
         });
 
         ButtonGroup positionButtonGroup = new ButtonGroup();

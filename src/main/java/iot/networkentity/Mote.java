@@ -230,21 +230,6 @@ public class Mote extends NetworkEntity {
             });
     }
 
-    /**
-     * Shorten the path of this mote from a given waypoint ID.
-     * @param wayPointId The waypoint ID from which the path is shortened (inclusive).
-     */
-    public void shortenPathFromWayPoint(long wayPointId) {
-        this.path.shortenPathFromWayPoint(wayPointId);
-    }
-
-    /**
-     * Shorten the path of this mote from a given connection ID.
-     * @param connectionId The connection ID from which the path is shortened (inclusive).
-     */
-    public void shortenPathFromConnection(long connectionId) {
-        this.path.shortenPathFromConnection(connectionId);
-    }
 
 
     /**
@@ -375,8 +360,8 @@ public class Mote extends NetworkEntity {
     }
 
     /**
-     * Returns the start offset of the mote in seconds.
-     * @return the start offset of the mote in seconds.
+     * Returns the start offset of the mote in minutes.
+     * @return the start offset of the mote in minutes.
      */
     public int getStartMovementOffset() {
         return this.startMovementOffset;
