@@ -27,6 +27,9 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
     private JPanel legendPanel;
+    private JLabel amountOfRegionLabel;
+    private JTextField numberOfZonesField;
+    private Characteristic selectedCharacteristic;
 
     private int amountOfSquares;
 
@@ -36,7 +39,12 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
 
         // FIXME Is using math.round a good idea here?
         amountOfSquares = (int) Math.round(Math.sqrt(environment.getNumberOfZones()));
-
+        numberOfZonesField.setText(Integer.toString(environment.getNumberOfZones()));
+        numberOfZonesField.addActionListener(e -> {
+            environment.setNumberOfZones(Integer.parseInt(numberOfZonesField.getText()));
+            amountOfSquares = (int) Math.round(Math.sqrt(environment.getNumberOfZones()));
+            update();
+        });
         loadMap(false);
         loadLegend();
     }
@@ -50,12 +58,19 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
         drawPanel.revalidate();
         legendPanel.repaint();
         legendPanel.revalidate();
+        numberOfZonesField.setText(Integer.toString(environment.getNumberOfZones()));
     }
 
     private void loadLegend() {
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
         for (Characteristic characteristic : EnumSet.allOf(Characteristic.class)) {
+            JLabel nameLabel = new JLabel(characteristic.name() + ": ");
+            if(characteristic == selectedCharacteristic){
+                nameLabel.setBorder(BorderFactory.createLineBorder(Color.black));
+            }
+            MouseListener charateristicAdapter = new LegendMouseAdapter(this,characteristic,nameLabel);
+            nameLabel.addMouseListener(charateristicAdapter);
             legendPanel.add(new JLabel(characteristic.name() + ": "), c);
             BufferedImage img = new BufferedImage(15, 15, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = img.createGraphics();
@@ -65,7 +80,10 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
             g.setColor(characteristic.getColor());
             g.fill(new Ellipse2D.Double(0, 0, 15, 15));
-            legendPanel.add(new JLabel(new ImageIcon(img)), c);
+            JLabel imageLabel = new JLabel(new ImageIcon(img));
+            imageLabel.addMouseListener(charateristicAdapter);
+            legendPanel.add(imageLabel, c);
+
         }
     }
 
@@ -206,11 +224,11 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 1) {
+            if (e.getClickCount() == 2) {
                 Point p = e.getPoint();
                 GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
                 int xPos = (int) Math.round(environment.getMapHelper().toMapXCoordinate(geo));
-                int yPos = (int)Math.round(environment.getMapHelper().toMapYCoordinate(geo));
+                int yPos = (int) Math.round(environment.getMapHelper().toMapYCoordinate(geo));
                 int i = 0;
                 while (xPos > 1) {
                     xPos -= environment.getMaxXpos() / amountOfSquares;
@@ -230,6 +248,27 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
             }
+            else if (e.getClickCount() == 1) {
+                    if (selectedCharacteristic != null){
+                        Point p = e.getPoint();
+                        GeoPosition geo = mapViewer.convertPointToGeoPosition(p);
+                        int xPos = (int) Math.round(environment.getMapHelper().toMapXCoordinate(geo));
+                        int yPos = (int) Math.round(environment.getMapHelper().toMapYCoordinate(geo));
+                        int i = 0;
+                        while (xPos > 1) {
+                            xPos -= environment.getMaxXpos() / amountOfSquares;
+                            i++;
+                        }
+                        int j = 0;
+                        while (yPos > 1) {
+                            yPos -= environment.getMaxYpos() / amountOfSquares;
+                            j++;
+                        }
+                        environment.setCharacteristics(selectedCharacteristic,i-1,j-1);
+                        update();
+                    }
+                }
+
         }
 
         @Override
@@ -252,4 +291,48 @@ public class ConfigureRegionPanel extends AbstractConfigurePanel {
 
         }
     }
+
+    private class LegendMouseAdapter implements MouseListener {
+
+        private ConfigureRegionPanel configureRegionPanel;
+        private Characteristic characteristic;
+        private JLabel label;
+
+        public LegendMouseAdapter(ConfigureRegionPanel configureRegionPanel, Characteristic characteristic, JLabel label) {
+            this.configureRegionPanel = configureRegionPanel;
+            this.characteristic = characteristic;
+            this.label = label;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 1) {
+                configureRegionPanel.selectedCharacteristic = characteristic;
+                update();
+            }
+
+        }
+
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+    }
+
 }

@@ -65,7 +65,7 @@ public class ConfigureWayPointsPanel extends AbstractConfigurePanel {
 
     protected void loadMap(boolean isRefresh) {
         mapViewer.setOverlayPainter(new CompoundPainterBuilder()
-            .withWaypoints(mainGUI.getEnvironment().getGraph(), true)
+            .withWaypoints(mainGUI.getEnvironment().getGraph(), false)
             .withBorders(environment)
             .build()
         );

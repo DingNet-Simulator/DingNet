@@ -110,6 +110,21 @@ public class MapHelper {
         if ((lat1 == lat2) && (lon1 == lon2)) {
             return 0;
         } else {
+
+            int R = 6371; // metres
+            double φ1 = Math.toRadians(lat1); // φ, λ in radians
+            double φ2 = Math.toRadians(lat2);
+            double Δφ = Math.toRadians((lat2-lat1));
+            double Δλ = Math.toRadians((lon2-lon1));
+
+            double a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+
+            return R * c;
+            /*
             double theta = lon1 - lon2;
             double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) +
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
@@ -118,6 +133,9 @@ public class MapHelper {
             dist = dist * 60 * 1.1515;
             dist = dist * 1.609344;
             return dist;
+            */
+
+
         }
     }
 

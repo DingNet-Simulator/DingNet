@@ -4,6 +4,7 @@ import iot.lora.LoraWanPacket;
 import iot.networkentity.Mote;
 import util.MapHelper;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class ReplacePath extends AddPositionToPath {
@@ -28,10 +29,10 @@ public class ReplacePath extends AddPositionToPath {
         }
         var nextPos = motePath.getNextPoint(mote.getPathPosition());
         if (nextPos.isPresent() && MapHelper.equalsGeoPosition(nextPos.get(), path.get(0))) {
-            var newPath = motePath.getWayPoints()
+            var newPath = new ArrayList(motePath.getWayPoints()
                 .stream()
                 .limit(motePath.getWayPoints().indexOf(nextPos.get()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
             newPath.addAll(path);
             motePath.setPath(newPath);
             return;

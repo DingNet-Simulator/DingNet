@@ -70,8 +70,20 @@ public abstract class NetworkEntity implements Serializable {
      * @param environment The environment to which the entity belongs.
      */
     NetworkEntity(long EUI, double xPos, double yPos, int transmissionPower, int SF, double transmissionPowerThreshold, Environment environment) {
+        this(EUI,environment.getMapHelper().toGeoPosition(xPos,yPos),transmissionPower,SF,transmissionPowerThreshold,environment);
+    }
+
+    /**
+     *  A constructor generating a Network with a given x-position, y-position, spreading factor, transmission power (threshold) and environment.
+     * @param position  The geoposition of the entity on the map.
+     * @param transmissionPower   The transmission power of the entity.
+     * @param SF    The spreading factor of the entity.
+     * @param transmissionPowerThreshold The threshold for discriminating different transmissions.
+     * @param environment The environment to which the entity belongs.
+     */
+    NetworkEntity(long EUI, GeoPosition position, int transmissionPower, int SF, double transmissionPowerThreshold, Environment environment) {
         this.environment = environment;
-        this.pos = getEnvironment().getMapHelper().toGeoPosition(xPos,yPos);
+        this.pos = position;
         this.initialPosition = pos;
 
         this.transmissionPower = isValidTransmissionPower(transmissionPower) ? transmissionPower : 0;
@@ -259,13 +271,17 @@ public abstract class NetworkEntity implements Serializable {
             .filter(ne -> filterLoraSend(ne, message))
             .map(NetworkEntity::getReceiver)
             .collect(Collectors.toSet());
-        sender.send(message, recs)
-            .ifPresent(t -> {
-                Statistics statistics = Statistics.getInstance();
-                statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toEpochSecond(ZoneOffset.UTC), getTransmissionPower());
-                statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
-                statistics.addSentTransmissionsEntry(this.getEUI(), t);
-            });
+        if(!sender.isTransmitting()) {
+            sender.send(message, recs)
+                .ifPresent(t -> {
+                    Statistics statistics = Statistics.getInstance();
+                    statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toEpochSecond(ZoneOffset.UTC), getTransmissionPower());
+                    statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
+                    statistics.addSentTransmissionsEntry(this.getEUI(), t);
+                });
+        }else{
+            environment.getClock().addTriggerOneShot(sender.getCurrentTransmittingTime(),() ->this.send(message));
+        }
     }
 
     public Receiver getReceiver() {

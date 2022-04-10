@@ -14,6 +14,7 @@ public class CharacteristicsMap {
     int maxYPos;
     double zoneWidth;
     double zoneHeight;
+    Characteristic defaultCharacteristic;
 
 
     public CharacteristicsMap(int maxXPos, int maxYPos, long numberOfColumns, long numberOfRows,
@@ -22,6 +23,7 @@ public class CharacteristicsMap {
         this.maxYPos = maxYPos;
         this.zoneWidth = maxXPos / numberOfColumns;
         this.zoneHeight = maxYPos / numberOfRows;
+        this.defaultCharacteristic = defaultCharacteristic;
         characteristics = new ArrayList<>();
         for(int i = 0; i <= numberOfColumns;i++){
             characteristics.add(new ArrayList<>());
@@ -33,6 +35,19 @@ public class CharacteristicsMap {
 
 
 
+    }
+
+    public void setNumberOfzones(int numberOfColumns, int numberOfRows){
+
+        this.zoneWidth = maxXPos / numberOfColumns;
+        this.zoneHeight = maxYPos / numberOfRows;
+        characteristics = new ArrayList<>();
+        for(int i = 0; i <= numberOfColumns;i++){
+            characteristics.add(new ArrayList<>());
+            for(int j = 0; j <= numberOfRows;j++) {
+                characteristics.get(i).add(defaultCharacteristic);
+            }
+        }
     }
 
     public void setCharacterstics(Characteristic characteristic, int zoneColumn, int zoneRow){

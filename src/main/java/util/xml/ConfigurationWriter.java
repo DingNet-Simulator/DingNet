@@ -167,11 +167,11 @@ public class ConfigurationWriter {
                 writer.writeEndElement();
 
                 writer.writeStartElement("location");
-                writer.writeStartElement("xPos");
-                writer.writeCharacters(Integer.toString((int) Math.round(environment.getMapHelper().toMapXCoordinate(gateway.getPos()))));
+                writer.writeStartElement("latitude");
+                writer.writeCharacters(String.valueOf(gateway.getPos().getLatitude()));
                 writer.writeEndElement();
-                writer.writeStartElement("yPos");
-                writer.writeCharacters(Integer.toString((int) Math.round(environment.getMapHelper().toMapYCoordinate(gateway.getPos()))));
+                writer.writeStartElement("longitude");
+                writer.writeCharacters(String.valueOf(gateway.getPos().getLongitude()));
                 writer.writeEndElement();
                 writer.writeEndElement();
 

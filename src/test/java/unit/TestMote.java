@@ -56,7 +56,7 @@ class TestMote {
         assertTrue(mote.getSensors().contains(MoteSensor.CARBON_DIOXIDE));
 
         assertTrue(mote.getPath().getWayPoints().isEmpty());
-        mote.setPath(List.of(new GeoPosition(10.5, 9.8), new GeoPosition(10.2, 9.8)));
+        mote.setPath(new ArrayList(List.of(new GeoPosition(10.5, 9.8), new GeoPosition(10.2, 9.8))));
         List<GeoPosition> wayPoints = mote.getPath().getWayPoints();
         assertEquals(wayPoints.size(), 2);
         assertEquals(wayPoints.get(0), new GeoPosition(10.5, 9.8));

@@ -402,7 +402,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         for (Gateway gateway : environment.getGateways()) {
             textArea = new JTextArea();
             textArea.append(String.format("Gateway %d:\n", environment.getGateways().indexOf(gateway) + 1));
-            textArea.append(String.format("EUID: %d\n", gateway.getEUI()));
+            textArea.append(String.format("EUID: %s\n", Long.toUnsignedString(gateway.getEUI())));
 
             double latitude = gateway.getPos().getLatitude();
             double longitude = gateway.getPos().getLongitude();
@@ -421,7 +421,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         for (Mote mote : environment.getMotes()) {
             textArea = new JTextArea();
             textArea.append(String.format("Mote %d:\n", environment.getMotes().indexOf(mote) + 1));
-            textArea.append(String.format("EUID: %d\n", mote.getEUI()));
+            textArea.append(String.format("EUID: %s\n", Long.toUnsignedString(mote.getEUI())));
 
             double latitude = mote.getPos().getLatitude();
             double longitude = mote.getPos().getLongitude();
@@ -986,7 +986,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             statistics.getAllReceivedTransmissions(gw.getEUI(), run).stream()
                 .filter(t -> t.getSender() == mote.getEUI())
                 .forEach(t -> {
-                    this.averageLatency = this.averageLatency + t.getContent().getPayload()[t.getContent().getPayload().length-1];
+                    this.averageLatency = this.averageLatency + t.getContent().getPayload()[t.getContent().getPayload().length-1]*t.getContent().getPayload()[t.getContent().getPayload().length-4]*5/100;
                     sentpacketsList.add(t.getDepartureTime());
                     if (t.isCollided()) {
                         lostpacketsList.add(t.getDepartureTime());

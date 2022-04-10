@@ -93,13 +93,13 @@
               <text value="&lt;html&gt;&lt;br&gt;Select free&lt;br&gt;or guided&lt;/html&gt;"/>
             </properties>
           </component>
-          <component id="eed10" class="javax.swing.JButton" binding="freeButton" default-binding="true">
+          <component id="eed10" class="javax.swing.JButton" binding="randomButton">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <enabled value="false"/>
-              <text value="Free"/>
+              <enabled value="true"/>
+              <text value="Random"/>
             </properties>
           </component>
         </children>

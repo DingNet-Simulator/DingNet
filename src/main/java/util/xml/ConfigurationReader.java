@@ -189,17 +189,31 @@ public class ConfigurationReader {
                 long devEUI = Long.parseUnsignedLong(reader.getElementText());
 
                 while(!reader.peek().isStartElement() ||
-                    !reader.peek().asStartElement().getName().getLocalPart().equals("xPos")){
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("xPos")&&
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("latitude")){
                     reader.nextEvent();
                 }
-                reader.nextEvent();
-                int xPos = Integer.parseInt(reader.getElementText());
+                boolean coordinates = false;
+                int xPos = 0;
+                if(reader.nextEvent().asStartElement().getName().getLocalPart().equals("xPos")){
+                     xPos = Integer.parseInt(reader.getElementText());
+                }else{
+                    latitude = Double.parseDouble(reader.getElementText());
+                    coordinates = true;
+                }
+
                 while(!reader.peek().isStartElement() ||
-                    !reader.peek().asStartElement().getName().getLocalPart().equals("yPos")){
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("yPos")&&
+                    !reader.peek().asStartElement().getName().getLocalPart().equals("longitude")){
                     reader.nextEvent();
                 }
-                reader.nextEvent();
-                int yPos = Integer.parseInt(reader.getElementText());
+                int yPos = 0;
+                if(reader.nextEvent().asStartElement().getName().getLocalPart().equals("yPos")){
+                    yPos = Integer.parseInt(reader.getElementText());
+                }else {
+                    longitude = Double.parseDouble(reader.getElementText());
+                }
+
                 while(!reader.peek().isStartElement() ||
                     !reader.peek().asStartElement().getName().getLocalPart().equals("transmissionPower")){
                     reader.nextEvent();
@@ -220,7 +234,11 @@ public class ConfigurationReader {
                 reader.nextEvent();
                 reader.nextEvent();
                 event = reader.nextEvent();
-                environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor, environment));
+                if(coordinates){
+                    environment.addGateway(new Gateway(devEUI,new GeoPosition(latitude,longitude),transmissionPower,spreadingFactor,environment));
+                }else {
+                    environment.addGateway(new Gateway(devEUI, xPos, yPos, transmissionPower, spreadingFactor, environment));
+                }
             }
 
 

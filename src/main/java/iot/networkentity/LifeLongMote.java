@@ -111,7 +111,7 @@ public class LifeLongMote extends Mote{
      */
     @Override
     public void sendToGateWay(LoraWanPacket packet) {
-        packetBuffer.add(new Pair<>(packet,getEnvironment().getClock().getTime()));
+        packetBuffer.add(new Pair<>(packet, getEnvironment().getClock().getTime()));
         transmit();
     }
 
@@ -130,7 +130,7 @@ public class LifeLongMote extends Mote{
     public void setExpirationTime(int value) {
         if(value > 0) {
             this.expirationTime = value;
-            packetBuffer = new ExpiringBuffer<>(getEnvironment().getClock(), expirationTime);
+            packetBuffer.setExpirationTime(expirationTime);
         }
     }
 

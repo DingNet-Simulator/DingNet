@@ -12,17 +12,17 @@ import java.util.*;
  */
 public class Path implements Iterable<GeoPosition> {
     // A list with waypoints of the path
-    private List<GeoPosition> points;
+    private ArrayList<GeoPosition> points;
 
     public Path(){
-        this.points = new LinkedList<>();
+        this.points = new ArrayList<>();
     }
 
     public Path(List<GeoPosition> points) {
-        this.points = new LinkedList<>(points);
+        this.points = new ArrayList<>(points);
     }
 
-    public List<GeoPosition> getWayPoints() {
+    public ArrayList<GeoPosition> getWayPoints() {
         return this.points;
     }
 
@@ -36,7 +36,7 @@ public class Path implements Iterable<GeoPosition> {
      * Set the path to a given list of positions.
      * @param positions The list of GeoPositions.
      */
-    public void setPath(List<GeoPosition> positions) {
+    public void setPath(ArrayList<GeoPosition> positions) {
         this.points = positions;
     }
 
@@ -75,8 +75,8 @@ public class Path implements Iterable<GeoPosition> {
     }
 
     public Optional<GeoPosition> getPoint(int actualPointIndex) {
-        if(actualPointIndex > -1)
-            return getWayPoints().stream().skip(actualPointIndex).findFirst();
+        if(actualPointIndex > -1 && actualPointIndex < getWayPoints().size())
+            return Optional.of(getWayPoints().get(actualPointIndex));
         else
             return Optional.empty();
     }

@@ -149,7 +149,7 @@ public class ConfigureConnectionsPanel extends AbstractConfigurePanel {
                     if (ConfigureConnectionsPanel.this.mode == Mode.ADD && firstWayPoint != secondWayPoint) {
                         graph.addConnection(new Connection(firstWayPoint, secondWayPoint));
                     } else if (ConfigureConnectionsPanel.this.mode == Mode.DELETE) {
-                        graph.deleteConnection(firstWayPoint, secondWayPoint, environment);
+                        graph.deleteConnection(firstWayPoint, secondWayPoint);
                     }
 
                     loadMap(true);

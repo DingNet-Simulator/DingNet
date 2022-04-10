@@ -12,6 +12,7 @@ import iot.mqtt.TransmissionWrapper;
 import iot.strategy.response.gateway.ResponseStrategy;
 import iot.strategy.response.gateway.SendPacketImmediately;
 import org.jfree.data.json.impl.JSONObject;
+import org.jxmapviewer.viewer.GeoPosition;
 import selfadaptation.instrumentation.MoteProbe;
 
 import java.util.LinkedList;
@@ -52,6 +53,32 @@ public class Gateway extends NetworkEntity {
         subscribedMoteProbes = new LinkedList<>();
         mqttClient = MQTTClientFactory.getSingletonInstance();
         this.responseStrategy = responseStrategy.init(this, environment);
+    }
+
+    /**
+     * A construtor creating a gateway with a given position, environment and transmission power.
+     * @param gatewayEUI        gateway identifier.
+     * @param position          The geoposition of the gateway on the map.
+     * @param transmissionPower The transmission power of the gateway.
+     * @param responseStrategy  strategy to enable response to mote
+     * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
+     */
+    public Gateway(long gatewayEUI, GeoPosition position, int transmissionPower, int SF, ResponseStrategy responseStrategy, Environment environment) {
+        super(gatewayEUI, position, transmissionPower, SF, 1.0, environment);
+        subscribedMoteProbes = new LinkedList<>();
+        mqttClient = MQTTClientFactory.getSingletonInstance();
+        this.responseStrategy = responseStrategy.init(this, environment);
+    }
+
+    /**
+     * A construtor creating a gateway with a given xPos, yPos, environment and transmission power.
+     * @param gatewayEUI        gateway identifier.
+     * @param position          The geoposition of the gateway on the map.
+     * @param transmissionPower The transmission power of the gateway.
+     * @Effect creates a gateway with a given name, xPos, yPos, environment and transmission power.
+     */
+    public Gateway(long gatewayEUI, GeoPosition position, int transmissionPower, int SF, Environment environment) {
+        this(gatewayEUI, position, transmissionPower, SF, new SendPacketImmediately(), environment);
     }
 
     /**

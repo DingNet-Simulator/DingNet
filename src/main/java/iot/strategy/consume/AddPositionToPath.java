@@ -5,6 +5,7 @@ import iot.networkentity.Mote;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,12 +22,12 @@ public class AddPositionToPath implements ConsumePacketStrategy {
         mote.getPath().addPositions(extractPath(packet));
     }
 
-    protected List<GeoPosition> extractPath(LoraWanPacket packet) {
+    protected ArrayList<GeoPosition> extractPath(LoraWanPacket packet) {
         if ((packet.getPayload().length % BYTES_FOR_GEO_COORDINATE) != 0) {
             throw new IllegalStateException("the packet doesn't contain the correct amount of byte");
         }
         var payload = packet.getPayload();
-        final List<GeoPosition> path = new LinkedList<>();
+        final ArrayList<GeoPosition> path = new ArrayList<>();
         for (int i = 0; i + BYTES_FOR_GEO_COORDINATE <= payload.length; i += BYTES_FOR_GEO_COORDINATE) {
             path.add(Converter.toGeoPosition(payload, i));
         }

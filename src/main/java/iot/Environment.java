@@ -133,12 +133,28 @@ public class Environment implements Serializable {
         return numberOfZones;
     }
 
+    public boolean isvalidNumberOfZones(int numberOfZones){
+        return numberOfZones == nearestValidNumberOfZones(numberOfZones);
+    }
+
+    public int nearestValidNumberOfZones(int numberOfZones){
+        int closestRoot = (int) Math.sqrt(numberOfZones);
+        return closestRoot * closestRoot;
+    }
+
     /**
      * Sets the number of zones.
      * @param numberOfZones the number of zones.
      */
     public void setNumberOfZones(int numberOfZones) {
-        this.numberOfZones = numberOfZones;
+        if(numberOfZones > getNumberOfZones()) {
+            if (isvalidNumberOfZones(numberOfZones)) {
+                this.numberOfZones = numberOfZones;
+            } else {
+                this.numberOfZones = nearestValidNumberOfZones(numberOfZones);
+            }
+            characteristics.setNumberOfzones((int)Math.sqrt(getNumberOfZones()),(int)Math.sqrt(getNumberOfZones()));
+        }
     }
 
 

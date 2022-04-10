@@ -177,6 +177,7 @@ public class Simulation {
 
 
     private void setupSimulation(Predicate<Environment> pred) {
+        Random random = new Random();
         this.timeMap = new HashMap<>();
 
         setupMotesActivationStatus();
@@ -201,7 +202,7 @@ public class Simulation {
                         .flatMap(s -> s.getValueAsList(getEnvironment(),mote.getPathPosition(), this.getEnvironment().getClock().getTime()).stream())
                         .toArray(Byte[]::new),
                     new HashMap<>());
-                return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());
+                return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());//+ (long)(mote.getPeriodSendingPacket()* random.nextGaussian()*0.5));
             });
         });
 

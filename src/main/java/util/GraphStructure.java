@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class GraphStructure {
     private Map<Long, GeoPosition> wayPoints;
     private Map<Long, Connection> connections;
+    private Map<Long,List<Long>> outgoing;
 
     private long newWayPointID;
     private long newConnectionID;
@@ -27,6 +28,7 @@ public class GraphStructure {
     private void init(Map<Long, GeoPosition> wayPoints, Map<Long, Connection> connections) {
         this.wayPoints = wayPoints;
         this.connections = connections;
+        this.outgoing = new HashMap<>();
 
         newWayPointID = wayPoints.keySet().stream()
             .max(Long::compare)
@@ -34,6 +36,14 @@ public class GraphStructure {
         newConnectionID = connections.keySet().stream()
             .max(Long::compare)
             .orElse(0L) + 1;
+
+        wayPoints.keySet().stream().forEach(id -> {
+            outgoing.put(id, new ArrayList<>());
+        });
+
+        connections.entrySet().stream().forEach(entry -> {
+            outgoing.get(entry.getValue().getFrom()).add(entry.getKey());
+        });
     }
 
 
@@ -74,6 +84,7 @@ public class GraphStructure {
         if (id >= this.newWayPointID) {
             this.newWayPointID = id + 1;
         }
+        outgoing.put(id,new ArrayList<>());
     }
 
 
@@ -96,6 +107,7 @@ public class GraphStructure {
         if (id >= this.newConnectionID) {
             this.newConnectionID = id + 1;
         }
+        outgoing.get(connection.getFrom()).add(id);
     }
 
 
@@ -177,8 +189,7 @@ public class GraphStructure {
      * @return A list of connections which all start at {@code wayPointId}.
      */
     public List<Connection> getOutgoingConnections(long wayPointId) {
-        return connections.values().stream()
-            .filter(c -> c.getFrom() == wayPointId)
+        return outgoing.get(wayPointId).stream().map(id -> getConnection(id))
             .collect(Collectors.toList());
     }
 
@@ -189,15 +200,12 @@ public class GraphStructure {
      * @return A list of connection Ids which all start at {@code wayPointId}.
      */
     public List<Long> getOutgoingConnectionsById(long wayPointId) {
-        return connections.entrySet().stream()
-            .filter(c -> c.getValue().getFrom() == wayPointId)
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
+        return outgoing.get(wayPointId);
     }
 
     public List<GeoPosition> getWaypointsWithTwoConnections(){
         Map<Long, Long> waypointMap = connections.values().stream()
-            .map(c -> c.getFrom())
+            .map(Connection::getFrom)
             .collect(Collectors.toMap(Function.identity(), v -> 1L, Long::sum));
         return waypointMap.entrySet().stream().filter(entry-> entry.getValue() != 2).map(entry -> getWayPoint(entry.getKey())).collect(Collectors.toList());
     }
@@ -242,6 +250,7 @@ public class GraphStructure {
         for (var conn : connToDelete) {
             connections.remove(conn);
         }
+        outgoing.remove(wayPointId);
     }
 
 
@@ -250,9 +259,9 @@ public class GraphStructure {
      * Note: this also shortens the paths of motes which make use of this connection.
      * @param fromWayPointId The waypoint Id at which the connection starts.
      * @param toWayPointId The waypoint Id at which the connection ends.
-     * @param environment The environment of the simulation.
+     *
      */
-    public void deleteConnection(long fromWayPointId, long toWayPointId, Environment environment) {
+    public void deleteConnection(long fromWayPointId, long toWayPointId) {
         var possibleConnections = connections.entrySet().stream()
             .filter(o -> o.getValue().getTo() == toWayPointId && o.getValue().getFrom() == fromWayPointId)
             .map(Map.Entry::getKey)
@@ -263,6 +272,7 @@ public class GraphStructure {
         }
         assert possibleConnections.size() == 1;
 
+        outgoing.get(connections.get(possibleConnections.get(0)).getFrom()).remove(possibleConnections.get(0));
         connections.remove(possibleConnections.get(0));
     }
 }

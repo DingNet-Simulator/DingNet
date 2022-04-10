@@ -31,9 +31,10 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
     private JLabel errorLabel;
     private JButton cancelButton;
     private JButton guidedButton;
-    private JButton freeButton;
+    private JButton randomButton;
 
     private List<Long> currentWayPoints;
+    private List<Connection> connections;
     private GraphStructure graph;
 
     private Mote currentMote = null;
@@ -56,8 +57,30 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
                     "waypoint<br>along the path<br><br>3.<br>Continue<br>selecting<br>waypoints<br>until the end<br>of " +
                     "the path<br><br>4. Save the<br>path</html>");
         });
-        freeButton.addActionListener(e ->
-            JOptionPane.showMessageDialog(null, "Only guided path configuration is supported for now.", "Notification", JOptionPane.ERROR_MESSAGE)
+        randomButton.addActionListener(e -> {
+            if (currentWayPoints.size() == 0) {
+                JOptionPane.showMessageDialog(null,"Select a mote first","Notification",JOptionPane.ERROR_MESSAGE);
+            } else {
+                int choices = Integer.parseInt(JOptionPane.showInputDialog(null, "How many intersections do you want the random walk to consist of?", "Notification", JOptionPane.QUESTION_MESSAGE));
+            for(int i = 0; i < choices; i++){
+                List<Pair<LinkedList<Long>,GeoPosition>> options = new ArrayList<>(endWaypoints.values());
+                Collections.shuffle(options);
+                LinkedList<Long> choice = options.get(0).getLeft();
+                int j = 0;
+                while(currentWayPoints.contains(choice.getLast()) && j < options.size()) {
+                    Collections.shuffle(options);
+                    choice = options.get(0).getLeft();
+                    j++;
+                }
+
+                currentWayPoints.addAll(choice.subList(1,choice.size()));
+                computePossiblePaths();
+
+                }
+                loadMap(true);
+                repaintPath();
+            }
+            }
         );
 
         loadMap(false);
@@ -150,61 +173,9 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
                 if (currentWayPoints.size() == 0) {
                     return;
                 }
+                computePossiblePaths();
+                repaintPath();
 
-                painter.addPainter(
-                    new LinePainter(currentWayPoints.stream().map(graph::getWayPoint).collect(Collectors.toList()), Color.RED, 1)
-                );
-
-
-                List<Connection> connections = graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size() - 1));
-
-                Long currentWaypoint = currentWayPoints.get(currentWayPoints.size()-1);
-                Long initialWaypoint = currentWaypoint;
-                LinkedList<Long> previousWaypoints = new LinkedList<>();
-                int connectionIndex = 0;
-                List<Connection> originalConnections = new ArrayList<>(connections);
-                Connection connection = originalConnections.get(connectionIndex);
-                endWaypoints = new HashMap<>();
-
-                while(connectionIndex < originalConnections.size()){
-                    previousWaypoints.add(currentWaypoint);
-
-                    currentWaypoint = connection.getTo();
-
-                    if (graph.getOutgoingConnections(currentWaypoint).size() == 2) {
-                        if(graph.getOutgoingConnections(currentWaypoint).get(0).getTo() != previousWaypoints.getLast()){
-                            connections.add(graph.getOutgoingConnections(currentWaypoint).get(0));
-                            connection = graph.getOutgoingConnections(currentWaypoint).get(0);
-                        } else {
-                            connections.add(graph.getOutgoingConnections(currentWaypoint).get(1));
-                            connection = graph.getOutgoingConnections(currentWaypoint).get(1);
-                        }
-                    }else{
-                        previousWaypoints.add(currentWaypoint);
-                        endWaypoints.put(originalConnections.get(connectionIndex).getTo(), new Pair<>(previousWaypoints,graph.getWayPoint(currentWaypoint)));
-                        connectionIndex ++;
-                        if(connectionIndex < originalConnections.size()){
-                            connection = originalConnections.get(connectionIndex);
-                        }
-                        currentWaypoint = initialWaypoint;
-                        previousWaypoints = new LinkedList<>();
-                    }
-                }
-
-                // Filter out the previous connection, in case at least one connection has already been made
-                if (currentWayPoints.size() > 1) {
-                    saveTrackButton.setEnabled(true);
-                    connections = connections.stream()
-                        .filter(o -> o.getTo() != currentWayPoints.get(currentWayPoints.size() - 2))
-                        .collect(Collectors.toList());
-                }
-
-                for (var con : connections) {
-                    painter.addPainter(
-                        new LinePainter(List.of(graph.getWayPoint(con.getFrom()), graph.getWayPoint(con.getTo())), Color.GREEN, 2)
-                    );
-                }
-                mapViewer.setOverlayPainter(painter);
 
             }
         }
@@ -223,6 +194,67 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
 
         @Override
         public void mouseExited(MouseEvent e) {
+        }
+    }
+
+    private void repaintPath(){
+        painter.addPainter(
+            new LinePainter(currentWayPoints.stream().map(graph::getWayPoint).collect(Collectors.toList()), Color.RED, 1)
+        );
+
+
+
+
+        for (var con : connections) {
+            painter.addPainter(
+                new LinePainter(List.of(graph.getWayPoint(con.getFrom()), graph.getWayPoint(con.getTo())), Color.GREEN, 2)
+            );
+        }
+        mapViewer.setOverlayPainter(painter);
+    }
+
+    private void computePossiblePaths(){
+        connections = graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size() - 1));
+
+        Long currentWaypoint = currentWayPoints.get(currentWayPoints.size()-1);
+        Long initialWaypoint = currentWaypoint;
+        LinkedList<Long> previousWaypoints = new LinkedList<>();
+        int connectionIndex = 0;
+        List<Connection> originalConnections = new ArrayList<>(connections);
+        Connection connection = originalConnections.get(connectionIndex);
+        endWaypoints = new HashMap<>();
+
+        while(connectionIndex < originalConnections.size()){
+            previousWaypoints.add(currentWaypoint);
+
+            currentWaypoint = connection.getTo();
+
+            if (graph.getOutgoingConnections(currentWaypoint).size() == 2) {
+                if(graph.getOutgoingConnections(currentWaypoint).get(0).getTo() != previousWaypoints.getLast()){
+                    connections.add(graph.getOutgoingConnections(currentWaypoint).get(0));
+                    connection = graph.getOutgoingConnections(currentWaypoint).get(0);
+                } else {
+                    connections.add(graph.getOutgoingConnections(currentWaypoint).get(1));
+                    connection = graph.getOutgoingConnections(currentWaypoint).get(1);
+                }
+            }else{
+                previousWaypoints.add(currentWaypoint);
+                endWaypoints.put(originalConnections.get(connectionIndex).getTo(), new Pair<>(previousWaypoints,graph.getWayPoint(currentWaypoint)));
+                connectionIndex ++;
+                if(connectionIndex < originalConnections.size()){
+                    connection = originalConnections.get(connectionIndex);
+                }
+                currentWaypoint = initialWaypoint;
+                previousWaypoints = new LinkedList<>();
+            }
+        }
+
+        // Filter out the previous connection, in case at least one connection has already been made
+        if (currentWayPoints.size() > 1) {
+            saveTrackButton.setEnabled(true);
+            connections = connections.stream()
+                .filter(o -> o.getTo() != currentWayPoints.get(currentWayPoints.size() - 2))
+                .collect(Collectors.toList());
         }
     }
 
@@ -301,10 +333,10 @@ public class ConfigurePathPanel extends AbstractConfigurePanel {
         errorLabel = new JLabel();
         errorLabel.setText("<html><br>Select free<br>or guided</html>");
         panel1.add(errorLabel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        freeButton = new JButton();
-        freeButton.setEnabled(false);
-        freeButton.setText("Free");
-        panel1.add(freeButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        randomButton = new JButton();
+        randomButton.setEnabled(false);
+        randomButton.setText("Free");
+        panel1.add(randomButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

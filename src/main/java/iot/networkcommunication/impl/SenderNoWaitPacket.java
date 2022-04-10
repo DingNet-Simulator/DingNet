@@ -35,10 +35,12 @@ public class SenderNoWaitPacket implements Sender {
      */
     private final Random random = new Random();
 
+
     public SenderNoWaitPacket(NetworkEntity sender, Environment environment) {
         reset();
         this.env = environment;
         this.sender = sender;
+
     }
 
 
@@ -124,14 +126,14 @@ public class SenderNoWaitPacket implements Sender {
      * @return the transmission
      */
     private double moveTo(double xPos, double yPos, double transmissionPower) {
+
         double senderX = env.getMapHelper().toMapXCoordinate(sender.getPos());
         double senderY = env.getMapHelper().toMapYCoordinate(sender.getPos());
-        double xDist = Math.abs(xPos - senderX);
-        double yDist = Math.abs(yPos - senderY);
+        int xDist = (int) Math.round(Math.abs(xPos - senderX));
+        int yDist = (int) Math.round(Math.abs(yPos - senderY));
         int xDir;
         int yDir;
         Characteristic characteristic = null;
-
         while (transmissionPower > -300 && xDist + yDist > 0) {
             xDist = (int) Math.round(Math.abs(xPos - senderX));
             yDist = (int) Math.round(Math.abs(yPos - senderY));
@@ -159,6 +161,7 @@ public class SenderNoWaitPacket implements Sender {
                     yPos = yPos - yDir;
                 }
             }
+
 
         }
         return transmissionPower - random.nextGaussian() * ((characteristic == null) ? env.getCharacteristic(xPos, yPos) : characteristic).getShadowFading();

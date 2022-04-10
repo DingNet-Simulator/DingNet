@@ -195,7 +195,7 @@ public class Mote extends NetworkEntity {
         this.path = path;
     }
 
-    public void setPath(List<GeoPosition> positions) {
+    public void setPath(ArrayList<GeoPosition> positions) {
         this.path.setPath(positions);
     }
 
