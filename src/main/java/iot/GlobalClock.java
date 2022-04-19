@@ -80,7 +80,8 @@ public class GlobalClock {
             if (containsTriggers(time)) {
                 triggers.get(time).add(0, trigger);
             } else {
-                List<Trigger> newTriggers = new ArrayList<>(List.of(trigger));
+                List<Trigger> newTriggers = new ArrayList<>();
+                newTriggers.add(trigger);
                 triggers.put(time, newTriggers);
             }
         }

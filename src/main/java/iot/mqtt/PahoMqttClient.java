@@ -5,10 +5,7 @@ import iot.lora.BasicFrameHeader;
 import iot.lora.EU868ParameterByDataRate;
 import iot.lora.FrameHeader;
 import iot.lora.RegionalParameter;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,18 +19,18 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
  */
 public class PahoMqttClient implements MqttClientBasicApi {
 
-    private MqttClient mqttClient;
+    private MqttAsyncClient mqttClient;
     private Gson gson;
     private Map<String, List<MqttMessageConsumer>> subscribed = new HashMap<>();
 
     public PahoMqttClient() {
-        this("tcp://localhost:1883", "testFenomeno1995");
+        this("tcp://localhost:1883", MqttAsyncClient.generateClientId());
     }
 
     public PahoMqttClient(@NotNull String address, @NotNull String clientId) {
         gson = addAdapters(new GsonBuilder()).create();
         try {
-            mqttClient = new MqttClient(address, clientId, new MemoryPersistence());
+            mqttClient = new MqttAsyncClient(address, clientId, new MemoryPersistence());
             connect();
         } catch (MqttException e) {
             e.printStackTrace();
@@ -69,22 +66,47 @@ public class PahoMqttClient implements MqttClientBasicApi {
 
     @Override
     public void connect() {
+        subscribed.clear();
         var opt = new MqttConnectOptions();
         opt.setCleanSession(true);
-        if (!mqttClient.isConnected()) {
-            try {
-                mqttClient.connect(opt);
-            } catch (MqttException e) {
+        opt.setMaxInflight(50);
+        int errorCode = 0;
+
+        try {
+                System.out.println("reconnecting");
+                IMqttToken token = mqttClient.connect(opt);
+                token.waitForCompletion();
+                System.out.println("connected");
+
+        } catch (MqttException e) {
+                errorCode = e.getReasonCode();
                 e.printStackTrace();
+        }
+
+        while(!mqttClient.isConnected()) {
+            if(errorCode != 32110) {
+                try {
+                    System.out.println("reconnecting");
+                    IMqttToken token = mqttClient.connect(opt);
+                    token.waitForCompletion();
+                    System.out.println("connected");
+
+                } catch (MqttException e) {
+                    errorCode = e.getReasonCode();
+                    e.printStackTrace();
+                }
             }
         }
+
+
     }
 
     @Override
     public void disconnect() {
         try {
             if (mqttClient.isConnected()) {
-                mqttClient.disconnect();
+                IMqttToken token = mqttClient.disconnect();
+                token.waitForCompletion();
             }
             subscribed.clear();
         } catch (MqttException e) {
@@ -93,16 +115,22 @@ public class PahoMqttClient implements MqttClientBasicApi {
     }
 
     @Override
-    public void publish(String topic, MqttMessageType message) {
+    public boolean publish(String topic, MqttMessageType message) {
         var msg = new MqttMessage(gson.toJson(message).getBytes(US_ASCII));
+        msg.setQos(2);
+        boolean reconnected = false;
         try {
-            if (!mqttClient.isConnected()) {
-                connect();
-            }
-            mqttClient.publish(topic, msg);
+            IMqttDeliveryToken token = mqttClient.publish(topic, msg);
+            token.waitForCompletion();
+
         } catch (MqttException e) {
             e.printStackTrace();
+
+            connect();
+            reconnected = true;
         }
+
+        return reconnected;
     }
 
     @Override
@@ -110,7 +138,7 @@ public class PahoMqttClient implements MqttClientBasicApi {
         if (!subscribed.containsKey(topicFilter)) {
             subscribed.put(topicFilter, new LinkedList<>());
             try {
-                mqttClient.subscribe(topicFilter, (topic, msg) -> subscribed.get(topicFilter).forEach(c -> c.accept(topic, msg.toString())));
+                mqttClient.subscribe(topicFilter, 2,(topic, msg) -> subscribed.get(topicFilter).forEach(c -> c.accept(topic, msg.toString())));
             } catch (MqttException e) {
                 e.printStackTrace();
             }

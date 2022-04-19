@@ -26,6 +26,8 @@ import util.xml.*;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -219,7 +221,7 @@ public class SimulationRunner {
 
                 // Visualize every x seconds
                 if (simulationStep++ % (updateFrequency.intValue() * 1000) == 0) {
-                    listener.update();
+                    listener.update(simulation.getEnvironment().getClock().getTime(),simulation.getInputProfile().get().getSimulationDuration(), simulation.getInputProfile().get().getTimeUnit());
                 }
             }
 

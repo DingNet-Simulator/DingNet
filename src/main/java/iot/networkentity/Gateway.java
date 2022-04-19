@@ -106,7 +106,12 @@ public class Gateway extends NetworkEntity {
         if (SimulationRunner.getInstance().getEnvironment().getMotes().stream()
             .anyMatch(m -> m.getEUI() == packet.getSenderEUI())) {
             var message = new TransmissionWrapper(transmission);
-            mqttClient.publish(Topics.getGatewayToNetServer(packet.getReceiverEUI(), getEUI(), packet.getSenderEUI()), message);
+            boolean reconnected =mqttClient.publish(Topics.getGatewayToNetServer(packet.getReceiverEUI(), getEUI(), packet.getSenderEUI()), message);
+            if(reconnected){
+                System.out.println("reconnected");
+                getEnvironment().getGateways().forEach(Gateway::subscribeToMotes);
+            }
+
             for (MoteProbe moteProbe : getSubscribedMoteProbes()) {
                 moteProbe.trigger(this, packet.getSenderEUI());
             }
@@ -133,5 +138,9 @@ public class Gateway extends NetworkEntity {
 
     public MqttClientBasicApi getMqttClient() {
         return mqttClient;
+    }
+
+    public void subscribeToMotes(){
+        responseStrategy.init(this, getEnvironment());
     }
 }

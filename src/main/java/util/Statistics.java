@@ -28,7 +28,7 @@ public class Statistics {
     private Statistics() {
         powerSettingHistory = new HashMap<>();
         spreadingFactorHistory = new HashMap<>();
-        receivedTransmissions = new HashMap<>();
+        receivedTransmissions = Collections.synchronizedMap(new HashMap<>());
         sentTransmissions = new HashMap<>();
     }
 
@@ -57,11 +57,13 @@ public class Statistics {
     }
 
     public void addReceivedTransmissionsEntry(long networkEntity, LoraTransmission entry) {
-        if (!receivedTransmissions.containsKey(networkEntity)) {
-            receivedTransmissions.put(networkEntity, new LinkedHashSet<>());
+        synchronized (receivedTransmissions) {
+            if (!receivedTransmissions.containsKey(networkEntity)) {
+                receivedTransmissions.put(networkEntity, new LinkedHashSet<>());
+            }
+            var lists = receivedTransmissions.get(networkEntity);
+            lists.add(new LoraTransmissionDataPoint(runNumber, entry));
         }
-        var lists = receivedTransmissions.get(networkEntity);
-        lists.add(new LoraTransmissionDataPoint(runNumber, entry));
     }
 
     public void addSentTransmissionsEntry(NetworkEntity networkEntity, LoraTransmission entry) {
@@ -116,7 +118,9 @@ public class Statistics {
     }
 
     public LinkedHashSet<LoraTransmissionDataPoint> getReceivedTransmissions(long networkEntity) {
-        return receivedTransmissions.get(networkEntity);
+        synchronized (receivedTransmissions) {
+            return receivedTransmissions.get(networkEntity);
+        }
     }
 
     public List<LoraTransmission> getReceivedTransmissions(long eui, int run) {

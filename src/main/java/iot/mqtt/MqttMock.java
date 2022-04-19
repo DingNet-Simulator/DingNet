@@ -31,8 +31,9 @@ public class MqttMock implements MqttClientBasicApi {
     }
 
     @Override
-    public void publish(String topic, MqttMessageType message) {
+    public boolean publish(String topic, MqttMessageType message) {
         broker.publish(topic, message);
+        return false;
     }
 
     @Override

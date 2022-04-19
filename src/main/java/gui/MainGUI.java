@@ -33,6 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -1024,6 +1025,16 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
             ex.printStackTrace();
         }
         this.setEnabledRunButtons(true);
+    }
+
+    @Override
+    public void update(LocalDateTime time, long simulationDuration, ChronoUnit timeUnit) {
+        try {
+            SwingUtilities.invokeAndWait(this::refreshMap);
+        } catch (InterruptedException | InvocationTargetException ex) {
+            ex.printStackTrace();
+        }
+        setProgressTotalRun(new Pair<>((int) (time.toEpochSecond(ZoneOffset.UTC)/60), (int) (simulationDuration*timeUnit.getDuration().toMinutes())));
     }
 
 

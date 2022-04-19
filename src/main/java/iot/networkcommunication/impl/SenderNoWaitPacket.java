@@ -120,23 +120,25 @@ public class SenderNoWaitPacket implements Sender {
 
     /**
      * Moves a transmission to a given position, while adapting the transmission power.
-     * @param xPos  The x-coordinate of the destination.
-     * @param yPos  The y-coordinate of the destination.
+     * @param xDestPos  The x-coordinate of the destination.
+     * @param yDestPos  The y-coordinate of the destination.
      * @param transmissionPower the initial transmission power
      * @return the transmission
      */
-    private double moveTo(double xPos, double yPos, double transmissionPower) {
+    private double moveTo(double xDestPos, double yDestPos, double transmissionPower) {
 
-        double senderX = env.getMapHelper().toMapXCoordinate(sender.getPos());
-        double senderY = env.getMapHelper().toMapYCoordinate(sender.getPos());
-        int xDist = (int) Math.round(Math.abs(xPos - senderX));
-        int yDist = (int) Math.round(Math.abs(yPos - senderY));
+        int xPos = (int) Math.round(xDestPos);
+        int yPos = (int) Math.round(yDestPos);
+        int senderX = (int) Math.round(env.getMapHelper().toMapXCoordinate(sender.getPos()));
+        int senderY = (int) Math.round(env.getMapHelper().toMapYCoordinate(sender.getPos()));
+        int xDist = Math.abs(xPos - senderX);
+        int yDist = Math.abs(yPos - senderY);
         int xDir;
         int yDir;
         Characteristic characteristic = null;
         while (transmissionPower > -300 && xDist + yDist > 0) {
-            xDist = (int) Math.round(Math.abs(xPos - senderX));
-            yDist = (int) Math.round(Math.abs(yPos - senderY));
+            xDist = Math.abs(xPos - senderX);
+            yDist = Math.abs(yPos - senderY);
             xDir = (int) Math.signum(xPos - senderX);
             yDir = (int) Math.signum(yPos - senderY);
             characteristic = env.getCharacteristic(xPos, yPos);

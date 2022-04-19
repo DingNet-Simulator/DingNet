@@ -22,7 +22,7 @@ public interface MqttClientBasicApi {
      * @param topic the message topic
      * @param message the message
      */
-    void publish(String topic, MqttMessageType message);
+    boolean publish(String topic, MqttMessageType message);
 
     /**
      * Subscribe to all the topic that start with topicFilter

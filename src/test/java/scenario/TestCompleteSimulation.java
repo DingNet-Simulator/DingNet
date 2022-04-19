@@ -10,6 +10,8 @@ import util.MutableInteger;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,6 +44,9 @@ public class TestCompleteSimulation {
 
                 assertEquals(mote.getPos(), new GeoPosition(50.859172,4.688349));
             }
+
+            @Override
+            public void update(LocalDateTime time, long simulationDuration, ChronoUnit timeUnit) {}
         });
 
     }
