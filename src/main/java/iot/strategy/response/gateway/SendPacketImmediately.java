@@ -35,12 +35,16 @@ public class SendPacketImmediately implements ResponseStrategy {
                 Topics.getNetServerToGateway(m.getLeft(), gateway.getEUI(), m.getRight()),
                 LoraWanPacketWrapper.class,
                 (t, msg) -> {
-                    System.out.println("reacting");
                     environment.getClock().addTriggerOneShot(environment.getClock().getTime().plusSeconds(1), ()-> {if (!gateway.getSender().isTransmitting()) {
                         gateway.sendToDevice(msg.getPacket());
-                    }});
-                }
-            ));
+                    }
+                    else{environment.getClock().addTriggerOneShot(gateway.getSender().getCurrentTransmittingTime(),
+                        () -> {
+                        if (!gateway.getSender().isTransmitting()) {
+                            gateway.sendToDevice(msg.getPacket());
+                        }
+                        });}
+                    });}));
     }
 
     @Override

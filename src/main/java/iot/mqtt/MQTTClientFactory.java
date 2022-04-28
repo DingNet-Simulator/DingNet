@@ -8,9 +8,9 @@ import util.SettingsReader;
 public class MQTTClientFactory {
 
     public enum MqttClientType {
-        PAHO, MOCK
+        PAHO, MOCK, SOCKET
     }
-    private static MqttClientType DEFAULT_INSTANCE_TYPE = MqttClientType.PAHO;
+    private static MqttClientType DEFAULT_INSTANCE_TYPE = MqttClientType.SOCKET;
     private static MqttClientBasicApi clientBasicApi;
 
     /**
@@ -25,6 +25,9 @@ public class MQTTClientFactory {
                 } break;
                 case MOCK: {
                     clientBasicApi = createMockClient();
+                } break;
+                case SOCKET: {
+                    clientBasicApi = createSocketClient();
                 } break;
             }
         }
@@ -45,5 +48,13 @@ public class MQTTClientFactory {
      */
     public static PahoMqttClient createPahoClient() {
         return new PahoMqttClient();
+    }
+
+    /**
+     *
+     * @return a new instance of a mock {@link MqttClientBasicApi}
+     */
+    public static SocketMqttClient createSocketClient() {
+        return new SocketMqttClient();
     }
 }

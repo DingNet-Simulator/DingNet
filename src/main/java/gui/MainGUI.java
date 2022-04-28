@@ -1481,8 +1481,8 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         label20.setText("Speed:");
         toolBarSingleRun.add(label20);
         speedSlider = new JSlider();
-        speedSlider.setMajorTickSpacing(3);
-        speedSlider.setMaximum(5);
+        speedSlider.setMajorTickSpacing(5);
+        speedSlider.setMaximum(20);
         speedSlider.setMinimum(1);
         speedSlider.setMinorTickSpacing(1);
         speedSlider.setOpaque(false);

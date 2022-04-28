@@ -147,6 +147,6 @@ public class LifeLongMote extends Mote{
     public void adjustSettings(MoteSettings settings) {
         setTransmittingInterval(Math.max(5,getTransmittingInterval()+settings.getTransmissionInterval()));
         setTransmissionPower(Math.min(14,Math.max(0,getTransmissionPower()+settings.getTransmissionPower())));
-        setExpirationTime(Math.max(5,getTransmittingInterval()+settings.getExpirationTime()));
+        setExpirationTime(Math.max(5,getExpirationTime()+settings.getExpirationTime()));
     }
 }

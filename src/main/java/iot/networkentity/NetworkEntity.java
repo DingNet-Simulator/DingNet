@@ -32,10 +32,8 @@ public abstract class NetworkEntity implements Serializable {
     // An unsinged long representing the 64 bit unique identifier.
     private final long EUI;
 
+    private boolean record = false;
 
-    // NOTE: The x and y coordinates below (in double format) are NOT geo coordinates
-    //       Rather, they represent the (x,y) coordinates of the grid of the environment (specified in configuration files)
-    // FIXME: adjust the simulator to completely use geographical coordinates
     private GeoPosition pos;
 
     protected GeoPosition initialPosition;
@@ -133,7 +131,9 @@ public abstract class NetworkEntity implements Serializable {
      * @param transmission The transmission to receive.
      */
     private void receive(LoraTransmission transmission) {
-        Statistics.getInstance().addReceivedTransmissionsEntry(this.getEUI(), transmission);
+        if(record) {
+            Statistics.getInstance().addReceivedTransmissionsEntry(this.getEUI(), transmission);
+        }
         if (!transmission.isCollided()) {
             handleMacCommands(transmission.getContent());
             OnReceive(transmission);
@@ -274,10 +274,12 @@ public abstract class NetworkEntity implements Serializable {
         if(!sender.isTransmitting()) {
             sender.send(message, recs)
                 .ifPresent(t -> {
-                    Statistics statistics = Statistics.getInstance();
-                    statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toEpochSecond(ZoneOffset.UTC), getTransmissionPower());
-                    statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
-                    statistics.addSentTransmissionsEntry(this.getEUI(), t);
+                    if(record) {
+                        Statistics statistics = Statistics.getInstance();
+                        statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toEpochSecond(ZoneOffset.UTC), getTransmissionPower());
+                        statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
+                        statistics.addSentTransmissionsEntry(this.getEUI(), t);
+                    }
                 });
         }else{
             environment.getClock().addTriggerOneShot(sender.getCurrentTransmittingTime(),() ->this.send(message));

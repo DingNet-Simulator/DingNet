@@ -5,17 +5,14 @@ import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.mqtt.*;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BinaryOperator;
 
 public class NetworkServer {
 
     // Map moteId -> (Map gatewayId -> lastTransmission)
     private final Map<Long, Map<Long, LoraTransmission>> transmissionReceived;
-    private final Map<Long, List<LoraTransmission>> historyMote;
+    private final Map<Long, History<LoraTransmission>> historyMote;
     private final MqttClientBasicApi mqttClient;
     private BinaryOperator<Map.Entry<Long, LoraTransmission>> chooseGatewayStrategy = this::chooseByTransmissionPower;
     private short frameCounter;
@@ -57,11 +54,11 @@ public class NetworkServer {
                 //add trans to map with all check
                 if (!transmissionReceived.containsKey(moteId)) {
                     transmissionReceived.put(moteId, new HashMap<>());
-                    historyMote.put(moteId, new LinkedList<>());
+                    historyMote.put(moteId, new History<>(200));
                 }
                 transmissionReceived.get(moteId).put(gatewayId, transmission);
                 //check if packet is duplicated (is not send to app)
-                if (historyMote.get(moteId).stream().noneMatch(t -> t.equals(transmission))) {
+                if (historyMote.get(moteId).getList().stream().noneMatch(t -> t.equals(transmission))) {
                     mqttClient.publish(Topics.getNetServerToApp(transmission.getContent().getReceiverEUI(), moteId), msg);
                 }
                 historyMote.get(moteId).add(transmission);
@@ -107,5 +104,37 @@ public class NetworkServer {
 
         subscribeToGateways();
         subscribeToApps();
+    }
+
+    private class History<T>{
+        private int size;
+        private int currentIndex;
+        private ArrayList<T> list;
+        boolean firstIteration;
+
+        public History(int size){
+            this.size = size;
+            this.currentIndex = 0;
+            this.list = new ArrayList<>(size);
+            this.firstIteration = true;
+        }
+        public void add(T elem){
+            if(firstIteration){
+                list.add(elem);
+            }else {
+                list.add(currentIndex,elem);
+            }
+            currentIndex ++;
+            if(currentIndex == size){
+                currentIndex = 0;
+                if(firstIteration){
+                    firstIteration = false;
+                }
+            }
+        }
+
+        public List<T> getList(){
+            return list;
+        }
     }
 }
