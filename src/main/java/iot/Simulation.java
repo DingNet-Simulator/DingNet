@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 public class Simulation {
 
     // region fields
+
+    private final Random random;
     /**
      * The InputProfile used in the simulation.
      */
@@ -47,7 +49,9 @@ public class Simulation {
 
     // region constructors
 
-    public Simulation() {}
+    public Simulation(Random random) {
+        this.random = random;
+    }
 
     // endregion
 
@@ -129,7 +133,7 @@ public class Simulation {
             double activityProbability = 1;
             if (moteProbabilities.contains(i))
                 activityProbability = this.inputProfile.getProbabilityForMote(i);
-            if (Math.random() >= 1 - activityProbability)
+            if (random.nextDouble() >= 1 - activityProbability)
                 mote.enable(true);
         }
     }
@@ -177,7 +181,6 @@ public class Simulation {
 
 
     private void setupSimulation(Predicate<Environment> pred) {
-        Random random = new Random();
         this.timeMap = new HashMap<>();
 
         setupMotesActivationStatus();
@@ -225,12 +228,12 @@ public class Simulation {
 
         this.getEnvironment().getMotes().forEach(mote -> {
             LocalDateTime reversingTime = this.getEnvironment().getClock().getTime()
-                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(new Random().nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
+                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(random.nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
             mote.reverseDirection();
             this.getEnvironment().getClock().addTrigger(reversingTime, () -> {
                 mote.reverseDirection();
                 return this.getEnvironment().getClock().getTime()
-                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(new Random().nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
+                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(random.nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
             });
         });
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));

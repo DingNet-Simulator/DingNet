@@ -123,7 +123,7 @@ public class Mote extends NetworkEntity {
     public Mote(long DevEUI, double xPos, double yPos, int transmissionPower, int SF,
                 List<MoteSensor> moteSensors, int energyLevel, Path path, double movementSpeed, Environment environment) {
         this(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path, movementSpeed,
-            Math.abs((new Random()).nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET, environment);
+            Math.abs(environment.getRandom().nextInt(5)), DEFAULT_PERIOD_SENDING_PACKET, DEFAULT_START_SENDING_OFFSET, environment);
     }
 
 

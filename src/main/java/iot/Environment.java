@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -18,6 +19,8 @@ import java.util.stream.Stream;
 public class Environment implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private final Random random = new Random(42);
 
 
     /**
@@ -164,6 +167,10 @@ public class Environment implements Serializable {
 
     public MapHelper getMapHelper() {
         return this.mapHelper;
+    }
+
+    public Random getRandom(){
+        return this.random;
     }
 
 

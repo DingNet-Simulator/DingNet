@@ -325,3 +325,4 @@ buildNumber.properties
 # Custom
 
 .idea/vcs.xml
+*.xml

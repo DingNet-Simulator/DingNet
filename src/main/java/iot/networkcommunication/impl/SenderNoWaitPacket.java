@@ -33,10 +33,11 @@ public class SenderNoWaitPacket implements Sender {
      * TODO thing if set the seed or put inside the moveTo method
      * A Random necessary for the gaussian in the model.
      */
-    private final Random random = new Random();
+    private final Random random;
 
 
     public SenderNoWaitPacket(NetworkEntity sender, Environment environment) {
+        random = environment.getRandom();
         reset();
         this.env = environment;
         this.sender = sender;
@@ -53,7 +54,7 @@ public class SenderNoWaitPacket implements Sender {
                     "but max size allowed with this regional parameter is: " + regionalParameter.getMaximumPayloadSize());
             }
             var timeOnAir = computeTimeOnAir(packet);
-            var stream = receivers.stream()
+            var stream = receivers.parallelStream()
                 .map(r -> new Pair<>(r,
                     new LoraTransmission(sender.getEUI(), r.getID(), sender.getPos(), moveTo(r.getReceiverPosition(), transmissionPower),
                         regionalParameter, timeOnAir, env.getClock().getTime(), packet)))

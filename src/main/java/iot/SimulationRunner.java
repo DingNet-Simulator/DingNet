@@ -66,7 +66,7 @@ public class SimulationRunner {
         QoS.putAdaptationGoal("energyConsumption", new ThresholdAdaptationGoal(0.0));
         QoS.putAdaptationGoal("collisionBound", new ThresholdAdaptationGoal(0.0));
 
-        simulation = new Simulation();
+        simulation = new Simulation(environment.getRandom());
         inputProfiles = loadInputProfiles();
 
         // Loading all the algorithms
