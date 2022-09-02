@@ -1,6 +1,6 @@
 package iot.networkentity;
 
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 import util.Path;

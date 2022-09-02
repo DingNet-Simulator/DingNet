@@ -61,12 +61,16 @@ public class SocketMqttClient implements MqttClientBasicApi {
     }
     @Override
     public void connect() {
-        try {
-            serverSocket = new ServerSocket(4032);
-            socket = serverSocket.accept();
-            incoming = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            outgoing = new PrintWriter(socket.getOutputStream(), true);
+
             Thread sent = new Thread(() -> {
+                try {
+                serverSocket = new ServerSocket(4032);
+                socket = serverSocket.accept();
+                incoming = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                outgoing = new PrintWriter(socket.getOutputStream(), true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                     while(true){
                         try {
@@ -96,9 +100,7 @@ public class SocketMqttClient implements MqttClientBasicApi {
                     }
             });
             sent.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Override

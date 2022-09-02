@@ -6,7 +6,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import gui.mapviewer.CharacteristicPainter;
 import gui.mapviewer.LinePainter;
 import gui.util.AbstractConfigurePanel;
-import iot.Characteristic;
+import iot.environment.Characteristic;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;

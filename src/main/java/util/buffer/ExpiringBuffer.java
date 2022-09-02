@@ -18,7 +18,7 @@ public class ExpiringBuffer<T> implements Buffer<T>{
     @Override
     public void add(T item) {
         queue.add(item);
-        clock.addTriggerOneShot(clock.getTime().plusSeconds(expirationTime),() ->{expire(item);});
+        clock.addTriggerOneShot(clock.getTime().plusSeconds(expirationTime),() -> expire(item));
     }
 
     @Override

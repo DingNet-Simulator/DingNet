@@ -1,11 +1,13 @@
-package iot;
+package iot.environment;
 
+import iot.GlobalClock;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.NetworkEntity;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.*;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,6 +55,11 @@ public class Environment implements Serializable {
     private CharacteristicsMap characteristics;
 
     /**
+     * The actual map containing weather in the environment.
+     */
+    private WeatherMap weather;
+
+    /**
      * The number of zones in the configuration.
      */
     private int numberOfZones;
@@ -66,6 +73,9 @@ public class Environment implements Serializable {
      * A way to represent the flow of time in the environment.
      */
     private GlobalClock clock;
+
+
+    private final File moteDataFile= new File("C:\\Users\\michi\\Documents\\github\\LifeLongSelfAdaptationSystem\\moteData.txt");
 
 
     private GraphStructure graph;
@@ -104,16 +114,17 @@ public class Environment implements Serializable {
         this.mapHelper = new MapHelper(this.origin);
 
         numberOfRuns = 1;
+        this.weather = new WeatherMap(characteristics.getMaxXPos(), characteristics.getMaxYPos(), 15,15);
     }
 
-    public static int getMapWidth() {
+    public static double getMapWidth() {
         if (maxXpos == -1) {
             throw new IllegalStateException("map not already initialized");
         }
         return maxXpos;
     }
 
-    public static int getMapHeight() {
+    public static double getMapHeight() {
         if (maxYpos == -1) {
             throw new IllegalStateException("map not already initialized");
         }
@@ -370,6 +381,16 @@ public class Environment implements Serializable {
         this.graph = graph;
     }
 
+    public File getMoteDataFile() {
+        return moteDataFile;
+    }
 
+    public WeatherMap getWeather() {
+        return weather;
+    }
+
+    public int getWeatherChangeInterval() {
+        return 10800;
+    }
 }
 

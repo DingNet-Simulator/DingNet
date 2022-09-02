@@ -54,11 +54,16 @@ public class GlobalClock {
      */
     public void reset() {
         time = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
-        triggers = Collections.synchronizedMap(new HashMap<>());
+        triggers = new HashMap<>();
     }
 
     public boolean containsTriggers(LocalDateTime time) {
-        return triggers.containsKey(time);
+        boolean containsTriggers;
+        synchronized (triggers) {
+            containsTriggers =  triggers.containsKey(time);
+
+        }
+        return containsTriggers;
     }
 
     public long addTrigger(LocalDateTime time, Supplier<LocalDateTime> trigger) {

@@ -1,8 +1,7 @@
 package util;
 
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.Waypoint;
 
 import java.util.*;
 import java.util.function.Function;

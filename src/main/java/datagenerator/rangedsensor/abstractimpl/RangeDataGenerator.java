@@ -6,12 +6,10 @@ import datagenerator.SensorDataGenerator;
 import datagenerator.rangedsensor.api.Cell;
 import datagenerator.rangedsensor.api.RangeValue;
 import datagenerator.rangedsensor.api.TimeUnit;
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Pair;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +37,8 @@ abstract public class RangeDataGenerator implements SensorDataGenerator {
     private final Map<Integer, List<Cell>> map;
 
     public RangeDataGenerator(AbstractSensorConfigSpec<?, ?> sensorConfig) {
-        width = Environment.getMapWidth();
-        height = Environment.getMapHeight();
+        width = (int) Environment.getMapWidth();
+        height = (int) Environment.getMapHeight();
         Config config = new BaseConfig();
         config.addSpec(sensorConfig.SPEC);
         config = config.from().toml.inputStream(this.getClass().getResourceAsStream(getConfigFilePath()));

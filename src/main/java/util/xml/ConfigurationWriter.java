@@ -1,36 +1,24 @@
 package util.xml;
 
 import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
-import iot.Environment;
+import iot.environment.Environment;
 import iot.SimulationRunner;
 import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import util.Connection;
 import util.GraphStructure;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.OutputStreamWriter;
-import java.util.List;
 
 public class ConfigurationWriter {
-    private static IdRemapping idRemapping = new IdRemapping();
 
 
     public static void saveConfigurationToFile(File file, SimulationRunner simulationRunner) {
-        idRemapping.reset();
 
         try {
 
@@ -39,7 +27,7 @@ public class ConfigurationWriter {
 
             // root element
             XMLOutputFactory output = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer = new IndentingXMLStreamWriter(output.createXMLStreamWriter(new FileOutputStream(file),"UTF-8"));
+            XMLStreamWriter writer = new IndentingXMLStreamWriter(output.createXMLStreamWriter(new BufferedOutputStream(new FileOutputStream(file)),"UTF-8"));
             writer.writeStartDocument();
             writer.writeStartElement("configuration");
 
@@ -98,8 +86,7 @@ public class ConfigurationWriter {
 
             for (var me : wayPoints.entrySet()) {
                 writer.writeStartElement("wayPoint");
-                long newId = idRemapping.addWayPoint(me.getKey(), me.getValue());
-                writer.writeAttribute("id",Long.toString(newId));
+                writer.writeAttribute("id",Long.toString(me.getKey()));
                 var wayPoint = me.getValue();
                 writer.writeCharacters(wayPoint.getLatitude() + "," + wayPoint.getLongitude());
                 writer.writeEndElement();
@@ -121,14 +108,10 @@ public class ConfigurationWriter {
                 long originalId = me.getKey();
                 Connection conn = me.getValue();
 
-                long newFromId = idRemapping.getNewWayPointId(conn.getFrom());
-                long newToId = idRemapping.getNewWayPointId(conn.getTo());
-
                 // Not really necesary here to make a new connection, but it's a bit awkward to put null here
-                long newId = idRemapping.addConnection(originalId, new Connection(newFromId, newToId));
-                writer.writeAttribute("id",Long.toString(newId));
-                writer.writeAttribute("src",Long.toString(newFromId));
-                writer.writeAttribute("dst",Long.toString(newToId));
+                writer.writeAttribute("id",Long.toString(originalId));
+                writer.writeAttribute("src",Long.toString(conn.getFrom()));
+                writer.writeAttribute("dst",Long.toString(conn.getTo()));
 
                 writer.writeEndElement();
             }
@@ -194,6 +177,7 @@ public class ConfigurationWriter {
 
             writer.writeEndElement();
             writer.writeEndDocument();
+            writer.flush();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -221,7 +205,8 @@ public class ConfigurationWriter {
             writer.writeStartElement("location");
             writer.writeStartElement("waypoint");
             GeoPosition position = mote.getOriginalPos();
-            writer.writeAttribute("id",Long.toString(graph.getClosestWayPoint(position)));
+            //writer.writeAttribute("id",Long.toString(graph.getClosestWayPoint(position)));
+            writer.writeCharacters(position.getLatitude() + "," + position.getLongitude());
             writer.writeEndElement();
             writer.writeEndElement();
 
@@ -334,7 +319,7 @@ public class ConfigurationWriter {
         void writeDestinationElement(XMLStreamWriter writer) throws XMLStreamException {
             GeoPosition destinationPos = ((UserMote) mote).getDestination();
             writer.writeStartElement("destination");
-            writer.writeAttribute("id",Long.toString(idRemapping.getNewWayPointId(graph.getClosestWayPoint(destinationPos))));
+            writer.writeAttribute("id",Long.toString(graph.getClosestWayPoint(destinationPos)));
             writer.writeEndElement();
         }
 

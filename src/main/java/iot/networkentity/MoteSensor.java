@@ -4,7 +4,7 @@ import datagenerator.*;
 import datagenerator.rangedsensor.iaqsensor.IAQDataGeneratorSingleton;
 import datagenerator.rangedsensor.no2sensor.NO2DataGeneratorSingleton;
 import datagenerator.rangedsensor.pm10sensor.PM10DataGeneratorSingleton;
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 
 import java.time.LocalDateTime;

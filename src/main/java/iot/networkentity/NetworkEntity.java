@@ -1,7 +1,7 @@
 package iot.networkentity;
 
 
-import iot.Environment;
+import iot.environment.Environment;
 import iot.lora.*;
 import iot.networkcommunication.api.Receiver;
 import iot.networkcommunication.api.Sender;
@@ -9,12 +9,12 @@ import iot.networkcommunication.impl.ReceiverWaitPacket;
 import iot.networkcommunication.impl.SenderNoWaitPacket;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
-import util.MapHelper;
 import util.Pair;
 import util.Statistics;
 
 import java.io.Serializable;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +32,7 @@ public abstract class NetworkEntity implements Serializable {
     // An unsinged long representing the 64 bit unique identifier.
     private final long EUI;
 
-    private boolean record = false;
+    private boolean record = true;
 
     private GeoPosition pos;
 
@@ -135,9 +135,20 @@ public abstract class NetworkEntity implements Serializable {
             Statistics.getInstance().addReceivedTransmissionsEntry(this.getEUI(), transmission);
         }
         if (!transmission.isCollided()) {
-            handleMacCommands(transmission.getContent());
-            OnReceive(transmission);
+            transmission.moveTo(getEnvironment());
+            if(packetStrengthHighEnough(transmission)) {
+
+                handleMacCommands(transmission.getContent());
+                OnReceive(transmission);
+            }
         }
+    }
+
+    /**
+     * Checks if a transmission is strong enough to be received.
+     */
+    private boolean packetStrengthHighEnough(LoraTransmission transmission) {
+        return transmission.getTransmissionPower() > RxSensitivity.getReceiverSensitivity(transmission.getRegionalParameter());
     }
 
     /**
@@ -263,27 +274,30 @@ public abstract class NetworkEntity implements Serializable {
     /**
      * A method which sends a message to all gateways in the environment
      * @param message The message to send.
+     * @return
      */
-    protected void send(LoraWanPacket message) {
+    protected List<Pair<Long,Pair<Double,Boolean>>> send(LoraWanPacket message) {
         Environment environment = this.getEnvironment();
+        List<Pair<Long,Pair<Double,Boolean>>> transmission_data = new ArrayList<>();
 
         var recs = Stream.concat(environment.getGateways().stream(), environment.getMotes().stream())
             .filter(ne -> filterLoraSend(ne, message))
             .map(NetworkEntity::getReceiver)
             .collect(Collectors.toSet());
         if(!sender.isTransmitting()) {
-            sender.send(message, recs)
-                .ifPresent(t -> {
+            sender.send(message, recs).ifPresentOrElse(t -> {
                     if(record) {
                         Statistics statistics = Statistics.getInstance();
                         statistics.addPowerSettingEntry(this.getEUI(), environment.getClock().getTime().toEpochSecond(ZoneOffset.UTC), getTransmissionPower());
                         statistics.addSpreadingFactorEntry(this.getEUI(), this.getSF());
                         statistics.addSentTransmissionsEntry(this.getEUI(), t);
                     }
-                });
+                    transmission_data.add(new Pair<>(t.getReceiver(), new Pair<>(t.getTransmissionPower(), t.isCollided())));
+                },()->transmission_data.add(new Pair<>(getEUI(), new Pair<>(-1000.0, true))));
         }else{
             environment.getClock().addTriggerOneShot(sender.getCurrentTransmittingTime(),() ->this.send(message));
         }
+        return transmission_data;
     }
 
     public Receiver getReceiver() {

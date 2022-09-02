@@ -1,7 +1,9 @@
 package iot.networkcommunication.impl;
 
 import iot.GlobalClock;
+import iot.environment.Characteristic;
 import iot.lora.LoraTransmission;
+import iot.lora.RxSensitivity;
 import iot.networkcommunication.api.Receiver;
 import iot.networkentity.NetworkEntity;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -23,8 +25,7 @@ public class ReceiverWaitPacket implements Receiver {
     private final double transmissionPowerThreshold;
     private Consumer<LoraTransmission> consumerPacket;
 
-    private List<LoraTransmission> transmissions = Collections.synchronizedList(new LinkedList<>());
-    private List<LoraTransmission> transmissionsWithPossibleCollision = Collections.synchronizedList(new LinkedList<>());
+    private List<LoraTransmission> transmissionsWithPossibleCollision = new LinkedList<>();
 
     private GlobalClock clock;
 
@@ -58,7 +59,6 @@ public class ReceiverWaitPacket implements Receiver {
             if (!collidedTransmissions.isEmpty()) {
                 transmission.setCollided();
             }
-            transmissions.add(transmission);
             transmissionsWithPossibleCollision.add(transmission);
         }
         clock.addTriggerOneShot(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS), () -> {
@@ -66,7 +66,8 @@ public class ReceiverWaitPacket implements Receiver {
             synchronized (transmissionsWithPossibleCollision) {
                 transmissionsWithPossibleCollision.remove(transmission);
             }
-            consumerPacket.accept(transmission);
+
+                consumerPacket.accept(transmission);
         });
     }
 
@@ -97,6 +98,7 @@ public class ReceiverWaitPacket implements Receiver {
 
     @Override
     public void reset() {
-        transmissions.clear();
+        transmissionsWithPossibleCollision.clear();
     }
+
 }

@@ -1,7 +1,7 @@
 package application.pollution;
 
 import application.Application;
-import iot.Environment;
+import iot.environment.Environment;
 import iot.lora.LoraWanPacket;
 import iot.lora.MessageType;
 import iot.mqtt.Topics;

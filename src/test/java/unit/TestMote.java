@@ -1,8 +1,8 @@
 package unit;
 
-import iot.Characteristic;
-import iot.CharacteristicsMap;
-import iot.Environment;
+import iot.environment.Characteristic;
+import iot.environment.CharacteristicsMap;
+import iot.environment.Environment;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import org.junit.jupiter.api.Test;

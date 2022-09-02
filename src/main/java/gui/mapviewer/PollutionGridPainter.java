@@ -1,7 +1,7 @@
 package gui.mapviewer;
 
 import application.pollution.PollutionGrid;
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -39,8 +39,8 @@ public class PollutionGridPainter extends AbstractPainter<JXMapViewer> {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
 
-        int maxX = environment.getMaxXpos() + 1;
-        int maxY = environment.getMaxYpos() + 1;
+        long maxX = environment.getMaxXpos() + 1;
+        long maxY = environment.getMaxYpos() + 1;
 
         // Can decide to be more fine grained later on
         final int DIVISION = SettingsReader.getInstance().getPollutionGridSquares();

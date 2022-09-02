@@ -1,6 +1,6 @@
 package iot.strategy.response.gateway;
 
-import iot.Environment;
+import iot.environment.Environment;
 import iot.lora.LoraWanPacket;
 import iot.networkentity.Gateway;
 

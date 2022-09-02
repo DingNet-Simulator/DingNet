@@ -2,7 +2,7 @@ package gui.util;
 
 import gui.mapviewer.LinePainter;
 import gui.mapviewer.MoteWayPoint;
-import iot.Environment;
+import iot.environment.Environment;
 import iot.networkentity.UserMote;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.Waypoint;

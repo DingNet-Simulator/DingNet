@@ -8,7 +8,7 @@ import de.westnordost.osmapi.OsmConnection;
 import de.westnordost.osmapi.overpass.OverpassMapDataApi;
 import gui.util.AbstractConfigurePanel;
 import gui.util.CompoundPainterBuilder;
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;
 import util.MapHelper;

@@ -1,7 +1,7 @@
 package gui.util;
 
 import gui.MainGUI;
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.cache.FileBasedLocalCache;

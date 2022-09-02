@@ -3,7 +3,7 @@ package gui.util;
 import application.pollution.PollutionGrid;
 import application.routing.RoutingApplication;
 import gui.mapviewer.*;
-import iot.Environment;
+import iot.environment.Environment;
 import iot.networkentity.UserMote;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.CompoundPainter;

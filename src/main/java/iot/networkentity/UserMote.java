@@ -1,7 +1,7 @@
 package iot.networkentity;
 
 import datagenerator.SensorDataGenerator;
-import iot.Environment;
+import iot.environment.Environment;
 import iot.GlobalClock;
 import iot.lora.BasicFrameHeader;
 import iot.lora.LoraWanPacket;
@@ -13,7 +13,6 @@ import util.Converter;
 import util.Path;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.LinkedList;
 import java.util.List;

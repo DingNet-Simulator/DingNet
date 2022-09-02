@@ -3,7 +3,7 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import iot.Environment;
+import iot.environment.Environment;
 import iot.InputProfile;
 import iot.networkentity.Mote;
 

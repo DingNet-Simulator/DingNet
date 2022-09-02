@@ -4,9 +4,9 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import datagenerator.rangedsensor.api.TimeUnit;
 import gui.util.*;
 import iot.*;
+import iot.environment.Environment;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import org.jfree.chart.ChartPanel;
@@ -32,7 +32,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -122,12 +121,17 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private int packetsLost;
     private int averageLatency;
 
+    private boolean visual = false;
+
+    private boolean moveMap = false;
+
 
     public static void main(String[] args) {
         SimulationRunner simulationRunner = SimulationRunner.getInstance();
 
         SwingUtilities.invokeLater(() -> {
             mapViewer.setTileFactory(tileFactory);
+            System.out.println(SettingsReader.getInstance().getThreadPoolSize());
             tileFactory.setThreadPoolSize(SettingsReader.getInstance().getThreadPoolSize());
 
             if (SettingsReader.getInstance().useMapCaching()) {
@@ -317,6 +321,52 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         }
     }
 
+    private class TimedRunListener implements SimulationUpdateListener{
+
+       private MainGUI mainGUI;
+
+       public TimedRunListener(MainGUI mainGUI){
+           this.mainGUI = mainGUI;
+       }
+
+        @Override
+        public void update() {
+
+        }
+
+        @Override
+        public void onEnd() {
+            try {
+                SwingUtilities.invokeAndWait(()->mainGUI.refreshMap());
+            } catch (InterruptedException | InvocationTargetException ex) {
+                ex.printStackTrace();
+            }
+            mainGUI.setEnabledRunButtons(true);
+
+        }
+
+        @Override
+        public void update(LocalDateTime time, long simulationDuration, ChronoUnit timeUnit) {
+            setProgressTotalRun(new Pair<>((int) (time.toEpochSecond(ZoneOffset.UTC)/60), (int) (simulationDuration*timeUnit.getDuration().toMinutes())));
+        }
+    }
+
+    /**
+        * Update the progress bar of a timed run.
+        * @param progress The progress so far (left: current index, right: total time in minutes).
+        */
+    private void setProgressTimedRun(Pair<Integer, Integer> progress) {
+        totalRunProgressBar.setMinimum(0);
+        totalRunProgressBar.setMaximum(progress.getRight());
+        totalRunProgressBar.setValue(progress.getLeft());
+        progressLabel.setText(progress.getLeft() + "/" + progress.getRight());
+
+        // If the runs have finished, re enable the run buttons
+        if (progress.getRight().equals(progress.getLeft())) {
+            this.setEnabledRunButtons(true);
+        }
+    }
+
     void setRelCom(IntervalAdaptationGoal intervalAdaptationGoal) {
         Simulation simulation = simulationRunner.getSimulation();
         QualityOfService QoS = simulationRunner.getQoS();
@@ -353,7 +403,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     }
 
 
-    private void setEnabledRunButtons(boolean state) {
+    protected void setEnabledRunButtons(boolean state) {
         this.singleRunButton.setEnabled(state);
         this.timedRunButton.setEnabled(state);
         this.totalRunButton.setEnabled(state);
@@ -532,15 +582,15 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     private void loadMap(boolean refresh) {
         Environment environment = simulationRunner.getEnvironment();
 
+
         if (!refresh) {
             mapViewer.setAddressLocation(environment.getMapCenter());
             mapViewer.setZoom(5);
         }
-
         mapViewer.setOverlayPainter(new CompoundPainterBuilder()
-            .withPollutionGrid(environment, simulationRunner.getPollutionGrid())
-            .withRoutingPath(environment, simulationRunner.getRoutingApplication())
-            .withMotePaths(environment)
+            //.withPollutionGrid(environment, simulationRunner.getPollutionGrid())
+            //.withRoutingPath(environment, simulationRunner.getRoutingApplication())
+            //.withMotePaths(environment)
             .withMotes(environment)
             .withGateways(environment)
             .build()
@@ -569,8 +619,11 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
     /**
      * Refresh the map.
      */
-    private void refreshMap() {
-        loadMap(true);
+    protected void refreshMap() {
+        if(visual) {
+            loadMap(true);
+        }
+
     }
 
     // endregion
@@ -1055,7 +1108,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
                 break;
             case Timed:
                 simulationRunner.setupTimedRun();
-                simulationRunner.simulate(this.simulationSpeed, this);
+                simulationRunner.simulate(this.simulationSpeed, new TimedRunListener(this));
                 break;
             case Multi:
                 simulationRunner.totalRun(this::setProgressTotalRun);

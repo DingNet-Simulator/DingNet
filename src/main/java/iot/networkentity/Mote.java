@@ -1,6 +1,6 @@
 package iot.networkentity;
 
-import iot.Environment;
+import iot.environment.Environment;
 import iot.GlobalClock;
 import iot.lora.*;
 import iot.strategy.consume.ConsumePacketStrategy;
@@ -8,6 +8,7 @@ import iot.strategy.store.MaintainLastPacket;
 import iot.strategy.store.ReceivedPacketStrategy;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.MapHelper;
+import util.Pair;
 import util.Path;
 
 import java.util.*;
@@ -92,7 +93,7 @@ public class Mote extends NetworkEntity {
      */
 
     public Mote(long DevEUI, double xPos, double yPos, int transmissionPower,
-                int SF, List<MoteSensor> moteSensors, int energyLevel, Path path,
+                int SF, List<MoteSensor> moteSensors, int energyLevel,  Path path,
                 double movementSpeed, int startMovementOffset, int periodSendingPacket, int startSendingOffset, Environment environment) {
         super(DevEUI, xPos, yPos, transmissionPower, SF, 1.0, environment);
         OverTheAirActivation();
@@ -242,7 +243,7 @@ public class Mote extends NetworkEntity {
 
     private void resetKeepAliveTrigger(int offset) {
         GlobalClock clock = this.getEnvironment().getClock();
-
+        /*
         if (keepAliveTriggerId != -1L) {
             clock.removeTrigger(keepAliveTriggerId);
         }
@@ -260,7 +261,10 @@ public class Mote extends NetworkEntity {
                     new BasicFrameHeader().setFCnt(incrementFrameCounter()), new LinkedList<>());
                 sendToGateWay(packet);
             }
+
         );
+
+         */
     }
 
     /**
@@ -275,21 +279,24 @@ public class Mote extends NetworkEntity {
     /**
      * A function for sending a packet to the gateways.
      * @param packet the packet to send
+     * @return
      */
-    public void sendToGateWay(LoraWanPacket packet) {
+    public List<Pair<Long,Pair<Double,Boolean>>> sendToGateWay(LoraWanPacket packet) {
         // Send the packet if either:
         //  - It is the first packet ever sent
         //  - It is a heartbeat message
         //  - It does not equal the last transmission (to filter out duplicates)
+        List<Pair<Long,Pair<Double,Boolean>>> transmission_data = new ArrayList<>();
         if ((lastPacketSent == null && packet.getPayload().length > 0) ||   //is the first packet
             (packet.getPayload().length > 1 &&
                 (packet.getPayload()[0] == MessageType.KEEPALIVE.getCode() ||
                     !Arrays.equals(lastPacketSent.getPayload(), packet.getPayload())))) {
-            send(packet);
+            transmission_data = send(packet);
             canReceive = true;
             lastPacketSent = packet;
             resetKeepAliveTrigger(0);
         }
+        return transmission_data;
     }
 
     protected LoraWanPacket composePacket(Byte[] data, Map<MacCommand, Byte[]> macCommands) {

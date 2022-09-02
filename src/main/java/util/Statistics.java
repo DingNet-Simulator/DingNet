@@ -12,6 +12,8 @@ public class Statistics {
 
     private int runNumber = 0;
 
+    private final int memorysize = 1000;
+
     // A list representing the power setting of every transmission.
     private final Map<Long, List<PowerSettingDataPoint>> powerSettingHistory;
 
@@ -40,6 +42,9 @@ public class Statistics {
         initIfAbsent(powerSettingHistory, networkEntity);
         var lists = powerSettingHistory.get(networkEntity);
         lists.add(new PowerSettingDataPoint(this.runNumber, timeInSeconds, powerSetting));
+        if(lists.size() > memorysize) {
+            lists.remove(lists.iterator().next());
+        }
     }
 
     public void addSpreadingFactorEntry(NetworkEntity networkEntity, int entry) {
@@ -50,6 +55,9 @@ public class Statistics {
         initIfAbsent(spreadingFactorHistory, networkEntity);
         var lists = spreadingFactorHistory.get(networkEntity);
         lists.add(new SpreadingFactorDataPoint(this.runNumber, entry));
+        if(lists.size() > memorysize) {
+            lists.remove(lists.iterator().next());
+        }
     }
 
     public void addReceivedTransmissionsEntry(NetworkEntity networkEntity, LoraTransmission entry) {
@@ -63,6 +71,9 @@ public class Statistics {
             }
             var lists = receivedTransmissions.get(networkEntity);
             lists.add(new LoraTransmissionDataPoint(runNumber, entry));
+            if(lists.size() > memorysize) {
+                lists.remove(lists.iterator().next());
+            }
         }
     }
 
@@ -71,9 +82,13 @@ public class Statistics {
     }
 
     public void addSentTransmissionsEntry(long networkEntity, LoraTransmission entry) {
+
         initIfAbsent(sentTransmissions, networkEntity);
         var lists = sentTransmissions.get(networkEntity);
         lists.add(new LoraTransmissionDataPoint(runNumber, entry));
+        if(lists.size() > memorysize) {
+            lists.remove(lists.iterator().next());
+        }
     }
 
     private <E> void initIfAbsent(Map<Long, List<E>> map, long id) {

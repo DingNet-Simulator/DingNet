@@ -1,18 +1,17 @@
 package iot;
 
 import datagenerator.SensorDataGenerator;
+import iot.environment.Environment;
 import iot.networkentity.Gateway;
 import iot.networkentity.Mote;
 import iot.networkentity.MoteSensor;
 import selfadaptation.feedbackloop.GenericFeedbackLoop;
-import util.TimeHelper;
 
 import java.lang.ref.WeakReference;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * A class representing a simulation.
@@ -21,7 +20,6 @@ public class Simulation {
 
     // region fields
 
-    private final Random random;
     /**
      * The InputProfile used in the simulation.
      */
@@ -49,8 +47,7 @@ public class Simulation {
 
     // region constructors
 
-    public Simulation(Random random) {
-        this.random = random;
+    public Simulation() {
     }
 
     // endregion
@@ -133,7 +130,7 @@ public class Simulation {
             double activityProbability = 1;
             if (moteProbabilities.contains(i))
                 activityProbability = this.inputProfile.getProbabilityForMote(i);
-            if (random.nextDouble() >= 1 - activityProbability)
+            if (getEnvironment().getRandom().nextDouble() >= 1 - activityProbability)
                 mote.enable(true);
         }
     }
@@ -205,10 +202,25 @@ public class Simulation {
                         .flatMap(s -> s.getValueAsList(getEnvironment(),mote.getPathPosition(), this.getEnvironment().getClock().getTime()).stream())
                         .toArray(Byte[]::new),
                     new HashMap<>());
-                return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket());//+ (long)(mote.getPeriodSendingPacket()* random.nextGaussian()*0.5));
+                return this.getEnvironment().getClock().getTime().plusSeconds(mote.getPeriodSendingPacket() + (long)(mote.getPeriodSendingPacket()* getEnvironment().getRandom().nextGaussian()*0.25));
             });
         });
 
+        /**this.getEnvironment().getClock().addTrigger(this.getEnvironment().getClock().getTime().plusSeconds(this.getEnvironment().getWeatherChangeInterval()),()->{
+            int column = 0;
+            int row = 0;
+            while(column < getEnvironment().getWeather().getAmountOfColumns()) {
+                while (row < getEnvironment().getWeather().getAmountOfColumns()) {
+                    if (getEnvironment().getRandom().nextBoolean() == true){
+                        getEnvironment().getWeather().randomChange(getEnvironment().getRandom(),column,row);
+                    }
+                    row ++;
+                }
+                column ++;
+            }
+            return this.getEnvironment().getClock().getTime().plusSeconds(this.getEnvironment().getWeatherChangeInterval());
+        });
+         **/
         this.continueSimulation = pred;
     }
 
@@ -228,12 +240,12 @@ public class Simulation {
 
         this.getEnvironment().getMotes().forEach(mote -> {
             LocalDateTime reversingTime = this.getEnvironment().getClock().getTime()
-                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(random.nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
+                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(getEnvironment().getRandom().nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
             mote.reverseDirection();
             this.getEnvironment().getClock().addTrigger(reversingTime, () -> {
                 mote.reverseDirection();
                 return this.getEnvironment().getClock().getTime()
-                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(random.nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
+                    .plus(Math.max(1,(long) (mote.getStartMovementOffset()+inputProfile.getRepeatingTime()*(getEnvironment().getRandom().nextGaussian()))), inputProfile.getRepeatingTimeTimeUnit());
             });
         });
         this.setupSimulation((env) -> env.getClock().getTime().isBefore(finalTime));

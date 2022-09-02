@@ -6,24 +6,128 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import gui.util.AbstractConfigurePanel;
 import gui.util.CompoundPainterBuilder;
+import iot.networkentity.LifeLongMote;
 import iot.networkentity.Mote;
+import iot.networkentity.MoteFactory;
+import iot.networkentity.MoteSensor;
 import org.jxmapviewer.viewer.GeoPosition;
+import util.Connection;
+import util.GraphStructure;
+import util.Pair;
+import util.Path;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConfigureMotePanel extends AbstractConfigurePanel {
     private JPanel mainPanel;
     private JPanel drawPanel;
+    private JButton generateRandomMotesButton;
+
+    private Random random;
+    private GraphStructure graph;
+    private List<Connection> connections;
+    List<Long> currentWayPoints = new LinkedList<>();
+    Map<Long, Pair<LinkedList<Long>,GeoPosition>> endWaypoints;
 
     public ConfigureMotePanel(MainGUI mainGUI) {
         super(mainGUI, 5);
+        random = environment.getRandom();
         mapViewer.addMouseListener(new MapMouseAdapter(this));
         loadMap(false);
+        graph = mainGUI.getEnvironment().getGraph();
+        generateRandomMotesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Integer amountOfMotes = Integer.parseInt(JOptionPane.showInputDialog("How many random motes do you wish to create?"));
+                for(int i = 0; i< amountOfMotes; i++){
+                    LifeLongMote llsaCompliantMote = MoteFactory.createLLSACompliantMote(Long.parseUnsignedLong(Long.toUnsignedString(random.nextLong())),
+                        new Pair<>(environment.getMaxXpos()*random.nextDouble(),environment.getMaxYpos()*random.nextDouble()),
+                        14,
+                        12, 20, 1+ random.nextDouble()*2,
+                        0,  120 +random.nextInt(500),
+                        random.nextInt(20), Arrays.asList(MoteSensor.PARTICULATE_MATTER,MoteSensor.CARBON_DIOXIDE,MoteSensor.OZONE),
+                        new Path(new LinkedList<>()), 120+ random.nextInt(600),
+                        60 + random.nextInt(200),
+                        environment);
+                    environment.addMote(llsaCompliantMote);
+                    GeoPosition motePosition = llsaCompliantMote.getPos();
+                    long wayPointID = graph.getClosestWayPoint(motePosition);
+                    currentWayPoints.add(wayPointID);
+                    endWaypoints = new HashMap<>();
+                    graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size()-1)).forEach(conn -> endWaypoints.put(conn.getTo(),new Pair<>(new LinkedList<>(Collections.singleton(conn.getTo())),graph.getWayPoint(conn.getTo()))));
+
+                        int choices = 150+random.nextInt(150);
+                        for(int j = 0; j < choices; j++){
+                            List<Pair<LinkedList<Long>,GeoPosition>> options = new ArrayList<>(endWaypoints.values());
+                            Collections.shuffle(options);
+                            LinkedList<Long> choice = options.get(0).getLeft();
+                            int k = 0;
+                            while(currentWayPoints.contains(choice.getLast()) && k < options.size()) {
+                                Collections.shuffle(options);
+                                choice = options.get(0).getLeft();
+                                k++;
+                            }
+
+                            currentWayPoints.addAll(choice.subList(1,choice.size()));
+                            computePossiblePaths();
+
+                        }
+                    Path path = new Path(new LinkedList<>());
+
+                    currentWayPoints.forEach(o -> path.addPosition(graph.getWayPoint(o)));
+                    llsaCompliantMote.setPath(path);
+                }
+            }
+        });
+    }
+
+    private void computePossiblePaths(){
+        connections = graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size() - 1));
+
+        Long currentWaypoint = currentWayPoints.get(currentWayPoints.size()-1);
+        Long initialWaypoint = currentWaypoint;
+        LinkedList<Long> previousWaypoints = new LinkedList<>();
+        int connectionIndex = 0;
+        List<Connection> originalConnections = new ArrayList<>(connections);
+        Connection connection = originalConnections.get(connectionIndex);
+        endWaypoints = new HashMap<>();
+
+        while(connectionIndex < originalConnections.size()){
+            previousWaypoints.add(currentWaypoint);
+
+            currentWaypoint = connection.getTo();
+
+            if (graph.getOutgoingConnections(currentWaypoint).size() == 2) {
+                if(graph.getOutgoingConnections(currentWaypoint).get(0).getTo() != previousWaypoints.getLast()){
+                    connections.add(graph.getOutgoingConnections(currentWaypoint).get(0));
+                    connection = graph.getOutgoingConnections(currentWaypoint).get(0);
+                } else {
+                    connections.add(graph.getOutgoingConnections(currentWaypoint).get(1));
+                    connection = graph.getOutgoingConnections(currentWaypoint).get(1);
+                }
+            }else{
+                previousWaypoints.add(currentWaypoint);
+                endWaypoints.put(originalConnections.get(connectionIndex).getTo(), new Pair<>(previousWaypoints,graph.getWayPoint(currentWaypoint)));
+                connectionIndex ++;
+                if(connectionIndex < originalConnections.size()){
+                    connection = originalConnections.get(connectionIndex);
+                }
+                currentWaypoint = initialWaypoint;
+                previousWaypoints = new LinkedList<>();
+            }
+        }
+
+        // Filter out the previous connection, in case at least one connection has already been made
+        if (currentWayPoints.size() > 1) {
+            connections = connections.stream()
+                .filter(o -> o.getTo() != currentWayPoints.get(currentWayPoints.size() - 2))
+                .collect(Collectors.toList());
+        }
     }
 
     protected void loadMap(boolean isRefresh) {

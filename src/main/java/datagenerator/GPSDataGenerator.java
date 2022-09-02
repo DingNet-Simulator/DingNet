@@ -1,12 +1,10 @@
 package datagenerator;
 
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Converter;
-import util.Pair;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 public class GPSDataGenerator implements SensorDataGenerator {
 

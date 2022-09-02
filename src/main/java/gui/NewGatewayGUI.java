@@ -5,7 +5,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import gui.util.GUIUtil;
 import gui.util.Refreshable;
-import iot.Environment;
+import iot.environment.Environment;
 import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.GraphStructure;

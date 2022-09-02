@@ -1,11 +1,9 @@
 package datagenerator;
 
-import iot.Environment;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
-import util.Pair;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 /**
  * An abstract class representing all sensor data generators

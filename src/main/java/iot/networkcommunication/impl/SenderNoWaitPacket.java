@@ -1,7 +1,8 @@
 package iot.networkcommunication.impl;
 
-import iot.Characteristic;
-import iot.Environment;
+import iot.environment.Characteristic;
+import iot.environment.Environment;
+import iot.environment.WeatherMap;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
 import iot.lora.RegionalParameter;
@@ -56,9 +57,8 @@ public class SenderNoWaitPacket implements Sender {
             var timeOnAir = computeTimeOnAir(packet);
             var stream = receivers.parallelStream()
                 .map(r -> new Pair<>(r,
-                    new LoraTransmission(sender.getEUI(), r.getID(), sender.getPos(), moveTo(r.getReceiverPosition(), transmissionPower),
-                        regionalParameter, timeOnAir, env.getClock().getTime(), packet)))
-                .filter(p -> packetStrengthHighEnough(p.getRight().getTransmissionPower()));
+                    new LoraTransmission(sender.getEUI(), r.getID(), sender.getPos(), r.getReceiverPosition(), transmissionPower,
+                        regionalParameter, timeOnAir, env.getClock().getTime(), packet)));
 
             var filteredSet = stream.collect(Collectors.toSet());
 
@@ -107,74 +107,6 @@ public class SenderNoWaitPacket implements Sender {
         payloadSymbNb = 8 + Math.max(payloadSymbNb, 0);
         var tPayload = payloadSymbNb * tSym;
         return tPayload + tPreamble;
-    }
-
-    /**
-     * Moves a transmission to a given position, while adapting the transmission power.
-     * @param pos the position of the receiver
-     * @param transmissionPower the initial transmission power
-     * @return
-     */
-    private double moveTo(GeoPosition pos, double transmissionPower) {
-        return moveTo(env.getMapHelper().toMapXCoordinate(pos),env.getMapHelper().toMapYCoordinate(pos), transmissionPower);
-    }
-
-    /**
-     * Moves a transmission to a given position, while adapting the transmission power.
-     * @param xDestPos  The x-coordinate of the destination.
-     * @param yDestPos  The y-coordinate of the destination.
-     * @param transmissionPower the initial transmission power
-     * @return the transmission
-     */
-    private double moveTo(double xDestPos, double yDestPos, double transmissionPower) {
-
-        int xPos = (int) Math.round(xDestPos);
-        int yPos = (int) Math.round(yDestPos);
-        int senderX = (int) Math.round(env.getMapHelper().toMapXCoordinate(sender.getPos()));
-        int senderY = (int) Math.round(env.getMapHelper().toMapYCoordinate(sender.getPos()));
-        int xDist = Math.abs(xPos - senderX);
-        int yDist = Math.abs(yPos - senderY);
-        int xDir;
-        int yDir;
-        Characteristic characteristic = null;
-        while (transmissionPower > -300 && xDist + yDist > 0) {
-            xDist = Math.abs(xPos - senderX);
-            yDist = Math.abs(yPos - senderY);
-            xDir = (int) Math.signum(xPos - senderX);
-            yDir = (int) Math.signum(yPos - senderY);
-            characteristic = env.getCharacteristic(xPos, yPos);
-
-            if (xDist + yDist > 1) {
-                if (xDist >  2 * yDist || yDist >  2 * xDist) {
-                    transmissionPower = transmissionPower - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1));
-                    if (xDist >  2 * yDist) {
-                        xPos = xPos - xDir;
-                    } else {
-                        yPos = yPos - yDir;
-                    }
-                } else {
-                    transmissionPower = transmissionPower - 10 * characteristic.getPathLossExponent() * (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - Math.sqrt(2)));
-                    xPos = xPos - xDir;
-                    yPos = yPos - yDir;
-                }
-            } else if (xDist + yDist == 1) {
-                if (xDist >  yDist) {
-                    xPos = xPos - xDir;
-                } else {
-                    yPos = yPos - yDir;
-                }
-            }
-
-
-        }
-        return transmissionPower - random.nextGaussian() * ((characteristic == null) ? env.getCharacteristic(xPos, yPos) : characteristic).getShadowFading();
-    }
-
-    /**
-     * Checks if a transmission is strong enough to be received.
-     */
-    private boolean packetStrengthHighEnough(double transmissionPower) {
-        return transmissionPower > RxSensitivity.getReceiverSensitivity(regionalParameter);
     }
 
     @Override

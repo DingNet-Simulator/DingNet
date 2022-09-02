@@ -1,7 +1,7 @@
 package iot.networkentity;
 
 
-import iot.Environment;
+import iot.environment.Environment;
 import iot.SimulationRunner;
 import iot.lora.LoraTransmission;
 import iot.lora.LoraWanPacket;
@@ -11,7 +11,6 @@ import iot.mqtt.Topics;
 import iot.mqtt.TransmissionWrapper;
 import iot.strategy.response.gateway.ResponseStrategy;
 import iot.strategy.response.gateway.SendPacketImmediately;
-import org.jfree.data.json.impl.JSONObject;
 import org.jxmapviewer.viewer.GeoPosition;
 import selfadaptation.instrumentation.MoteProbe;
 

@@ -102,9 +102,9 @@ public class SimulationWriter {
 
             Element origin = doc.createElement("origin");
             Element xPos = doc.createElement("xPosition");
-            xPos.appendChild(doc.createTextNode(Double.toString(env.getMapHelper().toMapXCoordinate(transmission.getPos()))));
+            xPos.appendChild(doc.createTextNode(Double.toString(env.getMapHelper().toMapXCoordinate(transmission.getPositionSender()))));
             Element yPos = doc.createElement("yPosition");
-            yPos.appendChild(doc.createTextNode(Double.toString(env.getMapHelper().toMapYCoordinate(transmission.getPos()))));
+            yPos.appendChild(doc.createTextNode(Double.toString(env.getMapHelper().toMapYCoordinate(transmission.getPositionSender()))));
             origin.appendChild(xPos);
             origin.appendChild(yPos);
 

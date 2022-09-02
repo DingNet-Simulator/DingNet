@@ -1,6 +1,8 @@
 package iot.lora;
 
 
+import iot.environment.Characteristic;
+import iot.environment.Environment;
 import org.jxmapviewer.viewer.GeoPosition;
 import util.Pair;
 
@@ -8,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * A class representing a packet in the LoraWan simulation.
@@ -33,11 +36,14 @@ public class LoraTransmission implements Serializable {
     private double transmissionPower = 0.0;
 
     /**
-     * A GeoPosition representing the location of the packet.
+     * A GeoPosition representing the location of the sender of the packet at the time of transmission.
      */
-    private GeoPosition pos;
+    private GeoPosition positionSender;
 
-
+    /**
+     * A GeoPosition representing the location of the Receiver of the packet at the time of transmission.
+     */
+    private GeoPosition positionReceiver;
 
     /**
      * The content of the message.
@@ -69,6 +75,7 @@ public class LoraTransmission implements Serializable {
      * true if the transmission is collided to another one, false otherwise
      */
     private boolean collided;
+
     //endregion
 
     //region constructor
@@ -81,13 +88,14 @@ public class LoraTransmission implements Serializable {
      * @param transmissionPower The transmission power of the transmission.
      * @param content The content of the transmission.
      */
-    public LoraTransmission(long sender, long receiver, GeoPosition positionSender,
+    public LoraTransmission(long sender, long receiver, GeoPosition positionSender, GeoPosition positionReceiver,
                             double transmissionPower, RegionalParameter regionalParameter, double timeOnAir,
                             LocalDateTime departureTime, LoraWanPacket content) {
 
         this.sender = sender;
         this.receiver = receiver;
-        this.pos = positionSender;
+        this.positionSender = positionSender;
+        this.positionReceiver = positionReceiver;
         this.content = content;
         this.arrived = false;
         this.collided = false;
@@ -100,6 +108,7 @@ public class LoraTransmission implements Serializable {
         this.regionalParameter = regionalParameter;
         this.departureTime = departureTime;
         this.timeOnAir = timeOnAir;
+
     }
     //endregion
 
@@ -167,6 +176,10 @@ public class LoraTransmission implements Serializable {
         }
     }
 
+    public RegionalParameter getRegionalParameter() {
+        return regionalParameter;
+    }
+
     /**
      * Returns the bandwidth of the transmission.
      * @return  The bandwidth of the transmission.
@@ -227,11 +240,19 @@ public class LoraTransmission implements Serializable {
     }
 
     /**
-     * Returns the coordinates of the transmission.
+     * Returns the coordinates of the sender of the transmission at the time of transmission.
      * @return The coordinates of the transmission.
      */
-    public GeoPosition getPos() {
-        return pos;
+    public GeoPosition getPositionSender() {
+        return positionSender;
+    }
+
+    /**
+     * Returns the coordinates of the receiver of the transmission at the time of transmission.
+     * @return The coordinates of the transmission.
+     */
+    public GeoPosition getPositionReceiver() {
+        return positionReceiver;
     }
 
 
@@ -241,6 +262,69 @@ public class LoraTransmission implements Serializable {
      */
     public LoraWanPacket getContent() {
         return content;
+    }
+
+    /**
+     * Moves a transmission to a its destination position, while adapting the transmission power.
+     */
+    public void moveTo(Environment env) {
+        setTransmissionPower(moveTo(env.getMapHelper().toMapXCoordinate(getPositionReceiver()),env.getMapHelper().toMapYCoordinate(getPositionReceiver()), transmissionPower,env));
+    }
+
+    /**
+     * Moves a transmission to a given position, while adapting the transmission power.
+     * @param xDestPos  The x-coordinate of the destination.
+     * @param yDestPos  The y-coordinate of the destination.
+     * @param transmissionPower the initial transmission power
+     * @return the transmission
+     */
+    private double moveTo(double xDestPos, double yDestPos, double transmissionPower,Environment env) {
+
+        int xPos = (int) Math.round(xDestPos);
+        int yPos = (int) Math.round(yDestPos);
+        int senderX = (int) Math.round(env.getMapHelper().toMapXCoordinate(getPositionSender()));
+        int senderY = (int) Math.round(env.getMapHelper().toMapYCoordinate(getPositionSender()));
+        int xDist = Math.abs(xPos - senderX);
+        int yDist = Math.abs(yPos - senderY);
+        int xDir;
+        int yDir;
+        Characteristic characteristic = null;
+        while (transmissionPower > -300 && xDist + yDist > 0) {
+            xDist = Math.abs(xPos - senderX);
+            yDist = Math.abs(yPos - senderY);
+            xDir = (int) Math.signum(xPos - senderX);
+            yDir = (int) Math.signum(yPos - senderY);
+            characteristic = env.getCharacteristic(xPos, yPos);
+            //WeatherMap.WeatherType weatherCharacteristic = env.getWeather().getCharacteristic(xPos,yPos);
+
+            if (xDist + yDist > 1) {
+                if (xDist >  2 * yDist || yDist >  2 * xDist) {
+                    transmissionPower = transmissionPower - 10 * (characteristic.getPathLossExponent()
+                        //    +weatherCharacteristic.getPathLossExponent()
+                    )* (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1));
+                    if (xDist >  2 * yDist) {
+                        xPos = xPos - xDir;
+                    } else {
+                        yPos = yPos - yDir;
+                    }
+                } else {
+                    transmissionPower = transmissionPower - 10 * (characteristic.getPathLossExponent()
+                        //+weatherCharacteristic.getPathLossExponent()
+                    )* (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - Math.sqrt(2)));
+                    xPos = xPos - xDir;
+                    yPos = yPos - yDir;
+                }
+            } else if (xDist + yDist == 1) {
+                if (xDist >  yDist) {
+                    xPos = xPos - xDir;
+                } else {
+                    yPos = yPos - yDir;
+                }
+            }
+
+
+        }
+        return transmissionPower - env.getRandom().nextGaussian() * ((characteristic == null) ? env.getCharacteristic(xPos, yPos) : characteristic).getShadowFading();
     }
 
     //endregion
@@ -260,4 +344,5 @@ public class LoraTransmission implements Serializable {
     public int hashCode() {
         return Objects.hash(getSender(), getReceiver(), getContent(), getDepartureTime());
     }
+
 }

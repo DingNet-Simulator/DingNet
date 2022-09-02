@@ -76,11 +76,11 @@ public class ReliableEfficientDistanceGateway extends GenericFeedbackLoop {
              */
             List<LoraTransmission> receivedSignals = getGatewayBuffer().getReceivedSignals(mote);
             var env = SimulationRunner.getInstance().getEnvironment();
-            double shortestDistance = MapHelper.distance(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getPos(),receivedSignals.get(0).getPos());
+            double shortestDistance = MapHelper.distance(env.getNetworkEntityById(receivedSignals.get(0).getReceiver()).getPos(),receivedSignals.get(0).getPositionSender());
 
             for (LoraTransmission transmission: receivedSignals) {
-                if (shortestDistance > MapHelper.distance(env.getNetworkEntityById(transmission.getReceiver()).getPos(),transmission.getPos())) {
-                    shortestDistance = MapHelper.distance(env.getNetworkEntityById(transmission.getReceiver()).getPos(),transmission.getPos());
+                if (shortestDistance > MapHelper.distance(env.getNetworkEntityById(transmission.getReceiver()).getPos(),transmission.getPositionReceiver())) {
+                    shortestDistance = MapHelper.distance(env.getNetworkEntityById(transmission.getReceiver()).getPos(),transmission.getPositionReceiver());
                 }
             }
 

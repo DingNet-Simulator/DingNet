@@ -1,34 +1,21 @@
 package util.xml;
 
-import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
-import de.westnordost.osmapi.OsmConnection;
-import de.westnordost.osmapi.map.handler.MapDataHandler;
-import de.westnordost.osmapi.overpass.MapDataWithGeometryHandler;
-import de.westnordost.osmapi.overpass.OverpassMapDataApi;
-import iot.Characteristic;
-import iot.CharacteristicsMap;
-import iot.Environment;
+import iot.environment.Characteristic;
+import iot.environment.CharacteristicsMap;
+import iot.environment.Environment;
 import iot.SimulationRunner;
 import iot.networkentity.*;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 import util.*;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.*;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +28,7 @@ public class ConfigurationReader {
 
         try {
             XMLInputFactory input = XMLInputFactory.newInstance();
-            XMLEventReader reader = input.createXMLEventReader(new FileInputStream(file), "UTF-8");
+            XMLEventReader reader = input.createXMLEventReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8");
             // ---------------
             //      Map
             // ---------------
@@ -268,11 +255,21 @@ public class ConfigurationReader {
         Pair<Double, Double> getMapCoordinates() throws XMLStreamException {
             reader.nextEvent();
             reader.nextEvent();
-            GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(reader.nextEvent().asStartElement().getAttributeByName(QName.valueOf("id")).getValue()));
-            reader.nextEvent();
-            reader.nextEvent();
-            reader.nextEvent();
-            return environment.getMapHelper().toMapCoordinate(position);
+            Attribute waypointId = reader.nextEvent().asStartElement().getAttributeByName(QName.valueOf("id"));
+            String waypoint = reader.getElementText();
+            if(waypointId == null) {
+                double wayPointLatitude = Double.parseDouble(waypoint.split(",")[0]);
+                double wayPointLongitude = Double.parseDouble(waypoint.split(",")[1]);
+                reader.nextEvent();
+                reader.nextEvent();
+                return environment.getMapHelper().toMapCoordinate(new GeoPosition(wayPointLatitude, wayPointLongitude));
+            }else{
+                reader.nextEvent();
+                reader.nextEvent();
+                GeoPosition position = idRemapping.getWayPointWithOriginalId(Long.parseLong(waypointId.getValue()));
+                return environment.getMapHelper().toMapCoordinate(position);
+            }
+
         }
 
         int getTransmissionPower() throws XMLStreamException {

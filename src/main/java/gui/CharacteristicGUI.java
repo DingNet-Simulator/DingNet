@@ -3,9 +3,8 @@ package gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import iot.Characteristic;
-import iot.CharacteristicsMap;
-import iot.Environment;
+import iot.environment.Characteristic;
+import iot.environment.Environment;
 
 import javax.swing.*;
 import java.awt.*;

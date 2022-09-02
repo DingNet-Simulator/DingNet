@@ -1,23 +1,19 @@
 package iot.networkentity;
 
-import iot.Environment;
+import iot.environment.Environment;
 import iot.lora.EU868ParameterByDataRate;
 import iot.lora.LoraWanPacket;
-import iot.lora.MacCommand;
-import iot.lora.MessageType;
 import iot.strategy.consume.ChangeSettings;
-import iot.strategy.consume.ReplacePath;
+import org.jfree.data.json.impl.JSONObject;
 import util.MoteSettings;
 import util.Pair;
 import util.Path;
-import util.buffer.Buffer;
 import util.buffer.ExpiringBuffer;
 
+import java.io.*;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class LifeLongMote extends Mote{
@@ -31,9 +27,9 @@ public class LifeLongMote extends Mote{
         super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path,
             movementSpeed, startMovementOffset, periodSendingPacket, startSendingOffset,
             environment);
-        this.transmittingInterval = transmittingInterval;
+        setTransmittingInterval(transmittingInterval);
         this.isAllowedToTransmit = true;
-        this.expirationTime = expirationTime;
+        setExpirationTime(expirationTime);
     }
 
     public LifeLongMote(long DevEUI, double xPos, double yPos, int transmissionPower, int SF,
@@ -42,18 +38,24 @@ public class LifeLongMote extends Mote{
                         int expirationTime) {
         super(DevEUI, xPos, yPos, transmissionPower, SF, moteSensors, energyLevel, path,
             movementSpeed, environment);
-        this.transmittingInterval = transmittingInterval;
+        synchronized (this.transmittingInterval) {
+            this.transmittingInterval = transmittingInterval;
+        }
         this.isAllowedToTransmit = true;
-        this.expirationTime = expirationTime;
+        synchronized (this.expirationTime) {
+            this.expirationTime = expirationTime;
+        }
     }
-    private int expirationTime;
+    private Integer expirationTime = 0;
     private ExpiringBuffer<Pair<LoraWanPacket, LocalDateTime>> packetBuffer;
-    private boolean isAllowedToTransmit;
+    private Boolean isAllowedToTransmit;
     private byte packetCounter;
-    private int transmittingInterval;
+    private Integer transmittingInterval = 0;
 
-    public int getTransmittingInterval() {
-        return transmittingInterval;
+    public Integer getTransmittingInterval() {
+        synchronized (transmittingInterval){
+            return transmittingInterval;
+        }
     }
 
 
@@ -62,16 +64,32 @@ public class LifeLongMote extends Mote{
     }
 
     public boolean allowedToTransmit() {
-        return isAllowedToTransmit;
+        synchronized (isAllowedToTransmit) {
+            return isAllowedToTransmit;
+        }
     }
 
     public void allowTransmission(){
-        isAllowedToTransmit = true;
-        transmit();
+        synchronized (isAllowedToTransmit) {
+            isAllowedToTransmit = true;
+        }
+            transmit();
+    }
+    public void disallowTransmission(){
+        synchronized (isAllowedToTransmit) {
+            isAllowedToTransmit = false;
+        }
     }
 
     private void transmit(){
         if (allowedToTransmit()) {
+            getEnvironment().getClock().addTriggerOneShot(
+                getEnvironment().getClock().getTime().plusSeconds(getTransmittingInterval()),
+                ()-> {
+                    this.allowTransmission();
+                }
+
+            );
             if (!packetBuffer.isEmpty()) {
                 Pair<LoraWanPacket, LocalDateTime> packetInfo = packetBuffer.retrieve();
                 LoraWanPacket packet = packetInfo.getLeft();
@@ -86,39 +104,70 @@ public class LifeLongMote extends Mote{
                     newPayload[newPayload.length - 2] = packetCounter;
                     newPayload[newPayload.length - 1] = (byte) (ChronoUnit.SECONDS.between(packetInfo.getRight(), getEnvironment().getClock().getTime()) * 100 / getExpirationTime());
                     LoraWanPacket newPacket = new LoraWanPacket(packet.getSenderEUI(), packet.getReceiverEUI(), newPayload, packet.getFrameHeader(), packet.getMacCommands());
-                    super.sendToGateWay(newPacket);
-                    isAllowedToTransmit = false;
+                    JSONObject moteJsonObject = new JSONObject();
+
+                    List<JSONObject> tranmsissionList = new ArrayList<>();
+
+                    List<Pair<Long,Pair<Double,Boolean>>> transmissionDataList = super.sendToGateWay(newPacket);
+                    for (Pair<Long,Pair<Double,Boolean>> transmissionData : transmissionDataList){
+                        JSONObject json = new JSONObject();
+                        json.put("transmission_interval", getTransmittingInterval());
+                        json.put("transmission_power_setting", getTransmissionPower());
+                        json.put("expiration_time", getExpirationTime());
+                        json.put("latency", newPayload[newPayload.length - 1]);
+                        json.put("transmission_power", transmissionData.getRight().getLeft());
+                        json.put("departure_time", getEnvironment().getClock().getTime().toString());
+                        json.put("receiver",transmissionData.getLeft());
+                        json.put("collided", transmissionData.getRight().getRight());
+                        tranmsissionList.add(json);
+                    }
+                    moteJsonObject.put(getEUI(),tranmsissionList);
+                    try {
+                        FileOutputStream is = new FileOutputStream(getEnvironment().getMoteDataFile(),true);
+                        OutputStreamWriter osw = new OutputStreamWriter(is);
+                        Writer w = new BufferedWriter(osw);
+                        w.write(moteJsonObject.toJSONString());
+                        w.write("\n");
+                        w.flush();
+                    }catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    disallowTransmission();
                     packetCounter = (byte) ((packetCounter + 1) % 100);
                 }else{
                     super.sendToGateWay(packet);
                 }
             }
-            getEnvironment().getClock().addTriggerOneShot(
-                getEnvironment().getClock().getTime().plusSeconds(getTransmittingInterval()),
-                this::allowTransmission
-            );
+
         }
     }
 
     public void setTransmittingInterval(int newInterval){
-        this.transmittingInterval = newInterval;
+        synchronized (this.transmittingInterval) {
+            this.transmittingInterval = newInterval;
+        }
     }
 
 
     /**
      * A function for sending a packet to the gateways.
      * @param packet the packet to send
+     * @return
      */
     @Override
-    public void sendToGateWay(LoraWanPacket packet) {
+    public List<Pair<Long,Pair<Double,Boolean>>> sendToGateWay(LoraWanPacket packet) {
         packetBuffer.add(new Pair<>(packet, getEnvironment().getClock().getTime()));
         transmit();
+        return null;
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        packetBuffer= new ExpiringBuffer<>(getEnvironment().getClock(),expirationTime);
+        packetBuffer= new ExpiringBuffer<>(getEnvironment().getClock(),0);
         packetCounter = 0;
         isAllowedToTransmit = true;
         consumePacketStrategies.add(new ChangeSettings());
@@ -127,15 +176,19 @@ public class LifeLongMote extends Mote{
     }
 
 
-    public void setExpirationTime(int value) {
-        if(value > 0) {
-            this.expirationTime = value;
-            packetBuffer.setExpirationTime(expirationTime);
+    public void setExpirationTime(Integer value) {
+        synchronized (expirationTime) {
+            if (value > 0) {
+                this.expirationTime = value;
+                packetBuffer.setExpirationTime(expirationTime);
+            }
         }
     }
 
     public int getExpirationTime() {
-        return expirationTime;
+        synchronized (expirationTime){
+            return expirationTime;
+        }
     }
 
     public void setSettings(MoteSettings settings) {

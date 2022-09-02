@@ -1,6 +1,5 @@
 package iot.mqtt;
 
-import iot.Environment;
 import iot.networkentity.Gateway;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;

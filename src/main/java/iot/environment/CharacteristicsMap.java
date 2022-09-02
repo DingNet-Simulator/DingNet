@@ -1,19 +1,15 @@
-package iot;
+package iot.environment;
 
-import util.Pair;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class CharacteristicsMap {
 
     List<List<Characteristic>> characteristics;
     int maxXPos;
     int maxYPos;
-    double zoneWidth;
-    double zoneHeight;
+    long zoneWidth;
+    long zoneHeight;
     Characteristic defaultCharacteristic;
 
 

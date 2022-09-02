@@ -15,7 +15,7 @@ public class Path implements Iterable<GeoPosition> {
     private ArrayList<GeoPosition> points;
 
     public Path(){
-        this.points = new ArrayList<>();
+        this(new ArrayList<>());
     }
 
     public Path(List<GeoPosition> points) {
