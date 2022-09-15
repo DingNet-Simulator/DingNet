@@ -81,6 +81,13 @@ public class Path implements Iterable<GeoPosition> {
             return Optional.empty();
     }
 
+    public boolean hasPoint(int actualPointIndex){
+        if(actualPointIndex > -1 && actualPointIndex < getWayPoints().size())
+            return true;
+        else
+            return false;
+    }
+
     /**
      * Add a waypoint at the end of this path.
      * @param point The waypoint which is added at the end of the path.

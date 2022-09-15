@@ -40,48 +40,46 @@ public class ConfigureMotePanel extends AbstractConfigurePanel {
         mapViewer.addMouseListener(new MapMouseAdapter(this));
         loadMap(false);
         graph = mainGUI.getEnvironment().getGraph();
-        generateRandomMotesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Integer amountOfMotes = Integer.parseInt(JOptionPane.showInputDialog("How many random motes do you wish to create?"));
-                for(int i = 0; i< amountOfMotes; i++){
-                    LifeLongMote llsaCompliantMote = MoteFactory.createLLSACompliantMote(Long.parseUnsignedLong(Long.toUnsignedString(random.nextLong())),
-                        new Pair<>(environment.getMaxXpos()*random.nextDouble(),environment.getMaxYpos()*random.nextDouble()),
-                        14,
-                        12, 20, 1+ random.nextDouble()*2,
-                        0,  120 +random.nextInt(500),
-                        random.nextInt(20), Arrays.asList(MoteSensor.PARTICULATE_MATTER,MoteSensor.CARBON_DIOXIDE,MoteSensor.OZONE),
-                        new Path(new LinkedList<>()), 120+ random.nextInt(600),
-                        60 + random.nextInt(200),
-                        environment);
-                    environment.addMote(llsaCompliantMote);
-                    GeoPosition motePosition = llsaCompliantMote.getPos();
-                    long wayPointID = graph.getClosestWayPoint(motePosition);
-                    currentWayPoints.add(wayPointID);
-                    endWaypoints = new HashMap<>();
-                    graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size()-1)).forEach(conn -> endWaypoints.put(conn.getTo(),new Pair<>(new LinkedList<>(Collections.singleton(conn.getTo())),graph.getWayPoint(conn.getTo()))));
+        generateRandomMotesButton.addActionListener(e -> {
+            Integer amountOfMotes = Integer.parseInt(JOptionPane.showInputDialog("How many random motes do you wish to create?"));
+            for(int i = 0; i< amountOfMotes; i++){
+                int parameter = 120+ random.nextInt(1000);
+                LifeLongMote llsaCompliantMote = MoteFactory.createLLSACompliantMote(Long.parseUnsignedLong(Long.toUnsignedString(random.nextLong())),
+                    new Pair<>(environment.getMaxXpos()*random.nextDouble(),environment.getMaxYpos()*random.nextDouble()),
+                    14,
+                    12, 20, 1+ random.nextDouble()*2,
+                    0,  120 +random.nextInt(1000),
+                    random.nextInt(20), Arrays.asList(MoteSensor.PARTICULATE_MATTER,MoteSensor.CARBON_DIOXIDE,MoteSensor.OZONE),
+                    new Path(new LinkedList<>()), parameter,
+                    parameter+ 50,
+                    environment);
+                environment.addMote(llsaCompliantMote);
+                GeoPosition motePosition = llsaCompliantMote.getPos();
+                long wayPointID = graph.getClosestWayPoint(motePosition);
+                currentWayPoints.add(wayPointID);
+                endWaypoints = new HashMap<>();
+                graph.getOutgoingConnections(currentWayPoints.get(currentWayPoints.size()-1)).forEach(conn -> endWaypoints.put(conn.getTo(),new Pair<>(new LinkedList<>(Collections.singleton(conn.getTo())),graph.getWayPoint(conn.getTo()))));
 
-                        int choices = 150+random.nextInt(150);
-                        for(int j = 0; j < choices; j++){
-                            List<Pair<LinkedList<Long>,GeoPosition>> options = new ArrayList<>(endWaypoints.values());
+                    int choices = 150+random.nextInt(150);
+                    for(int j = 0; j < choices; j++){
+                        List<Pair<LinkedList<Long>,GeoPosition>> options = new ArrayList<>(endWaypoints.values());
+                        Collections.shuffle(options);
+                        LinkedList<Long> choice = options.get(0).getLeft();
+                        int k = 0;
+                        while(currentWayPoints.contains(choice.getLast()) && k < options.size()) {
                             Collections.shuffle(options);
-                            LinkedList<Long> choice = options.get(0).getLeft();
-                            int k = 0;
-                            while(currentWayPoints.contains(choice.getLast()) && k < options.size()) {
-                                Collections.shuffle(options);
-                                choice = options.get(0).getLeft();
-                                k++;
-                            }
-
-                            currentWayPoints.addAll(choice.subList(1,choice.size()));
-                            computePossiblePaths();
-
+                            choice = options.get(0).getLeft();
+                            k++;
                         }
-                    Path path = new Path(new LinkedList<>());
 
-                    currentWayPoints.forEach(o -> path.addPosition(graph.getWayPoint(o)));
-                    llsaCompliantMote.setPath(path);
-                }
+                        currentWayPoints.addAll(choice.subList(1,choice.size()));
+                        computePossiblePaths();
+
+                    }
+                Path path = new Path(new LinkedList<>());
+
+                currentWayPoints.forEach(o -> path.addPosition(graph.getWayPoint(o)));
+                llsaCompliantMote.setPath(path);
             }
         });
     }

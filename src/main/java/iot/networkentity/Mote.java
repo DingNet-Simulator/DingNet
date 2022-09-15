@@ -214,6 +214,10 @@ public class Mote extends NetworkEntity {
         return getPath().getPoint(getPathPositionIndex()+direction);
     }
 
+    public boolean hasNextPoint(){
+        return getPath().hasPoint(getPathPositionIndex()+direction);
+    }
+
     public void reverseDirection(){
         this.direction = -1 * this.direction;
     }
@@ -416,6 +420,6 @@ public class Mote extends NetworkEntity {
             return true;
         }
         //noinspection OptionalGetWithoutIsPresent(if the path is not empty the destination is present)
-        return getNextPathPoint().isEmpty();
+        return !hasNextPoint();
     }
 }

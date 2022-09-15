@@ -1120,8 +1120,6 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         Single, Timed, Multi
     }
 
-    ;
-
     // endregion
 
 

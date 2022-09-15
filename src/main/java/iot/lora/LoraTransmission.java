@@ -9,6 +9,8 @@ import util.Pair;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -280,50 +282,37 @@ public class LoraTransmission implements Serializable {
      */
     private double moveTo(double xDestPos, double yDestPos, double transmissionPower,Environment env) {
 
-        int xPos = (int) Math.round(xDestPos);
-        int yPos = (int) Math.round(yDestPos);
-        int senderX = (int) Math.round(env.getMapHelper().toMapXCoordinate(getPositionSender()));
-        int senderY = (int) Math.round(env.getMapHelper().toMapYCoordinate(getPositionSender()));
-        int xDist = Math.abs(xPos - senderX);
-        int yDist = Math.abs(yPos - senderY);
-        int xDir;
-        int yDir;
+        int xPos = (int) Math.round(env.getMapHelper().toMapXCoordinate(getPositionSender()));
+        int yPos = (int) Math.round(env.getMapHelper().toMapYCoordinate(getPositionSender()));
         Characteristic characteristic = null;
-        while (transmissionPower > -300 && xDist + yDist > 0) {
-            xDist = Math.abs(xPos - senderX);
-            yDist = Math.abs(yPos - senderY);
-            xDir = (int) Math.signum(xPos - senderX);
-            yDir = (int) Math.signum(yPos - senderY);
-            characteristic = env.getCharacteristic(xPos, yPos);
-            //WeatherMap.WeatherType weatherCharacteristic = env.getWeather().getCharacteristic(xPos,yPos);
+        int xDist = (int) Math.abs(xDestPos - xPos);
+        int yDist = (int) Math.abs(yDestPos - yPos);
+        int dx = (int) Math.abs(xDestPos- xPos);
+        int sx = (int) Math.signum(xDestPos -xPos);
+        int dy = - (int) Math.abs(yDestPos - yPos);
+        int sy = (int) Math.signum(yDestPos - yPos);
+        int error = dx + dy;
+        int e2;
 
-            if (xDist + yDist > 1) {
-                if (xDist >  2 * yDist || yDist >  2 * xDist) {
-                    transmissionPower = transmissionPower - 10 * (characteristic.getPathLossExponent()
-                        //    +weatherCharacteristic.getPathLossExponent()
-                    )* (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1));
-                    if (xDist >  2 * yDist) {
-                        xPos = xPos - xDir;
-                    } else {
-                        yPos = yPos - yDir;
-                    }
-                } else {
-                    transmissionPower = transmissionPower - 10 * (characteristic.getPathLossExponent()
-                        //+weatherCharacteristic.getPathLossExponent()
-                    )* (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - Math.sqrt(2)));
-                    xPos = xPos - xDir;
-                    yPos = yPos - yDir;
-                }
-            } else if (xDist + yDist == 1) {
-                if (xDist >  yDist) {
-                    xPos = xPos - xDir;
-                } else {
-                    yPos = yPos - yDir;
-                }
+        while (transmissionPower > -300 && !(xPos == xDestPos && yPos == yDestPos)) {
+            characteristic = env.getCharacteristic(xPos, yPos);
+            transmissionPower = transmissionPower - 10 * (characteristic.getPathLossExponent()
+                //    +weatherCharacteristic.getPathLossExponent()
+            )* (Math.log10(xDist + yDist) - Math.log10(xDist + yDist - 1));
+                e2 = 2 * error;
+            if (e2 >= dy && xPos != xDestPos) {
+                error = error + dy;
+                xPos = xPos + sx;
+                xDist -=1;
             }
 
-
+            if (e2 <= dx && yPos != yDestPos) {
+                error = error + dx;
+                yPos = yPos + sy;
+                yDist -= 1;
+            }
         }
+
         return transmissionPower - env.getRandom().nextGaussian() * ((characteristic == null) ? env.getCharacteristic(xPos, yPos) : characteristic).getShadowFading();
     }
 

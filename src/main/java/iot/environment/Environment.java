@@ -9,10 +9,7 @@ import util.*;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -75,7 +72,7 @@ public class Environment implements Serializable {
     private GlobalClock clock;
 
 
-    private final File moteDataFile= new File("C:\\Users\\michi\\Documents\\github\\LifeLongSelfAdaptationSystem\\moteData.txt");
+    private final File moteDataFile= new File("moteData.txt");
 
 
     private GraphStructure graph;
@@ -295,8 +292,9 @@ public class Environment implements Serializable {
         if (isValidXpos(xPos) && isValidYpos(yPos)) {
             return characteristics.getCharacteristic(xPos,yPos);
         } else {
-            return null;
+            return characteristics.defaultCharacteristic;
         }
+
     }
 
     /**
@@ -392,5 +390,6 @@ public class Environment implements Serializable {
     public int getWeatherChangeInterval() {
         return 10800;
     }
+
 }
 
