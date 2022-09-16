@@ -41,4 +41,6 @@ public interface Receiver {
      * reset the receiver to the initial state
      */
     void reset();
+
+    boolean isReceiving();
 }

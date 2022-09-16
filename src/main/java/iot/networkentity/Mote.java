@@ -147,7 +147,7 @@ public class Mote extends NetworkEntity {
 
     @Override
     boolean filterLoraSend(NetworkEntity networkEntity, LoraWanPacket packet) {
-        return !networkEntity.equals(this);
+        return Gateway.class.isInstance(networkEntity);
     }
 
     @Override
@@ -277,7 +277,9 @@ public class Mote extends NetworkEntity {
      * @param macCommands the MAC commands to include in the message.
      */
     public void sendToGateWay(Byte[] data, HashMap<MacCommand, Byte[]> macCommands) {
-        sendToGateWay(composePacket(data, macCommands));
+        if(!getReceiver().isReceiving()) {
+            sendToGateWay(composePacket(data, macCommands));
+        }
     }
 
     /**

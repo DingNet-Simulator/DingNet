@@ -68,6 +68,7 @@ public class SenderNoWaitPacket implements Sender {
                 .findFirst()
                 .map(Pair::getRight);
             for (Pair<Receiver,LoraTransmission> pair : filteredSet) {
+                pair.getRight().moveTo(env);
                 pair.getLeft().receive(pair.getRight());
             }
 

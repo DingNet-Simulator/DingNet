@@ -134,21 +134,12 @@ public abstract class NetworkEntity implements Serializable {
         if(record) {
             Statistics.getInstance().addReceivedTransmissionsEntry(this.getEUI(), transmission);
         }
+        if(getEnvironment().getMotes().contains(this)) {
+        }
         if (!transmission.isCollided()) {
-            transmission.moveTo(getEnvironment());
-            if(packetStrengthHighEnough(transmission)) {
-
                 handleMacCommands(transmission.getContent());
                 OnReceive(transmission);
-            }
         }
-    }
-
-    /**
-     * Checks if a transmission is strong enough to be received.
-     */
-    private boolean packetStrengthHighEnough(LoraTransmission transmission) {
-        return transmission.getTransmissionPower() > RxSensitivity.getReceiverSensitivity(transmission.getRegionalParameter());
     }
 
     /**
@@ -284,7 +275,7 @@ public abstract class NetworkEntity implements Serializable {
             .filter(ne -> filterLoraSend(ne, message))
             .map(NetworkEntity::getReceiver)
             .collect(Collectors.toSet());
-        if(!sender.isTransmitting()) {
+        if(!sender.isTransmitting() && !receiver.isReceiving()) {
             sender.send(message, recs).ifPresentOrElse(t -> {
                     if(record) {
                         Statistics statistics = Statistics.getInstance();
@@ -295,7 +286,9 @@ public abstract class NetworkEntity implements Serializable {
                     transmission_data.add(new Pair<>(t.getReceiver(), new Pair<>(t.getTransmissionPower(), t.isCollided())));
                 },()->transmission_data.add(new Pair<>(getEUI(), new Pair<>(-1000.0, true))));
         }else{
-            environment.getClock().addTriggerOneShot(sender.getCurrentTransmittingTime(),() ->this.send(message));
+            if(sender.isTransmitting()) {
+                environment.getClock().addTriggerOneShot(sender.getCurrentTransmittingTime(), () -> this.send(message));
+            }
         }
         return transmission_data;
     }

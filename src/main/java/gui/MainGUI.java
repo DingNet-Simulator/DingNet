@@ -472,7 +472,7 @@ public class MainGUI extends JFrame implements SimulationUpdateListener, Refresh
         for (Mote mote : environment.getMotes()) {
             textArea = new JTextArea();
             textArea.append(String.format("Mote %d:\n", environment.getMotes().indexOf(mote) + 1));
-            textArea.append(String.format("EUID: %s\n", Long.toUnsignedString(mote.getEUI())));
+            textArea.append(String.format("EUID: %s\n",mote.getEUI()));
 
             double latitude = mote.getPos().getLatitude();
             double longitude = mote.getPos().getLongitude();

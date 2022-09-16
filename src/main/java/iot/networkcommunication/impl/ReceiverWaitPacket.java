@@ -25,6 +25,9 @@ public class ReceiverWaitPacket implements Receiver {
     private final double transmissionPowerThreshold;
     private Consumer<LoraTransmission> consumerPacket;
 
+    private Integer isReceiving = 0;
+
+
     private List<LoraTransmission> transmissionsWithPossibleCollision = new LinkedList<>();
 
     private GlobalClock clock;
@@ -45,30 +48,47 @@ public class ReceiverWaitPacket implements Receiver {
     @Override
     public void receive(LoraTransmission transmission) {
         List<LoraTransmission> collidedTransmissions =new LinkedList<>();
-        synchronized (transmissionsWithPossibleCollision) {
-            Iterator<LoraTransmission> transmissionIterator = transmissionsWithPossibleCollision.listIterator();
-            while (transmissionIterator.hasNext()) {
-                LoraTransmission collidedTransmission = transmissionIterator.next();
-                if (collision(transmission, collidedTransmission)) {
-                    collidedTransmissions.add(collidedTransmission);
-                }
-            }
-            for (LoraTransmission collidedTransmission : collidedTransmissions) {
-                collidedTransmission.setCollided();
-            }
-            if (!collidedTransmissions.isEmpty()) {
-                transmission.setCollided();
-            }
-            transmissionsWithPossibleCollision.add(transmission);
-        }
-        clock.addTriggerOneShot(transmission.getDepartureTime().plus((long)transmission.getTimeOnAir(), ChronoUnit.MILLIS), () -> {
-            transmission.setArrived();
-            synchronized (transmissionsWithPossibleCollision) {
-                transmissionsWithPossibleCollision.remove(transmission);
+
+        if(packetStrengthHighEnough(transmission)) {
+            synchronized (isReceiving) {
+                isReceiving += 1;
             }
 
+            synchronized (transmissionsWithPossibleCollision) {
+                Iterator<LoraTransmission> transmissionIterator = transmissionsWithPossibleCollision.listIterator();
+                while (transmissionIterator.hasNext()) {
+                    LoraTransmission collidedTransmission = transmissionIterator.next();
+                    if (collision(transmission, collidedTransmission)) {
+                        collidedTransmissions.add(collidedTransmission);
+                    }
+                }
+                for (LoraTransmission collidedTransmission : collidedTransmissions) {
+                    collidedTransmission.setCollided();
+                }
+                if (!collidedTransmissions.isEmpty()) {
+                    transmission.setCollided();
+                }
+                transmissionsWithPossibleCollision.add(transmission);
+            }
+            clock.addTriggerOneShot(transmission.getDepartureTime().plus((long) transmission.getTimeOnAir(), ChronoUnit.MILLIS), () -> {
+                transmission.setArrived();
+                synchronized (transmissionsWithPossibleCollision) {
+                    transmissionsWithPossibleCollision.remove(transmission);
+                }
+                synchronized (isReceiving) {
+                    isReceiving -= 1;
+                }
+
                 consumerPacket.accept(transmission);
-        });
+            });
+        }
+    }
+
+    /**
+     * Checks if a transmission is strong enough to be received.
+     */
+    private boolean packetStrengthHighEnough(LoraTransmission transmission) {
+        return transmission.getTransmissionPower() > RxSensitivity.getReceiverSensitivity(transmission.getRegionalParameter());
     }
 
     /**
@@ -99,6 +119,11 @@ public class ReceiverWaitPacket implements Receiver {
     @Override
     public void reset() {
         transmissionsWithPossibleCollision.clear();
+    }
+
+    @Override
+    public boolean isReceiving() {
+        return isReceiving > 0;
     }
 
 }

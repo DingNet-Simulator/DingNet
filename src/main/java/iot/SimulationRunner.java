@@ -187,8 +187,8 @@ public class SimulationRunner {
      */
     private void setupSimulationRunner() {
         // Remove previous pollution measurements
-        pollutionGrid.clean();
-        routingApplication.clean();
+        //pollutionGrid.clean();
+        //routingApplication.clean();
 
         // Reset received transmissions in the networkServer
         this.networkServer.reset();
@@ -337,10 +337,11 @@ public class SimulationRunner {
      * Initialize all applications used in the simulation.
      */
     private void setupApplications() {
-        this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
+        /**this.pollutionMonitor = new PollutionMonitor(this.getEnvironment(), this.pollutionGrid);
         this.routingApplication = new RoutingApplication(
             new AStarRouter(new SimplePollutionHeuristic(pollutionGrid)), getEnvironment().getGraph(), environment
         );
+         */
     }
 
     // endregion
